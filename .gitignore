@@ -1,0 +1,16 @@
+*
+
+
+!src
+!src/**/
+
+!.gitignore
+!.clang-format
+
+
+
+!**/CMakeLists.txt
+!**/*.cpp
+!**/*.h
+!**/*.l
+!**/*.y
