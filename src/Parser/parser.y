@@ -5,8 +5,12 @@
     #include <string>
     #include "../../src/Logic/Headers/MainLogic.h"
     MainLogic logicApi;
+
     int yylex();
     int yyerror(char *s);
+    int counter = 0;
+    std::string parent;
+    char* mass;
 %}
 
 
@@ -34,18 +38,18 @@ request:
 
 ddl_actions:
     DDLCREATE table {
-        printf("ACTION = %s\n", $1);
+        logicApi.addActionName($1);
     }
     | DDLDROP table{
-        printf("ACTION = %s\n", $1);
+        logicApi.addActionName($1);
     }
     | DDLSHOW table{
-        printf("ACTION = %s\n", $1);
+        logicApi.addActionName($1);
     };
 
 table:
     TABLE STRING{
-        printf("TABLENAME = %s\n", $2);
+        logicApi.addTableName($2)
     }
     |table brackets;
 
@@ -55,10 +59,11 @@ brackets:
 
 inner_expr:
     STRING TYPE {
-	printf("VALNAME = %s\n TYPE = %s\n", $1, $2);
+	logicApi.addColumn($1, $2)
+
     }
     | inner_expr CONSTRAINT {
-    	printf("CONSTRAINT = %s\n", $2);
+    	logicApi.addConstraint($2);
     }
     | inner_expr COMMA inner_expr;
 
