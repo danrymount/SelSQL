@@ -3,12 +3,10 @@
     #include<stdlib.h>
     #include <iostream>
     #include <string>
-
+    #include "../../src/Logic/Headers/MainLogic.h"
+    MainLogic logicApi;
     int yylex();
     int yyerror(char *s);
-    int counter = 0;
-    std::string parent;
-    char* mass;
 %}
 
 
@@ -32,7 +30,7 @@
 %%
 
 request:
-    ddl_actions SEMICOLON {printf("END\n")}| request request;
+    ddl_actions SEMICOLON {logicApi.finish();}| request request;
 
 ddl_actions:
     DDLCREATE table {

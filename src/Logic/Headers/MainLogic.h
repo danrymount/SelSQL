@@ -11,12 +11,16 @@
 #include <string>
 #include "../../Utils/Headers/ParserUtils.h"
 #include "APILogic.h"
-//#include "/src/Utils/ParserUtils.h"
 
 class MainLogic : public APILogic {
+    int count = 0;
+
    public:
     void addColumn(char* name, char* type) override;
     void addConstraint(char* name) override;
+    void finish() override;
+    void addTableName(char* name) override;
+    void addActionName(char* name) override;
 };
 
 #endif  // SELSQL_MAINLOGIC_H
