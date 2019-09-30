@@ -13,4 +13,4 @@ ADD_FLEX_BISON_DEPENDENCY(Lexer Parser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS})
+add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} Utils/ParserUtils.cpp Utils/Headers/ParserUtils.h Utils/CommonUtils.cpp Utils/Headers/CommonUtils.h)
