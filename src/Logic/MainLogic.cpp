@@ -10,8 +10,14 @@ void MainLogic::addColumn(char* name, char* type) {
         table.fields.push_back(currentVariable);
         currentVariable.type = none;
     }
-    currentVariable.name = parserUtils.chrToString(name);
-    currentVariable.type = parserUtils.stringToType(parserUtils.chrToString(type));
+    if (checkName.find(parserUtils.chrToString(name)) == checkName.end()) {
+        currentVariable.constraints.erase(currentVariable.constraints.begin(), currentVariable.constraints.end());
+        checkName[parserUtils.chrToString(name)] = 1;
+        currentVariable.name = parserUtils.chrToString(name);
+        currentVariable.type = parserUtils.stringToType(parserUtils.chrToString(type));
+    } else {
+        showErrorName();
+    }
     // printf("VALNAME = %s, TYPE = %s\n", name, type);
 }
 
@@ -24,11 +30,12 @@ void MainLogic::addConstraint(char* name) {
             showError();
         }
     }
-    if (!flag)
-        currentVariable.constraints.push_back(tempConstraint);
+    if (!flag) currentVariable.constraints.push_back(tempConstraint);
     // printf("CONSTRAINT = %s\n", name);
 }
 void MainLogic::showError() { printf("ERROR CONSTRAINT"); }
+
+void MainLogic::showErrorName() { printf("ERROR NAME"); }
 
 void MainLogic::finish() {
     if (currentVariable.type != none) {
@@ -41,6 +48,7 @@ void MainLogic::finish() {
 void MainLogic::addTableName(char* name) {
     table.name.erase();
     table.fields.clear();
+    checkName.erase(checkName.begin(), checkName.end());
 
     table.name = parserUtils.chrToString(name);
     // printf("TABLENAME = %s\n", name);

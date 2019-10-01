@@ -17,8 +17,10 @@ class MainLogic : public APILogic {
     ParserUtils parserUtils;
     Table table;
     Variable currentVariable;
+    std::map<std::string, int> checkName;
 
     void showError();
+    void showErrorName();
 
    public:
     void addColumn(char* name, char* type) override;
