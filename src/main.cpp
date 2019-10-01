@@ -1,6 +1,8 @@
 
 #include "parser.cpp"
 int main() {
-    yyparse();
+    char request[] = "CREATE TABLE name(ID INT);";
+    parse_request(request);
+
     return 0;
 }

@@ -36,3 +36,11 @@ constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
 void showError(){
     printf("Other input");
 }
+
+void set_input_string(const char* in) {
+  yy_scan_string(in);
+}
+
+void end_string_scan(void) {
+  yy_delete_buffer(YY_CURRENT_BUFFER);
+}

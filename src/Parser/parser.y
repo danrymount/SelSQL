@@ -70,6 +70,17 @@ inner_expr:
 
 %%
 
+void set_input_string(const char* in);
+void end_string_scan(void);
+
+
+int parse_request(const char* in) {
+  set_input_string(in);
+  int res = yyparse();
+  end_string_scan();
+  return res;
+}
+
 int yyerror(char *s){
     printf("Syntax Error on line %s\n", s);
     return 0;
