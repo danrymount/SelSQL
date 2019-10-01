@@ -8,18 +8,20 @@
 #include <map>
 #include <string>
 #include <vector>
-enum TYPE { INT, FLOAT, BOOLEAN, CHAR };
+enum TYPE { none, INT, FLOAT, BOOLEAN, CHAR };
 
 enum CONSTRAINT { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
 struct Variable {
     TYPE type;
+    std::string name;
     std::vector<CONSTRAINT> constraints;
 };
 
 struct Table {
     std::string name;
-    std::map<std::string, Variable> fields;
+    // std::map<std::string, Variable> fields;
+    std::vector<Variable> fields;
 };
 
 #endif  // SELSQL_COMMONUTILS_H

@@ -14,6 +14,11 @@
 
 class MainLogic : public APILogic {
     int count = 0;
+    ParserUtils parserUtils;
+    Table table;
+    Variable currentVariable;
+
+    void showError();
 
    public:
     void addColumn(char* name, char* type) override;
