@@ -1,6 +1,8 @@
 
-#include <gtest/gtest.h>
-
+#include "parser.cpp"
 int main() {
-    return RUN_ALL_TESTS();
+    char request[] = "CREATE TABLE name(ID INT);";
+    parse_request(request);
+
+    return 0;
 }

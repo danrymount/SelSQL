@@ -13,8 +13,8 @@ ADD_FLEX_BISON_DEPENDENCY(Lexer Parser)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS}
-        Logic/Headers/APILogic.h Logic/MainLogic.cpp Logic/Headers/MainLogic.h
-        Utils/ParserUtils.cpp Utils/Headers/ParserUtils.h Utils/CommonUtils.cpp Utils/Headers/CommonUtils.h
-        Tests/Tests.cpp)
-target_link_libraries(SelSQL gtest gtest_main)
+FILE(GLOB Engine Engine/*.cpp Engine/Headers/*.h)
+FILE(GLOB Logic Logic/*.cpp Logic/Headers/*.h)
+FILE(GLOB Utils Utils/*.cpp Utils/Headers/*.h)
+
+add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils})
