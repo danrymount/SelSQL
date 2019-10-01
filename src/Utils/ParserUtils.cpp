@@ -22,6 +22,11 @@ CONSTRAINT ParserUtils::stringToConstraint(std::string name) {
     return mapOfConstraint[name];
 }
 
+ACTION ParserUtils::stringToAction(std::string name) {
+    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
+    return mapOfAction[name];
+}
+
 void ParserUtils::sendToEngine(const Table &table) {
     std::cout << "Table name = " << table.name << std::endl;
     for (const auto &field : table.fields) {

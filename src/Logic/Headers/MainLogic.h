@@ -17,15 +17,16 @@ class MainLogic : public APILogic {
     ParserUtils parserUtils;
     Table table;
     Variable currentVariable;
+    ACTION currentAction;
     std::map<std::string, int> checkName;
 
-    void showError();
-    void showErrorName();
+    static void showError();
+    static void showErrorName();
 
    public:
     void addColumn(char* name, char* type) override;
     void addConstraint(char* name) override;
-    void finish() override;
+    Table finish() override;
     void addTableName(char* name) override;
     void addActionName(char* name) override;
 };

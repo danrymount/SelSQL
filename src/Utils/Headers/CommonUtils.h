@@ -12,6 +12,8 @@ enum TYPE { none, INT, FLOAT, BOOLEAN, CHAR };
 
 enum CONSTRAINT { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
+enum ACTION { SHOW_CREATE, DROP, CREATE };
+
 struct Variable {
     TYPE type;
     std::string name;

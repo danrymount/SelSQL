@@ -4,10 +4,12 @@
     #include <iostream>
     #include <string>
     #include "../../src/Logic/Headers/MainLogic.h"
+    #include "../../src/Utils/Headers/CommonUtils.h"
     MainLogic logicApi;
 
     int yylex();
     int yyerror(char *s);
+    Table table;
 %}
 
 
@@ -32,7 +34,7 @@
 
 request:
     ddl_actions SEMICOLON {
-    	logicApi.finish();
+    	table = logicApi.finish();
     }
     | request request
 ;
@@ -74,11 +76,11 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-int parse_request(const char* in) {
+Table parse_request(const char* in) {
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
-  return res;
+  return table;
 }
 
 int yyerror(char *s){
