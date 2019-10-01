@@ -8,9 +8,6 @@
 
     int yylex();
     int yyerror(char *s);
-    int counter = 0;
-    std::string parent;
-    char* mass;
 %}
 
 
@@ -34,7 +31,11 @@
 %%
 
 request:
-    ddl_actions SEMICOLON {logicApi.finish();}| request request;
+    ddl_actions SEMICOLON {
+    	logicApi.finish();
+    }
+    | request request
+;
 
 ddl_actions:
     DDLCREATE table {
@@ -49,7 +50,7 @@ ddl_actions:
 
 table:
     TABLE STRING{
-        logicApi.addTableName($2)
+        logicApi.addTableName($2);
     }
     |table brackets;
 
@@ -59,8 +60,7 @@ brackets:
 
 inner_expr:
     STRING TYPE {
-	logicApi.addColumn($1, $2)
-
+	logicApi.addColumn($1, $2);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
@@ -69,8 +69,6 @@ inner_expr:
 
 
 %%
-
-
 
 int yyerror(char *s){
     printf("Syntax Error on line %s\n", s);
