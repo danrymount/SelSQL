@@ -7,7 +7,6 @@
     #include "../../src/Utils/Headers/CommonUtils.h"
     MainLogic logicApi;
 
-    #define YYERROR_VERBOSE
     int yylex();
     int yyerror(char *s);
     Table* table;
@@ -24,6 +23,8 @@
 %type <brackets> BRACKET
 %type <string> TYPE
 %type <string> CONSTRAINT
+
+%error-verbose
 
 %union{
     char string[20];
