@@ -11,11 +11,14 @@
 #include <string>
 #include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Headers/ParserUtils.h"
+#include "../../Utils/Headers/ActionsUtils.h"
 #include "APILogic.h"
 
 class MainLogic : public APILogic {
     ParserUtils parserUtils;
+    ActionsUtils actionsUtils;
     MainEngine engineApi;
+    int errorCode;
 
     Table* table;
     Variable currentVariable;
