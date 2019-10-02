@@ -43,3 +43,12 @@
 Вышеперечисленные команды и типы данных необходимо писать в одном регистре (верхнем/нижнем). Примеры:<br>
 Можно: **CREATE TABLE table (id int);**<br>
 Нельзя: **CReaTe taBle table (id InT);**
+
+
+
+
+**Установка.  
+GOOGLE TESTS.**
+1. Скачать библиотеку. https://github.com/google/googletest
+2. Распаковать в пакет {project_name}/lib
+

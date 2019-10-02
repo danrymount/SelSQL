@@ -8,4 +8,5 @@ add_subdirectory(src)
 
 add_subdirectory(Tests)
 
-
+add_subdirectory(lib/googletest-master)
+include_directories(lib/googletest-master/googletest/include)
