@@ -3,6 +3,7 @@
 
 !src
 !src/**/
+!Tests
 
 !.gitignore
 !.clang-format
