@@ -1,8 +1,10 @@
 
 #include "parser.cpp"
 int main() {
-    char request[] = "CREATE TABLE name(ID INT);";
-    parse_request(request);
-
-    return 0;
+    std::string str;
+    while (true) {
+        std::getline(std::cin, str);
+        parse_request(str.c_str());
+        printf("ENTER NEW COMMAND\n");
+    }
 }
