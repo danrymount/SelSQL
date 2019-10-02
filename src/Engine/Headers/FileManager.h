@@ -2,6 +2,7 @@
 #ifndef SELSQL_FILEMANAGER_H
 #define SELSQL_FILEMANAGER_H
 
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -20,6 +21,7 @@ class FileManager {
     int OpenFile(std::string table_name);
     int CreateFile(Table* table);
     Table* GetTableData(std::string table_name);
+    int DeleteTable(std::string table_name);
     explicit FileManager() = default;
 };
 

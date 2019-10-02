@@ -80,3 +80,7 @@ int FileManager::CreateFile(Table* table) {
     return 0;
 }
 Table* FileManager::GetTableData(std::string table_name) { return &table_data[table_name]; }
+
+int FileManager::DeleteTable(std::string table_name) {
+    return std::remove((table_name + Constants::FILE_TYPE).c_str());
+}
