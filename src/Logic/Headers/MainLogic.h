@@ -9,13 +9,15 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Headers/ParserUtils.h"
 #include "APILogic.h"
 
 class MainLogic : public APILogic {
-    int count = 0;
     ParserUtils parserUtils;
-    Table table;
+    MainEngine engineApi;
+
+    Table* table;
     Variable currentVariable;
     Action currentAction;
     std::map<std::string, int> checkName;
@@ -26,7 +28,7 @@ class MainLogic : public APILogic {
    public:
     void addColumn(char* name, char* type) override;
     void addConstraint(char* name) override;
-    Table finish() override;
+    Table* finish() override;
     void addTableName(char* name) override;
     void addActionName(char* name) override;
 };

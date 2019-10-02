@@ -6,7 +6,7 @@
 #include <string>
 void MainLogic::addColumn(char* name, char* type) {
     if (currentVariable.type != none) {
-        table.fields.push_back(currentVariable);
+        table->fields.push_back(currentVariable);
         currentVariable.type = none;
     }
     if (checkName.find(parserUtils.chrToString(name)) == checkName.end()) {
@@ -36,31 +36,50 @@ void MainLogic::showError() { printf("ERROR Constraint"); }
 
 void MainLogic::showErrorName() { printf("ERROR NAME"); }
 
-Table MainLogic::finish() {
+Table* MainLogic::finish() {
+    int errorCode = 0;
     if (currentVariable.type != none) {
-        table.fields.push_back(currentVariable);
+        table->fields.push_back(currentVariable);
         currentVariable.type = none;
     }
-    switch (currentAction){
-        case CREATE:{
-            //engineApi.CreateTable(table);
+    switch (currentAction) {
+        case CREATE: {
+            errorCode = engineApi.CreateTable(table);
+            if (errorCode) {
+                std::cout << "Table already exists" << std::endl;
+                return nullptr;
+            }
+            break;
         }
-        case SHOW_CREATE:{
-            //engineApi.CreateTable(table.name);
+        case SHOW_CREATE: {
+            table = engineApi.ShowCreateTable(table->name);
+            if (table == nullptr) {
+                std::cout << "Table doesnt exist" << std::endl;
+                return nullptr;
+            }
+            break;
         }
-        case DROP:{
-            //parserUtils.sendToEngine(table.name);
+        case DROP: {
+            errorCode = engineApi.DropTable(table->name);
+            // parserUtils.sendToEngine(table.name);
+            if (errorCode) {
+                std::cout << "Table doesnt exist" << std::endl;
+                return nullptr;
+            }
+            break;
         }
     }
+
     return table;
 }
 
 void MainLogic::addTableName(char* name) {
-    table.name.erase();
-    table.fields.clear();
+    table = new Table();
+    table->name.erase();
+    table->fields.clear();
     checkName.erase(checkName.begin(), checkName.end());
 
-    table.name = parserUtils.chrToString(name);
+    table->name = parserUtils.chrToString(name);
 }
 
 void MainLogic::addActionName(char* name) { currentAction = parserUtils.stringToAction(parserUtils.chrToString(name)); }

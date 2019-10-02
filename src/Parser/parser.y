@@ -9,7 +9,7 @@
 
     int yylex();
     int yyerror(char *s);
-    Table table;
+    Table* table;
 %}
 
 
@@ -76,7 +76,7 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-Table parse_request(const char* in) {
+Table* parse_request(const char* in) {
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
