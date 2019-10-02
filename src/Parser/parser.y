@@ -1,4 +1,5 @@
 %{
+    #define YYERROR_VERBOSE
     #include <stdio.h>
     #include <stdlib.h>
     #include <iostream>
@@ -8,10 +9,9 @@
     MainLogic logicApi;
 
     int yylex();
-    int yyerror(char *s);
-    Table* table;
+    int yyerror(const char *s);
+    Table* table = new Table();
 %}
-
 
 %token STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT
 
@@ -23,8 +23,6 @@
 %type <brackets> BRACKET
 %type <string> TYPE
 %type <string> CONSTRAINT
-
-%error-verbose
 
 %union{
     char string[20];
@@ -85,7 +83,7 @@ Table* parse_request(const char* in) {
   return table;
 }
 
-int yyerror(char *s){
+int yyerror(const char *s){
     printf("Syntax Error on line %s\n", s);
     return 0;
 }
