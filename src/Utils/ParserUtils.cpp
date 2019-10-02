@@ -12,17 +12,17 @@ std::string ParserUtils::chrToString(char *name) {
     return nullptr;
 }
 
-TYPE ParserUtils::stringToType(std::string name) {
+Type ParserUtils::stringToType(std::string name) {
     std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
     return mapOfType[name];
 }
 
-CONSTRAINT ParserUtils::stringToConstraint(std::string name) {
+Constraint ParserUtils::stringToConstraint(std::string name) {
     std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
     return mapOfConstraint[name];
 }
 
-ACTION ParserUtils::stringToAction(std::string name) {
+Action ParserUtils::stringToAction(std::string name) {
     std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
     return mapOfAction[name];
 }

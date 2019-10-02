@@ -9,12 +9,12 @@ void FileManager::WriteMetaData(Table* table) {
     for (auto& field : table->fields) {
         files_[table->name]->write(field.name.c_str(), Constants::META_BLOCK_COLUMN_NAME_SIZE);
         int constr_size = field.constraints.size();
-        int type = TYPE(field.type);
+        int type = Type(field.type);
         files_[table->name]->write(reinterpret_cast<char*>(&type), Constants::META_BLOCK_COLUMN_TYPE_SIZE);
         files_[table->name]->write(reinterpret_cast<char*>(&constr_size),
                                    Constants::META_BLOCK_COLUMN_CONSTR_AMOUNT_SIZE);
         for (auto constr : field.constraints) {
-            int contr_type = CONSTRAINT(constr);
+            int contr_type = Constraint(constr);
             files_[table->name]->write(reinterpret_cast<char*>(&contr_type), Constants::META_BLOCK_COLUMN_CONSTR_SIZE);
         }
     }
@@ -33,18 +33,18 @@ void FileManager::ReadMetaData(std::string table_name) {
         char var_name[Constants::META_BLOCK_COLUMN_NAME_SIZE];
         int type = 0;
         int constr_size = 0;
-        std::vector<CONSTRAINT> constraint;
+        std::vector<Constraint> constraint;
         files_[table_name]->read(var_name, Constants::META_BLOCK_COLUMN_NAME_SIZE);
         files_[table_name]->read(reinterpret_cast<char*>(&type), Constants::META_BLOCK_COLUMN_TYPE_SIZE);
         files_[table_name]->read(reinterpret_cast<char*>(&constr_size),
                                  Constants::META_BLOCK_COLUMN_CONSTR_AMOUNT_SIZE);
         var.name = std::string(var_name);
-        var.type = TYPE(type);
+        var.type = Type(type);
 
         for (int j = 0; j < constr_size; ++j) {
             int constr_type = 0;
             files_[table_name]->read(reinterpret_cast<char*>(&constr_type), Constants::META_BLOCK_COLUMN_CONSTR_SIZE);
-            constraint.emplace_back(CONSTRAINT(constr_type));
+            constraint.emplace_back(Constraint(constr_type));
         }
         var.constraints = constraint;
         fields.emplace_back(var);

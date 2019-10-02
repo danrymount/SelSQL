@@ -17,7 +17,7 @@ class MainLogic : public APILogic {
     ParserUtils parserUtils;
     Table table;
     Variable currentVariable;
-    ACTION currentAction;
+    Action currentAction;
     std::map<std::string, int> checkName;
 
     static void showError();

@@ -11,18 +11,18 @@
 #include "CommonUtils.h"
 
 class ParserUtils {
-    std::map<std::string, TYPE> mapOfType = {{"int", INT}, {"float", FLOAT}, {"boolean", BOOLEAN}, {"char", CHAR}};
-    std::map<std::string, CONSTRAINT> mapOfConstraint = {{"not", NOT_NULL},
+    std::map<std::string, Type> mapOfType = {{"int", INT}, {"float", FLOAT}, {"boolean", BOOLEAN}, {"char", CHAR}};
+    std::map<std::string, Constraint> mapOfConstraint = {{"not", NOT_NULL},
                                                          {"unique", UNIQUE},
                                                          {"primary", PRIMARY_KEY}};
 
-    std::map<std::string, ACTION> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP}};
+    std::map<std::string, Action> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP}};
 
    public:
     std::string chrToString(char *name);
-    TYPE stringToType(std::string name);
-    CONSTRAINT stringToConstraint(std::string name);
-    ACTION stringToAction(std::string name);
+    Type stringToType(std::string name);
+    Constraint stringToConstraint(std::string name);
+    Action stringToAction(std::string name);
     void sendToEngine(const Table &);
 };
 

@@ -17,11 +17,11 @@ void MainLogic::addColumn(char* name, char* type) {
     } else {
         showErrorName();
     }
-    // printf("VALNAME = %s, TYPE = %s\n", name, type);
+    // printf("VALNAME = %s, Type = %s\n", name, type);
 }
 
 void MainLogic::addConstraint(char* name) {
-    CONSTRAINT tempConstraint = parserUtils.stringToConstraint(parserUtils.chrToString(name));
+    Constraint tempConstraint = parserUtils.stringToConstraint(parserUtils.chrToString(name));
     int flag = 0;
     for (const auto& elem : currentVariable.constraints) {
         if (elem == tempConstraint) {
@@ -32,7 +32,7 @@ void MainLogic::addConstraint(char* name) {
     if (!flag)
         currentVariable.constraints.push_back(tempConstraint);
 }
-void MainLogic::showError() { printf("ERROR CONSTRAINT"); }
+void MainLogic::showError() { printf("ERROR Constraint"); }
 
 void MainLogic::showErrorName() { printf("ERROR NAME"); }
 
