@@ -1,12 +1,13 @@
 %{
-    #include<stdio.h>
-    #include<stdlib.h>
+    #include <stdio.h>
+    #include <stdlib.h>
     #include <iostream>
     #include <string>
     #include "../../src/Logic/Headers/MainLogic.h"
     #include "../../src/Utils/Headers/CommonUtils.h"
     MainLogic logicApi;
 
+    #define YYERROR_VERBOSE
     int yylex();
     int yyerror(char *s);
     Table* table;
