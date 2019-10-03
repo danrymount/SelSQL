@@ -26,4 +26,11 @@ struct Table {
     std::vector<Variable> fields;
 };
 
+struct Response{
+    Table table;
+    int code = 0;
+    std::string errorMsg;
+    std::string returnMsg;
+};
+
 #endif  // SELSQL_COMMONUTILS_H

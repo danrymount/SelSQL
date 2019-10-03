@@ -10,7 +10,7 @@
 
     int yylex();
     int yyerror(const char *s);
-    Table* table = new Table();
+    Response response;
 %}
 
 %token STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT
@@ -34,7 +34,7 @@
 
 request:
     ddl_actions SEMICOLON {
-    	table = logicApi.finish();
+    	response = logicApi.finish();
     }
     | request request
 ;
@@ -76,14 +76,20 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-Table* parse_request(const char* in) {
+Response parse_request(const char* in) {
+  Response temp;
+  response = temp;
+
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
-  return table;
+  response.code = response.code || res;
+  std::cerr << response.code << ',' << res << std::endl;
+  return response;
 }
 
 int yyerror(const char *s){
+    response.errorMsg = s;
     printf("Syntax Error on line %s\n", s);
     return 0;
 }

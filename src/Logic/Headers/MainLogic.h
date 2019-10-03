@@ -18,9 +18,9 @@ class MainLogic : public APILogic {
     ParserUtils parserUtils;
     ActionsUtils actionsUtils;
     MainEngine engineApi;
+    Response response;
     int errorCode;
 
-    Table* table;
     Variable currentVariable;
     Action currentAction;
     std::map<std::string, int> checkName;
@@ -31,7 +31,7 @@ class MainLogic : public APILogic {
    public:
     void addColumn(char* name, char* type) override;
     void addConstraint(char* name) override;
-    Table* finish() override;
+    Response finish() override;
     void addTableName(char* name) override;
     void addActionName(char* name) override;
 };
