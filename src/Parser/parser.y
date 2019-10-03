@@ -84,7 +84,6 @@ Response parse_request(const char* in) {
   int res = yyparse();
   end_string_scan();
   response.code = response.code || res;
-  std::cerr << response.code << ',' << res << std::endl;
   return response;
 }
 
