@@ -50,6 +50,7 @@ void FileManager::ReadMetaData(std::string table_name) {
     table.name = std::string(name);
     table.fields = fields;
     table_data[table_name] = table;
+    files_[table_name]->close();
 }
 int FileManager::OpenFile(std::string table_name) {
     files_[table_name] = new std::fstream(table_name + Constants::FILE_TYPE,
@@ -82,5 +83,8 @@ int FileManager::CreateFile(Table* table) {
 Table* FileManager::GetTableData(std::string table_name) { return &table_data[table_name]; }
 
 int FileManager::DeleteTable(std::string table_name) {
+    if (files_.find(table_name) != files_.end()) {
+        files_.erase(table_name);
+    }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
