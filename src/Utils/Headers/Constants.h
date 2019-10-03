@@ -6,6 +6,10 @@
 class Constants {
    public:
     inline static const std::string FILE_TYPE = ".selDB";
+    inline static const std::string ERR_TABLE_EXISTS = "Table already exists";
+    inline static const std::string ERR_TABLE_NOT_EXISTS = "Table doesn`t exist";
+
+
     static const int MD_TABLE_NAME_SIZE = 256;
     static const int MD_TABLE_COLUMN_AMOUNT_SIZE = sizeof(int);
     static const int MD_TABLE_COLUMN_AMOUNT_MAX = 16;
