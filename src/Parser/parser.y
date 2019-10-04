@@ -4,9 +4,8 @@
     #include <stdlib.h>
     #include <iostream>
     #include <string>
-    #include "../../src/Logic/Headers/MainLogic.h"
-    #include "../../src/Utils/Headers/CommonUtils.h"
-    MainLogic logicApi;
+    #include "../../src/Parser/Headers/ParserLogic.h"
+    ParserLogic logicApi;
 
     int yylex();
     int yyerror(const char *s);
