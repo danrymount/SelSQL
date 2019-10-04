@@ -7,8 +7,10 @@ int main() {
         Response result;
         std::getline(std::cin, str);
         result = parse_request(str.c_str());
+        if (result.code)
+            continue;
         result = MainLogic::executeRequest(result);
-        if(result.code)
+        if (result.code)
             std::cerr << result.errorMsg << std::endl;
         printf("ENTER NEW COMMAND\n");
     }
