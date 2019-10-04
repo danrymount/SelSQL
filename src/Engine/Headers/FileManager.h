@@ -10,6 +10,8 @@
 #include "../../Utils/Headers/CommonUtils.h"
 #include "../../Utils/Headers/Constants.h"
 
+void write_int(std::fstream* file, int value);
+
 class FileManager {
     std::map<std::string, std::fstream*> files_;
     std::map<std::string, Table> table_data;

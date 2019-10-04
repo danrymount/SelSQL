@@ -2,22 +2,19 @@
 #include "Headers/FileManager.h"
 
 void FileManager::WriteMetaData(Table* table) {
-    files_[table->name]->write(table->name.c_str(), sizeof(table->name.size()));
-    files_[table->name]->seekp(Constants::MD_COLUMN_NAME_SIZE);
-    int field_size = table->fields.size();
-    files_[table->name]->write(reinterpret_cast<char*>(&field_size), Constants::MD_TABLE_COLUMN_AMOUNT_SIZE);
+    std::fstream* new_file = files_[table->name];
+    new_file->write(table->name.c_str(), sizeof(table->name.size()));
+    new_file->seekp(Constants::MD_COLUMN_NAME_SIZE);
+    write_int(new_file, table->fields.size());
     for (auto& field : table->fields) {
-        files_[table->name]->write(field.name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-        int constr_size = field.constraints.size();
-        int type = Type(field.type);
-        files_[table->name]->write(reinterpret_cast<char*>(&type), Constants::MD_COLUMN_TYPE_SIZE);
-        files_[table->name]->write(reinterpret_cast<char*>(&constr_size), Constants::MD_COLUMN_CONSTR_AMOUNT_SIZE);
+        new_file->write(field.name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+        write_int(new_file, Type(field.type));
+        write_int(new_file, field.constraints.size());
         for (auto constr : field.constraints) {
-            int contr_type = Constraint(constr);
-            files_[table->name]->write(reinterpret_cast<char*>(&contr_type), Constants::MD_COLUMN_CONSTR_SIZE);
+            write_int(new_file, Constraint(constr));
         }
     }
-    files_[table->name]->close();
+    new_file->close();
 }
 
 void FileManager::ReadMetaData(std::string table_name) {
@@ -50,7 +47,6 @@ void FileManager::ReadMetaData(std::string table_name) {
     table.name = std::string(name);
     table.fields = fields;
     table_data[table_name] = table;
-    files_[table_name]->close();
 }
 int FileManager::OpenFile(std::string table_name) {
     files_[table_name] = new std::fstream(table_name + Constants::FILE_TYPE,
@@ -88,3 +84,4 @@ int FileManager::DeleteTable(std::string table_name) {
     }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
+void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
