@@ -7,26 +7,18 @@
     #include "../../src/Parser/Headers/ParserLogic.h"
     ParserLogic logicApi;
 
+    extern int yylineno;
+    extern int ch;
+    extern char *yytext;
     int yylex();
     int yyerror(const char *s);
     Response response;
 %}
 
-%token STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT
-
-%type <string> STRING
-%type <string> DDLCREATE
-%type <string> DDLSHOW
-%type <string> DDLDROP
-%type <table> TABLE
-%type <brackets> BRACKET
-%type <string> TYPE
-%type <string> CONSTRAINT
+%token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT
 
 %union{
-    char string[20];
-    char table[5];
-    char brackets[1];
+    char string[256];
 }
 
 %%
@@ -86,8 +78,8 @@ Response parse_request(const char* in) {
   return response;
 }
 
-int yyerror(const char *s){
-    response.errorMsg = s;
-    printf("%s\n", s);
+int yyerror(const char *errmsg){
+    response.errorMsg = errmsg;
+    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
     return 0;
 }
