@@ -4,6 +4,7 @@
 !src
 !src/**/
 !Tests
+!Tests/**/
 
 !.gitignore
 !.clang-format
