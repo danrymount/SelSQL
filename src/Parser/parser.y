@@ -59,7 +59,6 @@ inner_expr:
     	logicApi.addConstraint($2);
     }
     | inner_expr COMMA inner_expr;
-    | error ';'
 
 
 %%
