@@ -18,6 +18,14 @@ FILE(GLOB Engine ../src/Engine/*.cpp ../src/Engine/Headers/*.h)
 FILE(GLOB Logic ../src/Logic/*.cpp ../src/Logic/Headers/*.h)
 FILE(GLOB Utils ../src/Utils/*.cpp ../src/Utils/Headers/*.h)
 
-add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} TestClass.cpp)
+add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
+        ../src/
+        ../src/Utils/ActionsUtils.cpp ../src/Utils/Headers/ActionsUtils.h
+        ../src/Parser/ParserLogic.cpp ../src/Parser/Headers/ParserLogic.h
+        ../src/Logic/Actions/Headers/BaseAction.h ../src/Logic/Actions/Headers/ActionFactory.h
+        ../src/Logic/Actions/ActionCreate.cpp ../src/Logic/Actions/Headers/ActionCreate.h
+        ../src/Logic/Actions/ActionDrop.cpp ../src/Logic/Actions/Headers/ActionDrop.h
+        ../src/Logic/Actions/ActionShowCreate.cpp ../src/Logic/Actions/Headers/ActionShowCreate.h
+        Headers/TestUtils.h)
 enable_testing()
 target_link_libraries(Tests gtest gtest_main)
