@@ -14,6 +14,8 @@
 #include "../../Utils/Headers/ActionsUtils.h"
 #include "APILogic.h"
 
+using std::string;
+
 class MainLogic : public APILogic {
     ParserUtils parserUtils;
     ActionsUtils actionsUtils;

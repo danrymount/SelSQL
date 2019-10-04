@@ -17,4 +17,4 @@ FILE(GLOB Engine Engine/*.cpp Engine/Headers/*.h)
 FILE(GLOB Logic Logic/*.cpp Logic/Headers/*.h)
 FILE(GLOB Utils Utils/*.cpp Utils/Headers/*.h)
 
-add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} Utils/ActionsUtils.cpp Utils/Headers/ActionsUtils.h)
+add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} Utils/ActionsUtils.cpp Utils/Headers/ActionsUtils.h Parser/ParserLoigic.cpp Parser/Headers/ParserLoigic.h)

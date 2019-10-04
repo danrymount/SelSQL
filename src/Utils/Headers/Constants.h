@@ -8,6 +8,8 @@ class Constants {
     inline static const std::string FILE_TYPE = ".selDB";
     inline static const std::string ERR_TABLE_EXISTS = "Table already exists";
     inline static const std::string ERR_TABLE_NOT_EXISTS = "Table doesn`t exist";
+    inline static const std::string ERR_SAME_CONSTRAINT = "Constraint already exists";
+    inline static const std::string ERR_SAME_FIELD_NAME = "Field name already used";
 
 
     static const int MD_TABLE_NAME_SIZE = 256;

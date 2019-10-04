@@ -10,11 +10,12 @@ std::string ActionsUtils::makeRequestCreateFromTable(Table& table) {
     const char comma = ',';
     std::string str = "CREATE TABLE ";
     str += table.name + '(';
-    for (auto& field : table.fields) {
-        str += field.name + space;
-        str += parserUtils.typeToString(field.type) + space;
-        for (auto& constraint : field.constraints) str += parserUtils.constraintToString(constraint) + space;
-        if (table.fields[table.fields.size() - 1].name != field.name)
+    for (auto& field : table.getFields()) {
+        str += field.first + space;
+        str += parserUtils.typeToString(field.second.type) + space;
+        for (auto& constraint : field.second.getConstraints())
+            str += parserUtils.constraintToString(constraint) + space;
+        if ((*(table.getFields().end())).first != field.first)
             str += comma;
     }
     str += ')';
