@@ -1,4 +1,5 @@
 
+#include "Logic/Headers/MainLogic.h"
 #include "parser.cpp"
 int main() {
     std::string str;
@@ -6,6 +7,7 @@ int main() {
         Response result;
         std::getline(std::cin, str);
         result = parse_request(str.c_str());
+        result = MainLogic::executeRequest(result);
         if(result.code)
             std::cerr << result.errorMsg << std::endl;
         printf("ENTER NEW COMMAND\n");

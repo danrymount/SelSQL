@@ -5,12 +5,12 @@ void FileManager::WriteMetaData(Table* table) {
     std::fstream* new_file = files_[table->name];
     new_file->write(table->name.c_str(), sizeof(table->name.size()));
     new_file->seekp(Constants::MD_COLUMN_NAME_SIZE);
-    write_int(new_file, table->fields.size());
-    for (auto& field : table->fields) {
-        new_file->write(field.name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-        write_int(new_file, Type(field.type));
-        write_int(new_file, field.constraints.size());
-        for (auto constr : field.constraints) {
+    write_int(new_file, table->getFields().size());
+    for (auto& field : table->getFields()) {
+        new_file->write(field.first.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+        write_int(new_file, Type(field.second.type));
+        write_int(new_file, field.second.getConstraints().size());
+        for (auto constr : field.second.getConstraints()) {
             write_int(new_file, Constraint(constr));
         }
     }
@@ -19,7 +19,6 @@ void FileManager::WriteMetaData(Table* table) {
 
 void FileManager::ReadMetaData(std::string table_name) {
     Table table;
-    std::vector<Variable> fields;
     char name[Constants::MD_TABLE_NAME_SIZE];
     int column_size;
     files_[table_name]->read(name, Constants::MD_TABLE_NAME_SIZE);
@@ -29,23 +28,22 @@ void FileManager::ReadMetaData(std::string table_name) {
         char var_name[Constants::MD_COLUMN_NAME_SIZE];
         int type = 0;
         int constr_size = 0;
-        std::vector<Constraint> constraint;
+        std::vector<Constraint> constraints;
         files_[table_name]->read(var_name, Constants::MD_COLUMN_NAME_SIZE);
         files_[table_name]->read(reinterpret_cast<char*>(&type), Constants::MD_COLUMN_TYPE_SIZE);
         files_[table_name]->read(reinterpret_cast<char*>(&constr_size), Constants::MD_COLUMN_CONSTR_AMOUNT_SIZE);
-        var.name = std::string(var_name);
         var.type = Type(type);
 
         for (int j = 0; j < constr_size; ++j) {
             int constr_type = 0;
             files_[table_name]->read(reinterpret_cast<char*>(&constr_type), Constants::MD_COLUMN_CONSTR_SIZE);
-            constraint.emplace_back(Constraint(constr_type));
+            constraints.emplace_back(Constraint(constr_type));
         }
-        var.constraints = constraint;
-        fields.emplace_back(var);
+        var.setConstraints(constraints);
+        table.addField(std::string(var_name),var);
     }
     table.name = std::string(name);
-    table.fields = fields;
+
     table_data[table_name] = table;
 }
 int FileManager::OpenFile(std::string table_name) {

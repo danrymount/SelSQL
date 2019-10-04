@@ -12,7 +12,7 @@ enum Type { none, INT, FLOAT, BOOLEAN, CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
-enum Action { SHOW_CREATE, DROP, CREATE };  // TODO make these Classes
+enum Action { SHOW_CREATE, DROP, CREATE };
 
 struct Variable {
     typedef std::vector<Constraint> ConstraintsVector;

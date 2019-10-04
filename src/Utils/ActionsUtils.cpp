@@ -3,7 +3,6 @@
 //
 
 #include "Headers/ActionsUtils.h"
-#include "Headers/ParserUtils.h"
 std::string ActionsUtils::makeRequestCreateFromTable(Table& table) {
     const char space = ' ';
     const char semicolon = ';';
@@ -15,7 +14,7 @@ std::string ActionsUtils::makeRequestCreateFromTable(Table& table) {
         str += parserUtils.typeToString(field.second.type) + space;
         for (auto& constraint : field.second.getConstraints())
             str += parserUtils.constraintToString(constraint) + space;
-        if ((*(table.getFields().end())).first != field.first)
+        if ((*(table.getFields().end())).first != field.first && table.getFields().size() > 1)
             str += comma;
     }
     str += ')';
