@@ -17,4 +17,11 @@ FILE(GLOB Engine Engine/*.cpp Engine/Headers/*.h)
 FILE(GLOB Logic Logic/*.cpp Logic/Headers/*.h)
 FILE(GLOB Utils Utils/*.cpp Utils/Headers/*.h)
 
-add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Utils/ActionsUtils.cpp Utils/Headers/ActionsUtils.h Parser/ParserLogic.cpp Parser/Headers/ParserLogic.h Logic/Actions/Headers/BaseAction.h Logic/Actions/Headers/ActionFactory.h Logic/Actions/ActionCreate.cpp Logic/Actions/Headers/ActionCreate.h Logic/Actions/ActionDrop.cpp Logic/Actions/Headers/ActionDrop.h Logic/Actions/ActionShowCreate.cpp Logic/Actions/Headers/ActionShowCreate.h)
+SET(SOURCE_DIR ./)
+
+FILE(GLOB Engine ${SOURCE_DIR}/Engine/*.cpp ${SOURCE_DIR}/Engine/Headers/*.h)
+FILE(GLOB Logic ${SOURCE_DIR}/Logic/*.cpp ${SOURCE_DIR}/Logic/Headers/*.h ${SOURCE_DIR}/Logic/Actions/*.cpp ${SOURCE_DIR}/Logic/Actions/Headers/*.h)
+FILE(GLOB Utils ${SOURCE_DIR}/Utils/*.cpp ${SOURCE_DIR}/Utils/Headers/*.h)
+FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
+
+add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser})
