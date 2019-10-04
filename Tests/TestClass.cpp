@@ -133,6 +133,51 @@ TEST(ERROR_TEST, TEST1){
     parse_request(str.c_str());
 }
 
+TEST(ERROR_TEST, TEST2){
+    std::string str = "CREAT TABLE name1(ID INT);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.code);
+    EXPECT_EQ("syntax error, unexpected STRING, expecting DDLCREATE or DDLSHOW or DDLDROP", res.errorMsg);
+    str = "DROP TABLE name1;";
+    parse_request(str.c_str());
+}
+
+TEST(ERROR_TEST, TEST3){
+    std::string str = "CREATE TABLE name1(1565 INT);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.code);
+    EXPECT_EQ("syntax error, unexpected TYPE, expecting STRING", res.errorMsg);
+    str = "DROP TABLE name1;";
+    parse_request(str.c_str());
+}
+
+TEST(ERROR_TEST, TEST4){
+    std::string str = "CREATE TABLE name1(ID IN);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.code);
+    EXPECT_EQ("syntax error, unexpected STRING, expecting TYPE", res.errorMsg);
+    str = "DROP TABLE name1;";
+    parse_request(str.c_str());
+}
+
+TEST(ERROR_TEST, TEST5){
+    std::string str = "CREATE TABLE name1(ID INT NOT NU);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.code);
+    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or BRACKET or CONSTRAINT", res.errorMsg);
+    str = "DROP TABLE name1;";
+    parse_request(str.c_str());
+}
+
+TEST(ERROR_TEST, TEST6){
+    std::string str = "CREATE TABLE name1( );";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.code);
+    EXPECT_EQ("syntax error, unexpected BRACKET, expecting STRING", res.errorMsg);
+    str = "DROP TABLE name1;";
+    parse_request(str.c_str());
+}
+
 TEST(SHOW_CREATE, TEST1){
     std::string str = "CREATE TABLE name2(ID INT);";
     parse_request(str.c_str());

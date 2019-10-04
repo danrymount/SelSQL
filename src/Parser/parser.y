@@ -89,6 +89,6 @@ Response parse_request(const char* in) {
 
 int yyerror(const char *s){
     response.errorMsg = s;
-    printf("Syntax Error on line %s\n", s);
+    printf("%s\n", s);
     return 0;
 }
