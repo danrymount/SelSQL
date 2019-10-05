@@ -3,7 +3,7 @@
 
 void FileManager::WriteMetaData(Table* table) {
     std::fstream* new_file = files_[table->name];
-    new_file->write(table->name.c_str(), sizeof(table->name.size()));
+    new_file->write(table->name.c_str(), table->name.size());
     new_file->seekp(Constants::MD_COLUMN_NAME_SIZE);
     write_int(new_file, table->getFields().size());
     for (auto& field : table->getFields()) {
@@ -83,3 +83,8 @@ int FileManager::DeleteTable(std::string table_name) {
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
 void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
+int read_int(std::fstream* file) {
+    int res;
+    file->write(reinterpret_cast<char*>(&res), sizeof(int));
+    return res;
+}
