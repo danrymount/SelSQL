@@ -6,7 +6,7 @@
 #define SELSQL_ACTIONDROP_H
 
 #include "BaseAction.h"
-class ActionDrop: public BaseAction {
+class ActionDrop : public BaseAction {
    public:
     Response execute(Response& response, MainEngine* mainEngine) override;
 };

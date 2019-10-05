@@ -8,11 +8,11 @@
 #include <map>
 #include <string>
 #include <vector>
-enum Type { none, INT, FLOAT, BOOLEAN, CHAR };
+enum Type { INT, FLOAT, BOOLEAN, CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
-enum Action { SHOW_CREATE, DROP, CREATE };
+enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE, INSERT, UPDATE };
 
 struct Variable {
     typedef std::vector<Constraint> ConstraintsVector;
@@ -21,7 +21,7 @@ struct Variable {
     Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(_constraints){};
     explicit Variable(Type type_) : type(type_) {}
 
-    Type type = none;
+    Type type;
     int addConstraint(Constraint constraint) {
         for (auto &constraint_ : constraints) {
             if (constraint_ == constraint)
@@ -57,8 +57,6 @@ struct Table {
         last_var_name = field_name;
     }
 
-
-
     int addConstraint(Constraint constraint) { return fields[last_var_name].addConstraint(constraint); }
 
     void clear() {
@@ -72,11 +70,9 @@ struct Table {
 
     void setFields(std::map<std::string, Variable> &fields_) { this->fields = fields_; }
 
-
    private:
     std::string last_var_name;
     std::map<std::string, Variable> fields;
-
 };
 
 struct Response {

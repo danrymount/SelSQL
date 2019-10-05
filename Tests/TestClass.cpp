@@ -14,7 +14,7 @@ TEST(CREATE_TEST, TEST2) {
     EXPECT_EQ("name1", res.table.name);
     auto field = *(res.table.getFields().begin());
     EXPECT_EQ("ID", field.first);
-    EXPECT_EQ(1, field.second.type);
+    EXPECT_EQ(0, field.second.type);
 }
 TEST(CREATE_TEST, TEST3) {
     std::string str = "CREATE TABLE name2(col1 FLOAT NOT NULL);";
@@ -22,7 +22,7 @@ TEST(CREATE_TEST, TEST3) {
     EXPECT_EQ("name2", res.table.name);
     auto field = *(res.table.getFields().begin());
     EXPECT_EQ("col1", field.first);
-    EXPECT_EQ(2, field.second.type);
+    EXPECT_EQ(1, field.second.type);
     EXPECT_EQ(0, field.second.getConstraints()[0]);
 }
 TEST(CREATE_TEST, TEST4) {

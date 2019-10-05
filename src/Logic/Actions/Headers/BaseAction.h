@@ -10,6 +10,7 @@
 class BaseAction {
    protected:
     int errorCode;
+
    public:
     virtual Response execute(Response& response, MainEngine* mainEngine) = 0;
 };

@@ -24,4 +24,4 @@ FILE(GLOB Logic ${SOURCE_DIR}/Logic/*.cpp ${SOURCE_DIR}/Logic/Headers/*.h ${SOUR
 FILE(GLOB Utils ${SOURCE_DIR}/Utils/*.cpp ${SOURCE_DIR}/Utils/Headers/*.h)
 FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
 
-add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser})
+add_executable(SelSQL main.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Logic/Actions/ActionSelect.cpp Logic/Actions/Headers/ActionSelect.h Logic/Actions/ActionDelete.cpp Logic/Actions/Headers/ActionDelete.h Logic/Actions/ActionUpdate.cpp Logic/Actions/Headers/ActionUpdate.h Logic/Actions/ActionInsert.cpp Logic/Actions/Headers/ActionInsert.h)

@@ -2,13 +2,13 @@
 // Created by sapiest on 05.10.2019.
 //
 
-#ifndef SELSQL_ACTIONSHOWCREATE_H
-#define SELSQL_ACTIONSHOWCREATE_H
+#ifndef SELSQL_ACTIONUPDATE_H
+#define SELSQL_ACTIONUPDATE_H
 
 #include "BaseAction.h"
-class ActionShowCreate : public BaseAction {
+class ActionUpdate : public BaseAction {
    public:
     Response execute(Response& response, MainEngine* mainEngine) override;
 };
 
-#endif  // SELSQL_ACTIONSHOWCREATE_H
+#endif  // SELSQL_ACTIONUPDATE_H

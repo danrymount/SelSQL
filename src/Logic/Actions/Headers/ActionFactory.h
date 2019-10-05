@@ -38,7 +38,7 @@ class ActionFactory {
             _factory[id] = new ActionCreator<T>();
     }
 
-    BaseAction* create(const Action & id) {
+    BaseAction* create(const Action& id) {
         auto it = _factory.find(id);
         if (it != _factory.end())
             return it->second->create();

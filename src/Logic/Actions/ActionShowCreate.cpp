@@ -8,7 +8,7 @@
 Response ActionShowCreate::execute(Response& response, MainEngine* mainEngine) {
     ActionsUtils actionsUtils;
     response.table = *mainEngine->ShowCreateTable(response.table.name);
-    //response.table =
+    // response.table =
     if (&(response.table) == nullptr) {
         // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
         response.code = 1;
@@ -16,6 +16,6 @@ Response ActionShowCreate::execute(Response& response, MainEngine* mainEngine) {
         return response;
     }
     response.returnMsg = actionsUtils.makeRequestCreateFromTable(response.table);
-    std::cout << response.returnMsg  << std::endl;
+    // std::cout << response.returnMsg  << std::endl;
     return response;
 }
