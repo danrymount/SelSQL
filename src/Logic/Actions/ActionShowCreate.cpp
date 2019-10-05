@@ -5,9 +5,9 @@
 #include "Headers/ActionShowCreate.h"
 #include "../../Utils/Headers/ActionsUtils.h"
 
-Response ActionShowCreate::execute(Response &response) {
+Response ActionShowCreate::execute(Response& response, MainEngine* mainEngine) {
     ActionsUtils actionsUtils;
-    response.table = *engineApi.ShowCreateTable(response.table.name);
+    response.table = *mainEngine->ShowCreateTable(response.table.name);
     //response.table =
     if (&(response.table) == nullptr) {
         // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;

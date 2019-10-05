@@ -17,6 +17,8 @@
 using std::string;
 
 class MainLogic {
+    inline static MainEngine* mainEngine = new MainEngine();
+
    public:
     static Response executeRequest(Response &_response);
 };

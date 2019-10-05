@@ -8,7 +8,7 @@
 #include "BaseAction.h"
 class ActionShowCreate: public BaseAction{
    public:
-    Response execute(Response &response) override;
+    Response execute(Response& response, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_ACTIONSHOWCREATE_H

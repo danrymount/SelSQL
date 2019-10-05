@@ -9,10 +9,9 @@
 
 class BaseAction {
    protected:
-    MainEngine engineApi;
     int errorCode;
    public:
-    virtual Response execute(Response &response) = 0;
+    virtual Response execute(Response& response, MainEngine* mainEngine) = 0;
 };
 
 #endif  // SELSQL_BASEACTION_H

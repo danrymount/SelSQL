@@ -3,9 +3,9 @@
 //
 
 #include "Headers/ActionDrop.h"
-Response ActionDrop::execute(Response &response) {
-    errorCode = engineApi.DropTable(response.table.name);
-    if(!errorCode)
+Response ActionDrop::execute(Response& response, MainEngine* mainEngine) {
+    errorCode = mainEngine->DropTable(response.table.name);
+    if (!errorCode)
         return response;
     // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
     response.code = 1;
