@@ -5,7 +5,6 @@
 int main() {
     std::string str;
     while (true) {
-        ch = 0;
         Response result;
         std::getline(std::cin, str);
         result = parse_request(str.c_str());

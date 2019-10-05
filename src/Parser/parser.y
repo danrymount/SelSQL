@@ -68,6 +68,7 @@ void end_string_scan(void);
 
 
 Response parse_request(const char* in) {
+ch = 0;
   Response temp;
   response = temp;
 
@@ -79,7 +80,8 @@ Response parse_request(const char* in) {
 }
 
 int yyerror(const char *errmsg){
-    response.errorMsg = errmsg;
+    response.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
+
     return 0;
 }

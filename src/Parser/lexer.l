@@ -1,6 +1,6 @@
 %{
     #include <stdio.h>
-    #include <string.h>
+    #include <string>
     #include "parser.h"
     void showError();
     int ch;
