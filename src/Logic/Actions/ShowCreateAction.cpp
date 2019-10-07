@@ -11,8 +11,7 @@ BigResponse ShowCreateAction::execute(BigRequest& _request, MainEngine* mainEngi
     // response.table =
     if (&(response.ddlData.table) == nullptr) {
         // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
-        response.error.errorCode = 1;
-        response.error.errorMsg = Constants::ERR_TABLE_NOT_EXISTS;
+        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
     response.ddlData.returnMsg = actionsUtils.makeRequestCreateFromTable(response.ddlData.table);

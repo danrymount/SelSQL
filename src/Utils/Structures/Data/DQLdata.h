@@ -11,8 +11,6 @@ class DQLdata {
     DQLdata() = default;
     std::vector<std::string> columns;
 
-    std::map<std::string, Condition> conditions;
-
     virtual void clear() { columns.clear(); }
 };
 
