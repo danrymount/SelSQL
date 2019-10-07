@@ -8,5 +8,6 @@
 Response MainLogic::executeRequest(Response &_response) {
     ActionFactory actionFactory;
     _response = actionFactory.create(_response.action)->execute(_response, mainEngine);
+
     return _response;
 }

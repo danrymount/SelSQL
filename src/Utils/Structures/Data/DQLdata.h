@@ -6,6 +6,7 @@
 #define SELSQL_DQLDATA_H
 
 class DQLdata {
+   public:
     DQLdata() = default;
 
     void clear() {}

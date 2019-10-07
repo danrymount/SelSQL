@@ -7,6 +7,7 @@
 #include "../../Headers/CommonUtils.h"
 #include "Table.h"
 class DDLdata {
+   public:
     DDLdata() = default;
     DDLdata(Table &_table, std::string &_returnMsg) : table(_table), returnMsg(_returnMsg) {}
 

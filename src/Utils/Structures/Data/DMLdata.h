@@ -6,6 +6,7 @@
 #define SELSQL_DMLDATA_H
 
 class DMLdata {
+   public:
     DMLdata() = default;
 
     void clear() {}

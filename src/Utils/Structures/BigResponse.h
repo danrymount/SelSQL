@@ -12,11 +12,19 @@
 #include "Data/DQLdata.h"
 #include "Error.h"
 class BigResponse : public BigRequest {
+   public:
     BigResponse() = default;
 
-    // BigResponse(Action _action, Error _error) : BigRequest(_action, ), error(_error) {}
+    BigResponse(Action _action, std::string &_tableName, DDLdata &_ddlData, DMLdata &_dmlData, DQLdata &_dqlData,
+                Error _error)
+                                                                                                        : BigRequest(_action,
+                                                                                                                     _tableName,
+                                                                                                                     _ddlData,
+                                                                                                                     _dmlData,
+                                                                                                                     dqlData),
+                                                                                                          error(_error) {
+    }
 
-   public:
     Error error;
 };
 
