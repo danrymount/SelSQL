@@ -2,6 +2,7 @@
 // Created by sapiest on 07.10.2019.
 //
 
+#pragma once
 #ifndef SELSQL_DDLDATA_H
 #define SELSQL_DDLDATA_H
 #include "../../Headers/CommonUtils.h"

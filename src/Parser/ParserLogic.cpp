@@ -23,6 +23,24 @@ void ParserLogic::addConstraint(char* name) {
 
 BigResponse ParserLogic::finish() { return response; }
 
+void ParserLogic::addActionName(char* name) { response.action = parserUtils.stringToAction(string(name)); }
+
+void ParserLogic::addSelectColumn(char* name) { response.dqlData.columns.emplace_back(string(name)); }
+
+void ParserLogic::addCondition(char* name, char* sign, char* value) {
+    if (response.action == SELECT) {
+        response.dqlData.conditions.insert(std::make_pair(string(name), Condition(parserUtils.stringToCmp(string(sign)),
+                                                                                  string(value))));
+        return;
+    }
+    response.dmlData.conditions.insert(std::make_pair(string(name),
+                                                      Condition(parserUtils.stringToCmp(string(sign)), string(value))));
+}
+
+void ParserLogic::addColumn(char* name) { response.dmlData.columns.emplace_back(string(name)); }
+
+void ParserLogic::addValue(char* value) { response.dmlData.values.emplace_back(string(value)); }
+
 void ParserLogic::addTableName(char* name) {
     response.clear();
     checkName.erase(checkName.begin(), checkName.end());
@@ -30,5 +48,3 @@ void ParserLogic::addTableName(char* name) {
     response.tableName = string(name);
     response.ddlData.table.name = response.tableName;
 }
-
-void ParserLogic::addActionName(char* name) { response.action = parserUtils.stringToAction(string(name)); }

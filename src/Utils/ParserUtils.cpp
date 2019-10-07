@@ -21,6 +21,10 @@ Action ParserUtils::stringToAction(std::string name) {
     std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
     return mapOfAction[name];
 }
+
+Cmp ParserUtils::stringToCmp(const std::string& name) { return mapOfCmp[name]; }
+
 std::string ParserUtils::typeToString(Type type) { return mapOfTypeToString[type]; }
 
 std::string ParserUtils::constraintToString(Constraint constraint) { return mapOfConstraintToString[constraint]; }
+

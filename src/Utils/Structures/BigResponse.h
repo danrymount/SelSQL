@@ -2,6 +2,7 @@
 // Created by sapiest on 07.10.2019.
 //
 
+#pragma once
 #ifndef SELSQL_BIGRESPONSE_H
 #define SELSQL_BIGRESPONSE_H
 
@@ -11,6 +12,7 @@
 #include "Data/DMLdata.h"
 #include "Data/DQLdata.h"
 #include "Error.h"
+
 class BigResponse : public BigRequest {
    public:
     BigResponse() = default;

@@ -21,6 +21,9 @@ class ParserUtils {
 
     std::map<std::string, Action> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP}};
 
+    std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},
+                                           {">", GREATER}, {">=", GREATEREQUALS}, {"<>", NOEQUALS}};
+
     std::map<Constraint, std::string> mapOfConstraintToString = {{NOT_NULL, "NOT NULL"},
                                                                  {UNIQUE, "UNIQUE"},
                                                                  {PRIMARY_KEY, "PRIMARY KEY"}};
@@ -36,6 +39,7 @@ class ParserUtils {
     Type stringToType(std::string name);
     Constraint stringToConstraint(std::string name);
     Action stringToAction(std::string name);
+    Cmp stringToCmp(const std::string& name);
 };
 
 #endif  // SELSQL_PARSERUTILS_H

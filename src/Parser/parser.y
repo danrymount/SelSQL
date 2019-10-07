@@ -60,11 +60,11 @@ table_select:
 
 col_select:
     DQLSELECT STRING {
-    	printf("COL = %s\n", $2);
+    	logicApi.addSelectColumn($2);
     }
     |
     col_select COMMA STRING {
-    	printf("COL = %s\n", $3);
+    	logicApi.addSelectColumn($3);
     }
 
 act_insert:
@@ -83,10 +83,10 @@ insert:
     }
     | STRING BRACKET STRING {
     	logicApi.addTableName($1);
-        printf("TABLE = %s COL = %s\n", $1, $3);
+    	logicApi.addColumn($3);
     }
     | insert COMMA STRING {
-        printf("COL = %s\n", $3);
+        logicApi.addColumn($3);
     }
     | insert BRACKET
     | insert values
@@ -101,19 +101,19 @@ values:
     VALUES BRACKET
     |
     values STRING {
-    	printf("VAL = %s\n", $2);
+    	logicApi.addValue($2);
     }
     |
     values NUMBER {
-    	printf("VAL = %s\n", $2);
+    	logicApi.addValue($2);
     }
     |
     values COMMA STRING  {
-         printf("VAL = %s\n", $3);
+         logicApi.addValue($3);
     }
     |
     values COMMA NUMBER  {
-         printf("VAL = %s\n", $3);
+         logicApi.addValue($3);
     }
     |
     values BRACKET
@@ -136,19 +136,19 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-Response parse_request(const char* in) {
+BigResponse parse_request(const char* in) {
   ch = 0;
   response.clear();
 
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
-  response.code = response.code || res;
+  response.error.errorCode = response.error.errorCode || res;
   return response;
 }
 
 int yyerror(const char *errmsg){
-    response.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
+    response.error.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     //fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
     return 0;

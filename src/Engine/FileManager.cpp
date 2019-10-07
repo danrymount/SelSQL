@@ -1,5 +1,6 @@
 
 #include "Headers/FileManager.h"
+#include "../Utils/Structures/Data/Table.h"
 
 void FileManager::WriteMetaData(Table* table) {
     std::fstream* new_file = files_[table->name];

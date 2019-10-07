@@ -2,6 +2,7 @@
 // Created by sapiest on 07.10.2019.
 //
 
+#pragma once
 #ifndef SELSQL_BIGREQUEST_H
 #define SELSQL_BIGREQUEST_H
 
@@ -9,7 +10,7 @@
 #include "Data/DDLdata.h"
 #include "Data/DMLdata.h"
 #include "Data/DQLdata.h"
-#include "Error.h"
+
 class BigRequest {
    public:
     BigRequest() = default;

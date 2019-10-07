@@ -9,6 +9,7 @@
 #include <vector>
 #include "../../Utils/Headers/CommonUtils.h"
 #include "../../Utils/Headers/Constants.h"
+#include "../../Utils/Structures/Data/Table.h"
 
 void write_int(std::fstream* file, int value);
 

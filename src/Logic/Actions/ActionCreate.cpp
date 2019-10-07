@@ -8,7 +8,7 @@ BigResponse ActionCreate::execute(BigRequest& _request, MainEngine* mainEngine) 
     if (!errorCode)
         return response;
     // std::cout << Constants::ERR_TABLE_EXISTS << std::endl;
-    response.code = errorCode;
-    response.errorMsg = Constants::ERR_TABLE_EXISTS;
+    response.error.errorCode = errorCode;
+    response.error.errorMsg = Constants::ERR_TABLE_EXISTS;
     return BigResponse();
 }

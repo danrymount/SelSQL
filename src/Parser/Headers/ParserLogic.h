@@ -24,6 +24,10 @@ class ParserLogic {
     BigResponse finish();
     void addTableName(char* name);
     void addActionName(char* name);
+    void addSelectColumn(char* name);
+    void addCondition(char* name, char* sign, char* value);
+    void addValue(char* value);
+    void addColumn(char* anme);
 };
 
 #endif  // SELSQL_PARSERLOGIC_H

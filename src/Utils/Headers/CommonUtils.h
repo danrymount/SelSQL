@@ -14,30 +14,13 @@ enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
 enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE, INSERT, UPDATE };
 
-// struct Response {
-//    Response() = default;
-//    Response(Action _action, Table _table, int _code, std::string _errorMsg, std::string _returnMsg)
-//                                                                                                        :
-//                                                                                                        action(_action),
-//                                                                                                          table(_table),
-//                                                                                                          code(_code),
-//                                                                                                          errorMsg(_errorMsg),
-//                                                                                                          returnMsg(_returnMsg)
-//                                                                                                          {
-//    }
-//
-//    Action action;
-//    Table table;
-//    int code = 0;
-//    std::string errorMsg;
-//    std::string returnMsg;
-//
-//    void clear() {
-//        this->code = 0;
-//        this->errorMsg.erase();
-//        this->returnMsg.erase();
-//        this->table.clear();
-//    }
-//};
+enum Cmp { GREATEREQUALS = -3, GREATER = -2, NOEQUALS = -1, EQUALS = 1, LOWER, LOWEREQUALS };
+
+struct Condition {
+    Condition(Cmp _sign, std::string _value) : sign(_sign), value(_value) {}
+
+    Cmp sign;
+    std::string value;
+};
 
 #endif  // SELSQL_COMMONUTILS_H
