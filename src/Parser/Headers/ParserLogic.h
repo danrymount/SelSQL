@@ -22,12 +22,13 @@ class ParserLogic {
     void addColumn(char* name, char* type);
     void addConstraint(char* name);
     BigResponse finish();
+    void start();
     void addTableName(char* name);
     void addActionName(char* name);
     void addSelectColumn(char* name);
     void addCondition(char* name, char* sign, char* value);
     void addValue(char* value);
-    void addColumn(char* anme);
+    void addColumn(char* name);
 };
 
 #endif  // SELSQL_PARSERLOGIC_H

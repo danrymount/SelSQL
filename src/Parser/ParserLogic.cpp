@@ -37,14 +37,22 @@ void ParserLogic::addCondition(char* name, char* sign, char* value) {
                                                       Condition(parserUtils.stringToCmp(string(sign)), string(value))));
 }
 
-void ParserLogic::addColumn(char* name) { response.dmlData.columns.emplace_back(string(name)); }
+void ParserLogic::addColumn(char* name) {
+    response.dmlData.columns.emplace_back(string(name));
+    std::cout << response.dmlData.columns.size() << std::endl;
+}
 
-void ParserLogic::addValue(char* value) { response.dmlData.values.emplace_back(string(value)); }
+void ParserLogic::addValue(char* value) {
+    response.dmlData.values.emplace_back(string(value));
+    std::cout << response.dmlData.values[0] << std::endl;
+}
 
 void ParserLogic::addTableName(char* name) {
-    response.clear();
-    checkName.erase(checkName.begin(), checkName.end());
-
     response.tableName = string(name);
     response.ddlData.table.name = response.tableName;
+}
+
+void ParserLogic::start() {
+    response.clear();
+    checkName.erase(checkName.begin(), checkName.end());
 }

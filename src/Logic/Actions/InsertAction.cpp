@@ -2,8 +2,8 @@
 // Created by sapiest on 05.10.2019.
 //
 
-#include "Headers/ActionInsert.h"
-BigResponse ActionInsert::execute(BigRequest& _request, MainEngine* mainEngine) {
+#include "Headers/InsertAction.h"
+BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) {
     // maybe make 2 functions with different args
     // mainEngine->InsertIntoTableWithCols(response.table.name, response) TODO (tableName, map<string, Any> colsValues)
     // mainEngine->InsertIntoTable(response.table.name, response) TODO (tableName, vector<Any> values)

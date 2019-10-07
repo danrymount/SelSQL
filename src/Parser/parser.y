@@ -138,6 +138,7 @@ void end_string_scan(void);
 
 BigResponse parse_request(const char* in) {
   ch = 0;
+  logicApi.start();
   response.clear();
 
   set_input_string(in);
