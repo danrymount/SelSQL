@@ -12,7 +12,7 @@
     extern char *yytext;
     int yylex();
     int yyerror(const char *s);
-    Response response;
+    BigResponse response;
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT DMLINSERT VALUES
@@ -46,14 +46,14 @@ actions:
     }
     |
     DMLINSERT act_insert {
-	printf("INSERT\n");
+	logicApi.addActionName($1);
     }
     |
     table_select
 
 table_select:
     col_select FROM STRING {
-        printf("TABLE = %s\n", $3);
+        logicApi.addTableName($3);
     }
     |
     table_select where
@@ -79,9 +79,10 @@ where:
 
 insert:
     STRING values {
-	printf("TABLE = %s\n", $1);
+	logicApi.addTableName($1);
     }
     | STRING BRACKET STRING {
+    	logicApi.addTableName($1);
         printf("TABLE = %s COL = %s\n", $1, $3);
     }
     | insert COMMA STRING {
@@ -123,7 +124,6 @@ brackets:
 inner_expr:
     STRING TYPE {
 	logicApi.addColumn($1, $2);
-	printf("VA = %s\n", $1);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
@@ -138,8 +138,7 @@ void end_string_scan(void);
 
 Response parse_request(const char* in) {
   ch = 0;
-  Response temp;
-  response = temp;
+  response.clear();
 
   set_input_string(in);
   int res = yyparse();

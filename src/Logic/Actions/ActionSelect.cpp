@@ -3,7 +3,7 @@
 //
 
 #include "Headers/ActionSelect.h"
-Response ActionSelect::execute(Response& response, MainEngine* mainEngine) {
+BigResponse ActionSelect::execute(BigRequest& _request, MainEngine* mainEngine) {
     // response = mainEngine->SelectFromTable(response.table.name, cols) TODO (table_name, vector<string> columns_name)
-    return Response();
+    return BigResponse();
 }

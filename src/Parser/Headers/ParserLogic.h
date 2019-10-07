@@ -10,17 +10,18 @@ using std::string;
 
 #include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Headers/ParserUtils.h"
+#include "../../Utils/Structures/BigResponse.h"
 
 class ParserLogic {
     MainEngine engineApi;
     ParserUtils parserUtils;
-    Response response;
+    BigResponse response;
     std::map<std::string, int> checkName;
 
    public:
     void addColumn(char* name, char* type);
     void addConstraint(char* name);
-    Response finish();
+    BigResponse finish();
     void addTableName(char* name);
     void addActionName(char* name);
 };

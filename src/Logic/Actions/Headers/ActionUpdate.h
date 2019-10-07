@@ -8,7 +8,7 @@
 #include "BaseAction.h"
 class ActionUpdate : public BaseAction {
    public:
-    Response execute(Response& response, MainEngine* mainEngine) override;
+    BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_ACTIONUPDATE_H

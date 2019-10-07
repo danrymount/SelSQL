@@ -7,27 +7,28 @@
 
 void ParserLogic::addColumn(char* name, char* type) {
     if (checkName.find(ParserUtils::chrToString(name)) == checkName.end()) {
-        response.table.addField(string(name), parserUtils.stringToType(string(type)));
+        response.ddlData.table.addField(string(name), parserUtils.stringToType(string(type)));
         checkName[string(name)] = 1;
     } else {
-        response.code = 1;
-        response.errorMsg = Constants::ERR_SAME_FIELD_NAME;
+        response.error.errorCode = 1;
+        response.error.errorMsg = Constants::ERR_SAME_FIELD_NAME;
     }
 }
 
 void ParserLogic::addConstraint(char* name) {
-    response.code = response.table.addConstraint(parserUtils.stringToConstraint(string(name)));
-    if (response.code)
-        response.errorMsg = Constants::ERR_SAME_CONSTRAINT;
+    response.error.errorCode = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
+    if (response.error.errorCode)
+        response.error.errorMsg = Constants::ERR_SAME_CONSTRAINT;
 }
 
-Response ParserLogic::finish() { return response; }
+BigResponse ParserLogic::finish() { return response; }
 
 void ParserLogic::addTableName(char* name) {
     response.clear();
     checkName.erase(checkName.begin(), checkName.end());
 
-    response.table.name = string(name);
+    response.tableName = string(name);
+    response.ddlData.table.name = response.tableName;
 }
 
 void ParserLogic::addActionName(char* name) { response.action = parserUtils.stringToAction(string(name)); }

@@ -3,12 +3,12 @@
 //
 
 #include "Headers/ActionDrop.h"
-Response ActionDrop::execute(Response& response, MainEngine* mainEngine) {
+BigResponse ActionDrop::execute(BigRequest& _request, MainEngine* mainEngine) {
     errorCode = mainEngine->DropTable(response.table.name);
     if (!errorCode)
         return response;
     // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
-    response.code = 1;
-    response.errorMsg = Constants::ERR_TABLE_NOT_EXISTS;
-    return response;
+    response.error.errorCode = 1;
+    response.error.errorMsg = Constants::ERR_TABLE_NOT_EXISTS;
+    return BigResponse();
 }

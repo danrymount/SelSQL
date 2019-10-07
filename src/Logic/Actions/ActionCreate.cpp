@@ -3,12 +3,12 @@
 //
 
 #include "Headers/ActionCreate.h"
-Response ActionCreate::execute(Response& response, MainEngine* mainEngine) {
-    errorCode = mainEngine->CreateTable(&response.table);
+BigResponse ActionCreate::execute(BigRequest& _request, MainEngine* mainEngine) {
+    response = mainEngine->CreateTable(&_request.ddlData.table);
     if (!errorCode)
         return response;
     // std::cout << Constants::ERR_TABLE_EXISTS << std::endl;
     response.code = errorCode;
     response.errorMsg = Constants::ERR_TABLE_EXISTS;
-    return response;
+    return BigResponse();
 }

@@ -5,17 +5,17 @@
 #include "Headers/ActionShowCreate.h"
 #include "../../Utils/Headers/ActionsUtils.h"
 
-Response ActionShowCreate::execute(Response& response, MainEngine* mainEngine) {
+BigResponse ActionShowCreate::execute(BigRequest& _request, MainEngine* mainEngine) {
     ActionsUtils actionsUtils;
-    response.table = *mainEngine->ShowCreateTable(response.table.name);
+    response.table = *mainEngine->ShowCreateTable(_request.tableName);
     // response.table =
     if (&(response.table) == nullptr) {
         // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
-        response.code = 1;
-        response.errorMsg = Constants::ERR_TABLE_NOT_EXISTS;
+        response.error.errorCode = 1;
+        response.error.errorMsg = Constants::ERR_TABLE_NOT_EXISTS;
         return response;
     }
-    response.returnMsg = actionsUtils.makeRequestCreateFromTable(response.table);
+    response.ddlData.returnMsg = actionsUtils.makeRequestCreateFromTable(response.ddlData.table);
     // std::cout << response.returnMsg  << std::endl;
     return response;
 }

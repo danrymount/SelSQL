@@ -3,4 +3,4 @@
 //
 
 #include "Headers/ActionUpdate.h"
-Response ActionUpdate::execute(Response& response, MainEngine* mainEngine) { return Response(); }
+BigResponse ActionUpdate::execute(BigRequest& _request, MainEngine* mainEngine) { return BigResponse(); }

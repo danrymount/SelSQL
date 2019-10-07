@@ -3,4 +3,4 @@
 //
 
 #include "Headers/ActionDelete.h"
-Response ActionDelete::execute(Response& response, MainEngine* mainEngine) { return Response(); }
+BigResponse ActionDelete::execute(BigRequest& _request, MainEngine* mainEngine) { return BigResponse(); }
