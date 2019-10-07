@@ -5,8 +5,8 @@
 #include "Headers/MainLogic.h"
 #include "Actions/Headers/ActionFactory.h"
 
-Response MainLogic::executeRequest(Response &_response) {
+BigResponse MainLogic::executeRequest(BigRequest &_request) {
     ActionFactory actionFactory;
-    _response = actionFactory.create(_response.action)->execute(_response, mainEngine);
-    return _response;
+
+    return actionFactory.create(_request.action)->execute(_request, mainEngine);
 }

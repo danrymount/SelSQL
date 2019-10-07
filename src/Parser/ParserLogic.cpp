@@ -7,27 +7,52 @@
 
 void ParserLogic::addColumn(char* name, char* type) {
     if (checkName.find(ParserUtils::chrToString(name)) == checkName.end()) {
-        response.table.addField(string(name), parserUtils.stringToType(string(type)));
+        response.ddlData.table.addField(string(name), parserUtils.stringToType(string(type)));
         checkName[string(name)] = 1;
     } else {
-        response.code = 1;
-        response.errorMsg = Constants::ERR_SAME_FIELD_NAME;
+        response.error.errorCode = 1;
+        response.error.errorMsg = Constants::ERR_SAME_FIELD_NAME;
     }
 }
 
 void ParserLogic::addConstraint(char* name) {
-    response.code = response.table.addConstraint(parserUtils.stringToConstraint(string(name)));
-    if (response.code)
-        response.errorMsg = Constants::ERR_SAME_CONSTRAINT;
+    response.error.errorCode = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
+    if (response.error.errorCode)
+        response.error.errorMsg = Constants::ERR_SAME_CONSTRAINT;
 }
 
-Response ParserLogic::finish() { return response; }
-
-void ParserLogic::addTableName(char* name) {
-    response.clear();
-    checkName.erase(checkName.begin(), checkName.end());
-
-    response.table.name = string(name);
-}
+BigResponse ParserLogic::finish() { return response; }
 
 void ParserLogic::addActionName(char* name) { response.action = parserUtils.stringToAction(string(name)); }
+
+void ParserLogic::addSelectColumn(char* name) { response.dqlData.columns.emplace_back(string(name)); }
+
+void ParserLogic::addCondition(char* name, char* sign, char* value) {
+    if (response.action == SELECT) {
+        response.dqlData.conditions.insert(std::make_pair(string(name), Condition(parserUtils.stringToCmp(string(sign)),
+                                                                                  string(value))));
+        return;
+    }
+    response.dmlData.conditions.insert(std::make_pair(string(name),
+                                                      Condition(parserUtils.stringToCmp(string(sign)), string(value))));
+}
+
+void ParserLogic::addColumn(char* name) {
+    response.dmlData.columns.emplace_back(string(name));
+    std::cout << response.dmlData.columns.size() << std::endl;
+}
+
+void ParserLogic::addValue(char* value) {
+    response.dmlData.values.emplace_back(string(value));
+    std::cout << response.dmlData.values[0] << std::endl;
+}
+
+void ParserLogic::addTableName(char* name) {
+    response.tableName = string(name);
+    response.ddlData.table.name = response.tableName;
+}
+
+void ParserLogic::start() {
+    response.clear();
+    checkName.erase(checkName.begin(), checkName.end());
+}

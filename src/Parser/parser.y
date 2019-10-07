@@ -12,7 +12,7 @@
     extern char *yytext;
     int yylex();
     int yyerror(const char *s);
-    Response response;
+    BigResponse response;
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT DMLINSERT VALUES
@@ -46,25 +46,25 @@ actions:
     }
     |
     DMLINSERT act_insert {
-	printf("INSERT\n");
+	logicApi.addActionName($1);
     }
     |
     table_select
 
 table_select:
     col_select FROM STRING {
-        printf("TABLE = %s\n", $3);
+        logicApi.addTableName($3);
     }
     |
     table_select where
 
 col_select:
     DQLSELECT STRING {
-    	printf("COL = %s\n", $2);
+    	logicApi.addSelectColumn($2);
     }
     |
     col_select COMMA STRING {
-    	printf("COL = %s\n", $3);
+    	logicApi.addSelectColumn($3);
     }
 
 act_insert:
@@ -79,13 +79,14 @@ where:
 
 insert:
     STRING values {
-	printf("TABLE = %s\n", $1);
+	logicApi.addTableName($1);
     }
     | STRING BRACKET STRING {
-        printf("TABLE = %s COL = %s\n", $1, $3);
+    	logicApi.addTableName($1);
+    	logicApi.addColumn($3);
     }
     | insert COMMA STRING {
-        printf("COL = %s\n", $3);
+        logicApi.addColumn($3);
     }
     | insert BRACKET
     | insert values
@@ -100,19 +101,19 @@ values:
     VALUES BRACKET
     |
     values STRING {
-    	printf("VAL = %s\n", $2);
+    	logicApi.addValue($2);
     }
     |
     values NUMBER {
-    	printf("VAL = %s\n", $2);
+    	logicApi.addValue($2);
     }
     |
     values COMMA STRING  {
-         printf("VAL = %s\n", $3);
+         logicApi.addValue($3);
     }
     |
     values COMMA NUMBER  {
-         printf("VAL = %s\n", $3);
+         logicApi.addValue($3);
     }
     |
     values BRACKET
@@ -123,7 +124,6 @@ brackets:
 inner_expr:
     STRING TYPE {
 	logicApi.addColumn($1, $2);
-	printf("VA = %s\n", $1);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
@@ -136,20 +136,20 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-Response parse_request(const char* in) {
+BigResponse parse_request(const char* in) {
   ch = 0;
-  Response temp;
-  response = temp;
+  logicApi.start();
+  response.clear();
 
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
-  response.code = response.code || res;
+  response.error.errorCode = response.error.errorCode || res;
   return response;
 }
 
 int yyerror(const char *errmsg){
-    response.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
+    response.error.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     //fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
     return 0;

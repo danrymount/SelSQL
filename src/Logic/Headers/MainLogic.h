@@ -9,18 +9,15 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
-#include "../../Utils/Headers/ActionsUtils.h"
-#include "../../Utils/Headers/ParserUtils.h"
-#include "../Actions/Headers/ActionCreate.h"
-#include "../Actions/Headers/BaseAction.h"
-
+#include "../../Engine/Headers/MainEngine.h"
+#include "../../Utils/Structures/BigResponse.h"
 using std::string;
 
 class MainLogic {
     inline static MainEngine* mainEngine = new MainEngine();
 
    public:
-    static Response executeRequest(Response &_response);
+    static BigResponse executeRequest(BigRequest& _request);
 };
 
 #endif  // SELSQL_MAINLOGIC_H

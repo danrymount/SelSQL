@@ -6,9 +6,14 @@
 #define SELSQL_ACTIONFACTORY_H
 
 #include <map>
-#include "ActionDrop.h"
-#include "ActionShowCreate.h"
 #include "BaseAction.h"
+#include "CreateAction.h"
+#include "DeleteAction.h"
+#include "DropAction.h"
+#include "InsertAction.h"
+#include "SelectAction.h"
+#include "ShowCreateAction.h"
+#include "UpdateAction.h"
 class BaseCreator {
    public:
     virtual BaseAction* create() const = 0;
@@ -26,9 +31,13 @@ class ActionFactory {
 
    public:
     ActionFactory() {
-        this->add<ActionCreate>(CREATE);
-        this->add<ActionDrop>(DROP);
-        this->add<ActionShowCreate>(SHOW_CREATE);
+        this->add<CreateAction>(CREATE);
+        this->add<DropAction>(DROP);
+        this->add<ShowCreateAction>(SHOW_CREATE);
+        this->add<DeleteAction>(DELETE);
+        this->add<InsertAction>(INSERT);
+        this->add<SelectAction>(SELECT);
+        this->add<UpdateAction>(UPDATE);
     }
 
     template <class T>

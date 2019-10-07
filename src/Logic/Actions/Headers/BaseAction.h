@@ -6,13 +6,16 @@
 #define SELSQL_BASEACTION_H
 
 #include "../../../Engine/Headers/MainEngine.h"
+#include "../../../Utils/Structures/BigResponse.h"
 
 class BaseAction {
    protected:
     int errorCode;
 
    public:
-    virtual Response execute(Response& response, MainEngine* mainEngine) = 0;
+    virtual BigResponse execute(BigRequest& _request, MainEngine* mainEngine) = 0;
+
+    BigResponse response;
 };
 
 #endif  // SELSQL_BASEACTION_H

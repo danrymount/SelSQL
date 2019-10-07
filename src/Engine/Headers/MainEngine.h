@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_MAINENGINE_H
 #define SELSQL_MAINENGINE_H
+#include "../../Utils/Structures/Data/Table.h"
 #include "../Headers/APIEngine.h"
 #include "../Headers/FileManager.h"
 class MainEngine : public APIEngine {
