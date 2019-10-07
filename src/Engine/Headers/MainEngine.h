@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_MAINENGINE_H
 #define SELSQL_MAINENGINE_H
+#include "../../Utils/Structures/BigResponse.h"
 #include "../../Utils/Structures/Data/Table.h"
 #include "../Headers/APIEngine.h"
 #include "../Headers/FileManager.h"
@@ -13,6 +14,10 @@ class MainEngine : public APIEngine {
 
     explicit MainEngine();
 
+    BigResponse Select(BigRequest* bigRequest);
+    BigResponse Insert(BigRequest* bigRequest);
+    BigResponse Update(BigRequest* bigRequest);
+    BigResponse Delete(BigRequest* bigRequest);
     int CreateTable(Table* table) override;
     Table* ShowCreateTable(std::string table_name) override;
     int DropTable(std::string table_name) override;
