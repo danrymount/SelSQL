@@ -10,7 +10,8 @@
 
 all "*"
 numbers ([0-9])+
-words   ([A-Za-z0-9]*)
+floatnumb ([0-9]+"."[0-9]+)+
+words   ([-A-Za-z0-9]*)
 ddlcreate "CREATE"
 ddldrop "DROP"
 ddlshow "SHOW CREATE"
@@ -27,9 +28,11 @@ null "NULL"
 
 
 equally "="
+sign ">="|"<="|"!="|"<"|">"
 brackets "("|")"
 table "TABLE"|"table"
 constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
+other [^\40()<>=',;a-zA-Z0-9]+
 
 %%
 {all}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return ALL; }
@@ -46,16 +49,18 @@ constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
 {set}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SET; }
 {brackets}      { ch += yyleng; sscanf(yytext, "%c", yylval.string); return BRACKET; }
 {equally}       { ch += yyleng; sscanf(yytext, "%c", yylval.string); return EQUALLY; }
+{sign}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SIGN; }
 {constraints}   { ch += yyleng; sscanf(yytext, "%s", yylval.string); return CONSTRAINT; }
 {from}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FROM; }
 {where}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return WHERE; }
 {numbers}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NUMBER; }
+{floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
 {words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
+{other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
 ";"             { ch += yyleng; return SEMICOLON; }
 ","             { ch += yyleng; return COMMA; }
 "'"             { ch += yyleng; return STROKE; }
-
 %%
 
 void showError(){

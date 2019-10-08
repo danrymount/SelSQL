@@ -16,7 +16,7 @@
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT DMLINSERT VALUES
-NUMBER WHERE EQUALLY STR FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL
+NUMBER WHERE EQUALLY STR FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL FLOATNUM SIGN
 
 %union{
     char string[256];
@@ -84,6 +84,10 @@ update_set:
         printf("UPCOL = %s, UPVALSTRNULL = %s\n", $2, $5);
     }
     |
+    SET STRING EQUALLY FLOATNUM {
+        printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
+    }
+    |
     update_set COMMA STRING EQUALLY STROKE STRING STROKE {
     	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
     }
@@ -99,11 +103,19 @@ update_set:
     update_set COMMA STRING EQUALLY VALNULL {
         printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
     }
+    |
+    update_set COMMA STRING EQUALLY FLOATNUM {
+        printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
+    }
 
 table_delete:
-    DMLDELETE STRING
+    DMLDELETE STRING {
+        printf("TABLE = %s\n", $2);
+    }
     |
-    DMLDELETE STRING where
+    DMLDELETE STRING where {
+        printf("TABLE = %s\n", $2);
+    }
 
 table_select:
     col_select FROM STRING {
@@ -140,6 +152,10 @@ insert_where:
 where:
     WHERE STRING EQUALLY STRING {
         printf("WHERE %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING SIGN STRING {
+        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
 
 insert:
@@ -186,8 +202,12 @@ values:
     	printf("VALNULL = %s\n", $2);
     }
     |
+    values FLOATNUM {
+    	printf("VALFLOAT = %s\n", $2);
+    }
+    |
     values COMMA STROKE STRING STROKE {
-         printf("VALSTR = %s\n", $4);
+         printf("VALSTR = %s\n", $2);
     }
     |
     values COMMA STROKE VALNULL STROKE {
@@ -204,6 +224,10 @@ values:
         printf("VALNULL = %s\n", $3);
     }
     |
+    values COMMA FLOATNUM {
+        printf("VALFLOAT = %s\n", $3);
+    }
+    |
     values BRACKET
 
 brackets:
@@ -212,7 +236,6 @@ brackets:
 inner_expr:
     STRING TYPE {
 	logicApi.addColumn($1, $2);
-	printf("VA = %s\n", $1);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
