@@ -17,6 +17,10 @@ class Error {
 
     int getErrorCode() { return errorCode; }
 
+    void setErrorMsg(std::string &_msg) { errorMsg = _msg; }
+
+    void setErrorCode(int _code) { errorCode = _code; }
+
     std::string getErrorMsg() { return errorMsg; }
 
    private:

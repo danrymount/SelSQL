@@ -233,12 +233,13 @@ BigResponse parse_request(const char* in) {
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
-  response.error.errorCode = response.error.errorCode || res;
+  response.error.setErrorCode(response.error.getErrorCode() || res);
   return response;
 }
 
 int yyerror(const char *errmsg){
-    response.error.errorMsg = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
+    std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
+    response.error.setErrorMsg(str);
     //fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
     return 0;

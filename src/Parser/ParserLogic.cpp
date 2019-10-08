@@ -10,15 +10,15 @@ void ParserLogic::addColumn(char* name, char* type) {
         response.ddlData.table.addField(string(name), parserUtils.stringToType(string(type)));
         checkName[string(name)] = 1;
     } else {
-        response.error.errorCode = 1;
-        response.error.errorMsg = Constants::ERR_SAME_FIELD_NAME;
+        response.error = Error(ErrorConstants::ERR_SAME_FIELD_NAME);
     }
 }
 
 void ParserLogic::addConstraint(char* name) {
-    response.error.errorCode = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
-    if (response.error.errorCode)
-        response.error.errorMsg = Constants::ERR_SAME_CONSTRAINT;
+    // response.error.errorCode = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
+    if (response.error.getErrorCode()) {
+        response.error = Error(ErrorConstants::ERR_SAME_CONSTRAINT);
+    }
 }
 
 BigResponse ParserLogic::finish() { return response; }

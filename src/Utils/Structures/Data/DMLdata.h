@@ -12,8 +12,6 @@ class DMLdata : public DQLdata {
    public:
     DMLdata() = default;
 
-    std::map<std::string, Condition> conditions;
-
     std::vector<std::string> values;
     // std::map<std::string, std::string> values;
 

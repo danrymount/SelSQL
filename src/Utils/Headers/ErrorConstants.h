@@ -7,7 +7,6 @@
 #include <map>
 #include <string>
 class ErrorConstants {
-   private:
     inline static const std::string ERR_TABLE_EXISTS_str = "Table already exists";
     inline static const std::string ERR_TABLE_NOT_EXISTS_str = "Table doesn`t exist";
     inline static const std::string ERR_SAME_CONSTRAINT_str = "Constraint already exists";
@@ -15,13 +14,13 @@ class ErrorConstants {
     inline static const std::string ERR_INSERT_VALUES_SIZE_str = "Invalid count of columns and values";
 
    public:
-    static const int ERR_TABLE_EXISTS = 1;
-    static const int ERR_TABLE_NOT_EXISTS = 2;
-    static const int ERR_SAME_CONSTRAINT = 3;
-    static const int ERR_SAME_FIELD_NAME = 4;
-    static const int ERR_INSERT_VALUES_SIZE = 5;
+    inline static const int ERR_TABLE_EXISTS = 1;
+    inline static const int ERR_TABLE_NOT_EXISTS = 2;
+    inline static const int ERR_SAME_CONSTRAINT = 3;
+    inline static const int ERR_SAME_FIELD_NAME = 4;
+    inline static const int ERR_INSERT_VALUES_SIZE = 5;
 
-    inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_INSERT_VALUES_SIZE_str},
+    inline static std::map<int, std::string> mapOfErrors = {{ERR_SAME_CONSTRAINT, ERR_INSERT_VALUES_SIZE_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
                                                             {ERR_SAME_CONSTRAINT, ERR_SAME_CONSTRAINT_str},
                                                             {ERR_SAME_FIELD_NAME, ERR_SAME_FIELD_NAME_str},
