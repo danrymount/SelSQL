@@ -16,7 +16,7 @@
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT DMLINSERT VALUES
-NUMBER WHERE EQUALLY STR FROM DQLSELECT
+NUMBER WHERE EQUALLY STR FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL
 
 %union{
     char string[256];
@@ -45,15 +45,70 @@ actions:
         logicApi.addActionName($1);
     }
     |
-    DMLINSERT act_insert {
-	logicApi.addActionName($1);
+    DMLINSERT insert_where {
+    	logicApi.addActionName($1);
+	printf("INSERT\n");
     }
     |
-    table_select
+    table_select {
+        printf("SELECT\n");
+    }
+    |
+    table_delete {
+        printf("DELETE\n");
+    }
+    |
+    DMLUPDATE STRING table_update {
+        printf("%s, %s\n", $1, $2);
+    }
+
+table_update:
+    update_set
+    |
+    table_update where
+
+update_set:
+    SET STRING EQUALLY STROKE STRING STROKE {
+        printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
+    }
+    |
+    SET STRING EQUALLY NUMBER {
+        printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
+    }
+    |
+    SET STRING EQUALLY VALNULL {
+        printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
+    }
+    |
+    SET STRING EQUALLY STROKE VALNULL STROKE {
+        printf("UPCOL = %s, UPVALSTRNULL = %s\n", $2, $5);
+    }
+    |
+    update_set COMMA STRING EQUALLY STROKE STRING STROKE {
+    	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
+    }
+    |
+    update_set COMMA STRING EQUALLY NUMBER {
+        printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
+    }
+    |
+    update_set COMMA STRING EQUALLY STROKE VALNULL STROKE {
+        printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
+    }
+    |
+    update_set COMMA STRING EQUALLY VALNULL {
+        printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
+    }
+
+table_delete:
+    DMLDELETE STRING
+    |
+    DMLDELETE STRING where
 
 table_select:
     col_select FROM STRING {
-        logicApi.addTableName($3);
+    	logicApi.addTableName($3);
+        printf("TABLE = %s\n", $3);
     }
     |
     table_select where
@@ -61,32 +116,45 @@ table_select:
 col_select:
     DQLSELECT STRING {
     	logicApi.addSelectColumn($2);
+    	printf("COL = %s\n", $2);
+    }
+    |
+    DQLSELECT ALL {
+        printf("COLALL = %s\n", $2);
     }
     |
     col_select COMMA STRING {
-    	logicApi.addSelectColumn($3);
+    	logicApi.addSelectColumn($2);
+    	printf("COL = %s\n", $2);
+    }
+    |
+    col_select COMMA ALL {
+        printf("COLALL = %s\n", $2);
     }
 
-act_insert:
+insert_where:
     insert
     |
     insert where
 
 where:
-    WHERE STRING EQUALLY STRING
-    |
-    WHERE STRING EQUALLY NUMBER
+    WHERE STRING EQUALLY STRING {
+        printf("WHERE %s %s %s\n", $2, $3, $4);
+    }
 
 insert:
     STRING values {
-	logicApi.addTableName($1);
+    	logicApi.addTableName($1);
+	printf("TABLE = %s\n", $1);
     }
     | STRING BRACKET STRING {
     	logicApi.addTableName($1);
-    	logicApi.addColumn($3);
+        logicApi.addColumn($3);
+        printf("TABLE = %s COL = %s\n", $1, $3);
     }
     | insert COMMA STRING {
         logicApi.addColumn($3);
+        printf("COL = %s\n", $3);
     }
     | insert BRACKET
     | insert values
@@ -100,20 +168,40 @@ table:
 values:
     VALUES BRACKET
     |
-    values STRING {
-    	logicApi.addValue($2);
+    values STROKE STRING STROKE {
+    	logicApi.addValue($3);
+    	printf("VALSTR = %s\n", $3);
+    }
+    |
+    values STROKE VALNULL STROKE {
+    	printf("VALSTRNULL = %s\n", $3);
     }
     |
     values NUMBER {
     	logicApi.addValue($2);
+    	printf("VALNUM = %s\n", $2);
     }
     |
-    values COMMA STRING  {
-         logicApi.addValue($3);
+    values VALNULL {
+    	printf("VALNULL = %s\n", $2);
     }
     |
-    values COMMA NUMBER  {
-         logicApi.addValue($3);
+    values COMMA STROKE STRING STROKE {
+         printf("VALSTR = %s\n", $4);
+    }
+    |
+    values COMMA STROKE VALNULL STROKE {
+    	logicApi.addValue($4);
+        printf("VALSTRNULL = %s\n", $4);
+    }
+    |
+    values COMMA NUMBER {
+    	logicApi.addValue($3);
+        printf("VALNUM = %s\n", $3);
+    }
+    |
+    values COMMA VALNULL {
+        printf("VALNULL = %s\n", $3);
     }
     |
     values BRACKET
@@ -124,6 +212,7 @@ brackets:
 inner_expr:
     STRING TYPE {
 	logicApi.addColumn($1, $2);
+	printf("VA = %s\n", $1);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
