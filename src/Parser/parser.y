@@ -51,15 +51,16 @@ actions:
     }
     |
     table_select {
-        logicApi.addActionName("Select");
+    	logicApi.addActionName("select");
+
+        printf("SELECT\n");
     }
     |
     table_delete {
-        logicApi.addActionName("Delete");
+        printf("DELETE\n");
     }
     |
     DMLUPDATE STRING table_update {
-     	logicApi.addActionName($1);
         printf("%s, %s\n", $1, $2);
     }
 
@@ -173,13 +174,31 @@ insert_where:
     insert where
 
 where:
-    WHERE STRING EQUALLY STRING {
-    	logicApi.addCondition($2, $3, $3);
+    WHERE STRING EQUALLY STROKE STRING STROKE {
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
-    WHERE STRING SIGN STRING {
-    	logicApi.addCondition($2, $3, $4);
+    WHERE STRING EQUALLY NUMBER {
+        printf("WHERE %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING EQUALLY FLOATNUM {
+        printf("WHERE %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING EQUALLY VALNULL {
+        printf("WHERE %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING SIGN STROKE STRING STROKE {
+        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING SIGN NUMBER {
+        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
+    }
+    |
+    WHERE STRING SIGN FLOATNUM {
         printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
 
@@ -250,12 +269,12 @@ values:
     }
     |
     values COMMA VALNULL {
-    	logicApi.addValue($2);
+    	logicApi.addValue($3);
         printf("VALNULL = %s\n", $3);
     }
     |
     values COMMA FLOATNUM {
-    	logicApi.addValue($2);
+    	logicApi.addValue($3);
         printf("VALFLOAT = %s\n", $3);
     }
     |

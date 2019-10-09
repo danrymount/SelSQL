@@ -103,8 +103,7 @@ TEST(SYNTAX_ERROR_TEST, TEST1) {
     std::string str = "CREAT TABLE name1(ID INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
-    EXPECT_EQ("syntax error, unexpected STRING, expecting DDLCREATE or DDLSHOW or DDLDROP (Str num 1, sym num 5): "
-              "CREAT",
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): CREAT",
               res.error.getErrorMsg());
 }
 
@@ -112,7 +111,7 @@ TEST(SYNTAX_ERROR_TEST, TEST2) {
     std::string str = "CREATE TABLE name1(1565 INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
-    EXPECT_EQ("syntax error, unexpected TYPE, expecting STRING (Str num 1, sym num 20): INT", res.error.getErrorMsg());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 21): 1565", res.error.getErrorMsg());
 }
 
 TEST(SYNTAX_ERROR_TEST, TEST3) {
