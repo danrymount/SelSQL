@@ -12,6 +12,13 @@ class DMLdata : public DQLdata {
    public:
     DMLdata() = default;
 
+    DMLdata(std::vector<std::string> &_columns, std::vector<std::string> &_values,
+            std::map<std::string, Condition> &_conditions)
+                                                                                                        : DQLdata(_columns,
+                                                                                                                  _conditions),
+                                                                                                          values(_values) {
+    }
+
     std::vector<std::string> values;
     // std::map<std::string, std::string> values;
 

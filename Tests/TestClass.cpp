@@ -9,6 +9,7 @@
 #include "parser.cpp"
 
 BigResponse res;
+std::string str;
 
 TEST(CREATE_TEST, TEST2) {
     std::string str = "CREATE TABLE name1(ID INT);";
@@ -117,15 +118,15 @@ TEST(SYNTAX_ERROR_TEST, TEST3) {
     std::string str = "CREAT TABLE name1(ID INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
-    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): CREAT",
-              res.error.getErrorMsg());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): CREAT", res.error.getErrorMsg());
 }
 
 TEST(SYNTAX_ERROR_TEST, TEST4) {
     std::string str = "CREATE TABLE name1(1565 INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
-    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 21): 1565", res.error.getErrorMsg());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 21): 1565",
+              res.error.getErrorMsg());
 }
 
 TEST(SYNTAX_ERROR_TEST, TEST5) {
@@ -461,7 +462,8 @@ TEST(ERROR_TEST, TEST1) {
     EXPECT_EQ(1, res.error.getErrorCode());
     EXPECT_EQ(ErrorConstants::ERR_TABLE_EXISTS_str, res.error.getErrorMsg());
     str = "DROP TABLE name1;";
-    parse_request(str.c_str());
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
 }
 
 TEST(SHOW_CREATE, TEST1) {
@@ -472,14 +474,14 @@ TEST(SHOW_CREATE, TEST1) {
     res = parse_request(str.c_str());
     res = MainLogic::executeRequest(res);
     EXPECT_EQ(0, res.error.getErrorCode());
-    EXPECT_EQ("CREATE TABLE name2(ID INT );", res.error.getErrorMsg());
+    EXPECT_EQ("CREATE TABLE name2(ID INT );", res.ddlData.returnMsg);
     str = "DROP TABLE name2;";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
 }
 
 TEST(SHOW_CREATE, TEST2) {
-    std::string str = "CREATE TABLE name3(ID INT PRIMARY KEY);";
+    str = "CREATE TABLE name3(ID INT PRIMARY KEY);";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
     str = "SHOW CREATE TABLE name3;";
@@ -487,9 +489,34 @@ TEST(SHOW_CREATE, TEST2) {
     res = MainLogic::executeRequest(res);
     EXPECT_EQ(0, res.error.getErrorCode());
     str = "DROP TABLE name3;";
+    BigResponse result = parse_request(str.c_str());
+    result = MainLogic::executeRequest(result);
+    EXPECT_EQ(0, result.error.getErrorCode());
+    result = parse_request(res.ddlData.returnMsg.c_str());
+    result = MainLogic::executeRequest(result);
+    EXPECT_EQ(0, result.error.getErrorCode());
+    // EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
+}
+
+TEST(INSERT_TEST, TEST1) {
+    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
+                                                            {"count", Variable(CHAR, std::vector<Constraint>{UNIQUE})}};
+    std::vector<std::string> _values = {"4", "5"};
+    std::vector<std::string> _columns;
+    std::map<std::string, Condition> _conditions;
+
+    Error err;
+    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
+                    DQLdata(), err);
+    str = "CREATE TABLE tname(id INT, count INT);";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
-    BigResponse result = parse_request(res.ddlData.returnMsg.c_str());
-    result = MainLogic::executeRequest(res);
-    EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
+    str = "INSERT INTO tname VALUES(4,5)";
+    res = parse_request(str.c_str());
+    res = MainLogic::executeRequest(res);
+    EXPECT_EQ(0, res.error.getErrorCode());
+    TestUtils::compareDml(obj, res);
+    str = "DROP TABLE tname;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
 }
