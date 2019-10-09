@@ -175,30 +175,37 @@ insert_where:
 
 where:
     WHERE STRING EQUALLY STROKE STRING STROKE {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING EQUALLY NUMBER {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING EQUALLY FLOATNUM {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING EQUALLY VALNULL {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING SIGN STROKE STRING STROKE {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING SIGN NUMBER {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING SIGN FLOATNUM {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
 

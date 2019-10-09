@@ -20,7 +20,7 @@ class ErrorConstants {
     inline static const int ERR_SAME_FIELD_NAME = 4;
     inline static const int ERR_INSERT_VALUES_SIZE = 5;
 
-    inline static std::map<int, std::string> mapOfErrors = {{ERR_SAME_CONSTRAINT, ERR_INSERT_VALUES_SIZE_str},
+    inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
                                                             {ERR_SAME_CONSTRAINT, ERR_SAME_CONSTRAINT_str},
                                                             {ERR_SAME_FIELD_NAME, ERR_SAME_FIELD_NAME_str},

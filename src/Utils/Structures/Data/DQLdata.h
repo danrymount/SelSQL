@@ -9,6 +9,11 @@
 class DQLdata {
    public:
     DQLdata() = default;
+    DQLdata(std::vector<std::string> _columns, std::map<std::string, Condition> _conditions)
+                                                                                                        : columns(_columns),
+                                                                                                          conditions(_conditions) {
+    }
+
     std::vector<std::string> columns;
     std::map<std::string, Condition> conditions;
 
