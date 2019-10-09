@@ -51,6 +51,8 @@ actions:
     }
     |
     table_select {
+    	logicApi.addActionName("select");
+
         printf("SELECT\n");
     }
     |

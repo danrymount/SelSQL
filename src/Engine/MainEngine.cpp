@@ -19,3 +19,23 @@ int MainEngine::DropTable(std::string table_name) {
 }  // returns 0 if table is dropped and non-zero if table doesnt exist
 
 MainEngine::MainEngine() { file_manager_ = new FileManager(); }
+BigResponse MainEngine::Insert(BigRequest* bigRequest) {
+    file_manager_->OpenFile(bigRequest->tableName);
+    Table* t = file_manager_->GetTableData(bigRequest->tableName);
+
+    cursor = new Cursor(t, file_manager_);
+
+    cursor->Insert(bigRequest->dmlData.columns, bigRequest->dmlData.values);
+    cursor->Commit();
+
+    return BigResponse();
+}
+BigResponse MainEngine::Select(BigRequest* bigRequest) {
+    file_manager_->OpenFile(bigRequest->tableName);
+    Table* t = file_manager_->GetTableData(bigRequest->tableName);
+
+    cursor = new Cursor(t, file_manager_);
+    cursor->Fetch();
+    cursor->Fetch();
+    return BigResponse();
+}

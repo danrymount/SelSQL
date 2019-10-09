@@ -4,6 +4,6 @@
 
 #include "Headers/SelectAction.h"
 BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    // response = mainEngine->SelectFromTable(response.table.name, cols) TODO (table_name, vector<string> columns_name)
-    return BigResponse();
+    response = mainEngine->Select(&_request);
+    return response;
 }

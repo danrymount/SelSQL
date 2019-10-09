@@ -8,7 +8,7 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
         return response;
     }
-    // response = mainEngine->Insert(&_request);
+    response = mainEngine->Insert(&_request);
     // if (!response.error.errorCode)
     return response;
     // maybe make 2 functions with different args

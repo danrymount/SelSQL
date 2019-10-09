@@ -4,6 +4,7 @@
 
 void FileManager::WriteMetaData(Table* table) {
     std::fstream* new_file = files_[table->name];
+    new_file->seekp(0);
     new_file->write(table->name.c_str(), table->name.size());
     new_file->seekp(Constants::MD_COLUMN_NAME_SIZE);
     write_int(new_file, table->getFields().size());
@@ -15,7 +16,10 @@ void FileManager::WriteMetaData(Table* table) {
             write_int(new_file, Constraint(constr));
         }
     }
-    new_file->close();
+    new_file->seekp(Constants::DATA_PAGE_START_POS);
+    write_int(new_file, table->record_amount);
+    std::cerr << "WRITE META " << new_file->tellg();
+    new_file->seekp(0);
 }
 
 void FileManager::ReadMetaData(std::string table_name) {
@@ -41,10 +45,12 @@ void FileManager::ReadMetaData(std::string table_name) {
             constraints.emplace_back(Constraint(constr_type));
         }
         var.setConstraints(constraints);
-        table.addField(std::string(var_name),var);
+        table.addField(std::string(var_name), var);
     }
     table.name = std::string(name);
-
+    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS);
+    files_[table_name]->read(reinterpret_cast<char*>(&table.record_amount), sizeof(int));
+    table.calcRecordSize();
     table_data[table_name] = table;
 }
 int FileManager::OpenFile(std::string table_name) {
@@ -82,6 +88,27 @@ int FileManager::DeleteTable(std::string table_name) {
         files_.erase(table_name);
     }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
+}
+char* FileManager::GetData(std::string table_name) {
+    char* new_data = new char[Constants::DATA_PAGE_SIZE];
+    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4);
+    std::cerr << "\n READ_DATA " << files_[table_name]->tellg();
+    files_[table_name]->read(new_data, table_data[table_name].record_size * table_data[table_name].record_amount);
+    return new_data;
+}
+int FileManager::UpdateFile(Table* table, char* src) {
+    this->WriteMetaData(table);
+    this->WriteData(table, src);
+    return 0;
+}
+void FileManager::WriteData(Table* table, char* src) {
+    std::fstream* new_file = files_[table->name];
+
+    new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
+    std::cerr << "\nWRITE META " << new_file->tellg();
+    new_file->write(src, Constants::DATA_PAGE_SIZE);
+
+    new_file->close();
 }
 void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
 int read_int(std::fstream* file) {

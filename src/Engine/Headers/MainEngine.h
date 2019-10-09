@@ -4,11 +4,15 @@
 
 #ifndef SELSQL_MAINENGINE_H
 #define SELSQL_MAINENGINE_H
+
 #include "../../Utils/Structures/BigResponse.h"
 #include "../../Utils/Structures/Data/Table.h"
 #include "../Headers/APIEngine.h"
 #include "../Headers/FileManager.h"
+#include "Cursor.h"
 class MainEngine : public APIEngine {
+    Cursor* cursor;
+
    public:
     FileManager* file_manager_;
 
