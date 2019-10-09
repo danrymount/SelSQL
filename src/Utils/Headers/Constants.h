@@ -24,7 +24,10 @@ class Constants {
 
     static const int DATA_PAGE_SIZE = 4 * 1024;
 
-    inline static std::map<Type, size_t> TYPE_SIZE = {{INT, 4}, {FLOAT, 8}, {BOOLEAN, 1}, {CHAR, 256}};
+    inline static std::map<Type, size_t> TYPE_SIZE = {{INT, sizeof(int)},
+                                                      {FLOAT, sizeof(double)},
+                                                      {BOOLEAN, 1},
+                                                      {CHAR, 256}};
 };
 
 #endif  // SELSQL_CONSTANTS_H

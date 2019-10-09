@@ -9,19 +9,19 @@
 class Cursor {
     Table* table;
     FileManager* fileManager;
-    char* data;
+    unsigned char* data;
 
     std::vector<std::pair<std::string, std::string>> vals;
 
-    void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
-    void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
+    void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
+    void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
 
    public:
     int pos = 0;
     Cursor(Table* t, FileManager* fm) {
         table = t;
         fileManager = fm;
-        data = new char[Constants::DATA_PAGE_SIZE];
+        data = new unsigned char[Constants::DATA_PAGE_SIZE];
         data = fileManager->GetData(table->name);
         for (const auto& i : table->fields) {
             vals.emplace_back(std::make_pair(i.first, ""));

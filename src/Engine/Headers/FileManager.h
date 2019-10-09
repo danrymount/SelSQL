@@ -20,16 +20,16 @@ class FileManager {
 
     void ReadMetaData(std::string table_name);
     void WriteMetaData(Table* table);
-    void WriteData(Table* table, char* src);
+    void WriteData(Table* table, unsigned char* src);
 
    public:
     int OpenFile(std::string table_name);
     int CreateFile(Table* table);
     Table* GetTableData(std::string table_name);
     int DeleteTable(std::string table_name);
-    char* GetData(std::string table_name);
+    unsigned char* GetData(std::string table_name);
     explicit FileManager() = default;
-    int UpdateFile(Table* table, char* src);
+    int UpdateFile(Table* table, unsigned char* src);
 };
 
 #endif  // SELSQL_FILEMANAGER_H

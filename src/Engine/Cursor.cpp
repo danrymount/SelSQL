@@ -1,29 +1,42 @@
 #include "Headers/Cursor.h"
 #include <cstring>
 
-void Cursor::SaveFieldData(std::string val, Type type, char* dist, int start_pos) {
-    char null_flag = 'n';
-    char temp_field[Constants::TYPE_SIZE[type]];
-    char* temp_val;
+void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos) {
+    unsigned char null_flag = 'n';
+    unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
+    auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
     switch (type) {
         case INT: {
-            int v = std::stoi(val);
             if (!val.empty()) {
-                temp_val = reinterpret_cast<char*>(&v);
+                int v = std::stoi(val);
+                std::memcpy(&temp_field[1], &v, Constants::TYPE_SIZE[type]);
             } else {
                 null_flag = 'N';
             }
             break;
         }
-        case FLOAT:
+        case FLOAT: {
+            if (!val.empty()) {
+                double fl = std::stod(val);
+                std::memcpy(&temp_field[1], &fl, Constants::TYPE_SIZE[type]);
+            } else {
+                null_flag = 'N';
+            }
             break;
+        }
         case BOOLEAN:
             break;
-        case CHAR:
+        case CHAR: {
+            if (!val.empty()) {
+                val.reserve(Constants::TYPE_SIZE[type]);
+                std::memcpy(&temp_field[1], val.c_str(), Constants::TYPE_SIZE[type]);
+            } else {
+                null_flag = 'N';
+            }
             break;
+        }
     }
     temp_field[0] = null_flag;
-    std::memcpy(&temp_field[1], temp_val, Constants::TYPE_SIZE[type]);
     std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
 }
 
@@ -32,8 +45,10 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     int count = 0;
     for (auto& i : vals) {
         if (cols.empty()) {
-            i.second = new_data[count++];
-            continue;
+            if (count < new_data.size()) {
+                i.second = new_data[count++];
+                continue;
+            }
         }
         for (int j = 0; j < cols.size(); ++j) {
             if (i.first == cols[j]) {
@@ -43,7 +58,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     auto fields = table->getFields();
-    char record[table->record_size];
+    unsigned char record[table->record_size];
     int next_pos = 0;
     for (int i = 0; i < vals.size(); ++i) {
         Type type = fields[i].second.type;
@@ -61,18 +76,22 @@ int Cursor::Commit() {
     return 0;
 }
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
-    char record[table->record_size];
+    unsigned char record[table->record_size];
     std::vector<std::pair<std::string, std::string>> values;
     std::memcpy(record, &data[pos * table->record_size], table->record_size);
     int field_pos = 0;
     for (int i = 0; i < table->fields.size(); ++i) {
-        char field[Constants::TYPE_SIZE[table->fields[i].second.type] + 1];
+        unsigned char field[Constants::TYPE_SIZE[table->fields[i].second.type] + 1];
         Type type = table->fields[i].second.type;
         std::string value = "";
         std::memcpy(field, &data[field_pos + pos * table->record_size],
                     Constants::TYPE_SIZE[table->fields[i].second.type] + 1);
         if (field[0] == 'n') {
             GetFieldData(&value, type, field, 0);
+        }
+        if (field[0] == '0') {
+            Next();
+            Fetch();
         }
         values.emplace_back(std::make_pair(table->fields[i].first, value));
         field_pos += Constants::TYPE_SIZE[table->fields[i].second.type] + 1;
@@ -82,21 +101,29 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     }
     return values;
 }
-void Cursor::GetFieldData(std::string* dist, Type type, char* src, int start_pos) {
+void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos) {
     switch (type) {
         case INT: {
             int v;
-            std::memcpy(&v, &src[start_pos + 1], sizeof(int));
+            std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
         }
 
-        case FLOAT:
+        case FLOAT: {
+            double v;
+            std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
+            *dist = std::to_string(v);
             break;
+        } break;
         case BOOLEAN:
             break;
-        case CHAR:
+        case CHAR: {
+            char dst[Constants::TYPE_SIZE[type]];
+            std::memcpy(dst, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
+            *dist = std::string(dst);
             break;
+        }
     }
 }
 int Cursor::Next() {

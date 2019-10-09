@@ -88,23 +88,25 @@ int FileManager::DeleteTable(std::string table_name) {
     }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
-char* FileManager::GetData(std::string table_name) {
-    char* new_data = new char[Constants::DATA_PAGE_SIZE];
+unsigned char* FileManager::GetData(std::string table_name) {
+    auto new_data = new char[Constants::DATA_PAGE_SIZE];
     files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4);
 
     files_[table_name]->read(new_data, table_data[table_name].record_size * table_data[table_name].record_amount);
-    return new_data;
+    auto res = reinterpret_cast<unsigned char*>(new_data);
+    return res;
 }
-int FileManager::UpdateFile(Table* table, char* src) {
+int FileManager::UpdateFile(Table* table, unsigned char* src) {
     this->WriteMetaData(table);
     this->WriteData(table, src);
     return 0;
 }
-void FileManager::WriteData(Table* table, char* src) {
+void FileManager::WriteData(Table* table, unsigned char* src) {
     std::fstream* new_file = files_[table->name];
 
+    auto res = reinterpret_cast<char*>(src);
     new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
-    new_file->write(src, Constants::DATA_PAGE_SIZE);
+    new_file->write(res, Constants::DATA_PAGE_SIZE);
 
     new_file->close();
 }
