@@ -100,6 +100,20 @@ TEST(CREATE_TEST, TEST9) {
 }
 
 TEST(SYNTAX_ERROR_TEST, TEST1) {
+    std::string str = "";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected $end (Str num 1, sym num 0): ", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST2) {
+    std::string str = "c";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 1): c", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST3) {
     std::string str = "CREAT TABLE name1(ID INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
@@ -107,21 +121,21 @@ TEST(SYNTAX_ERROR_TEST, TEST1) {
               res.error.getErrorMsg());
 }
 
-TEST(SYNTAX_ERROR_TEST, TEST2) {
+TEST(SYNTAX_ERROR_TEST, TEST4) {
     std::string str = "CREATE TABLE name1(1565 INT);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
     EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 21): 1565", res.error.getErrorMsg());
 }
 
-TEST(SYNTAX_ERROR_TEST, TEST3) {
+TEST(SYNTAX_ERROR_TEST, TEST5) {
     std::string str = "CREATE TABLE name1(ID IN);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
     EXPECT_EQ("syntax error, unexpected STRING, expecting TYPE (Str num 1, sym num 21): IN", res.error.getErrorMsg());
 }
 
-TEST(SYNTAX_ERROR_TEST, TEST4) {
+TEST(SYNTAX_ERROR_TEST, TEST6) {
     std::string str = "CREATE TABLE name1(ID INT NOT NU);";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
@@ -129,11 +143,312 @@ TEST(SYNTAX_ERROR_TEST, TEST4) {
               res.error.getErrorMsg());
 }
 
-TEST(SYNTAX_ERROR_TEST, TEST5) {
+TEST(SYNTAX_ERROR_TEST, TEST7) {
     std::string str = "CREATE TABLE name1( );";
     res = parse_request(str.c_str());
     EXPECT_EQ(1, res.error.getErrorCode());
     EXPECT_EQ("syntax error, unexpected BRACKET, expecting STRING (Str num 1, sym num 18): )", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST8) {
+    std::string str = "inser into y values ('s');";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): inser", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST9) {
+    std::string str = "insert ino y values('s');";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 6): insert", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST10) {
+    std::string str = "insert into t vles('asas');";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting BRACKET or VALUES (Str num 1, sym num 16): vles", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST11) {
+    std::string str = "insert into t ('asas');";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 14): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST12) {
+    std::string str = "insert into t values(asas);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 23): asas", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST13) {
+    std::string str = "insert into values(asas);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected VALUES, expecting STRING (Str num 1, sym num 17): values", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST14) {
+    std::string str = "insert into kkkk values ('asas', 3.14)";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 34): ", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST15) {
+    std::string str = "insert into kkkk values ('asas', 3.14) whre a = 'd';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 38): whre", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST16) {
+    std::string str = "insert into kkkk values ('asas', 3.14) where 'a' = 'd';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 40): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST17) {
+    std::string str = "insert into kkkk values ('asas', 3.14) where a ? 'd';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected OTHER, expecting EQUALLY or SIGN (Str num 1, sym num 41): ?", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST18) {
+    std::string str = "delte from a;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): delte", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST19) {
+    std::string str = "delete fro a;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 6): delete", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST20) {
+    std::string str = "delete from 'asdas';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 12): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST21) {
+    std::string str = "delete from 1;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 12): 1", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST22) {
+    std::string str = "delete from t (where a = b);";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected BRACKET, expecting SEMICOLON (Str num 1, sym num 13): (", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST23) {
+    std::string str = "upate t set a = '5';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): upate", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST24) {
+    std::string str = "update 't' set a = '5';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 7): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST25) {
+    std::string str = "update t se a = '5';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting SET (Str num 1, sym num 9): se", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST26) {
+    std::string str = "update t set 'a' = 's';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 11): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST27) {
+    std::string str = "update t set 5 = 's';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 11): 5", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST28) {
+    std::string str = "update t set a 's';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting EQUALLY (Str num 1, sym num 12): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST29) {
+    std::string str = "update t set a = ;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected SEMICOLON, expecting NUMBER or STROKE or VALNULL or FLOATNUM (Str num 1, sym num 13): ;", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST30) {
+    std::string str = "update t set a = 5 whee a = b;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 17): whee", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST31) {
+    std::string str = "update t set a = 5 where a  b;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting EQUALLY or SIGN (Str num 1, sym num 20): b", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST32) {
+    std::string str = "selec * from t;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): selec", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST33) {
+    std::string str = "select ** from t;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected OTHER, expecting STRING or ALL (Str num 1, sym num 8): **", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST34) {
+    std::string str = "select 'sdf' from t;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING or ALL (Str num 1, sym num 7): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST35) {
+    std::string str = "select sdf fsdd from t;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or FROM (Str num 1, sym num 13): fsdd", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST36) {
+    std::string str = "select sdf frm t;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or FROM (Str num 1, sym num 12): frm", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST37) {
+    std::string str = "select * from 't';";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 12): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST38) {
+    std::string str = "select * from 5;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 12): 5", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST39) {
+    std::string str = "select * from ttt whre a = 5;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 18): whre", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST40) {
+    std::string str = "select * from ttt where 'a' = 5;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 20): '", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST41) {
+    std::string str = "select * from ttt where a  5;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting EQUALLY or SIGN (Str num 1, sym num 21): 5", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST42) {
+    std::string str = "dro table ddd;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 3): dro", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST43) {
+    std::string str = "drop tale ddd;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting TABLE (Str num 1, sym num 8): tale", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST44) {
+    std::string str = "drop table 15;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 11): 15", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST45) {
+    std::string str = "drop table asd, asd;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 13): ,", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST46) {
+    std::string str = "sho create table h;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 3): sho", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST47) {
+    std::string str = "show crate table h;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 4): show", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST48) {
+    std::string str = "show create tale h;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected STRING, expecting TABLE (Str num 1, sym num 15): tale", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST49) {
+    std::string str = "show create table 5;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 17): 5", res.error.getErrorMsg());
+}
+
+TEST(SYNTAX_ERROR_TEST, TEST50) {
+    std::string str = "show create table aa, df;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(1, res.error.getErrorCode());
+    EXPECT_EQ("syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 19): ,", res.error.getErrorMsg());
 }
 
 TEST(ERROR_TEST, TEST1) {
