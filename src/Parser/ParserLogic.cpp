@@ -15,8 +15,8 @@ void ParserLogic::addColumn(char* name, char* type) {
 }
 
 void ParserLogic::addConstraint(char* name) {
-    // response.error.errorCode = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
-    if (response.error.getErrorCode()) {
+    int error = response.ddlData.table.addConstraint(parserUtils.stringToConstraint(string(name)));
+    if (error) {
         response.error = Error(ErrorConstants::ERR_SAME_CONSTRAINT);
     }
 }
