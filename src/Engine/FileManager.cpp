@@ -18,7 +18,6 @@ void FileManager::WriteMetaData(Table* table) {
     }
     new_file->seekp(Constants::DATA_PAGE_START_POS);
     write_int(new_file, table->record_amount);
-    std::cerr << "WRITE META " << new_file->tellg();
     new_file->seekp(0);
 }
 
@@ -92,7 +91,7 @@ int FileManager::DeleteTable(std::string table_name) {
 char* FileManager::GetData(std::string table_name) {
     char* new_data = new char[Constants::DATA_PAGE_SIZE];
     files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4);
-    std::cerr << "\n READ_DATA " << files_[table_name]->tellg();
+
     files_[table_name]->read(new_data, table_data[table_name].record_size * table_data[table_name].record_amount);
     return new_data;
 }
@@ -105,7 +104,6 @@ void FileManager::WriteData(Table* table, char* src) {
     std::fstream* new_file = files_[table->name];
 
     new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
-    std::cerr << "\nWRITE META " << new_file->tellg();
     new_file->write(src, Constants::DATA_PAGE_SIZE);
 
     new_file->close();

@@ -29,7 +29,12 @@ void Cursor::SaveFieldData(std::string val, Type type, char* dist, int start_pos
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     int position = table->record_amount * table->record_size;
+    int count = 0;
     for (auto& i : vals) {
+        if (cols.empty()) {
+            i.second = new_data[count++];
+            continue;
+        }
         for (int j = 0; j < cols.size(); ++j) {
             if (i.first == cols[j]) {
                 i.second = new_data[j];

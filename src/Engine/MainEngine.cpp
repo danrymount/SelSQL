@@ -36,6 +36,8 @@ BigResponse MainEngine::Select(BigRequest* bigRequest) {
 
     cursor = new Cursor(t, file_manager_);
     cursor->Fetch();
-    cursor->Fetch();
+    while (!cursor->Next()) {
+        cursor->Fetch();
+    }
     return BigResponse();
 }
