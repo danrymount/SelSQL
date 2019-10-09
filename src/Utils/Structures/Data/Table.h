@@ -16,7 +16,7 @@ class Table {
 
     Table() = default;
 
-    Table(std::string &_name, FieldsMap &_fields) : name(_name), fields(_fields) {}
+    Table(std::string _name, FieldsMap _fields) : name(_name), fields(_fields) {}
 
     void addField(const std::string &field_name, Type type) {
         fields.insert(std::make_pair(field_name, Variable(type)));

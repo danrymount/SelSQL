@@ -212,7 +212,6 @@ brackets:
 inner_expr:
     STRING TYPE {
 	logicApi.addColumn($1, $2);
-	printf("VA = %s\n", $1);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);

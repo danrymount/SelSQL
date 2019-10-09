@@ -9,15 +9,15 @@
 
 class TestUtils {
    public:
-    static void comparetTables(const Response &a, const Response &b){
-        EXPECT_EQ(a.code, b.code);
-        EXPECT_EQ(a.table.name, b.table.name);
-        for (auto &field : a.table.getFields()){
-            compareField(field.second, b.table.getFields()[field.first]);
+    static void compareTables(BigResponse &a, BigResponse &b) {
+        EXPECT_EQ(a.error.getErrorCode(), b.error.getErrorCode());
+        EXPECT_EQ(a.tableName, b.tableName);
+        for (auto &field : a.ddlData.table.getFields()) {
+            compareField(field.second, b.ddlData.table.getFields()[field.first]);
         }
         EXPECT_EQ(a.action, b.action);
-        EXPECT_EQ(a.errorMsg, b.errorMsg);
-        EXPECT_EQ(a.returnMsg, b.errorMsg);
+        EXPECT_EQ(a.error.getErrorCode(), b.error.getErrorCode());
+        EXPECT_EQ(a.error.getErrorMsg(), b.error.getErrorMsg());
     }
 
     static void compareField(const Variable &a, const Variable &b){

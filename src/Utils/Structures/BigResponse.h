@@ -17,7 +17,7 @@ class BigResponse : public BigRequest {
    public:
     BigResponse() = default;
 
-    BigResponse(Action _action, std::string &_tableName, DDLdata &_ddlData, DMLdata &_dmlData, DQLdata &_dqlData,
+    BigResponse(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData,
                 Error _error)
                                                                                                         : BigRequest(_action,
                                                                                                                      _tableName,

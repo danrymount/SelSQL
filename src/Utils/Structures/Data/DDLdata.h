@@ -10,7 +10,7 @@
 class DDLdata {
    public:
     DDLdata() = default;
-    DDLdata(Table &_table, std::string &_returnMsg) : table(_table), returnMsg(_returnMsg) {}
+    DDLdata(Table _table, std::string _returnMsg) : table(_table), returnMsg(_returnMsg) {}
 
     Table table;
     std::string returnMsg;

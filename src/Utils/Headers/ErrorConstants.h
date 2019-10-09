@@ -7,13 +7,13 @@
 #include <map>
 #include <string>
 class ErrorConstants {
+   public:
     inline static const std::string ERR_TABLE_EXISTS_str = "Table already exists";
     inline static const std::string ERR_TABLE_NOT_EXISTS_str = "Table doesn`t exist";
     inline static const std::string ERR_SAME_CONSTRAINT_str = "Constraint already exists";
     inline static const std::string ERR_SAME_FIELD_NAME_str = "Field name already used";
     inline static const std::string ERR_INSERT_VALUES_SIZE_str = "Invalid count of columns and values";
 
-   public:
     inline static const int ERR_TABLE_EXISTS = 1;
     inline static const int ERR_TABLE_NOT_EXISTS = 2;
     inline static const int ERR_SAME_CONSTRAINT = 3;

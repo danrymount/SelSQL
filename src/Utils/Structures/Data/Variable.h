@@ -12,7 +12,7 @@ class Variable {
     typedef std::vector<Constraint> ConstraintsVector;
 
     Variable() = default;
-    Variable(Type _type, ConstraintsVector &_constraints) : type(_type), constraints(_constraints){};
+    Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(_constraints){};
     explicit Variable(Type type_) : type(type_) {}
 
     int addConstraint(Constraint constraint) {
