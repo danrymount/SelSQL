@@ -4,8 +4,8 @@
 
 #include "Headers/CreateAction.h"
 BigResponse CreateAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    response.error.setErrorCode(mainEngine->CreateTable(&_request.ddlData.table));
-    if (!response.error.getErrorCode())
+    int error = mainEngine->CreateTable(&_request.ddlData.table);
+    if (!error)
         return response;
     // std::cout << Constants::ERR_TABLE_EXISTS << std::endl;
     response.error = Error(ErrorConstants::ERR_TABLE_EXISTS);

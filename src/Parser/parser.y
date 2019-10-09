@@ -51,16 +51,15 @@ actions:
     }
     |
     table_select {
-    	logicApi.addActionName("select");
-
-        printf("SELECT\n");
+        logicApi.addActionName("Select");
     }
     |
     table_delete {
-        printf("DELETE\n");
+        logicApi.addActionName("Delete");
     }
     |
     DMLUPDATE STRING table_update {
+     	logicApi.addActionName($1);
         printf("%s, %s\n", $1, $2);
     }
 
@@ -138,12 +137,12 @@ col_select:
     }
     |
     col_select COMMA STRING {
-    	logicApi.addSelectColumn($2);
-    	printf("COL = %s\n", $2);
+    	logicApi.addSelectColumn($3 );
+    	printf("COL = %s\n", $3);
     }
     |
     col_select COMMA ALL {
-        printf("COLALL = %s\n", $2);
+        printf("COLALL = %s\n", $3);
     }
 
 insert_where:

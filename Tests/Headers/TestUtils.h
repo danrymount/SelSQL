@@ -12,8 +12,8 @@ class TestUtils {
     static void compareTables(BigResponse &a, BigResponse &b) {
         EXPECT_EQ(a.error.getErrorCode(), b.error.getErrorCode());
         EXPECT_EQ(a.tableName, b.tableName);
-        for (auto &field : a.ddlData.table.getFields()) {
-            compareField(field.second, b.ddlData.table.getFields()[field.first]);
+        for (int i = 0; i < a.ddlData.table.getFields().size(); i++) {
+            compareField(a.ddlData.table.getFields()[i].second, b.ddlData.table.getFields()[i].second);
         }
         EXPECT_EQ(a.action, b.action);
         EXPECT_EQ(a.error.getErrorCode(), b.error.getErrorCode());
