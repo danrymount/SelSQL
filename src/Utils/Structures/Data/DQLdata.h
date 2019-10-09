@@ -12,7 +12,10 @@ class DQLdata {
     std::vector<std::string> columns;
     std::map<std::string, Condition> conditions;
 
-    virtual void clear() { columns.clear(); }
+    virtual void clear() {
+        columns.clear();
+        conditions.clear();
+    }
 };
 
 #endif  // SELSQL_DQLDATA_H

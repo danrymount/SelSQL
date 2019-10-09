@@ -53,6 +53,7 @@ void ParserLogic::addTableName(char* name) {
 }
 
 void ParserLogic::start() {
-    response.clear();
+    BigResponse _response;
+    response = _response;
     checkName.erase(checkName.begin(), checkName.end());
 }
