@@ -1,4 +1,3 @@
-
 #include "Headers/FileManager.h"
 #include "../Utils/Structures/Data/Table.h"
 
@@ -92,7 +91,7 @@ unsigned char* FileManager::GetData(std::string table_name) {
     auto new_data = new char[Constants::DATA_PAGE_SIZE];
     files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4);
 
-    files_[table_name]->read(new_data, table_data[table_name].record_size * table_data[table_name].record_amount);
+    files_[table_name]->read(new_data, Constants::DATA_PAGE_SIZE);
     auto res = reinterpret_cast<unsigned char*>(new_data);
     return res;
 }

@@ -14,11 +14,11 @@ enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
 enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE, INSERT, UPDATE };
 
-enum Cmp { GREATEREQUALS = -3, GREATER = -2, NOEQUALS = -1, EQUALS = 1, LOWER, LOWEREQUALS };
+enum Cmp { GREATEREQUALS = -3, GREATER = -2, NOEQUALS = -1, EQUALS = 0, LOWER, LOWEREQUALS };
 
 struct Condition {
     Condition(Cmp _sign, std::string _value) : sign(_sign), value(_value) {}
-
+    Condition() = default;
     Cmp sign;
     std::string value;
 };

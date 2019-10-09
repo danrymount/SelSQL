@@ -35,9 +35,55 @@ BigResponse MainEngine::Select(BigRequest* bigRequest) {
     Table* t = file_manager_->GetTableData(bigRequest->tableName);
 
     cursor = new Cursor(t, file_manager_);
-    cursor->Fetch();
-    while (!cursor->Next()) {
-        cursor->Fetch();
-    }
+    std::vector<std::pair<std::string, std::string>> record;
+    do {
+        record = cursor->Fetch();
+        for (auto i : record) {
+            std::cout << i.first << "    =    " << i.second << std::endl;
+        }
+
+    } while (!cursor->Next());
+
+    return BigResponse();
+}
+BigResponse MainEngine::Delete(BigRequest* bigRequest) {
+    file_manager_->OpenFile(bigRequest->tableName);
+    Table* t = file_manager_->GetTableData(bigRequest->tableName);
+    cursor = new Cursor(t, file_manager_);
+    std::map<std::string, Condition> cond = bigRequest->dmlData.conditions;
+    std::vector<std::pair<std::string, std::string>> record;
+    int delete_count = 0;
+    do {
+        record = cursor->Fetch();
+        if (record.empty()) {
+            continue;
+        }
+        for (int i = 0; i < record.size(); ++i) {
+            std::string field_name = record[i].first;
+            if (cond.find(field_name) != cond.end()) {
+                switch (cond[field_name].sign) {
+                    case GREATEREQUALS:
+                        break;
+                    case GREATER:
+                        break;
+                    case NOEQUALS:
+                        break;
+                    case EQUALS: {
+                        if (record[i].second == cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
+                        break;
+                    }
+                    case LOWER:
+                        break;
+                    case LOWEREQUALS:
+                        break;
+                }
+            }
+        }
+    } while (!cursor->Next());
+    cursor->table->record_amount -= delete_count;
+    cursor->Commit();
     return BigResponse();
 }

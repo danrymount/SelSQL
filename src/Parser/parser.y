@@ -57,6 +57,7 @@ actions:
     }
     |
     table_delete {
+    	logicApi.addActionName("delete");
         printf("DELETE\n");
     }
     |

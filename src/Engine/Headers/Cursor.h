@@ -7,7 +7,6 @@
 #include "../../Utils/Headers/Constants.h"
 #include "FileManager.h"
 class Cursor {
-    Table* table;
     FileManager* fileManager;
     unsigned char* data;
 
@@ -18,6 +17,8 @@ class Cursor {
 
    public:
     int pos = 0;
+    int readed_data = 0;
+    Table* table;
     Cursor(Table* t, FileManager* fm) {
         table = t;
         fileManager = fm;
@@ -30,6 +31,7 @@ class Cursor {
     int Insert(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Commit();
     int Next();
+    int Delete();
     std::vector<std::pair<std::string, std::string>> Fetch();
 };
 #endif  // SELSQL_CURSOR_H

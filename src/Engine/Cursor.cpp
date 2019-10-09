@@ -84,19 +84,17 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         std::string value = "";
         std::memcpy(field, &data[field_pos + pos * table->record_size],
                     Constants::TYPE_SIZE[table->fields[i].second.type] + 1);
+        if (field[0] == '0' or field[0] == '\000') {
+            return std::vector<std::pair<std::string, std::string>>();
+        }
         if (field[0] == 'n') {
             GetFieldData(&value, type, field, 0);
         }
-        if (field[0] == '0') {
-            Next();
-            Fetch();
-        }
+
         values.emplace_back(std::make_pair(table->fields[i].first, value));
         field_pos += Constants::TYPE_SIZE[table->fields[i].second.type] + 1;
     }
-    for (auto i : values) {
-        std::cerr << i.first << "   =   " << i.second << std::endl;
-    }
+    readed_data++;
     return values;
 }
 void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos) {
@@ -123,10 +121,16 @@ void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int 
     }
 }
 int Cursor::Next() {
-    if (pos == table->record_amount - 1) {
+    int size = table->record_amount;
+    if (readed_data > size - 1) {
         return 1;
     } else {
         pos++;
         return 0;
     }
+}
+int Cursor::Delete() {
+    std::memset(&data[pos * table->record_size], '0', table->record_size);
+
+    return 0;
 }
