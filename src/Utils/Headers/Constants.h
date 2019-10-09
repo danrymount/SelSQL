@@ -26,7 +26,6 @@ class Constants {
 
     inline static std::map<Type, size_t> TYPE_SIZE = {{INT, sizeof(int)},
                                                       {FLOAT, sizeof(double)},
-                                                      {BOOLEAN, 1},
                                                       {CHAR, 256}};
 };
 

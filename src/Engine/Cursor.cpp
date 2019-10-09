@@ -24,8 +24,6 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
             }
             break;
         }
-        case BOOLEAN:
-            break;
         case CHAR: {
             if (!val.empty()) {
                 val.reserve(Constants::TYPE_SIZE[type]);
@@ -116,8 +114,6 @@ void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int 
             *dist = std::to_string(v);
             break;
         } break;
-        case BOOLEAN:
-            break;
         case CHAR: {
             char dst[Constants::TYPE_SIZE[type]];
             std::memcpy(dst, &src[start_pos + 1], Constants::TYPE_SIZE[type]);

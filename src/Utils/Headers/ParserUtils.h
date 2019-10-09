@@ -13,7 +13,7 @@
 class ParserUtils {
     std::map<std::string, Type> mapOfStringToType = {{"int", INT},
                                                      {"float", FLOAT},
-                                                     {"boolean", BOOLEAN},
+
                                                      {"char", CHAR}};
     std::map<std::string, Constraint> mapOfStringToConstraint = {{"not", NOT_NULL},
                                                                  {"unique", UNIQUE},
@@ -29,10 +29,7 @@ class ParserUtils {
     std::map<Constraint, std::string> mapOfConstraintToString = {{NOT_NULL, "NOT NULL"},
                                                                  {UNIQUE, "UNIQUE"},
                                                                  {PRIMARY_KEY, "PRIMARY KEY"}};
-    std::map<Type, std::string> mapOfTypeToString = {{INT, "INT"},
-                                                     {FLOAT, "FLOAT"},
-                                                     {BOOLEAN, "BOOLEAN"},
-                                                     {CHAR, "CHAR"}};
+    std::map<Type, std::string> mapOfTypeToString = {{INT, "INT"}, {FLOAT, "FLOAT"}, {CHAR, "CHAR"}};
 
    public:
     static std::string chrToString(char* name);

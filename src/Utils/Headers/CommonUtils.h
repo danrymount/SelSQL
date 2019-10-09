@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
-enum Type { INT, FLOAT, BOOLEAN, CHAR };
+enum Type { INT, FLOAT, CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
