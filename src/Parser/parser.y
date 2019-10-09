@@ -70,51 +70,73 @@ table_update:
 
 update_set:
     SET STRING EQUALLY STROKE STRING STROKE {
+    	logicApi.addColumn($2);
+    	logicApi.addValue($5);
         printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
     }
     |
     SET STRING EQUALLY NUMBER {
+    	logicApi.addColumn($2);
+	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
     }
     |
     SET STRING EQUALLY VALNULL {
+    	logicApi.addColumn($2);
+        logicApi.addValue($4);
         printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
     }
     |
     SET STRING EQUALLY STROKE VALNULL STROKE {
+    	logicApi.addColumn($2);
+	logicApi.addValue($5);
         printf("UPCOL = %s, UPVALSTRNULL = %s\n", $2, $5);
     }
     |
     SET STRING EQUALLY FLOATNUM {
+    	logicApi.addColumn($2);
+    	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
     }
     |
     update_set COMMA STRING EQUALLY STROKE STRING STROKE {
+    	logicApi.addColumn($2);
+    	logicApi.addValue($5);
     	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
     }
     |
     update_set COMMA STRING EQUALLY NUMBER {
+   	logicApi.addColumn($2);
+    	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
     }
     |
     update_set COMMA STRING EQUALLY STROKE VALNULL STROKE {
+   	logicApi.addColumn($2);
+    	logicApi.addValue($5);
         printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
     }
     |
     update_set COMMA STRING EQUALLY VALNULL {
+    	logicApi.addColumn($2);
+    	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
     }
     |
     update_set COMMA STRING EQUALLY FLOATNUM {
+    	logicApi.addColumn($2);
+    	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
     }
 
 table_delete:
     DMLDELETE STRING {
+    	logicApi.addTableName($2);
         printf("TABLE = %s\n", $2);
     }
     |
     DMLDELETE STRING where {
+    	logicApi.addTableName($2);
         printf("TABLE = %s\n", $2);
     }
 
@@ -152,10 +174,12 @@ insert_where:
 
 where:
     WHERE STRING EQUALLY STRING {
+    	logicApi.addCondition($2, $3, $3);
         printf("WHERE %s %s %s\n", $2, $3, $4);
     }
     |
     WHERE STRING SIGN STRING {
+    	logicApi.addCondition($2, $3, $4);
         printf("WHERESIGN %s %s %s\n", $2, $3, $4);
     }
 
@@ -191,6 +215,7 @@ values:
     }
     |
     values STROKE VALNULL STROKE {
+    	logicApi.addValue($3);
     	printf("VALSTRNULL = %s\n", $3);
     }
     |
@@ -200,14 +225,17 @@ values:
     }
     |
     values VALNULL {
+    	logicApi.addValue($2);
     	printf("VALNULL = %s\n", $2);
     }
     |
     values FLOATNUM {
+    	logicApi.addValue($2);
     	printf("VALFLOAT = %s\n", $2);
     }
     |
     values COMMA STROKE STRING STROKE {
+    	logicApi.addValue($2);
          printf("VALSTR = %s\n", $2);
     }
     |
@@ -222,10 +250,12 @@ values:
     }
     |
     values COMMA VALNULL {
+    	logicApi.addValue($2);
         printf("VALNULL = %s\n", $3);
     }
     |
     values COMMA FLOATNUM {
+    	logicApi.addValue($2);
         printf("VALFLOAT = %s\n", $3);
     }
     |

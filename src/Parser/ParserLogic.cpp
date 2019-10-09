@@ -44,7 +44,7 @@ void ParserLogic::addColumn(char* name) {
 
 void ParserLogic::addValue(char* value) {
     response.dmlData.values.emplace_back(string(value));
-    std::cout << response.dmlData.values[0] << std::endl;
+    // std::cout << response.dmlData.values[0] << std::endl;
 }
 
 void ParserLogic::addTableName(char* name) {

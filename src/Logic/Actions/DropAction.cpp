@@ -9,5 +9,5 @@ BigResponse DropAction::execute(BigRequest& _request, MainEngine* mainEngine) {
         return response;
     // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
     response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-    return BigResponse();
+    return response;
 }

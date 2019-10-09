@@ -3,4 +3,7 @@
 //
 
 #include "Headers/DeleteAction.h"
-BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) { return BigResponse(); }
+BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) {
+    response = mainEngine->Delete(&_request);
+    return response;
+}
