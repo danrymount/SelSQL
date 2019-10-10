@@ -14,7 +14,7 @@ int main() {
         else {
             result = MainLogic::executeRequest(result);
             if (result.error.getErrorCode())
-                std::cerr << result.error.getErrorMsg() << std::endl;
+                std::cerr << result.error.getErrorMsg() << "ERROR: " << result.error.getErrorCode() << std::endl;
             else if (result.ddlData.returnMsg.size() > 0) {
                 std::cout << result.ddlData.returnMsg << std::endl;
             }

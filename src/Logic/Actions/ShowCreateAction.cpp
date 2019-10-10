@@ -8,9 +8,8 @@
 BigResponse ShowCreateAction::execute(BigRequest& _request, MainEngine* mainEngine) {
     ActionsUtils actionsUtils;
     requestToResponse(_request);
-    response.ddlData.table = *mainEngine->ShowCreateTable(_request.tableName);
-    if (&(response.ddlData.table) == nullptr) {
-        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    response = mainEngine->ShowCreateTable(&_request);
+    if (!response.error.getErrorCode()) {
         return response;
     }
     response.ddlData.returnMsg = actionsUtils.makeRequestCreateFromTable(response.ddlData.table);
