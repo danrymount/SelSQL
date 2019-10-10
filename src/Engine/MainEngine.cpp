@@ -3,19 +3,35 @@
 //
 
 #include "Headers/MainEngine.h"
-int MainEngine::CreateTable(Table* table) {
-    return file_manager_->CreateFile(table);
+BigResponse MainEngine::CreateTable(BigRequest* request) {
+    BigResponse bigResponse;
+    int error = file_manager_->CreateFile(&request->ddlData.table);
+    if (error) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_EXISTS);
+    }
+    return bigResponse;
+
 }  // returns 0 if table is created and 1 if table exists
 
-Table* MainEngine::ShowCreateTable(std::string table_name) {
-    if (file_manager_->OpenFile(table_name)) {
-        return nullptr;
+BigResponse MainEngine::ShowCreateTable(BigRequest request) {
+    BigResponse bigResponse;
+    if (file_manager_->OpenFile(request.ddlData.table.name)) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    } else {
+        bigResponse.ddlData.table = *file_manager_->GetTableData(request.ddlData.table.name);
     }
-    return file_manager_->GetTableData(table_name);
+
+    return bigResponse;
 }  // returns Table* if ok or nullptr if table doesnt exist
 
-int MainEngine::DropTable(std::string table_name) {
-    return file_manager_->DeleteTable(table_name);
+BigResponse MainEngine::DropTable(BigRequest* request) {
+    BigResponse bigResponse;
+    int error = file_manager_->DeleteTable(request->ddlData.table.name);
+    if (error) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    return bigResponse;
 }  // returns 0 if table is dropped and non-zero if table doesnt exist
 
 MainEngine::MainEngine() { file_manager_ = new FileManager(); }
@@ -71,7 +87,7 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
     int delete_count = 0;
 
     int no_such_cols_table = 1;
-    for (auto i : record) {
+    for (auto i : t->fields) {
         if (cond.find(i.first) != cond.end()) {
             no_such_cols_table = 0;
             break;

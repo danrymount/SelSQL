@@ -4,7 +4,7 @@
 
 #include "Headers/DropAction.h"
 BigResponse DropAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    response = mainEngine->DropTable(_request);
+    response = mainEngine->DropTable(&_request);
     if (!response.error.getErrorCode())
         return response;
     // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;

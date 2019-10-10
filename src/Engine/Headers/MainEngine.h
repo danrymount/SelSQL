@@ -7,10 +7,10 @@
 
 #include "../../Utils/Structures/BigResponse.h"
 #include "../../Utils/Structures/Data/Table.h"
-#include "../Headers/APIEngine.h"
+
 #include "../Headers/FileManager.h"
 #include "Cursor.h"
-class MainEngine : public APIEngine {
+class MainEngine {
     Cursor* cursor;
 
    public:
@@ -22,9 +22,9 @@ class MainEngine : public APIEngine {
     BigResponse Insert(BigRequest* bigRequest);
     BigResponse Update(BigRequest* bigRequest);
     BigResponse Delete(BigRequest* bigRequest);
-    int CreateTable(Table* table) override;
-    Table* ShowCreateTable(std::string table_name) override;
-    int DropTable(std::string table_name) override;
+    BigResponse CreateTable(BigRequest* request);
+    BigResponse ShowCreateTable(BigRequest request);
+    BigResponse DropTable(BigRequest* request);
 };
 
 #endif  // SELSQL_MAINENGINE_H

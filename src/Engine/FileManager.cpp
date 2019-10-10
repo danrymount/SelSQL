@@ -56,6 +56,7 @@ int FileManager::OpenFile(std::string table_name) {
     files_[table_name] = new std::fstream(table_name + Constants::FILE_TYPE,
                                           std::ios::binary | std::ios::out | std::ios::in);
     if (!files_[table_name]->is_open()) {
+        files_.erase(table_name);
         return 1;
     }
     ReadMetaData(table_name);
