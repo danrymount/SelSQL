@@ -26,7 +26,7 @@ void FileManager::ReadMetaData(std::string table_name) {
     char name[Constants::MD_TABLE_NAME_SIZE];
     int column_size;
     files_[table_name]->read(name, Constants::MD_TABLE_NAME_SIZE);
-    files_[table_name]->read(reinterpret_cast<char*>(&column_size), Constants::MD_TABLE_COLUMN_AMOUNT_SIZE);
+    column_size = read_int(files_[table_name]);
     for (int i = 0; i < column_size; ++i) {
         Variable var;
         char var_name[Constants::MD_COLUMN_NAME_SIZE];
@@ -34,13 +34,13 @@ void FileManager::ReadMetaData(std::string table_name) {
         int constr_size = 0;
         std::vector<Constraint> constraints;
         files_[table_name]->read(var_name, Constants::MD_COLUMN_NAME_SIZE);
-        files_[table_name]->read(reinterpret_cast<char*>(&type), Constants::MD_COLUMN_TYPE_SIZE);
-        files_[table_name]->read(reinterpret_cast<char*>(&constr_size), Constants::MD_COLUMN_CONSTR_AMOUNT_SIZE);
+        type = read_int(files_[table_name]);
+        constr_size = read_int(files_[table_name]);
         var.type = Type(type);
 
         for (int j = 0; j < constr_size; ++j) {
             int constr_type = 0;
-            files_[table_name]->read(reinterpret_cast<char*>(&constr_type), Constants::MD_COLUMN_CONSTR_SIZE);
+            constr_type = read_int(files_[table_name]);
             constraints.emplace_back(Constraint(constr_type));
         }
         var.setConstraints(constraints);
@@ -48,7 +48,7 @@ void FileManager::ReadMetaData(std::string table_name) {
     }
     table.name = std::string(name);
     files_[table_name]->seekg(Constants::DATA_PAGE_START_POS);
-    files_[table_name]->read(reinterpret_cast<char*>(&table.record_amount), sizeof(int));
+    table.record_amount = read_int(files_[table_name]);
     table.calcRecordSize();
     table_data[table_name] = table;
 }
@@ -118,6 +118,6 @@ void FileManager::WriteData(Table* table, unsigned char* src) {
 void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
 int read_int(std::fstream* file) {
     int res;
-    file->write(reinterpret_cast<char*>(&res), sizeof(int));
+    file->read(reinterpret_cast<char*>(&res), sizeof(int));
     return res;
 }
