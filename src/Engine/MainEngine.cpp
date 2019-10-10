@@ -20,7 +20,12 @@ int MainEngine::DropTable(std::string table_name) {
 
 MainEngine::MainEngine() { file_manager_ = new FileManager(); }
 BigResponse MainEngine::Insert(BigRequest* bigRequest) {
-    file_manager_->OpenFile(bigRequest->tableName);
+    int error = file_manager_->OpenFile(bigRequest->tableName);
+    BigResponse bigResponse;
+    if (error) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return bigResponse;
+    }
     Table* t = file_manager_->GetTableData(bigRequest->tableName);
 
     cursor = new Cursor(t, file_manager_);
@@ -31,7 +36,12 @@ BigResponse MainEngine::Insert(BigRequest* bigRequest) {
     return BigResponse();
 }
 BigResponse MainEngine::Select(BigRequest* bigRequest) {
-    file_manager_->OpenFile(bigRequest->tableName);
+    int error = file_manager_->OpenFile(bigRequest->tableName);
+    BigResponse bigResponse;
+    if (error) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return bigResponse;
+    }
     Table* t = file_manager_->GetTableData(bigRequest->tableName);
 
     cursor = new Cursor(t, file_manager_);
@@ -47,13 +57,32 @@ BigResponse MainEngine::Select(BigRequest* bigRequest) {
     return BigResponse();
 }
 BigResponse MainEngine::Delete(BigRequest* bigRequest) {
-    file_manager_->OpenFile(bigRequest->tableName);
+    int error = file_manager_->OpenFile(bigRequest->tableName);
+    BigResponse bigResponse;
+    if (error) {
+        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return bigResponse;
+    }
     Table* t = file_manager_->GetTableData(bigRequest->tableName);
     std::cout << t->record_amount << std ::endl;
     cursor = new Cursor(t, file_manager_);
     std::map<std::string, Condition> cond = bigRequest->dmlData.conditions;
     std::vector<std::pair<std::string, std::string>> record;
     int delete_count = 0;
+
+    int no_such_cols_table = 1;
+    for (auto i : record) {
+        if (cond.find(i.first) != cond.end()) {
+            no_such_cols_table = 0;
+            break;
+        }
+    }
+
+    if (no_such_cols_table) {
+        bigResponse.error = Error(ErrorConstants::ERR_NO_SUCH_FIELD);
+        return bigResponse;
+    }
+
     do {
         record = cursor->Fetch();
         if (record.empty()) {

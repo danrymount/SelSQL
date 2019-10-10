@@ -94,9 +94,9 @@ unsigned char* FileManager::GetData(std::string table_name) {
 
     files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
     files_[table_name]->read(new_data, Constants::DATA_PAGE_SIZE);
-    std::cerr << files_[table_name]->tellg();
+    //    std::cerr << files_[table_name]->tellg();
     files_[table_name]->seekg(0, std::ios::beg);
-    std::cerr << files_[table_name]->tellg();
+    //    std::cerr << files_[table_name]->tellg();
     auto res = reinterpret_cast<unsigned char*>(new_data);
     return res;
 }
@@ -110,7 +110,7 @@ void FileManager::WriteData(Table* table, unsigned char* src) {
 
     auto res = reinterpret_cast<char*>(src);
     new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
-    std::cerr << new_file->tellp();
+    //    std::cerr << new_file->tellp();
     new_file->write(res, Constants::DATA_PAGE_SIZE);
 
     new_file->close();
