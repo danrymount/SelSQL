@@ -17,7 +17,8 @@ void FileManager::WriteMetaData(Table* table) {
     }
     new_file->seekp(Constants::DATA_PAGE_START_POS);
     write_int(new_file, table->record_amount);
-    new_file->seekp(0);
+    new_file->seekp(Constants::DATA_PAGE_START_POS + Constants::DATA_PAGE_SIZE + 4);
+    write_int(new_file, 0);
 }
 
 void FileManager::ReadMetaData(std::string table_name) {
@@ -77,6 +78,7 @@ int FileManager::CreateFile(Table* table) {
                                            std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc);
 
     WriteMetaData(table);
+    files_[table->name]->close();
     return 0;
 }
 Table* FileManager::GetTableData(std::string table_name) { return &table_data[table_name]; }
@@ -89,9 +91,12 @@ int FileManager::DeleteTable(std::string table_name) {
 }
 unsigned char* FileManager::GetData(std::string table_name) {
     auto new_data = new char[Constants::DATA_PAGE_SIZE];
-    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4);
 
+    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
     files_[table_name]->read(new_data, Constants::DATA_PAGE_SIZE);
+    std::cerr << files_[table_name]->tellg();
+    files_[table_name]->seekg(0, std::ios::beg);
+    std::cerr << files_[table_name]->tellg();
     auto res = reinterpret_cast<unsigned char*>(new_data);
     return res;
 }
@@ -105,6 +110,7 @@ void FileManager::WriteData(Table* table, unsigned char* src) {
 
     auto res = reinterpret_cast<char*>(src);
     new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
+    std::cerr << new_file->tellp();
     new_file->write(res, Constants::DATA_PAGE_SIZE);
 
     new_file->close();

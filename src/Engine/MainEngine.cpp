@@ -49,6 +49,7 @@ BigResponse MainEngine::Select(BigRequest* bigRequest) {
 BigResponse MainEngine::Delete(BigRequest* bigRequest) {
     file_manager_->OpenFile(bigRequest->tableName);
     Table* t = file_manager_->GetTableData(bigRequest->tableName);
+    std::cout << t->record_amount << std ::endl;
     cursor = new Cursor(t, file_manager_);
     std::map<std::string, Condition> cond = bigRequest->dmlData.conditions;
     std::vector<std::pair<std::string, std::string>> record;
@@ -63,10 +64,22 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
             if (cond.find(field_name) != cond.end()) {
                 switch (cond[field_name].sign) {
                     case GREATEREQUALS:
+                        if (record[i].second >= cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
                         break;
                     case GREATER:
+                        if (record[i].second > cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
                         break;
                     case NOEQUALS:
+                        if (record[i].second != cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
                         break;
                     case EQUALS: {
                         if (record[i].second == cond[field_name].value) {
@@ -76,8 +89,16 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
                         break;
                     }
                     case LOWER:
+                        if (record[i].second < cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
                         break;
                     case LOWEREQUALS:
+                        if (record[i].second <= cond[field_name].value) {
+                            cursor->Delete();
+                            delete_count++;
+                        }
                         break;
                 }
             }
@@ -85,5 +106,6 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
     } while (!cursor->Next());
     cursor->table->record_amount -= delete_count;
     cursor->Commit();
+    std::cout << cursor->table->record_amount << std ::endl;
     return BigResponse();
 }
