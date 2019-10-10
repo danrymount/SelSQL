@@ -472,7 +472,7 @@ TEST(SYNTAX_ERROR_TEST, TEST50) {
 }
 
 TEST(ERROR_TEST, TEST1) {
-    std::string str = "CREATE TABLE name1(ID INT);";
+    str = "CREATE TABLE name1(ID INT);";
     res = parse_request(str.c_str());
     res = MainLogic::executeRequest(res);
     str = "CREATE TABLE name1(ID INT);";
@@ -481,6 +481,20 @@ TEST(ERROR_TEST, TEST1) {
     EXPECT_EQ(1, res.error.getErrorCode());
     EXPECT_EQ(ErrorConstants::ERR_TABLE_EXISTS_str, res.error.getErrorMsg());
     str = "DROP TABLE name1;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+}
+
+TEST(ERROR_TEST, TEST2) {
+    str = "CREATE TABLE a(id INT);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    str = "insert into a(id, id, id) values (1, 2, 3);";
+    res = parse_request(str.c_str());
+    res = MainLogic::executeRequest(res);
+    EXPECT_EQ(7, res.error.getErrorCode());
+    // EXPECT_EQ(ErrorConstants::ERR_SAME_COLUMN, res.error.getErrorMsg());
+    str = "DROP TABLE a;";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
 }
@@ -593,7 +607,7 @@ TEST(SELECT_TEST, TEST2) {
                                                             {"count", Variable(INT, std::vector<Constraint>())},
                                                             {"name", Variable(CHAR, std::vector<Constraint>())}};
 
-    std::vector<std::string> _columns;
+    std::vector<std::string> _columns = {"id"};
     std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
 
     Error err;
@@ -603,6 +617,30 @@ TEST(SELECT_TEST, TEST2) {
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
     str = "SELECT id from tname where id = 3;";
+    res = parse_request(str.c_str());
+    auto t = MainLogic::executeRequest(res);
+    EXPECT_EQ(0, t.error.getErrorCode());
+    TestUtils::compareDql(obj, res);
+    str = "DROP TABLE tname;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+}
+
+TEST(SELECT_TEST, TEST3) {
+    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+                                                            {"count", Variable(INT, std::vector<Constraint>())},
+                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+
+    std::vector<std::string> _columns;
+    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
+
+    Error err;
+    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
+                    err);
+    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    str = "SELECT * from tname where id = 3;";
     res = parse_request(str.c_str());
     auto t = MainLogic::executeRequest(res);
     EXPECT_EQ(0, t.error.getErrorCode());

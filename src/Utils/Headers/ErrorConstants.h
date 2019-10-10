@@ -14,6 +14,7 @@ class ErrorConstants {
     inline static const std::string ERR_SAME_FIELD_NAME_str = "Field name already used";
     inline static const std::string ERR_INSERT_VALUES_SIZE_str = "Invalid count of columns and values";
     inline static const std::string ERR_NO_SUCH_FIELD_str = "Field doesnt exist";
+    inline static const std::string ERR_SAME_COLUMN_str = "Same column in request";
 
     inline static const int ERR_TABLE_EXISTS = 1;
     inline static const int ERR_TABLE_NOT_EXISTS = 2;
@@ -21,13 +22,15 @@ class ErrorConstants {
     inline static const int ERR_SAME_FIELD_NAME = 4;
     inline static const int ERR_INSERT_VALUES_SIZE = 5;
     inline static const int ERR_NO_SUCH_FIELD = 6;
+    inline static const int ERR_SAME_COLUMN = 7;
 
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
                                                             {ERR_SAME_CONSTRAINT, ERR_SAME_CONSTRAINT_str},
                                                             {ERR_SAME_FIELD_NAME, ERR_SAME_FIELD_NAME_str},
                                                             {ERR_INSERT_VALUES_SIZE, ERR_INSERT_VALUES_SIZE_str},
-                                                            {ERR_NO_SUCH_FIELD, ERR_NO_SUCH_FIELD_str}};
+                                                            {ERR_NO_SUCH_FIELD, ERR_NO_SUCH_FIELD_str},
+                                                            {ERR_SAME_COLUMN, ERR_SAME_COLUMN_str}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H
