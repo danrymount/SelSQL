@@ -262,8 +262,8 @@ values:
     }
     |
     values COMMA STROKE STRING STROKE {
-    	logicApi.addValue($2);
-         printf("VALSTR = %s\n", $2);
+    	logicApi.addValue($4);
+         printf("VALSTR = %s\n", $4);
     }
     |
     values COMMA STROKE VALNULL STROKE {
