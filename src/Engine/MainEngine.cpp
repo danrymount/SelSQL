@@ -10,8 +10,7 @@ BigResponse MainEngine::CreateTable(BigRequest* request) {
         bigResponse.error = Error(ErrorConstants::ERR_TABLE_EXISTS);
     }
     return bigResponse;
-
-}  // returns 0 if table is created and 1 if table exists
+}
 
 BigResponse MainEngine::ShowCreateTable(BigRequest request) {
     BigResponse bigResponse;
@@ -22,7 +21,7 @@ BigResponse MainEngine::ShowCreateTable(BigRequest request) {
     }
 
     return bigResponse;
-}  // returns Table* if ok or nullptr if table doesnt exist
+}
 
 BigResponse MainEngine::DropTable(BigRequest* request) {
     BigResponse bigResponse;
@@ -107,44 +106,9 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
         for (int i = 0; i < record.size(); ++i) {
             std::string field_name = record[i].first;
             if (cond.find(field_name) != cond.end()) {
-                switch (cond[field_name].sign) {
-                    case GREATEREQUALS:
-                        if (record[i].second >= cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
-                    case GREATER:
-                        if (record[i].second > cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
-                    case NOEQUALS:
-                        if (record[i].second != cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
-                    case EQUALS: {
-                        if (record[i].second == cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
-                    }
-                    case LOWER:
-                        if (record[i].second < cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
-                    case LOWEREQUALS:
-                        if (record[i].second <= cond[field_name].value) {
-                            cursor->Delete();
-                            delete_count++;
-                        }
-                        break;
+                if (check_condition(record[i].second, cond[field_name])) {
+                    delete_count++;
+                    cursor->Delete();
                 }
             }
         }
@@ -153,4 +117,42 @@ BigResponse MainEngine::Delete(BigRequest* bigRequest) {
     cursor->Commit();
     std::cout << cursor->table->record_amount << std ::endl;
     return BigResponse();
+}
+
+int MainEngine::check_condition(std::string rec_val, Condition cond_val) {
+    int res = 0;
+    switch (cond_val.sign) {
+        case GREATEREQUALS:
+            if (rec_val >= cond_val.value) {
+                res = 1;
+            }
+            break;
+        case GREATER:
+            if (rec_val > cond_val.value) {
+                res = 1;
+            }
+            break;
+        case NOEQUALS:
+            if (rec_val != cond_val.value) {
+                res = 1;
+            }
+            break;
+        case EQUALS: {
+            if (rec_val == cond_val.value) {
+                res = 1;
+            }
+            break;
+        }
+        case LOWER:
+            if (rec_val < cond_val.value) {
+                res = 1;
+            }
+            break;
+        case LOWEREQUALS:
+            if (rec_val <= cond_val.value) {
+                res = 1;
+            }
+            break;
+    }
+    return res;
 }

@@ -12,6 +12,7 @@
 #include "Cursor.h"
 class MainEngine {
     Cursor* cursor;
+    int check_condition(std::string rec_val, Condition cond_val);
 
    public:
     FileManager* file_manager_;
