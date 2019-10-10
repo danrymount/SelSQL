@@ -637,9 +637,11 @@ TEST(SELECT_TEST, TEST3) {
     Error err;
     BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
                     err);
-    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+    str = "CREATE TABLE tname(id INT, count INT);";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
+    str = "INSERT into tname(id, count);";
+    res = parse_request(str.c_str());
     str = "SELECT * from tname where id = 3;";
     res = parse_request(str.c_str());
     auto t = MainLogic::executeRequest(res);
