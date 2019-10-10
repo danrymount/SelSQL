@@ -14,10 +14,12 @@
 class BigRequest {
    public:
     BigRequest() = default;
-    BigRequest(Action _action, std::string &_tableName, DDLdata &_ddlData, DMLdata &_dmlData, DQLdata &_dqlData)
+    BigRequest(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData)
                                                                                                         : action(_action),
                                                                                                           tableName(_tableName),
-                                                                                                          ddlData(_ddlData) {
+                                                                                                          ddlData(_ddlData),
+                                                                                                          dmlData(_dmlData),
+                                                                                                          dqlData(_dqlData) {
     }
 
     Action action;

@@ -9,5 +9,7 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
     response = mainEngine->Insert(&_request);
+    requestToResponse(_request);
+
     return response;
 }

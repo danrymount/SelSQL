@@ -5,5 +5,7 @@
 #include "Headers/SelectAction.h"
 BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) {
     response = mainEngine->Select(&_request);
+    requestToResponse(_request);
+
     return response;
 }

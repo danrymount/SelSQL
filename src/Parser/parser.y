@@ -27,6 +27,7 @@ NUMBER WHERE EQUALLY STR FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNU
 request:
     actions SEMICOLON {
     	response = logicApi.finish();
+    	printf("FINISH\n");
     }
     |
     request request
@@ -176,8 +177,8 @@ insert_where:
 
 where:
     WHERE STRING EQUALLY STROKE STRING STROKE {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+    	logicApi.addCondition($2, $3, $5);
+        printf("WHERE %s %s %s\n", $2, $3, $5);
     }
     |
     WHERE STRING EQUALLY NUMBER {
@@ -196,8 +197,8 @@ where:
     }
     |
     WHERE STRING SIGN STROKE STRING STROKE {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
+    	logicApi.addCondition($2, $3, $5);
+        printf("WHERESIGN %s %s %s\n", $2, $3, $5);
     }
     |
     WHERE STRING SIGN NUMBER {

@@ -15,6 +15,14 @@ class BaseAction {
    public:
     virtual BigResponse execute(BigRequest& _request, MainEngine* mainEngine) = 0;
 
+    // move to Engine
+    void requestToResponse(BigRequest& _request) {
+        response.action = _request.action;
+        response.tableName = _request.tableName;
+        response.dmlData = _request.dmlData;
+        response.dqlData = _request.dqlData;
+        response.ddlData = _request.ddlData;
+    }
     BigResponse response;
 };
 

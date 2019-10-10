@@ -539,3 +539,75 @@ TEST(INSERT_TEST, TEST1) {
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
 }
+
+TEST(INSERT_TEST, TEST2) {
+    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+                                                            {"count", Variable(INT, std::vector<Constraint>())},
+                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+    std::vector<std::string> _values = {"4", "5"};
+    std::vector<std::string> _columns = {"id", "count"};
+    std::map<std::string, Condition> _conditions;
+
+    Error err;
+    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
+                    DQLdata(), err);
+    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    str = "INSERT INTO tname(id, count) VALUES(4,5);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    EXPECT_EQ(0, res.error.getErrorCode());
+    TestUtils::compareDml(obj, res);
+    str = "DROP TABLE tname;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+}
+
+TEST(SELECT_TEST, TEST1) {
+    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+                                                            {"count", Variable(INT, std::vector<Constraint>())},
+                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+
+    std::vector<std::string> _columns = {"id"};
+    std::map<std::string, Condition> _conditions;
+
+    Error err;
+    DQLdata dql = DQLdata(_columns, _conditions);
+    BigResponse obj = BigResponse(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), dql, err);
+    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    str = "SELECT id from tname;";
+    res = parse_request(str.c_str());
+    EXPECT_EQ(0, res.error.getErrorCode());
+    MainLogic::executeRequest(res);
+    TestUtils::compareDql(obj, res);
+    str = "DROP TABLE tname;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+}
+
+TEST(SELECT_TEST, TEST2) {
+    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+                                                            {"count", Variable(INT, std::vector<Constraint>())},
+                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+
+    std::vector<std::string> _columns;
+    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
+
+    Error err;
+    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
+                    err);
+    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+    str = "SELECT id from tname where id = 3;";
+    res = parse_request(str.c_str());
+    auto t = MainLogic::executeRequest(res);
+    EXPECT_EQ(0, t.error.getErrorCode());
+    TestUtils::compareDql(obj, res);
+    str = "DROP TABLE tname;";
+    res = parse_request(str.c_str());
+    MainLogic::executeRequest(res);
+}

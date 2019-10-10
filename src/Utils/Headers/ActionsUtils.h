@@ -13,7 +13,7 @@ class ActionsUtils {
     ParserUtils parserUtils;
 
    public:
-    std::string makeRequestCreateFromTable(Table &table);
+    std::string makeRequestCreateFromTable(Table table);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H

@@ -3,19 +3,22 @@
 //
 
 #include "Headers/ActionsUtils.h"
-std::string ActionsUtils::makeRequestCreateFromTable(Table& table) {
+std::string ActionsUtils::makeRequestCreateFromTable(Table table) {
     const char space = ' ';
     const char semicolon = ';';
     const char comma = ',';
     std::string str = "CREATE TABLE ";
     str += table.name + '(';
-    for (auto& field : table.getFields()) {
+    for (int i = 0; i < table.getFields().size(); ++i) {
+        auto field = table.getFields()[i];
         str += field.first + space;
         str += parserUtils.typeToString(field.second.type) + space;
-        for (auto& constraint : field.second.getConstraints())
+        for (auto& constraint : field.second.getConstraints()) {
             str += parserUtils.constraintToString(constraint) + space;
-        if ((*(table.getFields().end())).first != field.first && table.getFields().size() > 1)
+        }
+        if (i != table.getFields().size() - 1 && table.getFields().size() > 1) {
             str += comma;
+        }
     }
     str += ')';
     str += semicolon;

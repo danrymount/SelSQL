@@ -23,7 +23,7 @@ class BigResponse : public BigRequest {
                                                                                                                      _tableName,
                                                                                                                      _ddlData,
                                                                                                                      _dmlData,
-                                                                                                                     dqlData),
+                                                                                                                     _dqlData),
                                                                                                           error(_error) {
     }
 
