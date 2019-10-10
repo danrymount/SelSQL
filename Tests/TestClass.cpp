@@ -530,7 +530,7 @@ TEST(INSERT_TEST, TEST1) {
     str = "CREATE TABLE tname(id INT, count INT);";
     res = parse_request(str.c_str());
     MainLogic::executeRequest(res);
-    str = "INSERT INTO tname VALUES(4,5)";
+    str = "INSERT INTO tname VALUES(4,5);";
     res = parse_request(str.c_str());
     res = MainLogic::executeRequest(res);
     EXPECT_EQ(0, res.error.getErrorCode());
