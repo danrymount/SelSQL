@@ -5,6 +5,11 @@
 !src/**/
 !Tests
 !Tests/**/
+!Client
+!Client/**/
+!Server
+!Server/**/
+
 
 !.gitignore
 !.clang-format
