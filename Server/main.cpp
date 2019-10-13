@@ -2,7 +2,7 @@
 // Created by quiks on 13.10.2019.
 //
 #ifdef __WIN32
-#include "WinServer.h"
+#include "Win/WinServer.h"
 #elif __linux
 #include "Linux/LinuxServer.h"
 #endif

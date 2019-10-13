@@ -2,7 +2,7 @@
 // Created by quiks on 13.10.2019.
 //
 #ifdef __WIN32
-#include "WinClient.h"
+#include "Win/WinClient.h"
 #elif __linux
 #include "Linux/LinuxClient.h"
 #endif
