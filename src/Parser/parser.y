@@ -15,8 +15,9 @@
     BigResponse response;
 %}
 
-%token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP TABLE BRACKET TYPE CONSTRAINT DMLINSERT VALUES
-NUMBER WHERE EQUALLY STR FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL FLOATNUM SIGN
+%token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
+NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY
+
 
 %union{
     char string[256];
@@ -34,16 +35,19 @@ request:
 ;
 
 actions:
-    DDLCREATE table {
+    DDLCREATE STRING inner_expr {
         logicApi.addActionName($1);
+        logicApi.addTableName($2);
     }
     |
-    DDLDROP table{
+    DDLDROP STRING{
         logicApi.addActionName($1);
+        logicApi.addTableName($2);
     }
     |
-    DDLSHOW table{
+    DDLSHOW STRING{
         logicApi.addActionName($1);
+        logicApi.addTableName($2);
     }
     |
     DMLINSERT insert_where {
@@ -72,10 +76,10 @@ table_update:
     table_update where
 
 update_set:
-    SET STRING EQUALLY STROKE STRING STROKE {
+    SET STRING EQUALLY VALSTR {
     	logicApi.addColumn($2);
-    	logicApi.addValue($5);
-        printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
+    	logicApi.addValue($4);
+        printf("UPCOL = %s, UPVALSTR = %s\n", $2, $4);
     }
     |
     SET STRING EQUALLY NUMBER {
@@ -90,34 +94,22 @@ update_set:
         printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
     }
     |
-    SET STRING EQUALLY STROKE VALNULL STROKE {
-    	logicApi.addColumn($2);
-	logicApi.addValue($5);
-        printf("UPCOL = %s, UPVALSTRNULL = %s\n", $2, $5);
-    }
-    |
     SET STRING EQUALLY FLOATNUM {
     	logicApi.addColumn($2);
     	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
     }
     |
-    update_set COMMA STRING EQUALLY STROKE STRING STROKE {
+    update_set COMMA STRING EQUALLY VALSTR {
     	logicApi.addColumn($2);
-    	logicApi.addValue($5);
-    	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
+    	logicApi.addValue($4);
+    	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $4);
     }
     |
     update_set COMMA STRING EQUALLY NUMBER {
    	logicApi.addColumn($2);
     	logicApi.addValue($4);
         printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
-    }
-    |
-    update_set COMMA STRING EQUALLY STROKE VALNULL STROKE {
-   	logicApi.addColumn($2);
-    	logicApi.addValue($5);
-        printf("UPCOL = %s, UPVALSTR = %s\n", $2, $5);
     }
     |
     update_set COMMA STRING EQUALLY VALNULL {
@@ -149,7 +141,7 @@ table_select:
         printf("TABLE = %s\n", $3);
     }
     |
-    table_select where
+    table_select WHERE where
 
 col_select:
     DQLSELECT STRING {
@@ -176,40 +168,88 @@ insert_where:
     insert where
 
 where:
-    WHERE STRING EQUALLY STROKE STRING STROKE {
-    	logicApi.addCondition($2, $3, $5);
-        printf("WHERE %s %s %s\n", $2, $3, $5);
+    NOT where {
+    	printf("NOT\n");
+    }|
+    where LOGIC where {
+    	printf("%s\n", $2);
+    }|
+    BRACKET where BRACKET {
+    	printf("%s %s\n", $1, $3);
+    }|
+    STRING EQUALLY expr {
+    	printf("%s = \n", $1);
+    }|
+    STRING NOTEQUALLY expr {
+    	printf("%s != \n", $1);
+    }|
+    STRING EQUALLY VALSTR {
+    	printf("%s = %s\n", $1, $3);
+    }|
+    STRING NOTEQUALLY VALSTR {
+    	printf("%s != %s\n", $1, $3);
+    }|
+    STRING COMP expr {
+    	printf("%s %s \n", $1, $2);
     }
-    |
-    WHERE STRING EQUALLY NUMBER {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+
+expr:
+    STRING {
+    	printf("%s\n", $1);
+    }|
+    NUMBER {
+    	printf("%s \n", $1);
+    }|
+    FLOATNUM {
+    	printf("%s\n", $1);
+    }|
+    expr SIGN expr {
+    	printf("%s\n", $2);
+    }|
+    expr ALL expr {
+    	printf("%s\n", $2);
+    }|
+    BRACKET expr SIGN expr BRACKET {
+    	printf("( %s ) \n", $3);
+    }|
+    BRACKET expr ALL expr BRACKET {
+    	printf("( %s ) \n", $3);
     }
-    |
-    WHERE STRING EQUALLY FLOATNUM {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
-    }
-    |
-    WHERE STRING EQUALLY VALNULL {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
-    }
-    |
-    WHERE STRING SIGN STROKE STRING STROKE {
-    	logicApi.addCondition($2, $3, $5);
-        printf("WHERESIGN %s %s %s\n", $2, $3, $5);
-    }
-    |
-    WHERE STRING SIGN NUMBER {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
-    }
-    |
-    WHERE STRING SIGN FLOATNUM {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
-    }
+//where:
+//    WHERE STRING EQUALLY VALSTR {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY NUMBER {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY FLOATNUM {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY VALNULL {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING SIGN STROKE STRING STROKE {
+//    	logicApi.addCondition($2, $3, $5);
+//        printf("WHERESIGN %s %s %s\n", $2, $3, $5);
+//    }
+//    |
+//    WHERE STRING SIGN NUMBER {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING SIGN FLOATNUM {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERESIGN %s %s %s\n", $2, $3, $4);
+//    }
 
 insert:
     STRING values {
@@ -228,23 +268,12 @@ insert:
     | insert BRACKET
     | insert values
 
-table:
-    TABLE STRING{
-        logicApi.addTableName($2);
-    }
-    |table brackets;
-
 values:
     VALUES BRACKET
     |
-    values STROKE STRING STROKE {
-    	logicApi.addValue($3);
-    	printf("VALSTR = %s\n", $3);
-    }
-    |
-    values STROKE VALNULL STROKE {
-    	logicApi.addValue($3);
-    	printf("VALSTRNULL = %s\n", $3);
+    values VALSTR {
+    	logicApi.addValue($2);
+    	printf("VALSTR = %s\n", $2);
     }
     |
     values NUMBER {
@@ -262,14 +291,9 @@ values:
     	printf("VALFLOAT = %s\n", $2);
     }
     |
-    values COMMA STROKE STRING STROKE {
-    	logicApi.addValue($4);
-         printf("VALSTR = %s\n", $4);
-    }
-    |
-    values COMMA STROKE VALNULL STROKE {
-    	logicApi.addValue($4);
-        printf("VALSTRNULL = %s\n", $4);
+    values COMMA VALSTR {
+    	logicApi.addValue($3);
+         printf("VALSTR = %s\n", $3);
     }
     |
     values COMMA NUMBER {
@@ -289,17 +313,17 @@ values:
     |
     values BRACKET
 
-brackets:
-    BRACKET inner_expr BRACKET
-
 inner_expr:
-    STRING TYPE {
-	logicApi.addColumn($1, $2);
+    BRACKET STRING TYPE {
+	logicApi.addColumn($2, $3);
     }
     | inner_expr CONSTRAINT {
     	logicApi.addConstraint($2);
     }
-    | inner_expr COMMA inner_expr;
+    | inner_expr COMMA STRING TYPE {
+	logicApi.addColumn($3, $4);
+    }
+    | inner_expr BRACKET;
 
 %%
 

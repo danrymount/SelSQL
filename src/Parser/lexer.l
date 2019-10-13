@@ -12,9 +12,10 @@ all "*"
 numbers ([0-9])+
 floatnumb ([0-9]+"."[0-9]+)+
 words   ([-A-Za-z0-9]*)
-ddlcreate "CREATE"
-ddldrop "DROP"
-ddlshow "SHOW CREATE"
+valstr   ("'"[-\40A-Za-z0-9]+"'")
+ddlcreate "CREATE TABLE"
+ddldrop "DROP TABLE"
+ddlshow "SHOW CREATE TABLE"
 types "INT"|"FLOAT"|"CHAR"|"BOOLEAN"
 insert "INSERT INTO"
 select "SELECT"
@@ -28,9 +29,12 @@ null "NULL"
 
 
 equally "="
-sign ">="|"<="|"!="|"<"|">"
+notequally "!="
+sign "+"|"-"|"*"|"/"
+comp ">="|"<="|"<"|">"
+logic "and"|"or"
+not "NOT"
 brackets "("|")"
-table "TABLE"|"table"
 constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
 other [^\40()<>=',;a-zA-Z0-9]+
 
@@ -44,12 +48,15 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {delete}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DMLDELETE; }
 {update}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DMLUPDATE; }
 {values}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALUES; }
-{table}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return TABLE; }
 {types}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return TYPE; }
 {set}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SET; }
-{brackets}      { ch += yyleng; sscanf(yytext, "%c", yylval.string); return BRACKET; }
+{brackets}      { ch += yyleng; sscanf(yytext, "%s", yylval.string); return BRACKET; }
 {equally}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return EQUALLY; }
+{notequally}    { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOTEQUALLY; }
 {sign}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SIGN; }
+{comp}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return COMP; }
+{logic}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return LOGIC; }
+{not}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOT; }
 {constraints}   { ch += yyleng; sscanf(yytext, "%s", yylval.string); return CONSTRAINT; }
 {from}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FROM; }
 {where}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return WHERE; }
@@ -57,6 +64,7 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
 {words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
+{valstr}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALSTR; }
 {other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
 ";"             { ch += yyleng; return SEMICOLON; }
 ","             { ch += yyleng; return COMMA; }
