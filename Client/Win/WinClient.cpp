@@ -2,7 +2,7 @@
 // Created by quiks on 13.10.2019.
 //
 #include "WinClient.h"
-#include <c++/4.8.3/iostream>
+#include <iostream>
 Client::Client() {
     WORD wV = MAKEWORD(2, 2);
     WSADATA d;
