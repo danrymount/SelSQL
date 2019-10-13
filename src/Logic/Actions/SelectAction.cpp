@@ -4,8 +4,6 @@
 
 #include "Headers/SelectAction.h"
 BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-
     cursor = mainEngine->GetCursor(_request.tableName);
 
     if (cursor.first->name.empty()) {
@@ -13,17 +11,14 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    std::vector<std::pair<std::string, std::string>> record;
-    for (size_t i = 0; i < cursor.first->record_amount; ++i) {
-        record = cursor.second->Fetch();
+    auto record = cursor.second->Fetch();
+    do {
+        response.dmlData.record.push_back(record);
         for (auto field : record) {
             std::cout << field.first << " = " << field.second << std::endl;
         }
-        if (cursor.second->Next()) {
-            std::cout << "END OF DATA" << std::endl;
-            break;
-        }
-    }
+        record = actionsUtils.getTableRecord(cursor);
+    } while (!record.empty());
 
     requestToResponse(_request);
 
