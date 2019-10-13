@@ -10,7 +10,7 @@ Server::Server() {
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         std::cerr << "Unable to create server socket" << std::endl;
-        return;
+        throw ServerException();
     }
 
     addr.sin_family = AF_INET;
@@ -18,19 +18,19 @@ Server::Server() {
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (bind(server_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cerr << "Unable to bind server socket" << std::endl;
-        return;
+        throw ServerException();
     }
 
     if (listen(server_socket, 5)) {
         std::cerr << "Unable to listen" << std::endl;
-        return;
+        throw ServerException();
     }
 }
 int Server::ListenSocket() {
     communication_socket = accept(server_socket, NULL, NULL);
     if (communication_socket < 0) {
         std::cerr << "Unable to create communication socket" << std::endl;
-        return 0;
+        throw ServerException();
     }
     /*читаем данные из сокета*/
 
@@ -46,7 +46,7 @@ int Server::ListenSocket() {
             if (errno == EINTR)
                 continue;
             std::cerr << "Can't receive data." << std::endl;
-            return 0;
+            throw ServerException();
         }
         if (rc == 0)
             break;
@@ -58,5 +58,6 @@ int Server::SendMessage(std::string response) {
     if (sendto(communication_socket, response.c_str(), response.size(), 0, (struct sockaddr *)&addr, sizeof(addr)) <
         0) {
         std::cerr << "Send error" << std::endl;
+        throw ServerException();
     }
 }
