@@ -20,7 +20,20 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
             }
         }
     }
-    response = mainEngine->Insert(&_request);
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
+    cursor = mainEngine->GetCursor(_request.tableName);
+
+    if (cursor.first->name.empty()) {
+        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return response;
+    }
+
+    cursor.second->Insert(_request.dmlData.columns, _request.dmlData.values);
+    cursor.second->Commit();
+    //    cursor = mainEngine->GetCursor(_request.tableName);
+    //    for (auto i :cursor.second->Fetch()){
+    //        std::cout<<i.first<<" == "<<i.second<<std::endl;
+    //    }
     requestToResponse(_request);
 
     return response;

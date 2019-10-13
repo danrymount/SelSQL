@@ -1,15 +1,13 @@
 #include "Headers/Cursor.h"
 #include <cstring>
 
-void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos) {
+void convert(unsigned char* dist, std::string val, Type type) {
     unsigned char null_flag = 'n';
-    unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
-    auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
     switch (type) {
         case INT: {
             if (!val.empty()) {
                 int v = std::stoi(val);
-                std::memcpy(&temp_field[1], &v, Constants::TYPE_SIZE[type]);
+                std::memcpy(&dist[1], &v, Constants::TYPE_SIZE[type]);
             } else {
                 null_flag = 'N';
             }
@@ -18,7 +16,7 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
         case FLOAT: {
             if (!val.empty()) {
                 double fl = std::stod(val);
-                std::memcpy(&temp_field[1], &fl, Constants::TYPE_SIZE[type]);
+                std::memcpy(&dist[1], &fl, Constants::TYPE_SIZE[type]);
             } else {
                 null_flag = 'N';
             }
@@ -27,14 +25,21 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
         case CHAR: {
             if (!val.empty()) {
                 val.reserve(Constants::TYPE_SIZE[type]);
-                std::memcpy(&temp_field[1], val.c_str(), Constants::TYPE_SIZE[type]);
+                std::memcpy(&dist[1], val.c_str(), Constants::TYPE_SIZE[type]);
             } else {
                 null_flag = 'N';
             }
             break;
         }
     }
-    temp_field[0] = null_flag;
+    dist[0] = null_flag;
+}
+
+void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos) {
+    unsigned char null_flag = 'n';
+    unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
+    auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
+    convert(temp_field, val, type);
     std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
 }
 
@@ -48,7 +53,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
                 continue;
             }
         }
-        for (int j = 0; j < cols.size(); ++j) {
+        for (size_t j = 0; j < cols.size(); ++j) {
             if (i.first == cols[j]) {
                 i.second = new_data[j];
                 break;
@@ -58,7 +63,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     auto fields = table->getFields();
     unsigned char record[table->record_size];
     int next_pos = 0;
-    for (int i = 0; i < vals.size(); ++i) {
+    for (size_t i = 0; i < vals.size(); ++i) {
         Type type = fields[i].second.type;
         SaveFieldData(vals[i].second, type, record, next_pos);
         next_pos += Constants::TYPE_SIZE[type] + 1;
@@ -111,7 +116,7 @@ void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int 
             std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
-        } break;
+        }
         case CHAR: {
             char dst[Constants::TYPE_SIZE[type]];
             std::memcpy(dst, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
@@ -121,8 +126,7 @@ void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int 
     }
 }
 int Cursor::Next() {
-    int size = table->record_amount;
-    if (readed_data > size - 1) {
+    if (readed_data > table->record_amount - 1) {
         return 1;
     } else {
         pos++;
@@ -131,6 +135,5 @@ int Cursor::Next() {
 }
 int Cursor::Delete() {
     std::memset(&data[pos * table->record_size], '0', table->record_size);
-
     return 0;
 }

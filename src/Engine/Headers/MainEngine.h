@@ -5,6 +5,7 @@
 #ifndef SELSQL_MAINENGINE_H
 #define SELSQL_MAINENGINE_H
 
+#include <memory>
 #include "../../Utils/Structures/BigResponse.h"
 #include "../../Utils/Structures/Data/Table.h"
 
@@ -15,9 +16,10 @@ class MainEngine {
     int check_condition(std::string rec_val, Condition cond_val);
 
    public:
-    FileManager* file_manager_;
+    std::shared_ptr<FileManager> file_manager_;
 
     explicit MainEngine();
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string table_name);
 
     BigResponse Select(BigRequest* bigRequest);
     BigResponse Insert(BigRequest* bigRequest);

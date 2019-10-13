@@ -1,7 +1,8 @@
 #include "Headers/FileManager.h"
+#include <memory>
 #include "../Utils/Structures/Data/Table.h"
 
-void FileManager::WriteMetaData(Table* table) {
+void FileManager::WriteMetaData(const std::shared_ptr<Table>& table) {
     std::fstream* new_file = files_[table->name];
     new_file->seekp(0);
     new_file->write(table->name.c_str(), table->name.size());
@@ -63,7 +64,7 @@ int FileManager::OpenFile(std::string table_name) {
 
     return 0;
 }
-int FileManager::CreateFile(Table* table) {
+int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     if (files_.find(table->name) != files_.end()) {
         return 1;
     }
@@ -101,12 +102,12 @@ unsigned char* FileManager::GetData(std::string table_name) {
     auto res = reinterpret_cast<unsigned char*>(new_data);
     return res;
 }
-int FileManager::UpdateFile(Table* table, unsigned char* src) {
+int FileManager::UpdateFile(const std::shared_ptr<Table>& table, unsigned char* src) {
     this->WriteMetaData(table);
     this->WriteData(table, src);
     return 0;
 }
-void FileManager::WriteData(Table* table, unsigned char* src) {
+void FileManager::WriteData(const std::shared_ptr<Table>& table, unsigned char* src) {
     std::fstream* new_file = files_[table->name];
 
     auto res = reinterpret_cast<char*>(src);
