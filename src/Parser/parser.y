@@ -111,7 +111,7 @@ update_set:
     update_set COMMA STRING EQUALLY NUMBER {
    	logicApi.addColumn($3);
     	logicApi.addValue($5);
-        printf("UPCOL = %s, %s UPVALNUM = %s\n", $3, $5);
+        printf("UPCOL = %s, UPVALNUM = %s\n", $3, $5);
     }
     |
     update_set COMMA STRING EQUALLY VALNULL {
@@ -157,7 +157,7 @@ col_select:
     }
     |
     col_select COMMA STRING {
-    	logicApi.addSelectColumn($3 );
+    	logicApi.addSelectColumn($3);
     	printf("COL = %s\n", $3);
     }
     |
