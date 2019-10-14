@@ -43,11 +43,11 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
             } else {
                 auto valIt = std::find(columns.begin(), columns.end(), tableCol.first);
                 if (valIt == columns.end()) {
-                    continue;
+                    val = "null";
+                } else {
+                    int columnIndex = std::distance(columns.begin(), valIt);
+                    val = values[columnIndex];
                 }
-
-                int columnIndex = std::distance(columns.begin(), valIt);
-                val = values[columnIndex];
             }
 
             for (int j = 0; j < tableCol.second.getConstraints().size(); ++j) {

@@ -150,6 +150,7 @@ col_select:
     }
     |
     DQLSELECT ALL {
+    	logicApi.addSelectColumn($2);
         printf("COLALL = %s\n", $2);
     }
     |
@@ -159,6 +160,7 @@ col_select:
     }
     |
     col_select COMMA ALL {
+    	logicApi.addSelectColumn($3);
         printf("COLALL = %s\n", $3);
     }
 
