@@ -103,27 +103,27 @@ update_set:
     }
     |
     update_set COMMA STRING EQUALLY VALSTR {
-    	logicApi.addColumn($2);
-    	logicApi.addValue($4);
-    	printf("UPCOL = %s, UPVALSTR = %s\n", $2, $4);
+    	logicApi.addColumn($3);
+    	logicApi.addValue($5);
+    	printf("UPCOL = %s, UPVALSTR = %s\n", $3, $5);
     }
     |
     update_set COMMA STRING EQUALLY NUMBER {
-   	logicApi.addColumn($2);
-    	logicApi.addValue($4);
-        printf("UPCOL = %s, UPVALNUM = %s\n", $2, $4);
+   	logicApi.addColumn($3);
+    	logicApi.addValue($5);
+        printf("UPCOL = %s, %s UPVALNUM = %s\n", $3, $5);
     }
     |
     update_set COMMA STRING EQUALLY VALNULL {
-    	logicApi.addColumn($2);
-    	logicApi.addValue($4);
-        printf("UPCOL = %s, UPVALNULL = %s\n", $2, $4);
+    	logicApi.addColumn($3);
+    	logicApi.addValue($5);
+        printf("UPCOL = %s, UPVALNULL = %s\n", $3, $5);
     }
     |
     update_set COMMA STRING EQUALLY FLOATNUM {
-    	logicApi.addColumn($2);
-    	logicApi.addValue($4);
-        printf("UPCOL = %s, UPVALFLOAT = %s\n", $2, $4);
+    	logicApi.addColumn($3);
+    	logicApi.addValue($5);
+        printf("UPCOL = %s, UPVALFLOAT = %s\n", $3, $5);
     }
 
 table_delete:
