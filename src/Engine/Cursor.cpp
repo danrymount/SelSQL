@@ -82,13 +82,13 @@ int Cursor::Commit() {
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     unsigned char record[table->record_size];
     std::vector<std::pair<std::string, std::string>> values;
-    std::memcpy(record, &data[pos * table->record_size], table->record_size);
+    std::memcpy(record, &data[current_pos * table->record_size], table->record_size);
     int field_pos = 0;
     for (int i = 0; i < table->fields.size(); ++i) {
         unsigned char field[Constants::TYPE_SIZE[table->fields[i].second.type] + 1];
         Type type = table->fields[i].second.type;
         std::string value = "";
-        std::memcpy(field, &data[field_pos + pos * table->record_size],
+        std::memcpy(field, &data[field_pos + current_pos * table->record_size],
                     Constants::TYPE_SIZE[table->fields[i].second.type] + 1);
         if (field[0] == '0' or field[0] == '\000') {
             return std::vector<std::pair<std::string, std::string>>();
@@ -130,12 +130,32 @@ int Cursor::Next() {
     if (readed_data > table->record_amount - 1) {
         return 1;
     } else {
-        pos++;
+        current_pos++;
         return 0;
     }
 }
 int Cursor::Delete() {
-    std::memset(&data[pos * table->record_size], '0', table->record_size);
+    std::memset(&data[current_pos * table->record_size], '0', table->record_size);
     table->last_record_pos++;
+    return 0;
+}
+int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+    unsigned char record[table->record_size];
+    std::memcpy(record, &data[current_pos * table->record_size], table->record_size);
+    auto fields = table->getFields();
+    int next_pos = 0;
+    for (size_t i = 0; i < vals.size(); ++i) {
+        Type type = fields[i].second.type;
+
+        for (size_t j = 0; j < cols.size(); j++) {
+            if (vals[i].first == cols[j]) {
+                SaveFieldData(new_data[j], type, record, next_pos);
+            }
+        }
+        next_pos += Constants::TYPE_SIZE[type] + 1;
+    }
+
+    std::memcpy(&data[current_pos * table->record_size], record, table->record_size);
+
     return 0;
 }
