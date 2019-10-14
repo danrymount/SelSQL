@@ -67,6 +67,8 @@ actions:
     }
     |
     DMLUPDATE STRING table_update {
+    	logicApi.addActionName($1);
+    	logicApi.addTableName($2);
         printf("%s, %s\n", $1, $2);
     }
 
