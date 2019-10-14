@@ -6,7 +6,6 @@
 #include "../../Utils/Headers/ActionsUtils.h"
 
 BigResponse ShowCreateAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    ActionsUtils actionsUtils;
     requestToResponse(_request);
     response = mainEngine->ShowCreateTable(_request);
     if (response.error.getErrorCode()) {

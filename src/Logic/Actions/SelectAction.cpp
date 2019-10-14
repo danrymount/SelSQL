@@ -4,8 +4,6 @@
 
 #include "Headers/SelectAction.h"
 BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-
     cursor = mainEngine->GetCursor(_request.tableName);
 
     if (cursor.first->name.empty()) {
@@ -13,19 +11,67 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    std::vector<std::pair<std::string, std::string>> record;
-    for (size_t i = 0; i < cursor.first->record_amount; ++i) {
-        record = cursor.second->Fetch();
-        for (auto field : record) {
+    auto _record = cursor.second->Fetch();
+    do {
+        response.dqlData.record.push_back(_record);
+        for (auto field : _record) {
             std::cout << field.first << " = " << field.second << std::endl;
         }
-        if (cursor.second->Next()) {
-            std::cout << "END OF DATA" << std::endl;
-            break;
-        }
-    }
+        _record = actionsUtils.getTableRecord(cursor);
+    } while (!_record.empty());
 
     requestToResponse(_request);
 
+    if (response.dqlData.columns.size() == 1) {
+        if (response.dqlData.columns[0] == "*") {
+            std::cout << " | ";
+            printAllHeader(cursor.first);
+            std::cout << std::endl;
+            printAll(response);
+        }
+    } else {
+        std::cout << " | ";
+        for (auto col : response.dqlData.columns) {
+            if (col == "*") {
+                printAllHeader(cursor.first);
+                continue;
+            }
+            std::cout << col << " | ";
+        }
+        std::cout << std::endl;
+
+        for (auto record : response.dqlData.record) {
+            std::cout << " | ";
+            for (auto col : response.dqlData.columns) {
+                for (auto field : record) {
+                    if (col == "*") {
+                        printField(field.second);
+                        continue;
+                    } else if (col == field.first) {
+                        printField(field.second);
+                        break;
+                    }
+                }
+            }
+            std::cout << std::endl;
+        }
+    }
+
     return response;
 }
+void SelectAction::printAll(BigResponse& response) {
+    for (auto record : response.dqlData.record) {
+        std::cout << " | ";
+        for (auto field : record) {
+            std::cout << field.second << " | ";
+        }
+        std::cout << std::endl;
+    }
+}
+void SelectAction::printAllHeader(std::shared_ptr<Table> table) {
+    for (auto col : table->getFields()) {
+        std::cout << col.first << " | ";
+    }
+}
+
+void SelectAction::printField(std::string field) { std::cout << field << " | "; };
