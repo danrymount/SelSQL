@@ -2,6 +2,7 @@
     #include <stdio.h>
     #include <string>
     #include "parser.h"
+    #include <memory>
     void showError();
     int ch;
 %}
@@ -11,8 +12,8 @@
 all "*"
 numbers ([0-9])+
 floatnumb ([0-9]+"."[0-9]+)+
-words   ([-A-Za-z0-9]*)
-valstr   ("'"[-\40A-Za-z0-9]+"'")
+words   ([A-Za-z0-9]*)
+valstr   (\'.*\')
 ddlcreate "CREATE TABLE"
 ddldrop "DROP TABLE"
 ddlshow "SHOW CREATE TABLE"
@@ -64,11 +65,11 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
 {words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
-{valstr}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALSTR; }
+{valstr}        { ch += yyleng; memcpy(&(yylval.string),  yytext, yyleng);
+ return VALSTR; }
 {other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
 ";"             { ch += yyleng; return SEMICOLON; }
 ","             { ch += yyleng; return COMMA; }
-"'"             { ch += yyleng; return STROKE; }
 %%
 
 void showError(){

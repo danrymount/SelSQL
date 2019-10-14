@@ -16,7 +16,7 @@
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
-NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL STROKE VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY
+NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY
 
 
 %union{
@@ -73,7 +73,7 @@ actions:
 table_update:
     update_set
     |
-    table_update where
+    table_update WHERE where
 
 update_set:
     SET STRING EQUALLY VALSTR {
@@ -130,7 +130,7 @@ table_delete:
         printf("TABLE = %s\n", $2);
     }
     |
-    DMLDELETE STRING where {
+    DMLDELETE STRING WHERE where {
     	logicApi.addTableName($2);
         printf("TABLE = %s\n", $2);
     }
@@ -164,8 +164,6 @@ col_select:
 
 insert_where:
     insert
-    |
-    insert where
 
 where:
     NOT where {
@@ -196,22 +194,28 @@ where:
 expr:
     STRING {
     	printf("%s\n", $1);
-    }|
+    }
+    |
     NUMBER {
     	printf("%s \n", $1);
-    }|
+    }
+    |
     FLOATNUM {
     	printf("%s\n", $1);
-    }|
+    }
+    |
     expr SIGN expr {
     	printf("%s\n", $2);
-    }|
+    }
+    |
     expr ALL expr {
     	printf("%s\n", $2);
-    }|
+    }
+    |
     BRACKET expr SIGN expr BRACKET {
     	printf("( %s ) \n", $3);
-    }|
+    }
+    |
     BRACKET expr ALL expr BRACKET {
     	printf("( %s ) \n", $3);
     }
@@ -273,6 +277,7 @@ values:
     |
     values VALSTR {
     	logicApi.addValue($2);
+    	std::cout << $2 << std::endl;
     	printf("VALSTR = %s\n", $2);
     }
     |
