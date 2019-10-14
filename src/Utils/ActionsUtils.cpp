@@ -128,3 +128,40 @@ ActionsUtils::Record ActionsUtils::getTableRecord(std::pair<std::shared_ptr<Tabl
     //        }
     //    }
 }
+int ActionsUtils::check_condition(std::string rec_val, Condition cond_val) {
+    int res = 0;
+    switch (cond_val.sign) {
+        case GREATEREQUALS:
+            if (rec_val >= cond_val.value) {
+                res = 1;
+            }
+            break;
+        case GREATER:
+            if (rec_val > cond_val.value) {
+                res = 1;
+            }
+            break;
+        case NOEQUALS:
+            if (rec_val != cond_val.value) {
+                res = 1;
+            }
+            break;
+        case EQUALS: {
+            if (rec_val == cond_val.value) {
+                res = 1;
+            }
+            break;
+        }
+        case LOWER:
+            if (rec_val < cond_val.value) {
+                res = 1;
+            }
+            break;
+        case LOWEREQUALS:
+            if (rec_val <= cond_val.value) {
+                res = 1;
+            }
+            break;
+    }
+    return res;
+}

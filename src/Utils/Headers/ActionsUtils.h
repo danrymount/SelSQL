@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_ACTIONSUTILS_H
 #define SELSQL_ACTIONSUTILS_H
+#include <functional>
 #include <string>
 #include "../../Engine/Headers/Cursor.h"
 #include "../Structures/Data/Table.h"
@@ -35,6 +36,7 @@ class ActionsUtils {
                           std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
 
     Record getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
+    static int check_condition(std::string rec_val, Condition cond_val);
 
    private:
     ParserUtils parserUtils;

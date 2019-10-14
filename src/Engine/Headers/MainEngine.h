@@ -13,7 +13,6 @@
 #include "Cursor.h"
 class MainEngine {
     Cursor* cursor;
-    int check_condition(std::string rec_val, Condition cond_val);
 
    public:
     std::shared_ptr<FileManager> file_manager_;
@@ -21,10 +20,6 @@ class MainEngine {
     explicit MainEngine();
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string table_name);
 
-    BigResponse Select(BigRequest* bigRequest);
-    BigResponse Insert(BigRequest* bigRequest);
-    BigResponse Update(BigRequest* bigRequest);
-    BigResponse Delete(BigRequest* bigRequest);
     BigResponse CreateTable(BigRequest* request);
     BigResponse ShowCreateTable(BigRequest request);
     BigResponse DropTable(BigRequest* request);

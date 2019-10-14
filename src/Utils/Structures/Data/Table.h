@@ -18,6 +18,7 @@ class Table {
 
     size_t record_amount = 0;
     size_t record_size = 0;
+    size_t last_record_pos = 0;
     Table() = default;
 
     Table(std::string _name, FieldsMap _fields) : name(_name), fields(_fields) {}

@@ -7,6 +7,8 @@
 
 #include "BaseAction.h"
 class DeleteAction : public BaseAction {
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
+
    public:
     BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
 };

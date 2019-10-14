@@ -10,15 +10,28 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
+    std::map<std::string, Condition> cond = _request.dmlData.conditions;
 
-    auto _record = cursor.second->Fetch();
     do {
-        response.dqlData.record.push_back(_record);
-        for (auto field : _record) {
-            std::cout << field.first << " = " << field.second << std::endl;
+        auto _record = cursor.second->Fetch();
+        if (_record.empty()) {
+            continue;
         }
-        _record = actionsUtils.getTableRecord(cursor);
-    } while (!_record.empty());
+        if (cond.empty()) {
+            response.dqlData.record.push_back(_record);
+            continue;
+        }
+        for (auto field : _record) {
+            std::string field_name = field.first;
+            if (cond.find(field_name) != cond.end()) {
+                if (ActionsUtils::check_condition(field.second, cond[field_name])) {
+                    response.dqlData.record.push_back(_record);
+                    continue;
+                }
+            }
+        }
+
+    } while (!cursor.second->Next());
 
     requestToResponse(_request);
 

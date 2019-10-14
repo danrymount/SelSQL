@@ -16,9 +16,10 @@ void FileManager::WriteMetaData(const std::shared_ptr<Table>& table) {
             write_int(new_file, Constraint(constr));
         }
     }
-    new_file->seekp(Constants::DATA_PAGE_START_POS);
+    new_file->seekp(Constants::DATA_PAGE_START_POS - 4 - 4);
     write_int(new_file, table->record_amount);
-    new_file->seekp(Constants::DATA_PAGE_START_POS + Constants::DATA_PAGE_SIZE + 4);
+    write_int(new_file, table->last_record_pos);
+    new_file->seekp(Constants::DATA_PAGE_START_POS + Constants::DATA_PAGE_SIZE);
     write_int(new_file, 0);
 }
 
@@ -48,8 +49,9 @@ void FileManager::ReadMetaData(std::string table_name) {
         table.addField(std::string(var_name), var);
     }
     table.name = std::string(name);
-    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS);
+    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS - 4 - 4);
     table.record_amount = read_int(files_[table_name]);
+    table.last_record_pos = read_int(files_[table_name]);
     table.calcRecordSize();
     table_data[table_name] = table;
 }
@@ -94,7 +96,7 @@ int FileManager::DeleteTable(std::string table_name) {
 unsigned char* FileManager::GetData(std::string table_name) {
     auto new_data = new char[Constants::DATA_PAGE_SIZE];
 
-    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
+    files_[table_name]->seekg(Constants::DATA_PAGE_START_POS, std::ios::beg);
     files_[table_name]->read(new_data, Constants::DATA_PAGE_SIZE);
     //    std::cerr << files_[table_name]->tellg();
     files_[table_name]->seekg(0, std::ios::beg);
@@ -111,7 +113,7 @@ void FileManager::WriteData(const std::shared_ptr<Table>& table, unsigned char* 
     std::fstream* new_file = files_[table->name];
 
     auto res = reinterpret_cast<char*>(src);
-    new_file->seekp(Constants::DATA_PAGE_START_POS + 4, std::ios::beg);
+    new_file->seekp(Constants::DATA_PAGE_START_POS, std::ios::beg);
     //    std::cerr << new_file->tellp();
     new_file->write(res, Constants::DATA_PAGE_SIZE);
 

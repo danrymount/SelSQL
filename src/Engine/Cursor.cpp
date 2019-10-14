@@ -5,7 +5,7 @@ void convert(unsigned char* dist, std::string val, Type type) {
     unsigned char null_flag = 'n';
     switch (type) {
         case INT: {
-            if (!val.empty()) {
+            if (!val.empty() and val != "null") {
                 int v = std::stoi(val);
                 std::memcpy(&dist[1], &v, Constants::TYPE_SIZE[type]);
             } else {
@@ -14,7 +14,7 @@ void convert(unsigned char* dist, std::string val, Type type) {
             break;
         }
         case FLOAT: {
-            if (!val.empty()) {
+            if (!val.empty() and val != "null") {
                 double fl = std::stod(val);
                 std::memcpy(&dist[1], &fl, Constants::TYPE_SIZE[type]);
             } else {
@@ -44,7 +44,7 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
 }
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
-    int position = table->record_amount * table->record_size;
+    int position = table->last_record_pos * table->record_size;
     int count = 0;
     for (auto& i : vals) {
         if (cols.empty()) {
@@ -70,6 +70,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     }
 
     table->record_amount++;
+    table->last_record_pos++;
     std::memcpy(&data[position], record, table->record_size);
 
     return 0;
@@ -135,5 +136,6 @@ int Cursor::Next() {
 }
 int Cursor::Delete() {
     std::memset(&data[pos * table->record_size], '0', table->record_size);
+    table->last_record_pos++;
     return 0;
 }
