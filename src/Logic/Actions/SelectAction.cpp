@@ -35,13 +35,11 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     requestToResponse(_request);
 
-    if (response.dqlData.columns.size() == 1) {
-        if (response.dqlData.columns[0] == "*") {
-            std::cout << " | ";
-            printAllHeader(cursor.first);
-            std::cout << std::endl;
-            printAll(response);
-        }
+    if (response.dqlData.columns.size() == 1 && response.dqlData.columns[0] == "*") {
+        std::cout << " | ";
+        printAllHeader(cursor.first);
+        std::cout << std::endl;
+        printAll(response);
     } else {
         std::cout << " | ";
         for (auto col : response.dqlData.columns) {

@@ -25,8 +25,8 @@ class ActionsUtils {
     // std::vector<std::function<int(std::string, std::string, std::unique_ptr<Error> error)>> constraintsCheckers =
     // (checkNotNull);
 
-    std::vector<std::function<Error(const std::string&, const std::string&)>> constraintsCheckers = {checkNotNull,
-                                                                                                     checkPrimaryKey,
+    std::array<std::function<Error(const std::string&, const std::string&)>, 3> constraintsCheckers = {checkNotNull,
+                                                                                                       checkPrimaryKey,
                                                                                                      checkUnique};
 
     typedef std::vector<std::pair<std::string, std::string>> Record;
