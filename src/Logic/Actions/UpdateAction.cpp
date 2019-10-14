@@ -12,17 +12,19 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
     }
 
     std::map<std::string, Condition> cond = _request.dmlData.conditions;
-    if (cond.empty()) {
-        return response;
-    }
+
     do {
         auto record = cursor.second->Fetch();
 
         for (auto field : record) {
             std::string field_name = field.first;
-            if (cond.find(field_name) != cond.end()) {
-                if (ActionsUtils::check_condition(field.second, cond[field_name])) {
-                    cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+            if (cond.empty()) {
+                cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+            } else {
+                if (cond.find(field_name) != cond.end()) {
+                    if (ActionsUtils::check_condition(field.second, cond[field_name])) {
+                        cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+                    }
                 }
             }
         }
