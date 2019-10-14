@@ -17,7 +17,7 @@ class Cursor {
     void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
 
    public:
-    int pos = 0;
+    int current_pos = 0;
     int readed_data = 0;
     std::shared_ptr<Table> table;
     Cursor(std::shared_ptr<Table> t, std::shared_ptr<FileManager> fm) {
@@ -34,6 +34,7 @@ class Cursor {
     int Commit();
     int Next();
     int Delete();
+    int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
     std::vector<std::pair<std::string, std::string>> Fetch();
 };
 #endif  // SELSQL_CURSOR_H
