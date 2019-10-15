@@ -9,8 +9,7 @@
 class DQLdata {
    public:
     DQLdata() = default;
-    DQLdata(std::vector<std::string> _columns, std::map<std::string, Condition> _conditions,
-            std::vector<std::vector<std::pair<std::string, std::string>>> _record)
+    DQLdata(std::vector<std::string> _columns, std::map<std::string, Condition> _conditions, RecordsData _record)
                                                                                                         : columns(_columns),
                                                                                                           conditions(_conditions),
                                                                                                           record(_record) {
@@ -18,7 +17,7 @@ class DQLdata {
 
     std::vector<std::string> columns;
     std::map<std::string, Condition> conditions;
-    std::vector<std::vector<std::pair<std::string, std::string>>> record;
+    RecordsData record;
 
     virtual void clear() {
         columns.clear();

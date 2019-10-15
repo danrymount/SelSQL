@@ -11,6 +11,7 @@ using std::string;
 #include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Headers/ParserUtils.h"
 #include "../../Utils/Structures/BigResponse.h"
+#include "../../Utils/Structures/Data/Expresion.h"
 
 class ParserLogic {
     MainEngine engineApi;
@@ -29,6 +30,9 @@ class ParserLogic {
     void addCondition(char* name, char* sign, char* value);
     void addValue(char* value);
     void addColumn(char* name);
+
+    Expression expression;
+
 };
 
 #endif  // SELSQL_PARSERLOGIC_H

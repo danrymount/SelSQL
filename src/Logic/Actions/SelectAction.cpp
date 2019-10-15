@@ -27,7 +27,7 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         for (auto field : _record) {
             std::string field_name = field.first;
             if (cond.find(field_name) != cond.end()) {
-                if (ActionsUtils::check_condition(field.second, cond[field_name])) {
+                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
                     response.dqlData.record.push_back(_record);
                     continue;
                 }
@@ -37,6 +37,8 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
     } while (!cursor.second->Next());
 
     requestToResponse(_request);
+
+    response.dqlData.record = ActionsUtils::checkExpression(response.expression, response.dqlData.record);
 
     if (response.dqlData.columns.size() == 1 && response.dqlData.columns[0] == "*") {
         std::cout << " | ";

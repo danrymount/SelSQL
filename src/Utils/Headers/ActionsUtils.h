@@ -14,17 +14,6 @@
 
 class ActionsUtils {
    public:
-    //    int checkNotNull(std::string newVal, std::string oldVal, std::unique_ptr<Error> error) {
-    //        if (newVal == "null") {
-    //            *error = Error(ErrorConstants::ERR_NOT_NULL);
-    //            return 1;
-    //        }
-    //        return 0;
-    //    }
-
-    // std::vector<std::function<int(std::string, std::string, std::unique_ptr<Error> error)>> constraintsCheckers =
-    // (checkNotNull);
-
     std::array<std::function<Error(const std::string&, const std::string&)>, 3> constraintsCheckers = {checkNotNull,
                                                                                                        checkPrimaryKey,
                                                                                                      checkUnique};
@@ -35,11 +24,38 @@ class ActionsUtils {
     Error checkConstraint(std::vector<std::string> columns, std::vector<std::string> values,
                           std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
 
+    static RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
+
     Record getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
-    static int check_condition(std::string rec_val, Condition cond_val);
+    static int checkSign(std::string rec_val, Condition cond_val);
 
    private:
     ParserUtils parserUtils;
+
+    static std::pair<Cmp, std::string> countExpr(std::string columnName, std::string val, Expr exprs);
+
+    inline static std::map<std::string, int> checkPriority = {{"(", 0}, {")", 0}, {"+", 2},
+                                                              {"-", 2}, {"*", 3}, {"/", 3}};
+
+    inline static std::map<std::string, std::function<double(int a, int b)>> calculate = {{"+",
+                                                                                           [](int a, int b) {
+                                                                                               return a + b;
+                                                                                           }},
+                                                                                          {"-",
+                                                                                           [](int a, int b) {
+                                                                                               return a - b;
+                                                                                           }},
+                                                                                          {"*",
+                                                                                           [](int a, int b) {
+                                                                                               return a * b;
+                                                                                           }},
+                                                                                          {"/", [](int a, int b) {
+                                                                                               if (b != 0)
+                                                                                                   return a / b;
+                                                                                               else
+                                                                                                   return 0;  // zero
+                                                                                                              // division
+                                                                                           }}};
 
     static Error checkNotNull(const std::string& newVal, const std::string& oldVal);
 

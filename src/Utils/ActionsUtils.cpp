@@ -3,6 +3,7 @@
 //
 
 #include "Headers/ActionsUtils.h"
+#include <queue>
 
 std::string ActionsUtils::makeRequestCreateFromTable(Table table) {
     const char space = ' ';
@@ -128,7 +129,7 @@ ActionsUtils::Record ActionsUtils::getTableRecord(std::pair<std::shared_ptr<Tabl
     //        }
     //    }
 }
-int ActionsUtils::check_condition(std::string rec_val, Condition cond_val) {
+int ActionsUtils::checkSign(std::string rec_val, Condition cond_val) {
     int res = 0;
     switch (cond_val.sign) {
         case GREATEREQUALS:
@@ -164,4 +165,112 @@ int ActionsUtils::check_condition(std::string rec_val, Condition cond_val) {
             break;
     }
     return res;
+}
+RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, RecordsData recordsData) {
+    RecordsData newRecords;
+    std::vector<std::pair<std::string, Condition>> exprRes;
+    for (auto& row : recordsData) {
+        for (auto& record : row) {
+            auto res = countExpr(record.first, record.second, expr.first);
+            if (res.second.empty()) continue;
+            exprRes.emplace_back(std::make_pair(record.first, Condition(res.first, res.second)));
+        }
+    }
+    return newRecords;
+}
+
+std::pair<Cmp, std::string> ActionsUtils::countExpr(std::string columnName, std::string val, Expr exprs) {
+    std::pair<Cmp, std::string> res;
+    std::queue<double> result;
+    std::deque<std::string> vectorSigns;
+    std::queue<std::string> curExpr;
+    for (auto& expr : exprs) {
+        if (expr.first.first != columnName) continue;
+        res.first = expr.first.second;
+        auto tempExpr = expr.second;
+        if (tempExpr.first.empty()) {
+            continue;
+        }
+        int i = 0;
+        int j = 0;
+        while (i != tempExpr.first.size() || j != tempExpr.second.size()) {
+            if (j != tempExpr.second.size()) {
+                auto sign = tempExpr.second[j];
+                if (vectorSigns.empty()) {
+                    vectorSigns.push_back(sign);
+                    j++;
+                } else {
+                    auto priority = checkPriority[sign];
+                    auto oldPriority = checkPriority[tempExpr.second[j - 1]];
+                    if (oldPriority == 0 && priority > oldPriority) {
+                        vectorSigns.push_back(sign);
+                        j++;
+                    } else if (sign == ")") {
+                        int k = j;
+                        while (vectorSigns[--k] != "(") {
+                            curExpr.push(vectorSigns[k]);
+                            vectorSigns.pop_back();
+                        }
+                        vectorSigns.pop_back();
+                        j++;
+                    } else {
+                        curExpr.push(vectorSigns.front());
+                        vectorSigns.pop_front();
+                        j++;
+                    }
+                }
+            }
+            if (i != tempExpr.first.size()) {
+                if (tempExpr.first[i] == columnName) {
+                    tempExpr.first[i] = val;
+                }
+
+                curExpr.push(tempExpr.first[i]);
+                i++;
+            }
+        }
+
+        //        if (!tempExpr.first.empty()) {
+        //            int i = 0;
+        //            int j = 0;
+        //            while (tempExpr.first.size() != 1) {
+        //                if (tempExpr.first[i] == columnName) {
+        //                    tempExpr.first[i] = val;
+        //                }
+        //                vectorNums.push(std::stoi(tempExpr.first[i]));
+        //                if (vectorNums.size() < 2) {
+        //                    i++;
+        //                    continue;
+        //                }
+        //                if (vectorSigns.empty()) {
+        //                    vectorSigns.push(tempExpr.second[j]);
+        //                    j++;
+        //                    continue;
+        //                }
+        //                auto sign = tempExpr.second[j];
+        //                auto priority = checkPriority[sign];
+        //                auto oldPriority = checkPriority[tempExpr.second[j - 1]];
+        //                if (oldPriority != 4 && priority > oldPriority) {
+        //                    vectorSigns.push(sign);
+        //                    j++;
+        //                    continue;
+        //                } else if (oldPriority == priority && oldPriority == 4) {
+        //                    auto a = vectorNums.front();
+        //                    vectorNums.pop();
+        //                    auto b = vectorNums.front();
+        //                    vectorNums.pop();
+        //                    result.push(calculate[sign](a, b));
+        //                    j++;
+        //                } else {
+        //                    auto a = vectorNums.front();
+        //                    vectorNums.pop();
+        //                    auto b = vectorNums.front();
+        //                    vectorNums.pop();
+        //                    result.push(calculate[sign](a, b));
+        //                    j++;
+        //                }
+        //            }
+        //            res.second = tempExpr.first[0];
+        //        }
+    }
 }
