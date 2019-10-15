@@ -171,57 +171,79 @@ insert_where:
 
 where:
     NOT where {
+    	logicApi.expression.addLogicOperator($1);
     	printf("NOT\n");
     }|
     where LOGIC where {
+    	logicApi.expression.addLogicOperator($2);
     	printf("%s\n", $2);
     }|
     BRACKET where BRACKET {
+    	logicApi.expression.addOperator($1);
+    	logicApi.expression.addOperator($3);
     	printf("%s %s\n", $1, $3);
     }|
     STRING EQUALLY expr {
+    	logicApi.expression.addColumn($1, $2);
     	printf("%s = \n", $1);
     }|
     STRING NOTEQUALLY expr {
+    	logicApi.expression.addColumn($1, $2);
     	printf("%s != \n", $1);
     }|
     STRING EQUALLY VALSTR {
+    	logicApi.expression.addOperand($3);
+    	logicApi.expression.addColumn($1, $2);
     	printf("%s = %s\n", $1, $3);
     }|
     STRING NOTEQUALLY VALSTR {
+    	logicApi.expression.addOperand($3);
+    	logicApi.expression.addColumn($1, $2);
     	printf("%s != %s\n", $1, $3);
     }|
     STRING COMP expr {
+    	logicApi.expression.addColumn($1, $2);
     	printf("%s %s \n", $1, $2);
     }
 
 expr:
     STRING {
+    	logicApi.expression.addOperand($1);
     	printf("%s\n", $1);
     }
     |
     NUMBER {
-         printf("%s \n", $1);
+    	logicApi.expression.addOperand($1);
+        printf("%s \n", $1);
     }
     |
     FLOATNUM {
-         printf("%s\n", $1);
+    	logicApi.expression.addOperand($1);
+        printf("%s\n", $1);
     }
     |
     expr SIGN expr {
-         printf("%s\n", $2);
+    	logicApi.expression.addOperator($2);
+        printf("%s\n", $2);
     }
     |
     expr ALL expr {
-         printf("%s\n", $2);
+    	logicApi.expression.addOperator($2);
+        printf("%s\n", $2);
     }
     |
     BRACKET expr SIGN expr BRACKET {
-         printf("( %s ) \n", $3);
+    	logicApi.expression.addOperator($1);
+    	logicApi.expression.addOperator($3);
+    	logicApi.expression.addOperator($5);
+        printf("( %s ) \n", $3);
     }
     |
     BRACKET expr ALL expr BRACKET {
-         printf("( %s ) \n", $3);
+    	logicApi.expression.addOperator($1);
+	logicApi.expression.addOperator($3);
+	logicApi.expression.addOperator($5);
+        printf("( %s ) \n", $3);
     }
 
 //where:

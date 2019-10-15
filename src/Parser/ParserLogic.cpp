@@ -21,11 +21,14 @@ void ParserLogic::addConstraint(char* name) {
     }
 }
 
-BigResponse ParserLogic::finish() { return response; }
+BigResponse ParserLogic::finish() {
+    response.expression = expression.endUnion();
+    return response;
+}
 
 void ParserLogic::addActionName(char* name) {
     response.action = parserUtils.stringToAction(string(name));
-    std::cout << response.action << std::endl;
+    //std::cout << response.action << std::endl;
 }
 
 void ParserLogic::addSelectColumn(char* name) { response.dqlData.columns.emplace_back(string(name)); }

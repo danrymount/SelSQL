@@ -23,4 +23,7 @@ struct Condition {
     std::string value;
 };
 
+typedef std::vector<std::string> vecString;
+typedef std::vector<std::pair<std::pair<std::string, Cmp>, std::pair<vecString, vecString>>> Expr;
+
 #endif  // SELSQL_COMMONUTILS_H

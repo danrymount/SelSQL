@@ -11,6 +11,7 @@
 #include "Data/DDLdata.h"
 #include "Data/DMLdata.h"
 #include "Data/DQLdata.h"
+#include "Data/Expresion.h"
 #include "Error.h"
 
 class BigResponse : public BigRequest {
@@ -18,12 +19,13 @@ class BigResponse : public BigRequest {
     BigResponse() = default;
 
     BigResponse(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData,
-                Error _error)
+                Error _error,  std::pair<Expr, vecString> _expression)
                                                                                                         : BigRequest(_action,
                                                                                                                      _tableName,
                                                                                                                      _ddlData,
                                                                                                                      _dmlData,
-                                                                                                                     _dqlData),
+                                                                                                                     _dqlData,
+                                                                                                                     _expression),
                                                                                                           error(_error) {
     }
 
