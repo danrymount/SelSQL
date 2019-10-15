@@ -16,8 +16,7 @@
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
-NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY
-%left SIGN ALL
+NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY DIV
 
 %union{
     char string[256];
@@ -179,7 +178,7 @@ where:
     BRACKET where BRACKET {
     	printf("%s %s\n", $1, $3);
     }|
-    STRING EQUALLY expr {
+    STRING EQUALLY expr5 {
     	printf("%s = \n", $1);
     }|
     STRING NOTEQUALLY expr {
@@ -195,6 +194,41 @@ where:
     	printf("%s %s \n", $1, $2);
     }
 
+expr5:
+    expr4|
+    expr5 SIGN expr4 {
+         printf("%s \n", $2);
+    }
+
+
+expr4:
+    expr3|
+    expr4 ALL expr3 {
+         printf("%s \n", $2);
+    }|
+    expr4 DIV expr3 {
+         printf("%s \n", $2);
+    }
+
+expr3:
+    expr2|
+    BRACKET expr3 BRACKET
+
+expr2:
+    expr1|
+    expr2 SIGN expr1 {
+    	printf("%S", $2);
+    }
+
+expr1:
+    expr|
+    expr1 ALL expr {
+    	printf("%S", $2);
+    }|
+    expr1 DIV expr {
+    	printf("%S", $2);
+    }
+
 expr:
     STRING {
     	printf("%s\n", $1);
@@ -207,22 +241,8 @@ expr:
     FLOATNUM {
          printf("%s\n", $1);
     }
-    |
-    expr SIGN expr {
-         printf("%s\n", $2);
-    }
-    |
-    expr ALL expr {
-         printf("%s\n", $2);
-    }
-    |
-    BRACKET expr SIGN expr BRACKET {
-         printf("( %s ) \n", $3);
-    }
-    |
-    BRACKET expr ALL expr BRACKET {
-         printf("( %s ) \n", $3);
-    }
+
+
 
 //where:
 //    WHERE STRING EQUALLY VALSTR {
