@@ -22,7 +22,7 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
                 cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
             } else {
                 if (cond.find(field_name) != cond.end()) {
-                    if (ActionsUtils::check_condition(field.second, cond[field_name])) {
+                    if (ActionsUtils::checkSign(field.second, cond[field_name])) {
                         cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
                     }
                 }

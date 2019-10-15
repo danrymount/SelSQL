@@ -25,7 +25,7 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         for (auto field : record) {
             std::string field_name = field.first;
             if (cond.find(field_name) != cond.end()) {
-                if (ActionsUtils::check_condition(field.second, cond[field_name])) {
+                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
                     delete_count++;
                     cursor.second->Delete();
                 }
