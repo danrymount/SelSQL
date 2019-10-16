@@ -14,7 +14,7 @@ all "*"
 numbers ([0-9])+
 floatnumb ([0-9]+"."[0-9]+)+
 words   ([A-Za-z0-9]*)
-valstr   (\'.*\')
+valstr   (\'[-a-zA-Z0-9]*\')
 ddlcreate "CREATE TABLE"
 ddldrop "DROP TABLE"
 ddlshow "SHOW CREATE TABLE"
@@ -66,8 +66,7 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
 {words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
-{valstr}        { ch += yyleng; memcpy(&(yylval.string), yytext, yyleng);
- return VALSTR; }
+{valstr}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALSTR; }
 {other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
 ";"             { ch += yyleng; return SEMICOLON; }
 ","             { ch += yyleng; return COMMA; }
