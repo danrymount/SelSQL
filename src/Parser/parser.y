@@ -18,6 +18,8 @@
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
 NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY DIV
 
+
+
 %union{
     char string[256];
 }
@@ -211,7 +213,6 @@ expr5:
          printf("%s \n", $2);
     }
 
-
 expr4:
     expr3|
     expr4 ALL expr3 {
@@ -223,8 +224,10 @@ expr4:
 
 expr3:
     expr2|
-    BRACKET expr3 BRACKET|
+    BRACKET expr2 BRACKET
 
+expr31:
+    BRACKET expr2 BRACKET
 
 expr2:
     expr1|
@@ -232,7 +235,7 @@ expr2:
     	printf("%S", $2);
     }
     |
-    expr2 SIGN expr3 {
+    expr2 SIGN expr31 {
     	printf("%S", $2);
     }
 
@@ -243,12 +246,13 @@ expr1:
     }|
     expr1 DIV expr {
     	printf("%S", $2);
-    }|
-    expr1 ALL expr3 {
+    }
+    |
+    expr1 ALL expr31 {
     	printf("%S", $2);
     }
     |
-    expr1 DIV expr3 {
+    expr1 DIV expr31 {
     	printf("%S", $2);
     }
 
