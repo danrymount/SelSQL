@@ -9,9 +9,33 @@
 #include <iostream>
 #include <sstream>
 #include <thread>
+#include "../src/Logic/Headers/MainLogic.h"
+#include "../src/Utils/Structures/BigResponse.h"
 #include "Exception.h"
-
+#include "parser.cpp"
 #define MAX_CONN 5
+
+std::string executeRequest(std::string request) {
+    BigResponse result = parse_request(request.c_str());
+    std::string message = "Success";
+    if (result.error.getErrorCode())
+        message = result.error.getErrorMsg();
+    else {
+        result = MainLogic::executeRequest(result);
+
+        if (!result.select_message.empty()) {
+            message = result.select_message;
+        }
+
+        if (result.error.getErrorCode())
+            message = result.error.getErrorMsg() + std::string(" ERROR: ") +
+                      std::to_string(result.error.getErrorCode());
+        else if (result.ddlData.returnMsg.size() > 0) {
+            message = result.ddlData.returnMsg;
+        }
+    }
+    return message;
+}
 
 int ListenClient(int id, Server* server) {
     server->AcceptSocket(id);
@@ -27,7 +51,7 @@ int ListenClient(int id, Server* server) {
         std::cout << "Got message from Client " << id + 1 << " :" << std::endl;
         std::cout << "\t" << server->recieved_message << std::endl;
 
-        message = "GET";
+        message = executeRequest(std::string(server->recieved_message));
         std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
         std::cout << "\t" << message << std::endl;
         server->SendMessage(message, id);

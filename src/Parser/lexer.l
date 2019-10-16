@@ -3,6 +3,7 @@
     #include <string>
     #include "parser.h"
     #include <memory>
+    #include <cstring>
     void showError();
     int ch;
 %}
@@ -65,7 +66,7 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
 {words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
-{valstr}        { ch += yyleng; memcpy(&(yylval.string),  yytext, yyleng);
+{valstr}        { ch += yyleng; memcpy(&(yylval.string), yytext, yyleng);
  return VALSTR; }
 {other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
 ";"             { ch += yyleng; return SEMICOLON; }

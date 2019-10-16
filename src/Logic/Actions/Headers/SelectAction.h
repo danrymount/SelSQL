@@ -5,9 +5,11 @@
 #ifndef SELSQL_SELECTACTION_H
 #define SELSQL_SELECTACTION_H
 
+#include <sstream>
 #include "BaseAction.h"
 class SelectAction : public BaseAction {
    public:
+    std::stringstream stringstream;
     BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
 
    private:

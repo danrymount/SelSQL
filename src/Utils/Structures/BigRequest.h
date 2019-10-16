@@ -27,6 +27,7 @@ class BigRequest {
     DDLdata ddlData;
     DMLdata dmlData;
     DQLdata dqlData;
+    std::string select_message;
 
     void clear() {
         tableName.erase();
