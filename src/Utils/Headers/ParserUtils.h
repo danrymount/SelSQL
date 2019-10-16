@@ -20,7 +20,7 @@ class ParserUtils {
                                                                  {"primary", PRIMARY_KEY}};
 
     std::map<std::string, Action> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP},
-                                                 {"insert", INSERT}, {"delete", DELETE},    {"select", SELECT},
+                                                 {"insert", INSERT}, {"delete", DELETE_ACT}, {"select", SELECT},
                                                  {"update", UPDATE}};
 
     std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},

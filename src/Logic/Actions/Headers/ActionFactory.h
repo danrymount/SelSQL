@@ -34,7 +34,7 @@ class ActionFactory {
         this->add<CreateAction>(CREATE);
         this->add<DropAction>(DROP);
         this->add<ShowCreateAction>(SHOW_CREATE);
-        this->add<DeleteAction>(DELETE);
+        this->add<DeleteAction>(DELETE_ACT);
         this->add<InsertAction>(INSERT);
         this->add<SelectAction>(SELECT);
         this->add<UpdateAction>(UPDATE);
