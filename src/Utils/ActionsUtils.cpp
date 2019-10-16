@@ -171,74 +171,102 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
     std::vector<std::pair<std::string, Condition>> exprRes;
     for (auto& row : recordsData) {
         for (auto& record : row) {
-            auto res = countExpr(record.first, record.second, expr.first);
-            if (res.second.empty()) continue;
-            exprRes.emplace_back(std::make_pair(record.first, Condition(res.first, res.second)));
+            std::vector<std::pair<Cmp, std::string>> res = countExpr(record.first, record.second, expr.first);
+            if (res.empty()) continue;
+            for (auto& exp : res) {
+                exprRes.emplace_back(std::make_pair(record.first, Condition(exp.first, exp.second)));
+            }
         }
     }
     return newRecords;
 }
 
-std::pair<Cmp, std::string> ActionsUtils::countExpr(std::string columnName, std::string val, Expr exprs) {
-    std::pair<Cmp, std::string> res;
-    std::queue<double> result;
-    std::deque<std::string> vectorSigns;
-    std::queue<std::string> curExpr;
-    for (auto& expr : exprs) {
-        if (expr.first.first != columnName) continue;
-        res.first = expr.first.second;
-        auto tempExpr = expr.second;
-        if (tempExpr.first.empty()) {
-            continue;
-        }
-        int i = 0;
-        int j = 0;
-        while (i != tempExpr.first.size() || j != tempExpr.second.size()) {
-            if (j != tempExpr.second.size()) {
-                auto sign = tempExpr.second[j];
-                if (vectorSigns.empty()) {
-                    vectorSigns.push_back(sign);
-                    j++;
-                } else {
-                    auto priority = checkPriority[sign];
-                    auto oldPriority = checkPriority[tempExpr.second[j - 1]];
-                    if (oldPriority == 0 && priority > oldPriority) {
-                        vectorSigns.push_back(sign);
-                        j++;
-                    } else if (sign == ")") {
-                        int k = j;
-                        while (vectorSigns[--k] != "(") {
-                            curExpr.push(vectorSigns[k]);
-                            vectorSigns.pop_back();
-                        }
-                        vectorSigns.pop_back();
-                        j++;
-                    } else {
-                        curExpr.push(vectorSigns.front());
-                        vectorSigns.pop_front();
-                        j++;
-                    }
-                }
-            }
-            if (i != tempExpr.first.size()) {
-                if (tempExpr.first[i] == columnName) {
-                    tempExpr.first[i] = val;
-                }
+std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string columnName, std::string val, Expr exprs) {
+    std::vector<std::pair<Cmp, std::string>> res;
+    std::queue<double> curExpr;
+    for (int index = 0; index < exprs.size(); index++) {
+        auto expr = exprs[index];
+        // for (auto& expr : exprs) {
+        //        if (expr.first.first.second) {
+        //            continue;
+        //        }
 
-                curExpr.push(tempExpr.first[i]);
-                i++;
-            }
-        }
-
-        //        if (!tempExpr.first.empty()) {
+        auto valExpr = expr.first.first;  //название колонки в экспрешоне
+        if (valExpr != columnName) continue;
+        // expr.first.first = "";
+        // expr.first.first.second = 1;
+        //        if (std::isdigit(*val.c_str())) {
+        //            auto cmp = expr.first.second;
+        //            auto tempExpr = expr.second;
+        //            if (tempExpr.empty()) {
+        //                continue;
+        //            }
         //            int i = 0;
-        //            int j = 0;
-        //            while (tempExpr.first.size() != 1) {
-        //                if (tempExpr.first[i] == columnName) {
-        //                    tempExpr.first[i] = val;
+        //            while (i != tempExpr.size()) {
+        //                auto elem = tempExpr[i];
+        //                i++;
+        //                if (elem == columnName) {
+        //                    elem = val;
         //                }
-        //                vectorNums.push(std::stoi(tempExpr.first[i]));
-        //                if (vectorNums.size() < 2) {
+        //
+        //                if (std::isdigit(*elem.c_str())) {
+        //                    curExpr.push(std::stoi(elem));
+        //                    continue;
+        //                }
+        //                double a = curExpr.front();
+        //                curExpr.pop();
+        //                double b = curExpr.front();
+        //                curExpr.pop();
+        //                curExpr.push(ActionsUtils::calculate[elem](a, b));
+        //            }
+        //            res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
+        //            // expr.first.first = "";
+        //            // expr.first.first.second = 1;
+        //        }
+        //        } else {
+        //            auto curExprVal = expr.second[0].substr(1, expr.second[0].length() - 2);
+        //            // auto valExpr = valExpr.substr(1, valExpr.length() - 3);
+        //            auto cmp = expr.first.second;
+        //            res.emplace_back(std::make_pair(cmp, curExprVal));
+        //        }
+    }
+    return res;
+
+    //            if (vectorSigns.empty()) {
+    //                if(sign == "*" || sign == "/")
+    //                    curExpr.push(sign);
+    //                else
+    //                    vectorSigns.push_back(sign);
+    //                i++;
+    //            } else {
+    //                auto priority = checkPriority[sign];
+    //                auto oldPriority = checkPriority[tempExpr[i - 1]];
+    //                if (oldPriority == 0 && priority > oldPriority) {
+    //                    vectorSigns.push_back(sign);
+    //                    i++;
+    //                } else if (sign == ")") {
+    //                    int k = vectorSigns.size();
+    //                    while (vectorSigns[--k] != "(") {
+    //                        curExpr.push(vectorSigns[k]);
+    //                            vectorSigns.pop_back();
+    //                        }
+    //                        vectorSigns.pop_back();
+    //                        i++;
+    //                } else {
+    //                    curExpr.push(vectorSigns.front());
+    //                        vectorSigns.pop_front();
+    //                    i++;
+    //                }
+
+    //        if (!tempExpr.first.empty()) {
+    //            int i = 0;
+    //            int j = 0;
+    //            while (tempExpr.first.size() != 1) {
+    //                if (tempExpr.first[i] == columnName) {
+    //                    tempExpr.first[i] = val;
+    //                }
+    //                vectorNums.push(std::stoi(tempExpr.first[i]));
+    //                if (vectorNums.size() < 2) {
         //                    i++;
         //                    continue;
         //                }
@@ -272,5 +300,5 @@ std::pair<Cmp, std::string> ActionsUtils::countExpr(std::string columnName, std:
         //            }
         //            res.second = tempExpr.first[0];
         //        }
-    }
+    //}
 }

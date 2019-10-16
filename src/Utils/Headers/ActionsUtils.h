@@ -32,29 +32,30 @@ class ActionsUtils {
    private:
     ParserUtils parserUtils;
 
-    static std::pair<Cmp, std::string> countExpr(std::string columnName, std::string val, Expr exprs);
+    static std::vector<std::pair<Cmp, std::string>> countExpr(std::string columnName, std::string val, Expr exprs);
 
-    inline static std::map<std::string, int> checkPriority = {{"(", 0}, {")", 0}, {"+", 2},
-                                                              {"-", 2}, {"*", 3}, {"/", 3}};
-
-    inline static std::map<std::string, std::function<double(int a, int b)>> calculate = {{"+",
-                                                                                           [](int a, int b) {
-                                                                                               return a + b;
+    inline static std::map<std::string, std::function<double(double a, double b)>> calculate = {{"+",
+                                                                                                 [](double a,
+                                                                                                    double b) {
+                                                                                                     return a + b;
                                                                                            }},
                                                                                           {"-",
-                                                                                           [](int a, int b) {
-                                                                                               return a - b;
+                                                                                                 [](double a,
+                                                                                                    double b) {
+                                                                                                     return a - b;
                                                                                            }},
                                                                                           {"*",
-                                                                                           [](int a, int b) {
-                                                                                               return a * b;
+                                                                                                 [](double a,
+                                                                                                    double b) {
+                                                                                                     return a * b;
                                                                                            }},
-                                                                                          {"/", [](int a, int b) {
-                                                                                               if (b != 0)
+                                                                                                {"/", [](double a,
+                                                                                                         double b) {
+                                                                                                     if (b != 0)
                                                                                                    return a / b;
                                                                                                else
-                                                                                                   return 0;  // zero
-                                                                                                              // division
+                                                                                                         return 0.0;  // zero
+                                                                                                                      // division
                                                                                            }}};
 
     static Error checkNotNull(const std::string& newVal, const std::string& oldVal);

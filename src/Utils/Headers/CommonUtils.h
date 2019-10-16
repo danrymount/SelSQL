@@ -24,7 +24,7 @@ struct Condition {
 };
 
 typedef std::vector<std::string> vecString;
-typedef std::vector<std::pair<std::pair<std::string, Cmp>, std::pair<vecString, vecString>>> Expr;
+typedef std::vector<std::pair<std::pair<std::string, Cmp>, vecString>> Expr;
 typedef std::vector<std::vector<std::pair<std::string, std::string>>> RecordsData;
 
 #endif  // SELSQL_COMMONUTILS_H

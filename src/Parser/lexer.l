@@ -31,7 +31,7 @@ null "NULL"
 
 equally "="
 notequally "!="
-sign "+"|"-"|"*"|"/"
+sign "+"|"-"
 div "/"
 comp ">="|"<="|"<"|">"
 logic "and"|"or"

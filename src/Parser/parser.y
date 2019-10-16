@@ -184,7 +184,7 @@ where:
     	logicApi.expression.addOperator($3);
     	printf("%s %s\n", $1, $3);
     }|
-    STRING EQUALLY expr5 {
+    STRING EQUALLY expr2 {
     	logicApi.expression.addColumn($1, $2);
     	printf("%s = \n", $1);
     }|
@@ -207,52 +207,69 @@ where:
     	printf("%s %s \n", $1, $2);
     }
 
-expr5:
-    expr4|
-    expr5 SIGN expr4 {
-         printf("%s \n", $2);
-    }
-
-expr4:
-    expr3|
-    expr4 ALL expr3 {
-         printf("%s \n", $2);
-    }|
-    expr4 DIV expr3 {
-         printf("%s \n", $2);
-    }
-
-expr3:
-    expr2|
-    BRACKET expr2 BRACKET
-
 expr31:
     BRACKET expr2 BRACKET
 
 expr2:
     expr1|
     expr2 SIGN expr1 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 SIGN expr2 {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }
     |
     expr2 SIGN expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 SIGN expr31 {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }
 
 expr1:
     expr|
     expr1 ALL expr {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }|
     expr1 DIV expr {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }
     |
-    expr1 ALL expr31 {
+    expr31 DIV expr {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 ALL expr {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }
     |
     expr1 DIV expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr1 ALL expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 DIV expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 ALL expr31 {
+    	logicApi.expression.addOperand($2);
     	printf("%S", $2);
     }
 
