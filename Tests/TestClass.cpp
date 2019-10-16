@@ -8,7 +8,6 @@
 #include "../Client/Linux/LinuxClient.h"
 #endif
 #include <gtest/gtest.h>
-
 #include "../src/Logic/Headers/MainLogic.h"
 #include "../src/Utils/Structures/Data/Table.h"
 #include "../src/Utils/Structures/Data/Variable.h"
@@ -63,10 +62,10 @@ std::string str;
 //// TEST(CREATE_TEST, TEST6) {
 ////    std::string str = "CREATE TABLE name5(col1 FLOAT UNIQUE PRIMARY KEY, col2 CHAR NOT NULL PRIMARY KEY UNIQUE, col3
 ///" /                      "BOOLEAN);"; /    res = parse_request(str.c_str()); /    std::vector<std::pair<std::string,
-/// Variable>> fields = {{"col1", /                                                             Variable(FLOAT, /
-/// std::vector<Constraint>{UNIQUE, PRIMARY_KEY})}, / {"col2", Variable(CHAR, std::vector<Constraint>{NOT_NULL, /
-/// PRIMARY_KEY, / UNIQUE})}, / {"col3", Variable(BOOLEAN, std::vector<Constraint>{})}}; /    Error err; /    BigResponse
-/// obj(CREATE, "name5", DDLdata(Table("name5", fields),
+///Variable>> fields = {{"col1", /                                                             Variable(FLOAT, /
+///std::vector<Constraint>{UNIQUE, PRIMARY_KEY})}, /                                                            {"col2",
+///Variable(CHAR, std::vector<Constraint>{NOT_NULL, / PRIMARY_KEY, / UNIQUE})}, / {"col3", Variable(BOOLEAN,
+///std::vector<Constraint>{})}}; /    Error err; /    BigResponse obj(CREATE, "name5", DDLdata(Table("name5", fields),
 ///""), DMLdata(), DQLdata(), err); /    TestUtils::compareTables(obj, res);
 ////}
 //// TEST(CREATE_TEST, TEST7) {
@@ -83,28 +82,24 @@ std::string str;
 //    std::string str = "CREATE TABLE name7(col1 CHAR UNIQUE, col2 INT NOT NULL, col3 CHAR PRIMARY KEY); ";
 //    res = parse_request(str.c_str());
 //    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-//                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
-//                                                            {"col2",
-//                                                             Variable(TYPE_INT, std::vector<Constraint>{NOT_NULL})},
-//                                                            {"col3", Variable(TYPE_CHAR,
-//                                                                              std::vector<Constraint>{PRIMARY_KEY})}};
+//                                                             Variable(FLOAT,
+//                                                                      std::vector<Constraint>{UNIQUE, PRIMARY_KEY})},
+//                                                            {"col2", Variable(CHAR, std::vector<Constraint>{NOT_NULL,
+//                                                                                                            PRIMARY_KEY,
+//                                                                                                            UNIQUE})},
+//                                                            {"col3", Variable(BOOLEAN, std::vector<Constraint>{})}};
 //    Error err;
-//    BigResponse obj(CREATE, "name7", DDLdata(Table("name7", fields), ""), DMLdata(), DQLdata(), err);
+//    BigResponse obj(CREATE, "name5", DDLdata(Table("name5", fields), ""), DMLdata(), DQLdata(), err);
 //    TestUtils::compareTables(obj, res);
 //}
-// TEST(CREATE_TEST, TEST9) {
-//    std::string str = "CREATE TABLE name8(col1 CHAR UNIQUE, col2 CHAR UNIQUE, col3 CHAR UNIQUE, col4 CHAR UNIQUE); ";
+// TEST(CREATE_TEST, TEST7) {
+//    std::string str = "CREATE TABLE name6(col1 BOOLEAN , col2 CHAR , col3 INT);";
 //    res = parse_request(str.c_str());
-//    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-//                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
-//                                                            {"col2",
-//                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
-//                                                            {"col3",
-//                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
-//                                                            {"col4",
-//                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})}};
+//    std::vector<std::pair<std::string, Variable>> fields = {{"col1", Variable(BOOLEAN, std::vector<Constraint>{})},
+//                                                            {"col2", Variable(CHAR, std::vector<Constraint>{})},
+//                                                            {"col3", Variable(INT, std::vector<Constraint>{})}};
 //    Error err;
-//    BigResponse obj(CREATE, "name8", DDLdata(Table("name8", fields), ""), DMLdata(), DQLdata(), err);
+//    BigResponse obj(CREATE, "name6", DDLdata(Table("name6", fields), ""), DMLdata(), DQLdata(), err);
 //    TestUtils::compareTables(obj, res);
 //}
 //
@@ -550,146 +545,146 @@ std::string str;
 //    res = parse_request(str.c_str());
 //    MainLogic::executeRequest(res);
 //}
+
+// TEST(SHOW_CREATE, TEST2) {
+//    str = "CREATE TABLE name3(ID INT PRIMARY KEY);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "SHOW CREATE TABLE name3;";
+//    res = parse_request(str.c_str());
+//    res = MainLogic::executeRequest(res);
+//    EXPECT_EQ(0, res.error.getErrorCode());
+//    str = "DROP TABLE name3;";
+//    BigResponse result = parse_request(str.c_str());
+//    result = MainLogic::executeRequest(result);
+//    EXPECT_EQ(0, result.error.getErrorCode());
+//    result = parse_request(res.ddlData.returnMsg.c_str());
+//    result = MainLogic::executeRequest(result);
+//    EXPECT_EQ(0, result.error.getErrorCode());
+//    // EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
+//}
 //
-//// TEST(SHOW_CREATE, TEST2) {
-////    str = "CREATE TABLE name3(ID INT PRIMARY KEY);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SHOW CREATE TABLE name3;";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    str = "DROP TABLE name3;";
-////    BigResponse result = parse_request(str.c_str());
-////    result = MainLogic::executeRequest(result);
-////    EXPECT_EQ(0, result.error.getErrorCode());
-////    result = parse_request(res.ddlData.returnMsg.c_str());
-////    result = MainLogic::executeRequest(result);
-////    EXPECT_EQ(0, result.error.getErrorCode());
-////    // EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
-////}
-////
-//// TEST(INSERT_TEST, TEST1) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-////                                                            {"count", Variable(CHAR,
-////                                                            std::vector<Constraint>{UNIQUE})}};
-////    std::vector<std::string> _values = {"4", "5"};
-////    std::vector<std::string> _columns;
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
-////                    DQLdata(), err);
-////    str = "CREATE TABLE tname(id INT, count INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT INTO tname VALUES(4,5);";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    TestUtils::compareDml(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(INSERT_TEST, TEST2) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////    std::vector<std::string> _values = {"4", "5"};
-////    std::vector<std::string> _columns = {"id", "count"};
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
-////                    DQLdata(), err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT INTO tname(id, count) VALUES(4,5);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    TestUtils::compareDml(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST1_EMPTY) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns = {"id"};
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    DQLdata dql = DQLdata(_columns, _conditions);
-////    BigResponse obj = BigResponse(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), dql, err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SELECT id from tname;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    MainLogic::executeRequest(res);
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST2) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns = {"id"};
-////    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
-////
-////    Error err;
-////    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
-////                    err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SELECT id from tname where id = 3;";
-////    res = parse_request(str.c_str());
-////    auto t = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, t.error.getErrorCode());
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST3) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns;
-////    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
-////
-////    Error err;
-////    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
-////                    err);
-////    str = "CREATE TABLE tname(id INT, count INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT into tname(id, count);";
-////    res = parse_request(str.c_str());
-////    str = "SELECT * from tname where id = 3;";
-////    res = parse_request(str.c_str());
-////    auto t = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, t.error.getErrorCode());
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
+// TEST(INSERT_TEST, TEST1) {
+//    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
+//                                                            {"count", Variable(CHAR,
+//                                                            std::vector<Constraint>{UNIQUE})}};
+//    std::vector<std::string> _values = {"4", "5"};
+//    std::vector<std::string> _columns;
+//    std::map<std::string, Condition> _conditions;
+//
+//    Error err;
+//    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
+//                    DQLdata(), err);
+//    str = "CREATE TABLE tname(id INT, count INT);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "INSERT INTO tname VALUES(4,5);";
+//    res = parse_request(str.c_str());
+//    res = MainLogic::executeRequest(res);
+//    EXPECT_EQ(0, res.error.getErrorCode());
+//    TestUtils::compareDml(obj, res);
+//    str = "DROP TABLE tname;";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//}
+//
+// TEST(INSERT_TEST, TEST2) {
+//    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+//                                                            {"count", Variable(INT, std::vector<Constraint>())},
+//                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+//    std::vector<std::string> _values = {"4", "5"};
+//    std::vector<std::string> _columns = {"id", "count"};
+//    std::map<std::string, Condition> _conditions;
+//
+//    Error err;
+//    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
+//                    DQLdata(), err);
+//    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "INSERT INTO tname(id, count) VALUES(4,5);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    EXPECT_EQ(0, res.error.getErrorCode());
+//    TestUtils::compareDml(obj, res);
+//    str = "DROP TABLE tname;";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//}
+//
+// TEST(SELECT_TEST, TEST1_EMPTY) {
+//    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+//                                                            {"count", Variable(INT, std::vector<Constraint>())},
+//                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+//
+//    std::vector<std::string> _columns = {"id"};
+//    std::map<std::string, Condition> _conditions;
+//
+//    Error err;
+//    DQLdata dql = DQLdata(_columns, _conditions);
+//    BigResponse obj = BigResponse(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), dql, err);
+//    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "SELECT id from tname;";
+//    res = parse_request(str.c_str());
+//    EXPECT_EQ(0, res.error.getErrorCode());
+//    MainLogic::executeRequest(res);
+//    TestUtils::compareDql(obj, res);
+//    str = "DROP TABLE tname;";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//}
+//
+// TEST(SELECT_TEST, TEST2) {
+//    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+//                                                            {"count", Variable(INT, std::vector<Constraint>())},
+//                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+//
+//    std::vector<std::string> _columns = {"id"};
+//    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
+//
+//    Error err;
+//    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
+//                    err);
+//    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "SELECT id from tname where id = 3;";
+//    res = parse_request(str.c_str());
+//    auto t = MainLogic::executeRequest(res);
+//    EXPECT_EQ(0, t.error.getErrorCode());
+//    TestUtils::compareDql(obj, res);
+//    str = "DROP TABLE tname;";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//}
+//
+// TEST(SELECT_TEST, TEST3) {
+//    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
+//                                                            {"count", Variable(INT, std::vector<Constraint>())},
+//                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
+//
+//    std::vector<std::string> _columns;
+//    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
+//
+//    Error err;
+//    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
+//                    err);
+//    str = "CREATE TABLE tname(id INT, count INT);";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//    str = "INSERT into tname(id, count);";
+//    res = parse_request(str.c_str());
+//    str = "SELECT * from tname where id = 3;";
+//    res = parse_request(str.c_str());
+//    auto t = MainLogic::executeRequest(res);
+//    EXPECT_EQ(0, t.error.getErrorCode());
+//    TestUtils::compareDql(obj, res);
+//    str = "DROP TABLE tname;";
+//    res = parse_request(str.c_str());
+//    MainLogic::executeRequest(res);
+//}
 
 TEST(SERVER_TEST_SELECT, TEST1) {
     Client client;
@@ -843,18 +838,277 @@ TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
 TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
     Client client;
     std::string request = "CREATE TABLE h(id INT);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SHOW CREATE TABLE h;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "CREATE TABLE h(id INT );";
+    std::string received_message = std::string(client.recieved_message);
     request = "DROP table h;";
     client.sendMessage(request);
     client.getMessage();
-    //    client.sendMessage(request);
-    //    client.getMessage();
-    //    request = "SHOW CREATE TABLE h;";
-    //    client.sendMessage(request);
-    //    client.getMessage();
-    //    std::string answer = "";  // TODO put print table from select
-    //    std::string received_message = std::string(client.recieved_message);
-    //    request = "DROP table h;";
-    //    client.sendMessage(request);
-    //    client.getMessage();
-    //    EXPECT_EQ(received_message, answer);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE i(id INT);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "CREATE TABLE i(id INT);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Table already exists ERROR: 1";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table i;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+// TEST(SERVER_TEST_ERROR, TEST2) {
+//    Client client;
+//    std::string request = "CREATE TABLE j(id INT);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "insert into j values('sdfsdf');";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    std::string answer = "";
+//    std::string received_message = std::string(client.recieved_message);
+//    request = "DROP table j;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    EXPECT_EQ(received_message, answer);
+//}
+
+TEST(SERVER_TEST_ERROR, TEST3) {
+    Client client;
+    std::string request = "CREATE TABLE k(id INT UNIQUE);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into k values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into k values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Value already exists, use UNIQUE value ERROR: 9";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table k;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST4) {
+    Client client;
+    std::string request = "CREATE TABLE l(id INT UNIQUE, di FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into l values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into l values(3, null);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Null values unavailable ERROR: 8";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table l;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST5) {
+    Client client;
+    std::string request = "CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into m values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into m values(3, 4);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "update m set di = null, id = 3;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table m;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST6) {
+    Client client;
+    std::string request = "insert into qqq values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Table doesn`t exist ERROR: 2";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST0) {
+    Client client;
+    std::string request = "";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected $end (Str num 1, sym num 0): ";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST1) {
+    Client client;
+    std::string request = "creat table t (id int);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 5): creat";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST2) {
+    Client client;
+    std::string request = "create tale t (id int);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 6): create";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST3) {
+    Client client;
+    std::string request = "create table 555 (id int);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 15): 555";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST4) {
+    Client client;
+    std::string request = "create table t (id innt);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING, expecting TYPE (Str num 1, sym num 20): innt";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST5) {
+    Client client;
+    std::string request = "dro table t;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): dro";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST6) {
+    Client client;
+    std::string request = "drop table t, y;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 12): ,";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST7) {
+    Client client;
+    std::string request = "drop table t";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 11): ";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST8) {
+    Client client;
+    std::string request = "shw create table t;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): shw";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST9) {
+    Client client;
+    std::string request = "show crate table t;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 4): show";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST10) {
+    Client client;
+    std::string request = "inser into t values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): dro";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST11) {
+    Client client;
+    std::string request = "inser into t values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 5): inser";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST12) {
+    Client client;
+    std::string request = "insert ito t values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 6): insert";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST13) {
+    Client client;
+    std::string request = "insert into t(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 14): 1";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST14) {
+    Client client;
+    std::string request = "insert into t(col) valus;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 22): valus";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST15) {
+    Client client;
+    std::string request = "insert into t(col) (5);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "syntax error, unexpected NUMBER, expecting SEMICOLON (Str num 1, sym num 19): 5";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
 }
