@@ -223,11 +223,16 @@ expr4:
 
 expr3:
     expr2|
-    BRACKET expr3 BRACKET
+    BRACKET expr3 BRACKET|
+
 
 expr2:
     expr1|
     expr2 SIGN expr1 {
+    	printf("%S", $2);
+    }
+    |
+    expr2 SIGN expr3 {
     	printf("%S", $2);
     }
 
@@ -237,6 +242,13 @@ expr1:
     	printf("%S", $2);
     }|
     expr1 DIV expr {
+    	printf("%S", $2);
+    }|
+    expr1 ALL expr3 {
+    	printf("%S", $2);
+    }
+    |
+    expr1 DIV expr3 {
     	printf("%S", $2);
     }
 
