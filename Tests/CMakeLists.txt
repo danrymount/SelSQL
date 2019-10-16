@@ -21,7 +21,17 @@ FILE(GLOB Logic ${SOURCE_DIR}/Logic/*.cpp ${SOURCE_DIR}/Logic/Headers/*.h ${SOUR
 FILE(GLOB Utils ${SOURCE_DIR}/Utils/*.cpp ${SOURCE_DIR}/Utils/Headers/*.h)
 FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
 
-add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
-        Headers/TestUtils.h . ../src/Utils/Structures/BigRequest.h)
+
+if (UNIX)
+    add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
+            Headers/TestUtils.h . ../src/Utils/Structures/BigRequest.h ../Client/Linux/LinuxClient.cpp)
+endif ()
+
+if (WIN32)
+    add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
+            Headers/TestUtils.h . ../src/Utils/Structures/BigRequest.h ../Client/Win/WinClient.cpp)
+    target_link_libraries(Tests ws2_32)
+endif ()
+
 enable_testing()
 target_link_libraries(Tests gtest gtest_main)

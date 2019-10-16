@@ -26,6 +26,7 @@ int ListenClient(int id, Server* server) {
         }
         std::cout << "Got message from Client " << id + 1 << " :" << std::endl;
         std::cout << "\t" << server->recieved_message << std::endl;
+
         message = "GET";
         std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
         std::cout << "\t" << message << std::endl;

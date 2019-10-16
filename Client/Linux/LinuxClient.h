@@ -19,8 +19,8 @@ class Client {
 
    public:
     explicit Client();
-    int SendMessage(std::string message);
-    int GetMessage();
+    int sendMessage(std::string message);
+    int getMessage();
     char recieved_message[MESSAGE_SIZE];
 };
 
