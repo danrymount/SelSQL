@@ -45,6 +45,10 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     int position = table->last_record_pos * table->record_size;
+    if (table->deleted) {
+        position = table->deleted_pos[--table->deleted] * table->record_size;
+    }
+
     int count = 0;
     for (auto& i : vals) {
         if (cols.empty()) {
@@ -136,6 +140,7 @@ int Cursor::Next() {
 }
 int Cursor::Delete() {
     std::memset(&data[current_pos * table->record_size], '0', table->record_size);
+    table->deleted_pos[table->deleted++] = current_pos;
     table->last_record_pos++;
     return 0;
 }

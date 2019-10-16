@@ -19,9 +19,11 @@ class FileManager {
     std::map<std::string, std::fstream*> files_;
     std::map<std::string, Table> table_data;
 
-    void ReadMetaData(std::string table_name);
-    void WriteMetaData(const std::shared_ptr<Table>& table);
+    void ReadTableMetaData(std::string table_name);
+    void WriteTableMetaData(const std::shared_ptr<Table>& table);
+    void WriteDataBlock(const std::shared_ptr<Table>& table);
     void WriteData(const std::shared_ptr<Table>& table, unsigned char* src);
+    void ReadDataBlock(std::string table_name);
 
    public:
     int OpenFile(std::string table_name);

@@ -15,6 +15,9 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     std::map<std::string, Condition> cond = _request.dmlData.conditions;
 
+    if (cursor.first->record_amount == 0) {
+        return response;
+    }
     do {
         auto record = cursor.second->Fetch();
         if (cond.empty()) {

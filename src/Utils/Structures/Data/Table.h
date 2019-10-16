@@ -19,6 +19,10 @@ class Table {
     size_t record_amount = 0;
     size_t record_size = 0;
     size_t last_record_pos = 0;
+    size_t deleted = 0;
+    size_t max_deleted_amount = 0;
+
+    int *deleted_pos;
     Table() = default;
 
     Table(std::string _name, FieldsMap _fields) : name(_name), fields(_fields) {}
@@ -44,6 +48,12 @@ class Table {
         for (auto &field : fields) {
             record_size += Constants::TYPE_SIZE[field.second.type] + 1;
         }
+    }
+
+    void calcMaxDeleted() {
+        calcRecordSize();
+        max_deleted_amount = Constants::DATA_BLOCK_SIZE / record_size;
+        deleted_pos = new int[max_deleted_amount];
     }
     void setFields(std::vector<std::pair<std::string, Variable>> &fields_) { this->fields = fields_; }
 
