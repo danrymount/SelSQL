@@ -11,7 +11,7 @@
 
 #include "../Exception.h"
 
-static const int MESSAGE_SIZE = 256;
+static const int MESSAGE_SIZE = 1024;
 class Client {
     SOCKET client_socket;
     sockaddr_in peer;

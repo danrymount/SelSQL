@@ -31,10 +31,7 @@ int Client::SendMessage(std::string message) {
         throw ClientException();
     }
     /* закрываем соединения для посылки данных */
-    if (shutdown(client_socket, 1) < 0) {
-        std::cerr << "Close connection error" << std::endl;
-        throw ClientException();
-    }
+
     return 0;
 }
 int Client::GetMessage() {

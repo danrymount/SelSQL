@@ -16,7 +16,6 @@ Client::Client() {
     peer.sin_family = AF_INET;
     peer.sin_port = htons(18666);
     peer.sin_addr.s_addr = inet_addr("127.0.0.1");
-
     server_connection = connect(client_socket, (struct sockaddr *)&peer, sizeof(peer));
     if (server_connection) {
         std::cerr << "Unable to connect with server" << std::endl;
@@ -29,11 +28,7 @@ int Client::SendMessage(std::string message) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-    /* закрываем соединения для посылки данных */
-    if (shutdown(client_socket, 1) < 0) {
-        std::cerr << "Close connection error" << std::endl;
-        throw ClientException();
-    }
+
     return 0;
 }
 int Client::GetMessage() {
