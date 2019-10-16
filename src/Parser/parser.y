@@ -180,8 +180,6 @@ where:
     	printf("%s\n", $2);
     }|
     BRACKET where BRACKET {
-    	logicApi.expression.addOperator($1);
-    	logicApi.expression.addOperator($3);
     	printf("%s %s\n", $1, $3);
     }|
     STRING EQUALLY expr2 {

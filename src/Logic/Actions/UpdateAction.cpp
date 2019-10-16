@@ -21,11 +21,11 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
             if (cond.empty()) {
                 cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
             } else {
-                if (cond.find(field_name) != cond.end()) {
-                    if (ActionsUtils::checkSign(field.second, cond[field_name])) {
-                        cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
-                    }
-                }
+                //                if (cond.find(field_name) != cond.end()) {
+                //                    if (ActionsUtils::checkSign(field.second, cond[field_name])) {
+                //                        cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+                //                    }
+                //                }
             }
         }
 

@@ -16,7 +16,60 @@ class ActionsUtils {
    public:
     std::array<std::function<Error(const std::string&, const std::string&)>, 3> constraintsCheckers = {checkNotNull,
                                                                                                        checkPrimaryKey,
-                                                                                                     checkUnique};
+                                                                                                       checkUnique};
+
+    static int isNumbers(const std::string& a, const std::string& b) {
+        if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
+            return 1;
+        return 0;
+    }
+
+    static int isChars(const std::string& a, const std::string& b) {
+        if (std::isalpha(*a.c_str()) && std::isalpha(*b.c_str()))
+            return 1;
+        return 0;
+    }
+
+    static int compareEquals(const std::string& a, const std::string& b) {
+        if (isNumbers(a, b)) {
+            return std::stod(a) == std::stod(b);
+        } else {
+            auto c = a.substr(1, a.length() - 2);
+            if (isChars(c, b)) {
+                int res = c.compare(b);
+                if (!res)
+                    return 1;
+                else
+                    return 0;
+            }
+        }
+    }
+
+    static int compareNoEquals(const std::string& a, const std::string& b) { return !compareEquals(a, b); }
+
+    inline static std::array<std::function<int(const std::string&, const std::string&)>, 6> checkSign = {
+                                                                                                        [](const std::string& a,
+                                                                                                           const std::string& b) {
+                                                                                                            return std::stod(a) >=
+                                                                                                                   std::stod(b);
+                                                                                                        },
+                                                                                                        [](const std::string& a,
+                                                                                                           const std::string& b) {
+                                                                                                            return std::stod(a) >
+                                                                                                                   std::stod(b);
+                                                                                                        },
+                                                                                                        compareNoEquals,
+                                                                                                        compareEquals,
+                                                                                                        [](const std::string& a,
+                                                                                                           const std::string& b) {
+                                                                                                            return std::stod(a) <
+                                                                                                                   std::stod(b);
+                                                                                                        },
+                                                                                                        [](const std::string& a,
+                                                                                                           const std::string& b) {
+                                                                                                            return std::stod(a) <=
+                                                                                                                   std::stod(b);
+                                                                                                        }};
 
     typedef std::vector<std::pair<std::string, std::string>> Record;
     std::string makeRequestCreateFromTable(Table table);
@@ -27,7 +80,6 @@ class ActionsUtils {
     static RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
 
     Record getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
-    static int checkSign(std::string rec_val, Condition cond_val);
 
    private:
     ParserUtils parserUtils;
@@ -38,25 +90,25 @@ class ActionsUtils {
                                                                                                  [](double a,
                                                                                                     double b) {
                                                                                                      return a + b;
-                                                                                           }},
-                                                                                          {"-",
+                                                                                                 }},
+                                                                                                {"-",
                                                                                                  [](double a,
                                                                                                     double b) {
                                                                                                      return a - b;
-                                                                                           }},
-                                                                                          {"*",
+                                                                                                 }},
+                                                                                                {"*",
                                                                                                  [](double a,
                                                                                                     double b) {
                                                                                                      return a * b;
-                                                                                           }},
+                                                                                                 }},
                                                                                                 {"/", [](double a,
                                                                                                          double b) {
                                                                                                      if (b != 0)
-                                                                                                   return a / b;
-                                                                                               else
+                                                                                                         return a / b;
+                                                                                                     else
                                                                                                          return 0.0;  // zero
                                                                                                                       // division
-                                                                                           }}};
+                                                                                                 }}};
 
     static Error checkNotNull(const std::string& newVal, const std::string& oldVal);
 

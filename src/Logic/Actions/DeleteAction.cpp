@@ -24,12 +24,12 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         }
         for (auto field : record) {
             std::string field_name = field.first;
-            if (cond.find(field_name) != cond.end()) {
-                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
-                    delete_count++;
-                    cursor.second->Delete();
-                }
-            }
+            //            if (cond.find(field_name) != cond.end()) {
+            //                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
+            //                    delete_count++;
+            //                    cursor.second->Delete();
+            //                }
+            //            }
         }
 
     } while (!cursor.second->Next());

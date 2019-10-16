@@ -129,54 +129,63 @@ ActionsUtils::Record ActionsUtils::getTableRecord(std::pair<std::shared_ptr<Tabl
     //        }
     //    }
 }
-int ActionsUtils::checkSign(std::string rec_val, Condition cond_val) {
-    int res = 0;
-    switch (cond_val.sign) {
-        case GREATEREQUALS:
-            if (rec_val >= cond_val.value) {
-                res = 1;
-            }
-            break;
-        case GREATER:
-            if (rec_val > cond_val.value) {
-                res = 1;
-            }
-            break;
-        case NOEQUALS:
-            if (rec_val != cond_val.value) {
-                res = 1;
-            }
-            break;
-        case EQUALS: {
-            if (rec_val == cond_val.value) {
-                res = 1;
-            }
-            break;
-        }
-        case LOWER:
-            if (rec_val < cond_val.value) {
-                res = 1;
-            }
-            break;
-        case LOWEREQUALS:
-            if (rec_val <= cond_val.value) {
-                res = 1;
-            }
-            break;
-    }
-    return res;
-}
+// int ActionsUtils::checkSign(std::string rec_val, Condition cond_val) {
+//    int res = 0;
+//    switch (cond_val.sign) {
+//        case GREATEREQUALS:
+//            if (rec_val >= cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//        case GREATER:
+//            if (rec_val > cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//        case NOEQUALS:
+//            if (rec_val != cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//        case EQUALS: {
+//            if (rec_val == cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//        }
+//        case LOWER:
+//            if (rec_val < cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//        case LOWEREQUALS:
+//            if (rec_val <= cond_val.value) {
+//                res = 1;
+//            }
+//            break;
+//    }
+//    return res;
+//}
 RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, RecordsData recordsData) {
     RecordsData newRecords;
     std::vector<std::pair<std::string, Condition>> exprRes;
+    std::vector<int> binRes;
     for (auto& row : recordsData) {
         for (auto& record : row) {
             std::vector<std::pair<Cmp, std::string>> res = countExpr(record.first, record.second, expr.first);
-            if (res.empty()) continue;
+            if (res.empty())
+                continue;
             for (auto& exp : res) {
-                exprRes.emplace_back(std::make_pair(record.first, Condition(exp.first, exp.second)));
+                exprRes.emplace_back(std::make_pair(record.second, Condition(exp.first, exp.second)));
             }
         }
+        for (auto& res : exprRes) {
+            int out = checkSign[res.second.sign](res.first, res.second.value);
+            binRes.push_back(out);
+            std::cout << "out = " << out << std::endl;
+        }
+        auto total = checkLogic(binRes, expr.second);
+        exprRes.clear();
     }
     return newRecords;
 }
@@ -186,119 +195,39 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string col
     std::queue<double> curExpr;
     for (int index = 0; index < exprs.size(); index++) {
         auto expr = exprs[index];
-        // for (auto& expr : exprs) {
-        //        if (expr.first.first.second) {
-        //            continue;
-        //        }
+        auto valExpr = expr.first.first;
+        if (valExpr != columnName)
+            continue;
+        if (std::isdigit(*val.c_str())) {
+            auto cmp = expr.first.second;
+            auto tempExpr = expr.second;
+            if (tempExpr.empty()) {
+                continue;
+            }
+            int i = 0;
+            while (i != tempExpr.size()) {
+                auto elem = tempExpr[i];
+                i++;
+                if (elem == columnName) {
+                    elem = val;
+                }
 
-        auto valExpr = expr.first.first;  //название колонки в экспрешоне
-        if (valExpr != columnName) continue;
-        // expr.first.first = "";
-        // expr.first.first.second = 1;
-        //        if (std::isdigit(*val.c_str())) {
-        //            auto cmp = expr.first.second;
-        //            auto tempExpr = expr.second;
-        //            if (tempExpr.empty()) {
-        //                continue;
-        //            }
-        //            int i = 0;
-        //            while (i != tempExpr.size()) {
-        //                auto elem = tempExpr[i];
-        //                i++;
-        //                if (elem == columnName) {
-        //                    elem = val;
-        //                }
-        //
-        //                if (std::isdigit(*elem.c_str())) {
-        //                    curExpr.push(std::stoi(elem));
-        //                    continue;
-        //                }
-        //                double a = curExpr.front();
-        //                curExpr.pop();
-        //                double b = curExpr.front();
-        //                curExpr.pop();
-        //                curExpr.push(ActionsUtils::calculate[elem](a, b));
-        //            }
-        //            res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
-        //            // expr.first.first = "";
-        //            // expr.first.first.second = 1;
-        //        }
-        //        } else {
-        //            auto curExprVal = expr.second[0].substr(1, expr.second[0].length() - 2);
-        //            // auto valExpr = valExpr.substr(1, valExpr.length() - 3);
-        //            auto cmp = expr.first.second;
-        //            res.emplace_back(std::make_pair(cmp, curExprVal));
-        //        }
+                if (std::isdigit(*elem.c_str())) {
+                    curExpr.push(std::stoi(elem));
+                    continue;
+                }
+                double a = curExpr.front();
+                curExpr.pop();
+                double b = curExpr.front();
+                curExpr.pop();
+                curExpr.push(ActionsUtils::calculate[elem](a, b));
+            }
+            res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
+        } else {
+            auto curExprVal = expr.second[0].substr(1, expr.second[0].length() - 2);
+            auto cmp = expr.first.second;
+            res.emplace_back(std::make_pair(cmp, curExprVal));
+        }
     }
     return res;
-
-    //            if (vectorSigns.empty()) {
-    //                if(sign == "*" || sign == "/")
-    //                    curExpr.push(sign);
-    //                else
-    //                    vectorSigns.push_back(sign);
-    //                i++;
-    //            } else {
-    //                auto priority = checkPriority[sign];
-    //                auto oldPriority = checkPriority[tempExpr[i - 1]];
-    //                if (oldPriority == 0 && priority > oldPriority) {
-    //                    vectorSigns.push_back(sign);
-    //                    i++;
-    //                } else if (sign == ")") {
-    //                    int k = vectorSigns.size();
-    //                    while (vectorSigns[--k] != "(") {
-    //                        curExpr.push(vectorSigns[k]);
-    //                            vectorSigns.pop_back();
-    //                        }
-    //                        vectorSigns.pop_back();
-    //                        i++;
-    //                } else {
-    //                    curExpr.push(vectorSigns.front());
-    //                        vectorSigns.pop_front();
-    //                    i++;
-    //                }
-
-    //        if (!tempExpr.first.empty()) {
-    //            int i = 0;
-    //            int j = 0;
-    //            while (tempExpr.first.size() != 1) {
-    //                if (tempExpr.first[i] == columnName) {
-    //                    tempExpr.first[i] = val;
-    //                }
-    //                vectorNums.push(std::stoi(tempExpr.first[i]));
-    //                if (vectorNums.size() < 2) {
-        //                    i++;
-        //                    continue;
-        //                }
-        //                if (vectorSigns.empty()) {
-        //                    vectorSigns.push(tempExpr.second[j]);
-        //                    j++;
-        //                    continue;
-        //                }
-        //                auto sign = tempExpr.second[j];
-        //                auto priority = checkPriority[sign];
-        //                auto oldPriority = checkPriority[tempExpr.second[j - 1]];
-        //                if (oldPriority != 4 && priority > oldPriority) {
-        //                    vectorSigns.push(sign);
-        //                    j++;
-        //                    continue;
-        //                } else if (oldPriority == priority && oldPriority == 4) {
-        //                    auto a = vectorNums.front();
-        //                    vectorNums.pop();
-        //                    auto b = vectorNums.front();
-        //                    vectorNums.pop();
-        //                    result.push(calculate[sign](a, b));
-        //                    j++;
-        //                } else {
-        //                    auto a = vectorNums.front();
-        //                    vectorNums.pop();
-        //                    auto b = vectorNums.front();
-        //                    vectorNums.pop();
-        //                    result.push(calculate[sign](a, b));
-        //                    j++;
-        //                }
-        //            }
-        //            res.second = tempExpr.first[0];
-        //        }
-    //}
 }
