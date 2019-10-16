@@ -2,7 +2,7 @@
 // Created by sapiest on 03.10.2019.
 //
 #include <gtest/gtest.h>
-#include "../Client/Linux/LinuxClient.h"
+#include "../Client/Win/WinClient.h"
 #include "../src/Logic/Headers/MainLogic.h"
 #include "../src/Utils/Structures/Data/Table.h"
 #include "../src/Utils/Structures/Data/Variable.h"
@@ -44,10 +44,11 @@ TEST(CREATE_TEST, TEST5) {
     std::string str = "CREATE TABLE name4(col1 INT UNIQUE NOT NULL, col2 CHAR, col3 FLOAT NOT NULL);";
     res = parse_request(str.c_str());
     std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-                                                             Variable(INT, std::vector<Constraint>{UNIQUE, NOT_NULL})},
-                                                            {"col2", Variable(CHAR, std::vector<Constraint>{})},
+                                                             Variable(TYPE_INT,
+                                                                      std::vector<Constraint>{UNIQUE, NOT_NULL})},
+                                                            {"col2", Variable(TYPE_CHAR, std::vector<Constraint>{})},
                                                             {"col3",
-                                                             Variable(FLOAT, std::vector<Constraint>{NOT_NULL})}};
+                                                             Variable(TYPE_FLOAT, std::vector<Constraint>{NOT_NULL})}};
     Error err;
     BigResponse obj(CREATE, "name4", DDLdata(Table("name4", fields), ""), DMLdata(), DQLdata(), err);
     TestUtils::compareTables(obj, res);
@@ -80,10 +81,12 @@ TEST(CREATE_TEST, TEST5) {
 TEST(CREATE_TEST, TEST8) {
     std::string str = "CREATE TABLE name7(col1 CHAR UNIQUE, col2 INT NOT NULL, col3 CHAR PRIMARY KEY); ";
     res = parse_request(str.c_str());
-    std::vector<std::pair<std::string, Variable>> fields = {{"col1", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-                                                            {"col2", Variable(INT, std::vector<Constraint>{NOT_NULL})},
-                                                            {"col3",
-                                                             Variable(CHAR, std::vector<Constraint>{PRIMARY_KEY})}};
+    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
+                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
+                                                            {"col2",
+                                                             Variable(TYPE_INT, std::vector<Constraint>{NOT_NULL})},
+                                                            {"col3", Variable(TYPE_CHAR,
+                                                                              std::vector<Constraint>{PRIMARY_KEY})}};
     Error err;
     BigResponse obj(CREATE, "name7", DDLdata(Table("name7", fields), ""), DMLdata(), DQLdata(), err);
     TestUtils::compareTables(obj, res);
@@ -91,10 +94,14 @@ TEST(CREATE_TEST, TEST8) {
 TEST(CREATE_TEST, TEST9) {
     std::string str = "CREATE TABLE name8(col1 CHAR UNIQUE, col2 CHAR UNIQUE, col3 CHAR UNIQUE, col4 CHAR UNIQUE); ";
     res = parse_request(str.c_str());
-    std::vector<std::pair<std::string, Variable>> fields = {{"col1", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-                                                            {"col2", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-                                                            {"col3", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-                                                            {"col4", Variable(CHAR, std::vector<Constraint>{UNIQUE})}};
+    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
+                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
+                                                            {"col2",
+                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
+                                                            {"col3",
+                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})},
+                                                            {"col4",
+                                                             Variable(TYPE_CHAR, std::vector<Constraint>{UNIQUE})}};
     Error err;
     BigResponse obj(CREATE, "name8", DDLdata(Table("name8", fields), ""), DMLdata(), DQLdata(), err);
     TestUtils::compareTables(obj, res);
@@ -667,14 +674,167 @@ TEST(SHOW_CREATE, TEST111) {
 //    MainLogic::executeRequest(res);
 //}
 
-TEST(SERVER_TEST, TEST1) {
+TEST(SERVER_TEST_SELECT, TEST1) {
     Client client;
-    std::string request = "mes";
+    std::string request = "CREATE TABLE t(id INT PRIMARY KEY);";
     client.sendMessage(request);
     client.getMessage();
-    std::string recieved_message = std::string(client.recieved_message);
-    std::string answer = "Success";
+    request = "INSERT INTO t values(0);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO t values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from t;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | \n | 0 | \n | 1 | \n";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table t;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
 
-    EXPECT_EQ(recieved_message, answer);
-    //
+TEST(SERVER_TEST_SELECT, TEST2) {
+    Client client;
+    std::string request = "CREATE TABLE b(id INT PRIMARY KEY, age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO b values(0, 10);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO b values(1, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from b;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | age | \n | 0 | 10 | \n | 1 | 20 | \n";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table b;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_UPDATE, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE c(id INT PRIMARY KEY, age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO c values(1, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "UPDATE c SET id = 8;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from c;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | age | \n | 8 | 20 | \n";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table c;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_UPDATE, TEST2) {
+    Client client;
+    std::string request = "CREATE TABLE d(id INT PRIMARY KEY, age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO d values(10, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "UPDATE d SET id = 15, age = 9;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from d;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | age | \n | 15 | 9 | \n";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table d;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+// TEST(SERVER_TEST_DELETE,  TEST1){
+//    Client client;
+//    std::string request = "CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "DELETE FROM e;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "SELECT * from e;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    std::string answer = "";//TODO put print table from select
+//    std::string received_message = std::string(client.recieved_message);
+//    request = "DROP table e;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    EXPECT_EQ(received_message, answer);
+//}
+
+TEST(SERVER_TEST_DELETE, TEST2) {
+    Client client;
+    std::string request = "CREATE TABLE f(id INT , age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(10, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "DELETE FROM f;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Success";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table f;";
+    client.sendMessage(request);
+    client.getMessage();
+
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE g(id INT PRIMARY KEY, age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SHOW CREATE TABLE g;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "CREATE TABLE g(id INT PRIMARY KEY ,age INT NOT NULL );";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table g;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
+    Client client;
+    std::string request = "CREATE TABLE h(id INT);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SHOW CREATE TABLE h;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "";  // TODO put print table from select
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table h;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
 }
