@@ -14,8 +14,8 @@ int main() {
         Client client;
         while (true) {
             std::getline(std::cin, message);
-            client.SendMessage(message);
-            client.GetMessage();
+            client.sendMessage(message);
+            client.getMessage();
             std::cout << client.recieved_message << std::endl;
         }
     } catch (ClientException) {

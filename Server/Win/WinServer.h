@@ -6,8 +6,8 @@
 #define SERVER_WINSERVER_H
 
 #include <winsock2.h>
-#include <memory>
 #include <string>
+#include <vector>
 #include "../Exception.h"
 
 static const int MESSAGE_SIZE = 1024;

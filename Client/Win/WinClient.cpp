@@ -24,7 +24,7 @@ Client::Client() {
         throw ClientException();
     }
 }
-int Client::SendMessage(std::string message) {
+int Client::sendMessage(std::string message) {
     server_connection = send(client_socket, message.c_str(), MESSAGE_SIZE, 0);
     if (server_connection <= 0) {
         std::cerr << "Send error" << std::endl;
@@ -34,7 +34,7 @@ int Client::SendMessage(std::string message) {
 
     return 0;
 }
-int Client::GetMessage() {
+int Client::getMessage() {
     fd_set readmask;
     fd_set allreads;
     FD_ZERO(&allreads);
@@ -42,7 +42,7 @@ int Client::GetMessage() {
     FD_SET(client_socket, &allreads);
     for (;;) {
         readmask = allreads;
-        if (select(client_socket, &readmask, NULL, NULL, NULL) <= 0) {
+        if (select(client_socket + 1, &readmask, NULL, NULL, NULL) <= 0) {
             //            throw ClientException();
         }
         if (FD_ISSET(client_socket, &readmask)) {

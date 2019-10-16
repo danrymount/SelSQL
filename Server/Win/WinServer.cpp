@@ -39,6 +39,7 @@ int Server::ListenSocket(int id) {
         }
         if (rc < 0) {
             /*чтение может быть прервано системным вызовом, это нормально*/
+            return 1;
             if (errno == EINTR)
                 continue;
             std::cerr << "Can't receive data." << std::endl;
