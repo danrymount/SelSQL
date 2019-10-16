@@ -7,15 +7,18 @@
 #include "Linux/LinuxServer.h"
 #endif
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <thread>
 #include "../src/Logic/Headers/MainLogic.h"
 #include "../src/Utils/Structures/BigResponse.h"
 #include "Exception.h"
 #include "parser.cpp"
-#define MAX_CONN 5
+#define MAX_CONN 100
+// std::mutex m;
 
 std::string executeRequest(std::string request) {
+    //    std::lock_guard<std::mutex> guard(m);
     BigResponse result = parse_request(request.c_str());
     std::string message = "Success";
     if (result.error.getErrorCode())
