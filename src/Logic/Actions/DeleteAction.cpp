@@ -13,23 +13,22 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     int delete_count = 0;
 
-    std::map<std::string, Condition> cond = _request.dmlData.conditions;
+    auto expr = _request.expression;
 
     do {
         auto record = cursor.second->Fetch();
-        if (cond.empty()) {
+        if (expr.first.empty()) {
             delete_count++;
             cursor.second->Delete();
             continue;
-        }
-        for (auto field : record) {
-            std::string field_name = field.first;
-            //            if (cond.find(field_name) != cond.end()) {
-            //                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
-            //                    delete_count++;
-            //                    cursor.second->Delete();
-            //                }
-            //            }
+        } else {
+            RecordsData row;
+            row.emplace_back(record);
+            auto data = actionsUtils.checkExpression(expr, row);
+            if (data.empty())
+                continue;
+            delete_count++;
+            cursor.second->Delete();
         }
 
     } while (!cursor.second->Next());

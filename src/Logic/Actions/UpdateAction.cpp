@@ -24,23 +24,8 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
             auto data = actionsUtils.checkExpression(expr, row);
             if (data.empty())
                 continue;
-            //            for (auto field: data[0]) {
-            //                if()
-            //            }
-            //            auto t1 = data[0][0].first;
-            //            auto t2 = data[0][0].second;
             cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
         }
-        //            if (cond.empty()) {
-        //                cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
-        //            } else {
-
-        //                if (cond.find(field_name) != cond.end()) {
-        //                    if (ActionsUtils::checkSign(field.second, cond[field_name])) {
-        //                        cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
-        //                    }
-        //                }
-        //}
 
     } while (!cursor.second->Next());
 
