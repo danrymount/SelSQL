@@ -1,5 +1,6 @@
 %{
     #define YYERROR_VERBOSE
+    #define YYSTYPE double
     #include <stdio.h>
     #include <stdlib.h>
     #include <iostream>
@@ -17,23 +18,35 @@
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
 NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY DIV
+%token <string> STRINGG
+%token <string> INT
+%token <string> NAME
 
+%type<string> id
 
 
 %union{
-    char string[256];
+    //char string[256];
+    int number;
+    char *string;
 }
+
+
 
 %%
 
-request:
-    actions SEMICOLON {
-    	response = logicApi.finish();
-    	printf("FINISH\n");
-    }
-    |
-    request request
-;
+//request:
+//	id
+//;
+//
+//id:
+//        { $$ = yylval.string; };
+////    actions SEMICOLON {
+////    	response = logicApi.finish();
+////    	printf("FINISH\n");
+////    }
+////    |
+////    request request
 
 actions:
     DDLCREATE STRING inner_expr {
@@ -139,7 +152,7 @@ table_delete:
     }
 
 table_select:
-    col_select FROM STRING {
+    col_select FROM STRING{
     	logicApi.addTableName($3);
         printf("TABLE = %s\n", $3);
     }
@@ -171,105 +184,53 @@ insert_where:
     insert
 
 where:
+   expr3|
     NOT where {
     	logicApi.expression.addLogicOperator($1);
     	printf("NOT\n");
     }|
-    where LOGIC where {
+    where LOGIC expr3 {
     	logicApi.expression.addLogicOperator($2);
     	printf("%s\n", $2);
-    }|
-    BRACKET where BRACKET {
-    	printf("%s %s\n", $1, $3);
-    }|
-    STRING EQUALLY expr2 {
-    	logicApi.expression.addColumn($1, $2);
-    	printf("%s = \n", $1);
-    }|
-    STRING NOTEQUALLY expr {
-    	logicApi.expression.addColumn($1, $2);
-    	printf("%s != \n", $1);
-    }|
-    STRING EQUALLY VALSTR {
-    	logicApi.expression.addOperand($3);
-    	logicApi.expression.addColumn($1, $2);
-    	printf("%s = %s\n", $1, $3);
-    }|
-    STRING NOTEQUALLY VALSTR {
-    	logicApi.expression.addOperand($3);
-    	logicApi.expression.addColumn($1, $2);
-    	printf("%s != %s\n", $1, $3);
-    }|
-    STRING COMP expr {
-    	logicApi.expression.addColumn($1, $2);
-    	printf("%s %s \n", $1, $2);
     }
 
-expr31:
-    BRACKET expr2 BRACKET
+expr3:
+    expr2|
+    expr3 NOTEQUALLY expr2 {
+    	//logicApi.expression.addColumn($2);
+    	printf("%s\n", $2);
+    }|
+    expr3 EQUALLY expr2 {
+    	logicApi.expression.addOperand($2);
+    	printf("%s\n", $2);
+    }|
+    expr3 NOTEQUALLY expr2 {
+    	//logicApi.expression.addColumn($2);
+    	printf("%s \n", $2);
+    }|
+    expr3 COMP expr2 {
+    	//logicApi.expression.addColumn($2);
+    	printf("%s \n", $2);
+    }
 
 expr2:
     expr1|
     expr2 SIGN expr1 {
     	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr31 SIGN expr2 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr2 SIGN expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr31 SIGN expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
+    	printf("%s", $2);
     }
 
 expr1:
     expr|
     expr1 ALL expr {
     	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
+    	printf("%s", $2);
     }|
     expr1 DIV expr {
     	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
+    	printf("%s", $2);
     }
-    |
-    expr31 DIV expr {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr31 ALL expr {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr1 DIV expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr1 ALL expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr31 DIV expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
-    |
-    expr31 ALL expr31 {
-    	logicApi.expression.addOperand($2);
-    	printf("%S", $2);
-    }
+
 
 expr:
     STRING {
@@ -279,12 +240,16 @@ expr:
     |
     NUMBER {
     	logicApi.expression.addOperand($1);
-        printf("%s \n", $1);
+        printf("N=%s \n", $1);
     }
     |
     FLOATNUM {
     	logicApi.expression.addOperand($1);
         printf("%s\n", $1);
+    }
+    |
+    BRACKET where BRACKET {
+        	printf("%s %s\n", $1, $3);
     }
 
 //where:

@@ -10,6 +10,7 @@
 
 %option noinput noyywrap case-insensitive yylineno
 
+string "test"
 all "*"
 numbers ([-0-9])+
 floatnumb ([0-9]+"."[0-9]+)+
@@ -42,6 +43,7 @@ constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
 other [^\40()<>=',;a-zA-Z0-9]+
 
 %%
+string          {ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRINGG;  }
 {all}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return ALL; }
 {ddldrop}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DDLDROP; }
 {ddlcreate}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DDLCREATE; }
