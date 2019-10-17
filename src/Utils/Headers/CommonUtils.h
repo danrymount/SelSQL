@@ -14,7 +14,7 @@ enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
 enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE_ACT, INSERT, UPDATE };
 
-enum Cmp { GREATEREQUALS = -3, GREATER = -2, NOEQUALS = -1, EQUALS = 0, LOWER, LOWEREQUALS };
+enum Cmp { GREATEREQUALS, GREATER, NOEQUALS, EQUALS, LOWER, LOWEREQUALS };
 
 struct Condition {
     Condition(Cmp _sign, std::string _value) : sign(_sign), value(_value) {}
@@ -22,5 +22,9 @@ struct Condition {
     Cmp sign;
     std::string value;
 };
+
+typedef std::vector<std::string> vecString;
+typedef std::vector<std::pair<std::pair<std::string, Cmp>, vecString>> Expr;
+typedef std::vector<std::vector<std::pair<std::string, std::string>>> RecordsData;
 
 #endif  // SELSQL_COMMONUTILS_H

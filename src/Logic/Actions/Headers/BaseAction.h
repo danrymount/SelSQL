@@ -30,6 +30,7 @@ class BaseAction {
         if (response.dqlData.columns.empty()) {
             response.dqlData.conditions = _request.dqlData.conditions;
             response.dqlData.columns = _request.dqlData.columns;
+            response.expression = _request.expression;
         }
 
         if (response.ddlData.table.name.empty()) {

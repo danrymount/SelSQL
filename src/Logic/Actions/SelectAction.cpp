@@ -10,7 +10,11 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
-    std::map<std::string, Condition> cond = _request.dmlData.conditions;
+
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dqlData.columns);
+    if (response.error.getErrorCode()) {
+        return response;
+    }
 
     if (cursor.first->record_amount == 0) {
         return response;
@@ -20,23 +24,15 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         if (_record.empty()) {
             continue;
         }
-        if (cond.empty()) {
-            response.dqlData.record.push_back(_record);
-            continue;
-        }
-        for (auto field : _record) {
-            std::string field_name = field.first;
-            if (cond.find(field_name) != cond.end()) {
-                if (ActionsUtils::check_condition(field.second, cond[field_name])) {
-                    response.dqlData.record.push_back(_record);
-                    continue;
-                }
-            }
-        }
+        response.dqlData.record.push_back(_record);
 
     } while (!cursor.second->Next());
 
     requestToResponse(_request);
+
+    if (!response.expression.first.empty()) {
+        response.dqlData.record = actionsUtils.checkExpression(response.expression, response.dqlData.record);
+    }
 
     if (response.dqlData.columns.size() == 1 && response.dqlData.columns[0] == "*") {
         stringstream << " | ";

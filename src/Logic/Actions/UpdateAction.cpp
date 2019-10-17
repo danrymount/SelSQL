@@ -11,22 +11,31 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    std::map<std::string, Condition> cond = _request.dmlData.conditions;
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dmlData.columns);
+    if (response.error.getErrorCode()) {
+        return response;
+    }
+
+    response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values, cursor);
+    if (response.error.getErrorCode()) {
+        requestToResponse(_request);
+        return response;
+    }
+
+    auto expr = _request.expression;
 
     do {
         auto record = cursor.second->Fetch();
 
-        for (auto field : record) {
-            std::string field_name = field.first;
-            if (cond.empty()) {
-                cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
-            } else {
-                if (cond.find(field_name) != cond.end()) {
-                    if (ActionsUtils::check_condition(field.second, cond[field_name])) {
-                        cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
-                    }
-                }
-            }
+        if (expr.first.empty()) {
+            cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+        } else {
+            RecordsData row;
+            row.emplace_back(record);
+            auto data = actionsUtils.checkExpression(expr, row);
+            if (data.empty())
+                continue;
+            cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
         }
 
     } while (!cursor.second->Next());

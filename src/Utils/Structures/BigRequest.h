@@ -10,16 +10,19 @@
 #include "Data/DDLdata.h"
 #include "Data/DMLdata.h"
 #include "Data/DQLdata.h"
+#include "Data/Expresion.h"
 
 class BigRequest {
    public:
     BigRequest() = default;
-    BigRequest(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData)
+    BigRequest(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData,
+               std::pair<Expr, vecString> _expression)
                                                                                                         : action(_action),
                                                                                                           tableName(_tableName),
                                                                                                           ddlData(_ddlData),
                                                                                                           dmlData(_dmlData),
-                                                                                                          dqlData(_dqlData) {
+                                                                                                          dqlData(_dqlData),
+                                                                                                          expression(_expression) {
     }
 
     Action action;
@@ -27,6 +30,7 @@ class BigRequest {
     DDLdata ddlData;
     DMLdata dmlData;
     DQLdata dqlData;
+    std::pair<Expr, vecString> expression;
     std::string select_message;
 
     void clear() {

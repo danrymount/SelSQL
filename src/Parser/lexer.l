@@ -11,14 +11,14 @@
 %option noinput noyywrap case-insensitive yylineno
 
 all "*"
-numbers ([0-9])+
+numbers ([-0-9])+
 floatnumb ([0-9]+"."[0-9]+)+
 words   ([A-Za-z0-9]*)
-valstr   (\'[-a-zA-Z0-9]*\')
+valstr (\'[-a-zA-Z0-9]*\')
 ddlcreate "CREATE TABLE"
 ddldrop "DROP TABLE"
 ddlshow "SHOW CREATE TABLE"
-types "INT"|"FLOAT"|"CHAR"|"BOOLEAN"
+types "INT"|"FLOAT"|"CHAR"
 insert "INSERT INTO"
 select "SELECT"
 values "VALUES"
@@ -32,7 +32,8 @@ null "NULL"
 
 equally "="
 notequally "!="
-sign "+"|"-"|"*"|"/"
+sign "+"|"-"
+div "/"
 comp ">="|"<="|"<"|">"
 logic "and"|"or"
 not "NOT"
@@ -56,6 +57,7 @@ other [^\40()<>=',;a-zA-Z0-9]+
 {equally}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return EQUALLY; }
 {notequally}    { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOTEQUALLY; }
 {sign}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SIGN; }
+{div}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DIV; }
 {comp}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return COMP; }
 {logic}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return LOGIC; }
 {not}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOT; }

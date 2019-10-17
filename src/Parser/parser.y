@@ -16,7 +16,8 @@
 %}
 
 %token <string> STRING OTHER SEMICOLON COMMA DDLCREATE DDLSHOW DDLDROP BRACKET TYPE CONSTRAINT DMLINSERT VALUES COMP
-NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY
+NUMBER WHERE EQUALLY FROM DQLSELECT DMLDELETE DMLUPDATE SET ALL VALNULL FLOATNUM SIGN VALSTR LOGIC NOT NOTEQUALLY DIV
+
 
 
 %union{
@@ -75,7 +76,7 @@ actions:
 table_update:
     update_set
     |
-    table_update where
+    table_update WHERE where
 
 update_set:
     SET STRING EQUALLY VALSTR {
@@ -132,7 +133,7 @@ table_delete:
         printf("TABLE = %s\n", $2);
     }
     |
-    DMLDELETE STRING where {
+    DMLDELETE STRING WHERE where {
     	logicApi.addTableName($2);
         printf("TABLE = %s\n", $2);
     }
@@ -143,7 +144,7 @@ table_select:
         printf("TABLE = %s\n", $3);
     }
     |
-    table_select where
+    table_select WHERE where
 
 col_select:
     DQLSELECT STRING {
@@ -169,80 +170,143 @@ col_select:
 insert_where:
     insert
 
-//where:
-//    NOT where {
-//    	printf("NOT\n");
-//    }|
-//    where LOGIC where {
-//    	printf("%s\n", $2);
-//    }|
-//    BRACKET where BRACKET {
-//    	printf("%s %s\n", $1, $3);
-//    }|
-//    STRING EQUALLY expr {
-//    	printf("%s = \n", $1);
-//    }|
-//    STRING NOTEQUALLY expr {
-//    	printf("%s != \n", $1);
-//    }|
-//    STRING EQUALLY VALSTR {
-//    	printf("%s = %s\n", $1, $3);
-//    }|
-//    STRING NOTEQUALLY VALSTR {
-//    	printf("%s != %s\n", $1, $3);
-//    }|
-//    STRING COMP expr {
-//    	printf("%s %s \n", $1, $2);
-//    }
-//
-//expr:
-//    STRING {
-//    	printf("%s\n", $1);
-//         }
-//         |
-//         NUMBER {
-//         	printf("%s \n", $1);
-//         }
-//         |
-//         FLOATNUM {
-//         	printf("%s\n", $1);
-//         }
-//         |
-//         expr SIGN expr {
-//         	printf("%s\n", $2);
-//         }
-//         |
-//         expr ALL expr {
-//         	printf("%s\n", $2);
-//         }
-//         |
-//         BRACKET expr SIGN expr BRACKET {
-//         	printf("( %s ) \n", $3);
-//         }
-//         |
-//         BRACKET expr ALL expr BRACKET {
-//         	printf("( %s ) \n", $3);
-//         }
 where:
-    WHERE STRING EQUALLY VALSTR {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+    NOT where {
+    	logicApi.expression.addLogicOperator($1);
+    	printf("NOT\n");
+    }|
+    where LOGIC where {
+    	logicApi.expression.addLogicOperator($2);
+    	printf("%s\n", $2);
+    }|
+    BRACKET where BRACKET {
+    	printf("%s %s\n", $1, $3);
+    }|
+    STRING EQUALLY expr2 {
+    	logicApi.expression.addColumn($1, $2);
+    	printf("%s = \n", $1);
+    }|
+    STRING NOTEQUALLY expr {
+    	logicApi.expression.addColumn($1, $2);
+    	printf("%s != \n", $1);
+    }|
+    STRING EQUALLY VALSTR {
+    	logicApi.expression.addOperand($3);
+    	logicApi.expression.addColumn($1, $2);
+    	printf("%s = %s\n", $1, $3);
+    }|
+    STRING NOTEQUALLY VALSTR {
+    	logicApi.expression.addOperand($3);
+    	logicApi.expression.addColumn($1, $2);
+    	printf("%s != %s\n", $1, $3);
+    }|
+    STRING COMP expr {
+    	logicApi.expression.addColumn($1, $2);
+    	printf("%s %s \n", $1, $2);
+    }
+
+expr31:
+    BRACKET expr2 BRACKET
+
+expr2:
+    expr1|
+    expr2 SIGN expr1 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
     }
     |
-    WHERE STRING EQUALLY NUMBER {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+    expr31 SIGN expr2 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
     }
     |
-    WHERE STRING EQUALLY FLOATNUM {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+    expr2 SIGN expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
     }
     |
-    WHERE STRING EQUALLY VALNULL {
-    	logicApi.addCondition($2, $3, $4);
-        printf("WHERE %s %s %s\n", $2, $3, $4);
+    expr31 SIGN expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
     }
+
+expr1:
+    expr|
+    expr1 ALL expr {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }|
+    expr1 DIV expr {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 DIV expr {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 ALL expr {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr1 DIV expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr1 ALL expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 DIV expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+    |
+    expr31 ALL expr31 {
+    	logicApi.expression.addOperand($2);
+    	printf("%S", $2);
+    }
+
+expr:
+    STRING {
+    	logicApi.expression.addOperand($1);
+    	printf("%s\n", $1);
+    }
+    |
+    NUMBER {
+    	logicApi.expression.addOperand($1);
+        printf("%s \n", $1);
+    }
+    |
+    FLOATNUM {
+    	logicApi.expression.addOperand($1);
+        printf("%s\n", $1);
+    }
+
+//where:
+//    WHERE STRING EQUALLY VALSTR {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY NUMBER {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY FLOATNUM {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
+//    |
+//    WHERE STRING EQUALLY VALNULL {
+//    	logicApi.addCondition($2, $3, $4);
+//        printf("WHERE %s %s %s\n", $2, $3, $4);
+//    }
 
 insert:
     STRING values {
