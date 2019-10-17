@@ -83,7 +83,9 @@ class ActionsUtils {
    private:
     ParserUtils parserUtils;
 
-    static std::vector<std::pair<Cmp, std::string>> countExpr(std::string columnName, std::string val, Expr exprs);
+    static std::vector<std::pair<Cmp, std::string>> countExpr(std::pair<std::string, std::string> record,
+                                                              std::vector<std::pair<std::string, std::string>> row,
+                                                              Expr exprs);
 
     inline static std::map<std::string, std::function<double(double a, double b)>> calculate = {{"+",
                                                                                                  [](double a,

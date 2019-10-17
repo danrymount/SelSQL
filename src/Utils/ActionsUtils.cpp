@@ -48,6 +48,8 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
                 } else {
                     int columnIndex = std::distance(columns.begin(), valIt);
                     val = values[columnIndex];
+                    std::transform(val.begin(), val.end(), val.begin(),
+                                   [](unsigned char c) { return std::tolower(c); });
                 }
             }
 
@@ -64,6 +66,8 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
                 for (auto& elem : record) {
                     if (tableCol.first == elem.first) {
                         auto curVal = elem.second;
+                        std::transform(curVal.begin(), curVal.end(), curVal.begin(),
+                                       [](unsigned char c) { return std::tolower(c); });
                         error = constraintsCheckers[id](val, curVal);
                         if (error.getErrorCode()) {
                             return error;
@@ -116,7 +120,7 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
     std::vector<int> binRes;
     for (auto& row : recordsData) {
         for (auto& record : row) {
-            std::vector<std::pair<Cmp, std::string>> res = countExpr(record.first, record.second, expr.first);
+            std::vector<std::pair<Cmp, std::string>> res = countExpr(record, row, expr.first);
             if (res.empty())
                 continue;
             for (auto& exp : res) {
@@ -137,9 +141,13 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
     return newRecords;
 }
 
-std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string columnName, std::string val, Expr exprs) {
+std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::pair<std::string, std::string> record,
+                                                                 std::vector<std::pair<std::string, std::string>> row,
+                                                                 Expr exprs) {
     std::vector<std::pair<Cmp, std::string>> res;
     std::queue<double> curExpr;
+    auto columnName = record.first;
+    auto val = record.second;
     for (int index = 0; index < exprs.size(); index++) {
         auto expr = exprs[index];
         auto valExpr = expr.first.first;
@@ -155,8 +163,10 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string col
             while (i != tempExpr.size()) {
                 auto elem = tempExpr[i];
                 i++;
-                if (elem == columnName) {
-                    elem = val;
+                for (auto& col : row) {
+                    if (elem == col.first) {
+                        elem = col.second;
+                    }
                 }
 
                 if (std::isdigit(*elem.c_str())) {
