@@ -11,6 +11,11 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dmlData.columns);
+    if (response.error.getErrorCode()) {
+        return response;
+    }
+
     int delete_count = 0;
 
     auto expr = _request.expression;

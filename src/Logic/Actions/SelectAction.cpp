@@ -10,6 +10,12 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
+
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dqlData.columns);
+    if (response.error.getErrorCode()) {
+        return response;
+    }
+
     std::map<std::string, Condition> cond = _request.dmlData.conditions;
 
     if (cursor.first->record_amount == 0) {

@@ -220,3 +220,18 @@ int ActionsUtils::checkLogic(std::vector<int> binRes, std::vector<std::string> l
     }
     return elems.front();
 }
+Error ActionsUtils::checkFieldsExist(std::shared_ptr<Table> table, std::vector<std::string> colNames) {
+    std::vector<int> existCols;
+    Error error;
+    for (auto& col : colNames) {
+        for (auto& tableCol : table->getFields()) {
+            if (col == tableCol.first) {
+                existCols.emplace_back(1);
+            }
+        }
+    }
+    if (existCols.size() != colNames.size()) {
+        error = Error(ErrorConstants::ERR_NO_SUCH_FIELD);
+    }
+    return error;
+}

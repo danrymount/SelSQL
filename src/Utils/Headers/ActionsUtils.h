@@ -18,6 +18,8 @@ class ActionsUtils {
                                                                                                        checkPrimaryKey,
                                                                                                        checkUnique};
 
+    static Error checkFieldsExist(std::shared_ptr<Table> table, std::vector<std::string> colNames);
+
     static int isNumbers(const std::string& a, const std::string& b) {
         if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
             return 1;
