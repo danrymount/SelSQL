@@ -785,7 +785,7 @@ TEST(SERVER_TEST_UPDATE, TEST2) {
 //    request = "SELECT * from e;";
 //    client.sendMessage(request);
 //    client.getMessage();
-//    std::string answer = "";//TODO put print table from select
+//    std::string answer = "Success";
 //    std::string received_message = std::string(client.recieved_message);
 //    request = "DROP table e;";
 //    client.sendMessage(request);
@@ -921,27 +921,27 @@ TEST(SERVER_TEST_ERROR, TEST4) {
     EXPECT_EQ(received_message, answer);
 }
 
-TEST(SERVER_TEST_ERROR, TEST5) {
-    Client client;
-    std::string request = "CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);";
-    client.sendMessage(request);
-    client.getMessage();
-    request = "insert into m values(1, 2);";
-    client.sendMessage(request);
-    client.getMessage();
-    request = "insert into m values(3, 4);";
-    client.sendMessage(request);
-    client.getMessage();
-    request = "update m set di = null, id = 3;";
-    client.sendMessage(request);
-    client.getMessage();
-    std::string answer = "";
-    std::string received_message = std::string(client.recieved_message);
-    request = "DROP table m;";
-    client.sendMessage(request);
-    client.getMessage();
-    EXPECT_EQ(received_message, answer);
-}
+// TEST(SERVER_TEST_ERROR, TEST5) {
+//    Client client;
+//    std::string request = "CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "insert into m values(1, 2);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "insert into m values(3, 4);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "update m set di = null, id = 3;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    std::string answer = "";
+//    std::string received_message = std::string(client.recieved_message);
+//    request = "DROP table m;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    EXPECT_EQ(received_message, answer);
+//}
 
 TEST(SERVER_TEST_ERROR, TEST6) {
     Client client;
@@ -950,6 +950,58 @@ TEST(SERVER_TEST_ERROR, TEST6) {
     client.getMessage();
     std::string answer = "Table doesn`t exist ERROR: 2";
     std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST7) {
+    Client client;
+    std::string request = "CREATE TABLE as(id INT UNIQUE, di FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into as(id) values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Invalid count of columns and values ERROR: 5";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table m;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST8) {
+    Client client;
+    std::string request = "CREATE TABLE as(id INT UNIQUE, id FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Field name already used";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST9) {
+    Client client;
+    std::string request = "CREATE TABLE asa(id INT UNIQUE UNIQUE, id1 FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Constraint already exists";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ERROR, TEST10) {
+    Client client;
+    std::string request = "CREATE TABLE asas(id INT UNIQUE, id1 FLOAT NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "insert into asas(id) values(1);";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Null values unavailable ERROR: 8";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table asas;";
+    client.sendMessage(request);
+    client.getMessage();
     EXPECT_EQ(received_message, answer);
 }
 
@@ -1058,7 +1110,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST10) {
     std::string request = "inser into t values(1);";
     client.sendMessage(request);
     client.getMessage();
-    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): dro";
+    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 5): inser";
     std::string received_message = std::string(client.recieved_message);
     EXPECT_EQ(received_message, answer);
 }
