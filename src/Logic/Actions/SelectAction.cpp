@@ -24,21 +24,14 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
             response.dqlData.record.push_back(_record);
             continue;
         }
-        //        for (auto field : _record) {
-        //            std::string field_name = field.first;
-        //            //            if (cond.find(field_name) != cond.end()) {
-        //            //                if (ActionsUtils::checkSign(field.second, cond[field_name])) {
-        //            //                    response.dqlData.record.push_back(_record);
-        //            //                    continue;
-        //            //                }
-        //            //            }
-        //        }
 
     } while (!cursor.second->Next());
 
     requestToResponse(_request);
 
-    response.dqlData.record = actionsUtils.checkExpression(response.expression, response.dqlData.record);
+    if (!response.expression.first.empty()) {
+        response.dqlData.record = actionsUtils.checkExpression(response.expression, response.dqlData.record);
+    }
 
     if (response.dqlData.columns.size() == 1 && response.dqlData.columns[0] == "*") {
         std::cout << " | ";
