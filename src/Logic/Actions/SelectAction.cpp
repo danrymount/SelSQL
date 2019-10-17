@@ -16,8 +16,6 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    std::map<std::string, Condition> cond = _request.dmlData.conditions;
-
     if (cursor.first->record_amount == 0) {
         return response;
     }
@@ -26,10 +24,7 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         if (_record.empty()) {
             continue;
         }
-        if (cond.empty()) {
-            response.dqlData.record.push_back(_record);
-            continue;
-        }
+        response.dqlData.record.push_back(_record);
 
     } while (!cursor.second->Next());
 
