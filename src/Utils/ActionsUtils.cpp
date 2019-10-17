@@ -34,8 +34,8 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
     Error error;
     std::shared_ptr<Table> table = cursor.first;
 
-    auto record = cursor.second->Fetch();
     do {
+        auto record = cursor.second->Fetch();
         /// for rows data
         for (int i = 0; i < table->getFields().size(); ++i) {
             auto tableCol = table->getFields()[i];
@@ -73,8 +73,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
                 }
             }
         }
-        record = getTableRecord(cursor);
-    } while (!record.empty());
+    } while (!cursor.second->Next());
 
     return error;
 }
@@ -111,67 +110,11 @@ Error ActionsUtils::checkPrimaryKey(const std::string& newVal, const std::string
     return Error();
 }
 
-ActionsUtils::Record ActionsUtils::getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
-    Record record;
-    if (!cursor.second->Next()) {
-        return cursor.second->Fetch();
-    }
-    return record;
-
-    //    for (size_t i = 0; i < cursor.first->record_amount; ++i) {
-    //        record = cursor.second->Fetch();
-    //        for (auto field : record) {
-    //            std::cout << field.first << " = " << field.second << std::endl;
-    //        }
-    //        if (cursor.second->Next()) {
-    //            std::cout << "END OF DATA" << std::endl;
-    //            break;
-    //        }
-    //    }
-}
-// int ActionsUtils::checkSign(std::string rec_val, Condition cond_val) {
-//    int res = 0;
-//    switch (cond_val.sign) {
-//        case GREATEREQUALS:
-//            if (rec_val >= cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//        case GREATER:
-//            if (rec_val > cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//        case NOEQUALS:
-//            if (rec_val != cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//        case EQUALS: {
-//            if (rec_val == cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//        }
-//        case LOWER:
-//            if (rec_val < cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//        case LOWEREQUALS:
-//            if (rec_val <= cond_val.value) {
-//                res = 1;
-//            }
-//            break;
-//    }
-//    return res;
-//}
 RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, RecordsData recordsData) {
     RecordsData newRecords;
     std::vector<std::pair<std::string, Condition>> exprRes;
     std::vector<int> binRes;
     for (auto& row : recordsData) {
-        std::cout << "#1" << std::endl;
         for (auto& record : row) {
             std::vector<std::pair<Cmp, std::string>> res = countExpr(record.first, record.second, expr.first);
             if (res.empty())
@@ -180,22 +123,17 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
                 exprRes.emplace_back(std::make_pair(record.second, Condition(exp.first, exp.second)));
             }
         }
-        std::cout << "#2" << std::endl;
         for (auto& res : exprRes) {
             int out = checkSign[res.second.sign](res.first, res.second.value);
             binRes.push_back(out);
         }
-        std::cout << "#3" << std::endl;
         auto total = checkLogic(binRes, expr.second);
         if (total) {
             newRecords.emplace_back(row);
         }
-        std::cout << "#4" << std::endl;
-        std::cout << "out = " << total << std::endl;
         binRes.clear();
         exprRes.clear();
     }
-    std::cout << "#5" << std::endl;
     return newRecords;
 }
 
@@ -242,12 +180,10 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string col
 }
 int ActionsUtils::checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems) {
     // TODO починить со скобками.
-    std::cout << "#3.1" << std::endl;
     std::queue<int> elems;
     int j = logicElems.size() - 1;
     if (j < 0)
         return binRes[0];
-    std::cout << "#3.2" << std::endl;
     for (int i = binRes.size() - 1; i >= 0; --i) {
         if (elems.empty()) {
             if (logicElems[j] == "not") {

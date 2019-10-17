@@ -80,8 +80,6 @@ class ActionsUtils {
 
     static int checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems);
 
-    Record getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
-
    private:
     ParserUtils parserUtils;
 
