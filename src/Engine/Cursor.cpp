@@ -164,3 +164,7 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
     return 0;
 }
+int Cursor::StartPos() {
+    current_pos = 0;
+    return 0;
+}

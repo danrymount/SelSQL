@@ -35,6 +35,7 @@ class Cursor {
     int Next();
     int Delete();
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
+    int StartPos();
     std::vector<std::pair<std::string, std::string>> Fetch();
 };
 #endif  // SELSQL_CURSOR_H
