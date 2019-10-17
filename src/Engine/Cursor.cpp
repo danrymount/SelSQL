@@ -166,5 +166,6 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 }
 int Cursor::StartPos() {
     current_pos = 0;
+    readed_data = 0;
     return 0;
 }

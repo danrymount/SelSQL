@@ -42,7 +42,8 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
             } else {
                 auto valIt = std::find(columns.begin(), columns.end(), tableCol.first);
                 if (valIt == columns.end()) {
-                    val = "null";
+                    // val = "null";
+                    continue;
                 } else {
                     int columnIndex = std::distance(columns.begin(), valIt);
                     val = values[columnIndex];
