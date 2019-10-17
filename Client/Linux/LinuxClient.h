@@ -22,6 +22,7 @@ class Client {
     int sendMessage(std::string message);
     int getMessage();
     char recieved_message[MESSAGE_SIZE];
+    ~Client();
 };
 
 #endif  // UNTITLED7_LINUXCLIENT_H

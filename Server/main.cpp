@@ -15,10 +15,10 @@
 #include "Exception.h"
 #include "parser.cpp"
 #define MAX_CONN 100
-// std::mutex m;
+std::mutex m;
 
 std::string executeRequest(std::string request) {
-    //    std::lock_guard<std::mutex> guard(m);
+    std::lock_guard<std::mutex> guard(m);
     BigResponse result = parse_request(request.c_str());
     std::string message = "Success";
     if (result.error.getErrorCode())
@@ -50,6 +50,7 @@ int ListenClient(int id, Server* server) {
             std::cout << "Client " << id + 1 << " disconnected" << std::endl;
             server->AcceptSocket(id);
             std::cout << "Client " << id + 1 << " connected" << std::endl;
+            continue;
         }
         std::cout << "Got message from Client " << id + 1 << " :" << std::endl;
         std::cout << "\t" << server->recieved_message << std::endl;

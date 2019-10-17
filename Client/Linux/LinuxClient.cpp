@@ -28,7 +28,7 @@ int Client::sendMessage(std::string message) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-
+    shutdown(server_connection, SHUT_RD);
     return 0;
 }
 int Client::getMessage() {
@@ -61,4 +61,8 @@ int Client::getMessage() {
         }
     }
     return 0;
+}
+Client::~Client() {
+    shutdown(client_socket, SHUT_RDWR);
+    shutdown(server_connection, SHUT_RDWR);
 }

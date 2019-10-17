@@ -28,19 +28,20 @@ Server::Server(int max_connection) {
     communication_socket.resize(max_connection, 0);
 }
 int Server::ListenSocket(int id) {
+    memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
     for (;;) {
-        memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
         /*следует помнить, что данные поступают неравномерно*/
         int rc = recv(communication_socket[id], recieved_message, MESSAGE_SIZE, 0);
         if (rc == MESSAGE_SIZE) {
             return 0;
         }
-        if (rc < 0) {
+        if (rc < MESSAGE_SIZE) {
             /*чтение может быть прервано системным вызовом, это нормально*/
             if (errno == EINTR)
                 continue;
-            std::cerr << "Can't receive data." << std::endl;
-            throw ServerException();
+            //            std::cerr << "Can't receive data." << std::endl;
+            //            throw ServerException();
+            return 1;
         }
         if (rc == 0)
             return 1;
