@@ -33,9 +33,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
     std::string val;
     Error error;
     std::shared_ptr<Table> table = cursor.first;
-
     do {
-        auto record = cursor.second->Fetch();
         /// for rows data
         for (int i = 0; i < table->getFields().size(); ++i) {
             auto tableCol = table->getFields()[i];
@@ -53,6 +51,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
                 }
             }
 
+            auto record = cursor.second->Fetch();
             for (int j = 0; j < tableCol.second.getConstraints().size(); ++j) {
                 auto id = tableCol.second.getConstraints()[j];
                 if (record.empty()) {
@@ -62,20 +61,24 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
                             return error;
                         }
                     }
-                }
-                for (auto& elem : record) {
-                    if (tableCol.first == elem.first) {
-                        auto curVal = elem.second;
-                        std::transform(curVal.begin(), curVal.end(), curVal.begin(),
-                                       [](unsigned char c) { return std::tolower(c); });
-                        error = constraintsCheckers[id](val, curVal);
-                        if (error.getErrorCode()) {
-                            return error;
+                } else {
+                    for (auto& elem : record) {
+                        if (tableCol.first == elem.first) {
+                            auto curVal = elem.second;
+                            std::transform(curVal.begin(), curVal.end(), curVal.begin(),
+                                           [](unsigned char c) { return std::tolower(c); });
+                            error = constraintsCheckers[id](val, curVal);
+                            if (error.getErrorCode()) {
+                                return error;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
             }
+        }
+        if (cursor.first->record_amount == 0) {
+            break;
         }
     } while (!cursor.second->Next());
 
