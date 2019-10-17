@@ -47,8 +47,7 @@ class ActionsUtils {
 
     static int compareNoEquals(const std::string& a, const std::string& b) { return !compareEquals(a, b); }
 
-    inline static std::array<std::function<int(const std::string&, const std::string&)>, 6> checkSign = {
-                                                                                                        [](const std::string& a,
+    std::array<std::function<int(const std::string&, const std::string&)>, 6> checkSign = {[](const std::string& a,
                                                                                                            const std::string& b) {
                                                                                                             return std::stod(a) >=
                                                                                                                    std::stod(b);
@@ -77,7 +76,9 @@ class ActionsUtils {
     Error checkConstraint(std::vector<std::string> columns, std::vector<std::string> values,
                           std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
 
-    static RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
+    RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
+
+    static int checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems);
 
     Record getTableRecord(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
 
@@ -109,6 +110,17 @@ class ActionsUtils {
                                                                                                          return 0.0;  // zero
                                                                                                                       // division
                                                                                                  }}};
+
+    inline static std::map<std::string, std::function<int(int a, int b)>> logicCalculate = {{"and",
+                                                                                             [](int a, int b) {
+                                                                                                 return a and b;
+                                                                                             }},
+                                                                                            {"or",
+                                                                                             [](int a, int b) {
+                                                                                                 return a or b;
+                                                                                             }}
+
+    };
 
     static Error checkNotNull(const std::string& newVal, const std::string& oldVal);
 

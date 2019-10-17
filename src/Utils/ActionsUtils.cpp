@@ -171,6 +171,7 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
     std::vector<std::pair<std::string, Condition>> exprRes;
     std::vector<int> binRes;
     for (auto& row : recordsData) {
+        std::cout << "#1" << std::endl;
         for (auto& record : row) {
             std::vector<std::pair<Cmp, std::string>> res = countExpr(record.first, record.second, expr.first);
             if (res.empty())
@@ -179,14 +180,22 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
                 exprRes.emplace_back(std::make_pair(record.second, Condition(exp.first, exp.second)));
             }
         }
+        std::cout << "#2" << std::endl;
         for (auto& res : exprRes) {
             int out = checkSign[res.second.sign](res.first, res.second.value);
             binRes.push_back(out);
-            std::cout << "out = " << out << std::endl;
         }
+        std::cout << "#3" << std::endl;
         auto total = checkLogic(binRes, expr.second);
+        if (total) {
+            newRecords.emplace_back(row);
+        }
+        std::cout << "#4" << std::endl;
+        std::cout << "out = " << total << std::endl;
+        binRes.clear();
         exprRes.clear();
     }
+    std::cout << "#5" << std::endl;
     return newRecords;
 }
 
@@ -230,4 +239,36 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::string col
         }
     }
     return res;
+}
+int ActionsUtils::checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems) {
+    // TODO починить со скобками.
+    std::cout << "#3.1" << std::endl;
+    std::queue<int> elems;
+    int j = logicElems.size() - 1;
+    if (j < 0)
+        return binRes[0];
+    std::cout << "#3.2" << std::endl;
+    for (int i = binRes.size() - 1; i >= 0; --i) {
+        if (elems.empty()) {
+            if (logicElems[j] == "not") {
+                elems.push(!binRes[i]);
+                j--;
+            } else {
+                elems.push(binRes[i]);
+            }
+            continue;
+        }
+        if (logicElems[j] == "not") {
+            elems.push(!binRes[i]);
+            j--;
+        } else {
+            elems.push(binRes[i]);
+        }
+        auto a = elems.front();
+        elems.pop();
+        auto b = elems.front();
+        elems.pop();
+        elems.push(logicCalculate[logicElems[j--]](a, b));
+    }
+    return elems.front();
 }

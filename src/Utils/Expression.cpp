@@ -16,8 +16,14 @@ void Expression::addOperand(char* name) { operands.emplace_back(std::string(name
 
 void Expression::addOperator(char* name) { operands.emplace_back(std::string(name)); }
 
-void Expression::addLogicOperator(char* name) { logicOperators.emplace_back(std::string(name)); }
+void Expression::addLogicOperator(char* name) {
+    //тут можно сделать проверку на not not
+    logicOperators.emplace_back(std::string(name));
+}
+
 std::pair<Expr, vecString> Expression::endUnion() {
     fullExpression = std::make_pair(expr, logicOperators);
+    expr.clear();
+    logicOperators.clear();
     return fullExpression;
 }
