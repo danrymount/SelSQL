@@ -11,16 +11,16 @@
 #include "CommonUtils.h"
 
 class ParserUtils {
-    std::map<std::string, Type> mapOfStringToType = {{"int", INT},
-                                                     {"float", FLOAT},
+    std::map<std::string, Type> mapOfStringToType = {{"int", TYPE_INT},
+                                                     {"float", TYPE_FLOAT},
 
-                                                     {"char", CHAR}};
+                                                     {"char", TYPE_CHAR}};
     std::map<std::string, Constraint> mapOfStringToConstraint = {{"not", NOT_NULL},
                                                                  {"unique", UNIQUE},
                                                                  {"primary", PRIMARY_KEY}};
 
     std::map<std::string, Action> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP},
-                                                 {"insert", INSERT}, {"delete", DELETE},    {"select", SELECT},
+                                                 {"insert", INSERT}, {"delete", DELETE_ACT}, {"select", SELECT},
                                                  {"update", UPDATE}};
 
     std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},
@@ -29,7 +29,7 @@ class ParserUtils {
     std::map<Constraint, std::string> mapOfConstraintToString = {{NOT_NULL, "NOT NULL"},
                                                                  {UNIQUE, "UNIQUE"},
                                                                  {PRIMARY_KEY, "PRIMARY KEY"}};
-    std::map<Type, std::string> mapOfTypeToString = {{INT, "INT"}, {FLOAT, "FLOAT"}, {CHAR, "CHAR"}};
+    std::map<Type, std::string> mapOfTypeToString = {{TYPE_INT, "INT"}, {TYPE_FLOAT, "FLOAT"}, {TYPE_CHAR, "CHAR"}};
 
    public:
     static std::string chrToString(char* name);

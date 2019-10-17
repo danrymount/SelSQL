@@ -17,6 +17,7 @@ class ErrorConstants {
     inline static const std::string ERR_SAME_COLUMN_str = "Same column in request";
     inline static const std::string ERR_NOT_NULL_str = "Null values unavailable";
     inline static const std::string ERR_UNIQUE_str = "Value already exists, use UNIQUE value";
+    inline static const std::string ERR_TABLE_FULL_str = "TABLE IS FULL";
 
     inline static const int ERR_TABLE_EXISTS = 1;
     inline static const int ERR_TABLE_NOT_EXISTS = 2;
@@ -27,6 +28,7 @@ class ErrorConstants {
     inline static const int ERR_SAME_COLUMN = 7;
     inline static const int ERR_NOT_NULL = 8;
     inline static const int ERR_UNIQUE = 9;
+    inline static const int ERR_TABLE_FULL = 9;
 
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
@@ -36,7 +38,8 @@ class ErrorConstants {
                                                             {ERR_NO_SUCH_FIELD, ERR_NO_SUCH_FIELD_str},
                                                             {ERR_SAME_COLUMN, ERR_SAME_COLUMN_str},
                                                             {ERR_NOT_NULL, ERR_NOT_NULL_str},
-                                                            {ERR_UNIQUE, ERR_UNIQUE_str}};
+                                                            {ERR_UNIQUE, ERR_UNIQUE_str},
+                                                            {ERR_TABLE_FULL, ERR_TABLE_FULL_str}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H

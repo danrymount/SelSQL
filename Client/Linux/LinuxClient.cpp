@@ -16,27 +16,22 @@ Client::Client() {
     peer.sin_family = AF_INET;
     peer.sin_port = htons(18666);
     peer.sin_addr.s_addr = inet_addr("127.0.0.1");
-
     server_connection = connect(client_socket, (struct sockaddr *)&peer, sizeof(peer));
     if (server_connection) {
         std::cerr << "Unable to connect with server" << std::endl;
         throw ClientException();
     }
 }
-int Client::SendMessage(std::string message) {
+int Client::sendMessage(std::string message) {
     server_connection = send(client_socket, message.c_str(), MESSAGE_SIZE, 0);
     if (server_connection <= 0) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-    /* закрываем соединения для посылки данных */
-    if (shutdown(client_socket, 1) < 0) {
-        std::cerr << "Close connection error" << std::endl;
-        throw ClientException();
-    }
+    shutdown(server_connection, SHUT_RD);
     return 0;
 }
-int Client::GetMessage() {
+int Client::getMessage() {
     fd_set readmask;
     fd_set allreads;
     FD_ZERO(&allreads);
@@ -66,4 +61,8 @@ int Client::GetMessage() {
         }
     }
     return 0;
+}
+Client::~Client() {
+    shutdown(client_socket, SHUT_RDWR);
+    shutdown(server_connection, SHUT_RDWR);
 }

@@ -20,6 +20,9 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     auto expr = _request.expression;
 
+    if (cursor.first->record_amount == 0) {
+        return response;
+    }
     do {
         auto record = cursor.second->Fetch();
         if (expr.first.empty()) {

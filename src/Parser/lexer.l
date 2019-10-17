@@ -3,6 +3,7 @@
     #include <string>
     #include "parser.h"
     #include <memory>
+    #include <cstring>
     void showError();
     int ch;
 %}

@@ -23,7 +23,7 @@ class Cursor {
     Cursor(std::shared_ptr<Table> t, std::shared_ptr<FileManager> fm) {
         table = t;
         fileManager = fm;
-        data = new unsigned char[Constants::DATA_PAGE_SIZE];
+        data = new unsigned char[Constants::DATA_BLOCK_SIZE];
         data = fileManager->GetData(table->name);
         for (const auto& i : table->fields) {
             vals.emplace_back(std::make_pair(i.first, ""));

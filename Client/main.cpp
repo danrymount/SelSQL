@@ -12,10 +12,12 @@ int main() {
     std::string message;
     try {
         Client client;
-        std::getline(std::cin, message);
-        client.SendMessage(message);
-        client.GetMessage();
-        std::cout << client.recieved_message << std::endl;
+        while (true) {
+            std::getline(std::cin, message);
+            client.sendMessage(message);
+            client.getMessage();
+            std::cout << client.recieved_message << std::endl;
+        }
     } catch (ClientException) {
         std::cout << "ERROR" << std::endl;
     }

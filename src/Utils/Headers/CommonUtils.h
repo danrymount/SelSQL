@@ -8,11 +8,11 @@
 #include <map>
 #include <string>
 #include <vector>
-enum Type { INT, FLOAT, CHAR };
+enum Type { TYPE_INT, TYPE_FLOAT, TYPE_CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
-enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE, INSERT, UPDATE };
+enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE_ACT, INSERT, UPDATE };
 
 enum Cmp { GREATEREQUALS, GREATER, NOEQUALS, EQUALS, LOWER, LOWEREQUALS };
 

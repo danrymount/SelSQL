@@ -35,22 +35,28 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
     }
 
     if (response.dqlData.columns.size() == 1 && response.dqlData.columns[0] == "*") {
+        stringstream << " | ";
         std::cout << " | ";
         printAllHeader(cursor.first);
         std::cout << std::endl;
+        stringstream << std::endl;
         printAll(response);
     } else {
+        stringstream << " | ";
         std::cout << " | ";
         for (auto col : response.dqlData.columns) {
             if (col == "*") {
                 printAllHeader(cursor.first);
                 continue;
             }
+            stringstream << col << " | ";
             std::cout << col << " | ";
         }
         std::cout << std::endl;
+        stringstream << std::endl;
 
         for (auto record : response.dqlData.record) {
+            stringstream << " | ";
             std::cout << " | ";
             for (auto col : response.dqlData.columns) {
                 for (auto field : record) {
@@ -63,25 +69,35 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
                     }
                 }
             }
+            stringstream << std::endl;
             std::cout << std::endl;
         }
     }
 
+    response.select_message = stringstream.str();
     return response;
 }
 void SelectAction::printAll(BigResponse& response) {
     for (auto record : response.dqlData.record) {
+        stringstream << " | ";
         std::cout << " | ";
         for (auto field : record) {
             std::cout << field.second << " | ";
+            stringstream << field.second << " | ";
         }
+        stringstream << std::endl;
         std::cout << std::endl;
     }
 }
 void SelectAction::printAllHeader(std::shared_ptr<Table> table) {
     for (auto col : table->getFields()) {
         std::cout << col.first << " | ";
+        stringstream << col.first << " | ";
+        ;
     }
 }
 
-void SelectAction::printField(std::string field) { std::cout << field << " | "; };
+void SelectAction::printField(std::string field) {
+    std::cout << field << " | ";
+    stringstream << field << " | ";
+};

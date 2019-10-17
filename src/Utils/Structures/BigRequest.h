@@ -31,6 +31,7 @@ class BigRequest {
     DMLdata dmlData;
     DQLdata dqlData;
     std::pair<Expr, vecString> expression;
+    std::string select_message;
 
     void clear() {
         tableName.erase();

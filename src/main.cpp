@@ -3,7 +3,7 @@
 #include "Utils/Structures/BigResponse.h"
 #include "parser.cpp"
 
-int main() {
+[[noreturn]] int main() {
     std::string str;
     BigResponse result;
     while (true) {

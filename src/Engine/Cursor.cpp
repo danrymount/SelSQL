@@ -4,7 +4,7 @@
 void convert(unsigned char* dist, std::string val, Type type) {
     unsigned char null_flag = 'n';
     switch (type) {
-        case INT: {
+        case TYPE_INT: {
             if (!val.empty() and val != "null") {
                 int v = std::stoi(val);
                 std::memcpy(&dist[1], &v, Constants::TYPE_SIZE[type]);
@@ -13,7 +13,7 @@ void convert(unsigned char* dist, std::string val, Type type) {
             }
             break;
         }
-        case FLOAT: {
+        case TYPE_FLOAT: {
             if (!val.empty() and val != "null") {
                 double fl = std::stod(val);
                 std::memcpy(&dist[1], &fl, Constants::TYPE_SIZE[type]);
@@ -22,7 +22,7 @@ void convert(unsigned char* dist, std::string val, Type type) {
             }
             break;
         }
-        case CHAR: {
+        case TYPE_CHAR: {
             if (!val.empty()) {
                 val.reserve(Constants::TYPE_SIZE[type]);
                 std::memcpy(&dist[1], val.c_str(), Constants::TYPE_SIZE[type]);
@@ -45,6 +45,10 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     int position = table->last_record_pos * table->record_size;
+    if (table->deleted) {
+        position = table->deleted_pos[--table->deleted] * table->record_size;
+    }
+
     int count = 0;
     for (auto& i : vals) {
         if (cols.empty()) {
@@ -105,20 +109,20 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
 }
 void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos) {
     switch (type) {
-        case INT: {
+        case TYPE_INT: {
             int v;
             std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
         }
 
-        case FLOAT: {
+        case TYPE_FLOAT: {
             double v;
             std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
         }
-        case CHAR: {
+        case TYPE_CHAR: {
             char dst[Constants::TYPE_SIZE[type]];
             std::memcpy(dst, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
             *dist = std::string(dst);
@@ -136,6 +140,7 @@ int Cursor::Next() {
 }
 int Cursor::Delete() {
     std::memset(&data[current_pos * table->record_size], '0', table->record_size);
+    table->deleted_pos[table->deleted++] = current_pos;
     table->last_record_pos++;
     return 0;
 }

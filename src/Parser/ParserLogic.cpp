@@ -28,7 +28,6 @@ BigResponse ParserLogic::finish() {
 
 void ParserLogic::addActionName(char* name) {
     response.action = parserUtils.stringToAction(string(name));
-    //std::cout << response.action << std::endl;
 }
 
 void ParserLogic::addSelectColumn(char* name) { response.dqlData.columns.emplace_back(string(name)); }
@@ -45,7 +44,7 @@ void ParserLogic::addCondition(char* name, char* sign, char* value) {
 
 void ParserLogic::addColumn(char* name) {
     response.dmlData.columns.emplace_back(string(name));
-    std::cout << response.dmlData.columns.size() << std::endl;
+    //    std::cout << response.dmlData.columns.size() << std::endl;
 }
 
 void ParserLogic::addValue(char* value) {
