@@ -83,7 +83,9 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
 }
 
 Error ActionsUtils::checkNotNull(const std::string& newVal, const std::string& oldVal) {
-    if (newVal == "null") {
+    std::string temp = newVal;
+    std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
+    if (temp == "null") {
         return Error(ErrorConstants::ERR_NOT_NULL);
     }
     return Error();
