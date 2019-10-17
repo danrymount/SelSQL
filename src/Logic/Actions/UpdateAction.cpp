@@ -16,6 +16,12 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
+    response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values, cursor);
+    if (response.error.getErrorCode()) {
+        requestToResponse(_request);
+        return response;
+    }
+
     auto expr = _request.expression;
 
     do {

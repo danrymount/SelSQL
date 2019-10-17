@@ -224,6 +224,10 @@ Error ActionsUtils::checkFieldsExist(std::shared_ptr<Table> table, std::vector<s
     std::vector<int> existCols;
     Error error;
     for (auto& col : colNames) {
+        if (col == "*") {
+            existCols.emplace_back(1);
+            continue;
+        }
         for (auto& tableCol : table->getFields()) {
             if (col == tableCol.first) {
                 existCols.emplace_back(1);
