@@ -90,6 +90,7 @@ Table* FileManager::GetTableData(std::string table_name) { return &table_data[ta
 
 int FileManager::DeleteTable(std::string table_name) {
     if (files_.find(table_name) != files_.end()) {
+        files_[table_name]->close();
         files_.erase(table_name);
     }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
