@@ -774,24 +774,24 @@ TEST(SERVER_TEST_UPDATE, TEST2) {
     EXPECT_EQ(received_message, answer);
 }
 
-// TEST(SERVER_TEST_DELETE,  TEST1){
-//    Client client;
-//    std::string request = "CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "DELETE FROM e;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "SELECT * from e;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Success";
-//    std::string received_message = std::string(client.recieved_message);
-//    request = "DROP table e;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    EXPECT_EQ(received_message, answer);
-//}
+TEST(SERVER_TEST_DELETE, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "DELETE FROM e;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from e;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = "Success";
+    std::string received_message = std::string(client.recieved_message);
+    request = "DROP table e;";
+    client.sendMessage(request);
+    client.getMessage();
+    EXPECT_EQ(received_message, answer);
+}
 
 TEST(SERVER_TEST_DELETE, TEST2) {
     Client client;
@@ -812,6 +812,103 @@ TEST(SERVER_TEST_DELETE, TEST2) {
     client.getMessage();
     std::string answer = "Success";
     std::string received_message = std::string(client.recieved_message);
+    request = "DROP table f;";
+    client.sendMessage(request);
+    client.getMessage();
+
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_ALL, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE f(id INT , age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(10, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "UPDATE f SET id = 5;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = " | id | age | \n | 5 | 20 | \n | 5 | 2 | \n";
+    received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "DELETE FROM f;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = "Success";
+    received_message = std::string(client.recieved_message);
+    request = "DROP table f;";
+    client.sendMessage(request);
+    client.getMessage();
+
+    EXPECT_EQ(received_message, answer);
+}
+
+TEST(SERVER_TEST_WHERE, TEST1) {
+    Client client;
+    std::string request = "CREATE TABLE f(id INT , age int NOT NULL);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(10, 20);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "INSERT INTO f values(1, 2);";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f where id = 2;";
+    client.sendMessage(request);
+    client.getMessage();
+    std::string answer = " | id | age | \n";
+    std::string received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "SELECT * from f where id = 1;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = " | id | age | \n | 1 | 2 | \n";
+    received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "UPDATE f SET id = 5 where id = 4;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n";
+    received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "UPDATE f SET id = 5 where id = 10;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = " | id | age | \n | 5 | 20 | \n | 1 | 2 | \n";
+    received_message = std::string(client.recieved_message);
+    EXPECT_EQ(received_message, answer);
+    request = "DELETE FROM f where id = 5;";
+    client.sendMessage(request);
+    client.getMessage();
+    request = "SELECT * from f;";
+    client.sendMessage(request);
+    client.getMessage();
+    answer = " | id | age | \n | 1 | 2 | \n";
+    received_message = std::string(client.recieved_message);
     request = "DROP table f;";
     client.sendMessage(request);
     client.getMessage();
@@ -1004,6 +1101,22 @@ TEST(SERVER_TEST_ERROR, TEST10) {
     client.getMessage();
     EXPECT_EQ(received_message, answer);
 }
+
+// TEST(SERVER_TEST_ERROR, TEST11) {
+//    Client client;
+//    std::string request = "CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    request = "insert into asas(isasfdasf, id) values(1, 2);";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    std::string answer = "";
+//    std::string received_message = std::string(client.recieved_message);
+//    request = "DROP table asas;";
+//    client.sendMessage(request);
+//    client.getMessage();
+//    EXPECT_EQ(received_message, answer);
+//}
 
 TEST(SERVER_TEST_SYN_ERROR, TEST0) {
     Client client;
