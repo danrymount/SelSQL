@@ -9,7 +9,10 @@
 #include "VariableNode.h"
 class VariablesListNode : public BaseNode {
    public:
-    explicit VariablesListNode(std::vector<Variable*>& _vars) : BaseNode(NodeType::VARIABLES_LIST), varsList(_vars) {}
+    explicit VariablesListNode(std::vector<VariableNode*>& _vars)
+                                                                                                        : BaseNode(NodeType::VARIABLES_LIST),
+                                                                                                          varsList(_vars) {
+    }
 
     VariablesListNode() : BaseNode(NodeType::VARIABLES_LIST) {}
 
@@ -19,14 +22,14 @@ class VariablesListNode : public BaseNode {
         }
     }
 
-    void push(Variable* var) { varsList.emplace_back(var); }
+    void push(VariableNode* var) { varsList.emplace_back(var); }
 
-    std::vector<Variable*> getVarList() { return varsList; }
+    std::vector<VariableNode*> getVarList() { return varsList; }
 
     NodeType getNodeType() override { return BaseNode::getNodeType(); }
 
    private:
-    std::vector<Variable*> varsList;
+    std::vector<VariableNode*> varsList;
 };
 
 #endif  // SELSQL_VARIABLESLISTNODE_H

@@ -9,9 +9,9 @@
 #include "../../Utils/Headers/CommonUtils.h"
 #include "BaseNode.h"
 
-class Variable : public BaseNode {
+class VariableNode : public BaseNode {
    public:
-    Variable(std::string &_name, Type _type) : BaseNode(NodeType::VARIABLE), name(_name), type(_type) {}
+    VariableNode(std::string &_name, Type _type) : BaseNode(NodeType::VARIABLE), name(_name), type(_type) {}
 
     NodeType getNodeType() override { return BaseNode::getNodeType(); }
 
