@@ -11,7 +11,7 @@
 class RootNode : public BaseNode {
    public:
     explicit RootNode(std::map<NodeType, BaseNode*> _children)
-                                                                                                        : BaseNode(NodeType::query),
+                                                                                                        : BaseNode(NodeType::ROOT),
                                                                                                           children(std::move(_children)) {
     }
 
@@ -21,9 +21,9 @@ class RootNode : public BaseNode {
         }
     }
 
-    [[nodiscard]] std::map<NodeType, BaseNode*> getChildren() const { return children; }
+    std::map<NodeType, BaseNode*> getChildren() { return children; }
 
-    [[nodiscard]] NodeType getNodeType() const override { return BaseNode::getNodeType(); }
+    NodeType getNodeType() override { return BaseNode::getNodeType(); }
 
    private:
     std::map<NodeType, BaseNode*> children;

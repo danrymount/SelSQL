@@ -4,7 +4,7 @@
 
 #ifndef SELSQL_BASENODE_H
 #define SELSQL_BASENODE_H
-enum class NodeType { query };
+enum class NodeType { ROOT, CREATE, IDENTIFIER, VARIABLE, VARIABLES_LIST };
 
 class BaseNode {
    public:
@@ -12,7 +12,7 @@ class BaseNode {
 
     virtual ~BaseNode() = default;
 
-    [[nodiscard]] virtual NodeType getNodeType() const { return nodeType; }
+    virtual NodeType getNodeType() { return nodeType; }
 
    private:
     NodeType nodeType;
