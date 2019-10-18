@@ -11,20 +11,22 @@
 #include "../BaseNode.h"
 class CreateNode : public BaseNode {
    public:
-    explicit CreateNode(std::map<NodeType, BaseNode*> _children)
+    CreateNode(std::string _name, std::vector<VariableNode*> _children)
                                                                                                         : BaseNode(NodeType::CREATE),
-                                                                                                          children(std::move(_children)) {
+                                                                                                          children(std::move(_children)),
+                                                                                                          tableName(std::move(_name)) {
     }
     NodeType getNodeType() override { return BaseNode::getNodeType(); }
 
     ~CreateNode() override {
         for (auto& ch : children) {
-            delete ch.second;
+            delete ch;
         }
     }
 
    private:
-    std::map<NodeType, BaseNode*> children;
+    std::vector<VariableNode*> children;
+    std::string tableName;
 };
 
 #endif  // SELSQL_CREATENODE_H

@@ -8,7 +8,8 @@
     BigResponse result;
     while (true) {
         std::getline(std::cin, str);
-        parse_request(str.c_str());
+        auto tree = parse_request(str.c_str());
+        std::cout << "SUCCESS" << std::endl;
         //        if (result.error.getErrorCode())
         //            std::cerr << result.error.getErrorMsg() << std::endl;
         //        else {
