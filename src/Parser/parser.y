@@ -45,10 +45,18 @@ request:
     }
 
 variables:
-    IDENT type constraint {
+    variable {
 
     }|
-    variables COMMA IDENT type constraint {
+    variables COMMA variable {
+
+    }
+
+variable:
+    IDENT type{
+
+    }|
+    IDENT type constraints {
 
     }
 
