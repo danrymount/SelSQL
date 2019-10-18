@@ -12,29 +12,73 @@
     int yyerror(const char *s);
 %}
 
-%token <string> STRINGG
+%token CREATE_TABLE SHOW_CREATE_TABLE DROP_TABLE COMMA
+%token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
+%token TYPE_INT TYPE_FLOAT TYPE_CHAR
+%token IDENT LBRACKET RBRACKET
 
-%type<string> id
-%type<string> request
+//%type<string> id
+//%type<string> request
 
 
 %union{
     //char string[256];
     int number;
     char *string;
+
 }
 
 %%
+//
+//request:
+//    id {
+//    std::cout << "TT="<< $$ << std::endl;
+//    }
+//;
+//
+//id:
+//    STRINGG { $$ = $1;}
 
 request:
-    id {
-    std::cout << "TT="<< $$ << std::endl;
+    CREATE_TABLE IDENT LBRACKET variables RBRACKET {
+
     }
-;
 
-id:
-    STRINGG { $$ = $1;}
+variables:
+    IDENT type constraint {
 
+    }|
+    variables COMMA IDENT type constraint {
+
+    }
+
+type:
+    TYPE_INT {
+
+    }|
+    TYPE_FLOAT {
+
+    }|
+    TYPE_CHAR {
+
+    }
+
+constraints:
+    constraint {
+
+    }|
+    constraints COMMA constraint
+
+constraint:
+    CONSTR_UNIQUE {
+
+    }|
+    CONSTR_NOT_NULL {
+
+    }|
+    CONSTR_PRIMARY_KEY {
+
+    }
 %%
 
 void set_input_string(const char* in);

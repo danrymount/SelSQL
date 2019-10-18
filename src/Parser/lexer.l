@@ -11,11 +11,23 @@
 %option noinput noyywrap case-insensitive yylineno
 
 
-words   ([A-Za-z0-9]*)
+IDENT   ([A-Za-z0-9]*)
 
 %%
-
-{words}         { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return STRINGG; }
+"CREATE TABLE"          {return CREATE_TABLE}
+"SHOW CREATE TABLE"     {return SHOW_CREATE_TABLE}
+"DROP TABLE"            {return DROP_TABLE}
+"("                     {return LBRACKET}
+")"                     {return RBRACKET}
+","                     {return COMMA}
+"INT"                   {return TYPE_INT}
+"FLOAT"                 {return TYPE_FLOAT}
+"CHAR"                  {return TYPE_CHAR}
+"UNIQUE"                {return CONSTR_UNIQUE}
+"NOT NULL"              {return CONSTR_NOT_NULL}
+"PRIMARY KEY"           {return CONSTR_PRIMARY_KEY}
+{IDENT}                 { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string);
+                        yylval.string = std::string(yylval.string) return IDENT; }
 
 %%
 
