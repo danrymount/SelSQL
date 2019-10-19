@@ -28,10 +28,10 @@
 
 %}
 
-%token CREATE_TABLE SHOW_CREATE_TABLE DROP_TABLE COMMA
+%token CREATE_TABLE SHOW_CREATE_TABLE DROP_TABLE INSERT_INTO VALUES SELECT FROM UPDATE SET
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
-%token IDENT LBRACKET RBRACKET
+%token IDENT FLOATNUM NUMBER STRVAL LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL
 
 
 %type<Constraint> constraint
@@ -72,8 +72,23 @@ query:
     }
 
 request:
-    CREATE_TABLE IDENT LBRACKET variables RBRACKET {
+    CREATE_TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
     	children.insert(std::make_pair(NodeType::CREATE, new CreateNode(std::string($2), variablesList)));
+    }|
+    DROP_TABLE IDENT SEMICOLON{
+
+    }|
+    SHOW_CREATE_TABLE IDENT SEMICOLON{
+
+    }|
+    INSERT_INTO IDENT colnames VALUES insert_values SEMICOLON {
+
+    }|
+    SELECT cols_select FROM IDENT SEMICOLON {
+
+    }|
+    UPDATE IDENT SET update_list SEMICOLON {
+
     }
 
 variables:
@@ -108,7 +123,7 @@ constraints:
     constraint {
 	constraintsList.emplace_back($1);
     }|
-    constraints COMMA constraint
+    constraints constraint
 
 constraint:
     CONSTR_UNIQUE {
@@ -119,6 +134,65 @@ constraint:
     }|
     CONSTR_PRIMARY_KEY {
 	$$ = new ConstraintNode(Constraint::PRIMARY_KEY);
+    }
+
+colnames:
+    LBRACKET colname RBRACKET
+
+colname:
+    IDENT {
+
+    }|
+    colname COMMA IDENT {
+
+    }
+
+insert_values:
+    values {
+
+    }|
+    insert_values COMMA values {
+
+    }
+
+cols_select:
+    col_select {
+
+    }|
+    cols_select COMMA col_select {
+
+    }
+
+col_select:
+    STAR {
+
+    }|
+    IDENT {
+
+    }
+
+update_list:
+    update_elem {
+
+    }|
+    update_list COMMA update_elem {
+
+    }
+
+update_elem:
+    IDENT EQUAL values {
+
+    }
+
+values:
+    STRVAL {
+
+    }|
+    NUMBER {
+
+    }|
+    FLOATNUM {
+
     }
 %%
 
