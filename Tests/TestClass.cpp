@@ -825,14 +825,13 @@
 //    client.execRequest("DROP table g;");
 //}
 //
-// TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
-//    Client client;
-//    client.execRequest("CREATE TABLE h(id INT);");
-//    client.execRequest("SHOW CREATE TABLE h;");
-//    EXPECT_EQ(client.response, "CREATE TABLE h(id INT );");
-//    client.execRequest("DROP table h");
-//}
-//
+TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE h(id INT);", "Success"},
+                              {"SHOW CREATE TABLE h;", "CREATE TABLE h(id INT );"},
+                              {"DROP table h;", "Success"}});
+}
+
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
