@@ -32,6 +32,7 @@ int Client::sendMessage(std::string message) {
     return 0;
 }
 int Client::getMessage() {
+    char rec_message[MESSAGE_SIZE];
     fd_set readmask;
     fd_set allreads;
     FD_ZERO(&allreads);
@@ -43,8 +44,8 @@ int Client::getMessage() {
             throw ClientException();
         }
         if (FD_ISSET(client_socket, &readmask)) {
-            memset(recieved_message, 0, sizeof(recieved_message));
-            int result = recv(client_socket, recieved_message, sizeof(recieved_message) - 1, 0);
+            memset(rec_message, 0, sizeof(rec_message));
+            int result = recv(client_socket, rec_message, sizeof(rec_message) - 1, 0);
             if (result < 0) {
                 throw ClientException();
             }
@@ -60,9 +61,15 @@ int Client::getMessage() {
             throw ClientException();
         }
     }
+    response = rec_message;
     return 0;
 }
 Client::~Client() {
     shutdown(client_socket, SHUT_RDWR);
     shutdown(server_connection, SHUT_RDWR);
+}
+int Client::execRequest(std::string request) {
+    sendMessage(request);
+    getMessage();
+    return 0;
 }
