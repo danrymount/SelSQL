@@ -11,8 +11,6 @@ class DropNode;
 class ShowCreateNode;
 class ConstraintNode;
 class VariableNode;
-class BaseNode;
-class BaseActionNode;
 
 class Visitor {
    public:

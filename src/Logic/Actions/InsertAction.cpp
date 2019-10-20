@@ -3,19 +3,21 @@
 //
 
 #include "Headers/InsertAction.h"
-BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    if ((_request.dmlData.values.size() != _request.dmlData.columns.size()) && (!_request.dmlData.columns.empty())) {
+BigResponse InsertAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+    auto columns = _request->dmlData.columns;
+    auto values = _request->dmlData.values;
+    if ((values.size() != columns.size()) && (!columns.empty())) {
         response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
 
         return response;
     }
 
-    for (int i = 0; i < _request.dmlData.columns.size(); ++i) {
-        auto col = _request.dmlData.columns[i];
-        for (int j = 0; j < _request.dmlData.columns.size(); ++j) {
+    for (int i = 0; i < columns.size(); ++i) {
+        auto col = columns[i];
+        for (int j = 0; j < columns.size(); ++j) {
             if (i == j)
                 continue;
-            if (col == _request.dmlData.columns[j]) {
+            if (col == columns[j]) {
                 response.error = Error(ErrorConstants::ERR_SAME_COLUMN);
                 requestToResponse(_request);
 
@@ -24,7 +26,7 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         }
     }
 
-    cursor = mainEngine->GetCursor(_request.tableName);
+    cursor = mainEngine->GetCursor(_request->tableName);
 
     if (cursor.first->name.empty()) {
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -39,25 +41,25 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     std::shared_ptr<Table> table = cursor.first;
 
-    if (_request.dmlData.columns.empty() && (table->getFields().size() != _request.dmlData.values.size())) {
+    if (columns.empty() && (table->getFields().size() != values.size())) {
         response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
 
         return response;
     }
 
-    response.error = ActionsUtils::checkFieldsExist(table, _request.dmlData.columns);
+    response.error = ActionsUtils::checkFieldsExist(table, columns);
     if (response.error.getErrorCode()) {
         return response;
     }
 
     // response.dqlData.record = actionsUtils.getTableRecord(cursor);
-    response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values, cursor);
+    response.error = actionsUtils.checkConstraint(columns, values, cursor);
     if (response.error.getErrorCode()) {
         requestToResponse(_request);
         return response;
     }
 
-    cursor.second->Insert(_request.dmlData.columns, _request.dmlData.values);
+    cursor.second->Insert(columns, _request->dmlData.values);
     cursor.second->Commit();
     //    cursor = mainEngine->GetCursor(_request.tableName);
     //    for (auto i :cursor.second->Fetch()){

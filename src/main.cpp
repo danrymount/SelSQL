@@ -6,23 +6,18 @@
 [[noreturn]] int main() {
     std::string str;
     BigResponse result;
-    TreeVisitor visitor;
+    auto visitor = new TreeVisitor();
     while (true) {
         std::getline(std::cin, str);
         auto tree = parse_request(str.c_str());
-        visitor.visit(tree);
-        std::cout << "SUCCESS" << std::endl;
-        //        if (result.error.getErrorCode())
-        //            std::cerr << result.error.getErrorMsg() << std::endl;
-        //        else {
-        //            result = MainLogic::executeRequest(result);
-        //            if (result.error.getErrorCode())
-        //                std::cerr << result.error.getErrorMsg() << " ERROR: " << result.error.getErrorCode() <<
-        //                std::endl;
-        //            else if (result.ddlData.returnMsg.size() > 0) {
-        //                std::cout << result.ddlData.returnMsg << std::endl;
-        //            }
-        //        }
-        //        printf("ENTER NEW COMMAND\n");
+        tree->accept(visitor);
+        auto result = visitor->getResponse();
+        if (result->error.getErrorCode())
+            std::cerr << result->error.getErrorMsg() << " ERROR: " << result->error.getErrorCode() << std::endl;
+        else if (result->ddlData.returnMsg.size() > 0) {
+            std::cout << result->ddlData.returnMsg << std::endl;
+        }
+        printf("ENTER NEW COMMAND\n");
     }
+    delete visitor;
 }

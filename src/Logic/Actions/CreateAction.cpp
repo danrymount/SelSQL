@@ -3,8 +3,8 @@
 //
 
 #include "Headers/CreateAction.h"
-BigResponse CreateAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    response = mainEngine->CreateTable(&_request);
+BigResponse CreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+    response = mainEngine->CreateTable(_request.get());
     requestToResponse(_request);
     if (!response.error.getErrorCode())
         return response;

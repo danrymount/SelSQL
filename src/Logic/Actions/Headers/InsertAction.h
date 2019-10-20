@@ -8,7 +8,7 @@
 #include "BaseAction.h"
 class InsertAction : public BaseAction {
    public:
-    BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
+    BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 
    private:
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;

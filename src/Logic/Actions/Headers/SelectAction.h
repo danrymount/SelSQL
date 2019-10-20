@@ -10,7 +10,7 @@
 class SelectAction : public BaseAction {
    public:
     std::stringstream stringstream;
-    BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
+    BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 
    private:
     void printAll(BigResponse& response);

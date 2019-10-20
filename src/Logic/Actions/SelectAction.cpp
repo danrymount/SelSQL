@@ -3,15 +3,15 @@
 //
 
 #include "Headers/SelectAction.h"
-BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    cursor = mainEngine->GetCursor(_request.tableName);
+BigResponse SelectAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+    cursor = mainEngine->GetCursor(_request->tableName);
 
     if (cursor.first->name.empty()) {
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
 
-    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dqlData.columns);
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request->dqlData.columns);
     if (response.error.getErrorCode()) {
         return response;
     }

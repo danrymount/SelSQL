@@ -6,51 +6,67 @@
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
 #include "Nodes/ActionNodes/ShowCreateNode.h"
-#include "Nodes/BaseNode.h"
 #include "Nodes/ConstraintNode.h"
 #include "Nodes/RootNode.h"
 #include "Nodes/VariableNode.h"
 
+#include "../Logic/Headers/MainLogic.h"
 #include "Headers/TreeVisitor.h"
 void TreeVisitor::visit(RootNode* node) {
+    if (node == nullptr)
+        return;
     std::cout << "ROOT" << std::endl;
+    request = std::make_shared<BigRequest>();
+    response = std::make_shared<BigResponse>();
     for (auto& child : node->getChildren()) {
+        // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
         child->accept(this);
     }
 }
 
 void TreeVisitor::visit(CreateNode* node) {
+    request->action = node->getAction();
+    request->tableName = node->getTableName();
     std::cout << "CREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
     for (auto& child : node->getChildren()) {
         child->accept(this);
     }
+    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(DropNode* node) {
+    request->action = node->getAction();
+    request->tableName = node->getTableName();
     std::cout << "DROP" << std::endl;
     std::cout << node->getTableName() << std::endl;
     for (auto& child : node->getChildren()) {
         child->accept(this);
     }
+    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
+    request->action = node->getAction();
+    request->tableName = node->getTableName();
     std::cout << "SHOWCREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
     for (auto& child : node->getChildren()) {
         child->accept(this);
     }
+    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(ConstraintNode* node) {
     std::cout << "CONSTRAINT = ";
     std::cout << node->getConstraint() << std::endl;
+    request->ddlData.table.addConstraint(node->getConstraint());
 }
 
 void TreeVisitor::visit(VariableNode* node) {
     std::cout << "VAR = ";
     std::cout << node->getVarName() << " TYPE = " << node->getVarType() << std::endl;
+    request->ddlData.table.addField(node->getVarName(), node->getVarType());
     for (auto& child : node->getConstraints()) {
         child->accept(this);
     }

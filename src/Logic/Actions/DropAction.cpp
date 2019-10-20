@@ -3,8 +3,8 @@
 //
 
 #include "Headers/DropAction.h"
-BigResponse DropAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    response = mainEngine->DropTable(&_request);
+BigResponse DropAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+    response = mainEngine->DropTable(_request.get());
     if (!response.error.getErrorCode())
         return response;
     // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;

@@ -5,9 +5,9 @@
 #include "Headers/ShowCreateAction.h"
 #include "../../Utils/Headers/ActionsUtils.h"
 
-BigResponse ShowCreateAction::execute(BigRequest& _request, MainEngine* mainEngine) {
+BigResponse ShowCreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
     requestToResponse(_request);
-    response = mainEngine->ShowCreateTable(_request);
+    response = mainEngine->ShowCreateTable(*_request.get());
     if (response.error.getErrorCode()) {
         return response;
     }

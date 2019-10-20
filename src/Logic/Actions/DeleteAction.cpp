@@ -4,21 +4,21 @@
 
 #include "Headers/DeleteAction.h"
 
-BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    cursor = mainEngine->GetCursor(_request.tableName);
+BigResponse DeleteAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+    cursor = mainEngine->GetCursor(_request->tableName);
     if (cursor.first->name.empty()) {
         response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         return response;
     }
 
-    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request.dmlData.columns);
+    response.error = ActionsUtils::checkFieldsExist(cursor.first, _request->dmlData.columns);
     if (response.error.getErrorCode()) {
         return response;
     }
 
     int delete_count = 0;
 
-    auto expr = _request.expression;
+    auto expr = _request->expression;
 
     if (cursor.first->record_amount == 0) {
         return response;

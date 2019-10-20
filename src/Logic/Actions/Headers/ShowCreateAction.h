@@ -8,7 +8,7 @@
 #include "BaseAction.h"
 class ShowCreateAction : public BaseAction {
    public:
-    BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
+    BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_SHOWCREATEACTION_H
