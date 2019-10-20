@@ -13,12 +13,12 @@
 class DropNode : public BaseActionNode {
    public:
     DropNode(std::string _name, std::vector<VariableNode*> _children)
-                                                                                                        : BaseActionNode(NodeType::DROP,
+                                                                                                        : BaseActionNode(Action::DROP,
                                                                                                                          std::move(_name),
                                                                                                                          std::move(_children)) {
     }
 
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor* v) override { v->visit(this); }
 };
 
 #endif  // SELSQL_DROPNODE_H

@@ -16,8 +16,6 @@ class TreeVisitor : public Visitor {
     void visit(ShowCreateNode* node) override;
     void visit(ConstraintNode* node) override;
     void visit(VariableNode* node) override;
-    void visit(BaseNode* node) override;
-    void visit(BaseActionNode* node) override;
 };
 
 #endif  // SELSQL_TREEVISITOR_H

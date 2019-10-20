@@ -11,10 +11,7 @@
 #include "BaseNode.h"
 class RootNode : public BaseNode {
    public:
-    explicit RootNode(std::vector<BaseActionNode*> _children)  // std::map<NodeType, BaseNode*> _children)
-                                                                                                        : BaseNode(NodeType::ROOT),
-                                                                                                          children(std::move(_children)) {
-    }
+    explicit RootNode(std::vector<BaseActionNode*> _children) : children(std::move(_children)) {}
 
     ~RootNode() override {
         for (auto& ch : children) {
@@ -24,9 +21,7 @@ class RootNode : public BaseNode {
 
     std::vector<BaseActionNode*> getChildren() { return children; }
 
-    NodeType getNodeType() override { return BaseNode::getNodeType(); }
-
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:
     std::vector<BaseActionNode*> children;

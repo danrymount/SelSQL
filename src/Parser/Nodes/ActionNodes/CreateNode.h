@@ -13,12 +13,12 @@
 class CreateNode : public BaseActionNode {
    public:
     CreateNode(std::string _name, std::vector<VariableNode*> _children)
-                                                                                                        : BaseActionNode(NodeType::CREATE,
+                                                                                                        : BaseActionNode(Action::CREATE,
                                                                                                                          std::move(_name),
                                                                                                                          std::move(_children)) {
     }
 
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor* v) override { v->visit(this); }
 };
 
 #endif  // SELSQL_CREATENODE_H

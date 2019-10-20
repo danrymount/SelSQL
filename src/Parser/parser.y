@@ -123,7 +123,9 @@ constraints:
     constraint {
 	constraintsList.emplace_back($1);
     }|
-    constraints constraint
+    constraints constraint{
+    	constraintsList.emplace_back($2);
+    }
 
 constraint:
     CONSTR_UNIQUE {

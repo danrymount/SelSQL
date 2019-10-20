@@ -11,15 +11,13 @@
 #include "../VariableNode.h"
 class BaseActionNode : public BaseNode {
    public:
-    BaseActionNode(NodeType _nodeType, std::string _name, std::vector<VariableNode*> _children)
-                                                                                                        : BaseNode(_nodeType),
+    BaseActionNode(Action _action, std::string _name, std::vector<VariableNode*> _children)
+                                                                                                        : action(_action),
                                                                                                           tableName(std::move(_name)),
                                                                                                           children(std::move(_children)) {
     }
 
-    BaseActionNode(NodeType _nodeType, std::string _name) : BaseNode(_nodeType), tableName(std::move(_name)) {}
-
-    NodeType getNodeType() override { return BaseNode::getNodeType(); }
+    BaseActionNode(Action _action, std::string _name) : action(_action), tableName(std::move(_name)) {}
 
     ~BaseActionNode() override {
         for (auto& ch : children) {
@@ -29,10 +27,12 @@ class BaseActionNode : public BaseNode {
 
     std::vector<VariableNode*> getChildren() { return children; }
     std::string getTableName() { return tableName; }
+    Action getAction() { return action; }
 
    private:
     std::vector<VariableNode*> children;
     std::string tableName;
+    Action action;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

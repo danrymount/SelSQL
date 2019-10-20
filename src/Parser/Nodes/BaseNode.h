@@ -24,16 +24,17 @@ enum class NodeType {
 
 class BaseNode {
    public:
-    explicit BaseNode(NodeType _nodeType) : nodeType(_nodeType) {}
+    // explicit BaseNode(NodeType _nodeType) : nodeType(_nodeType) {}
+    BaseNode() = default;
 
     virtual ~BaseNode() = default;
 
-    virtual NodeType getNodeType() { return nodeType; }
+    // virtual NodeType getNodeType() { return nodeType; }
 
-    virtual void accept(TreeVisitor v) = 0;
+    virtual void accept(TreeVisitor* v) = 0;
 
-   private:
-    NodeType nodeType;
+    // private:
+    // NodeType nodeType;
 };
 
 #endif  // SELSQL_BASENODE_H

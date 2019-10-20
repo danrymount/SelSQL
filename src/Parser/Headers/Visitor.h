@@ -18,9 +18,6 @@ class Visitor {
    public:
     virtual void visit(RootNode* node) = 0;
 
-    virtual void visit(BaseNode* node) = 0;
-    virtual void visit(BaseActionNode* node) = 0;
-
     virtual void visit(CreateNode* node) = 0;
     virtual void visit(DropNode* node) = 0;
     virtual void visit(ShowCreateNode* node) = 0;

@@ -9,13 +9,11 @@
 #include "BaseNode.h"
 class ConstraintNode : public BaseNode {
    public:
-    explicit ConstraintNode(Constraint _constraint) : BaseNode(NodeType::CONSTRAINT), constraint(_constraint) {}
-
-    NodeType getNodeType() override { return BaseNode::getNodeType(); }
+    explicit ConstraintNode(Constraint _constraint) : constraint(_constraint) {}
 
     Constraint getConstraint() { return constraint; }
 
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:
     Constraint constraint;

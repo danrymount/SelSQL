@@ -8,8 +8,8 @@
 #include "BaseActionNode.h"
 class ShowCreateNode : public BaseActionNode {
    public:
-    ShowCreateNode(std::string _name) : BaseActionNode(NodeType::SHOWCREATE, std::move(_name)) {}
+    explicit ShowCreateNode(std::string _name) : BaseActionNode(Action::SHOW_CREATE, std::move(_name)) {}
 
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor* v) override { v->visit(this); }
 };
 #endif  // SELSQL_SHOWCREATENODE_H

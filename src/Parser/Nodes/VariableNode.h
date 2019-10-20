@@ -13,20 +13,17 @@
 
 class VariableNode : public BaseNode {
    public:
-    VariableNode(std::string _name, Type _type) : BaseNode(NodeType::VARIABLE), name(std::move(_name)), type(_type) {}
+    VariableNode(std::string _name, Type _type) : name(std::move(_name)), type(_type) {}
 
     VariableNode(std::string _name, Type _type, std::vector<ConstraintNode *> _childs)
-                                                                                                        : BaseNode(NodeType::VARIABLE),
-                                                                                                          name(std::move(_name)),
+                                                                                                        : name(std::move(_name)),
                                                                                                           type(_type),
                                                                                                           constraints(std::move(_childs)) {
     }
 
-    NodeType getNodeType() override { return BaseNode::getNodeType(); }
-
     std::vector<ConstraintNode *> getConstraints() { return constraints; }
 
-    void accept(TreeVisitor v) override { v.visit(this); }
+    void accept(TreeVisitor *v) override { v->visit(this); }
 
     std::string getVarName() { return name; }
     Type getVarType() { return type; }
