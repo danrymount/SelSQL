@@ -20,31 +20,44 @@ IDENT   ([A-Za-z0-9]*)
 STRVAL  (\'[-a-zA-Z0-9]*\')
 
 %%
-"CREATE TABLE"          {return CREATE_TABLE_ACTION;}
-"SHOW CREATE TABLE"     {return SHOWCREATE_TABLE_ACTION;}
-"DROP TABLE"            {return DROP_TABLE_ACTION;}
-"INSERT INTO"           {return INSERT_INTO_ACTION;}
-"VALUES"                {return VALUES;}
-"SELECT"                {return SELECT_ACTION;}
-"FROM"                  {return FROM;}
-"UPDATE"                {return UPDATE_ACTION;}
-"SET"                   {return SET;}
-"("                     {return LBRACKET;}
-")"                     {return RBRACKET;}
-"="                     {return EQUAL;}
-"*"                     {return STAR;}
-","                     {return COMMA;}
-";"                     {return SEMICOLON;}
-"INT"                   {return INT;}
-"FLOAT"                 {return FLOAT;}
-"CHAR"                  {return CHAR;}
-"UNIQUE"                {return CONSTR_UNIQUE;}
-"NOT NULL"              {return CONSTR_NOT_NULL;}
-"PRIMARY KEY"           {return CONSTR_PRIMARY_KEY;}
-{NUMBER}                { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
-{FLOATNUM}              { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
-{STRVAL}                { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return STRVAL; }
-{IDENT}                 { ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
+"CREATE TABLE"          {ch += yyleng; return CREATE_TABLE_ACTION;}
+"SHOW CREATE TABLE"     {ch += yyleng; return SHOWCREATE_TABLE_ACTION;}
+"DROP TABLE"            {ch += yyleng; return DROP_TABLE_ACTION;}
+"INSERT INTO"           {ch += yyleng; return INSERT_INTO_ACTION;}
+"DELETE FROM"           {ch += yyleng; return DELETE_FROM_ACTION;}
+"VALUES"                {ch += yyleng; return VALUES;}
+"SELECT"                {ch += yyleng; return SELECT_ACTION;}
+"FROM"                  {ch += yyleng; return FROM;}
+"UPDATE"                {ch += yyleng; return UPDATE_ACTION;}
+"SET"                   {ch += yyleng; return SET;}
+"WHERE"                 {ch += yyleng; return WHERE;}
+"NOT"                   {ch += yyleng; return NOT;}
+"AND"                   {ch += yyleng; return AND;}
+"OR"                    {ch += yyleng; return OR;}
+"("                     {ch += yyleng; return LBRACKET;}
+")"                     {ch += yyleng; return RBRACKET;}
+"="                     {ch += yyleng; return EQUAL;}
+"*"                     {ch += yyleng; return STAR;}
+"/"                     {ch += yyleng; return DIV;}
+"+"                     {ch += yyleng; return PLUS;}
+"-"                     {ch += yyleng; return MINUS;}
+">"                     {ch += yyleng; return MORE;}
+"<"                     {ch += yyleng; return LESS;}
+">="                    {ch += yyleng; return MOREEQ;}
+"<="                    {ch += yyleng; return LESSEQ;}
+"!="                    {ch += yyleng; return NOTEQ;}
+","                     {ch += yyleng; return COMMA;}
+";"                     {ch += yyleng; return SEMICOLON;}
+"INT"                   {ch += yyleng; return INT;}
+"FLOAT"                 {ch += yyleng; return FLOAT;}
+"CHAR"                  {ch += yyleng; return CHAR;}
+"UNIQUE"                {ch += yyleng; return CONSTR_UNIQUE;}
+"NOT NULL"              {ch += yyleng; return CONSTR_NOT_NULL;}
+"PRIMARY KEY"           {ch += yyleng; return CONSTR_PRIMARY_KEY;}
+{NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
+{FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
+{STRVAL}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return STRVAL; }
+{IDENT}                 {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
 
 %%
 

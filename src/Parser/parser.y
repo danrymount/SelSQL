@@ -30,10 +30,12 @@
 
 %}
 
-%token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION VALUES SELECT_ACTION FROM UPDATE_ACTION SET
+%token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
+%token VALUES FROM SET WHERE AND OR NOT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
-%token IDENT FLOATNUM NUMBER STRVAL LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL
+%token IDENT FLOATNUM NUMBER STRVAL
+%token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV
 
 
 %type<Constraint> constraint
@@ -65,10 +67,10 @@
 //    STRINGG { $$ = $1;}
 query:
     request {
-    	tree = new RootNode(children);
-
-    	variablesList.clear();
-    	children.clear();
+//    	tree = new RootNode(children);
+//
+//    	variablesList.clear();
+//    	children.clear();
     }
 
 request:
@@ -84,10 +86,13 @@ request:
     INSERT_INTO_ACTION IDENT colnames VALUES insert_values SEMICOLON {
 
     }|
-    SELECT_ACTION cols_select FROM IDENT SEMICOLON {
+    SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON {
 
     }|
-    UPDATE_ACTION IDENT SET update_list SEMICOLON {
+    UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
+
+    }|
+    DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
 
     }
 
@@ -182,7 +187,10 @@ update_list:
     }
 
 update_elem:
-    IDENT EQUAL values {
+    IDENT EQUAL expr_priority_2 {
+
+    }|
+    IDENT EQUAL STRVAL {
 
     }
 
@@ -194,6 +202,101 @@ values:
 
     }|
     FLOATNUM {
+
+    }
+
+where_exprs:
+    WHERE where_expr|
+    /*empty*/ { };
+
+where_expr:
+    expr_priority_3|
+    not where_expr {
+
+    }|
+    where_expr logic_operands where_expr {
+
+    }|
+    LBRACKET where_expr RBRACKET
+
+expr_priority_3:
+    expr_priority_2|
+    expr_priority_3 equal_sign expr_priority_2|
+    expr_priority_3 equal_sign strval
+
+expr_priority_2:
+    expr_priority_1|
+    expr_priority_2 sign_priority_2 expr_priority_1
+
+expr_priority_1:
+    expr|
+    expr_priority_1 sign_priority_1 expr
+
+expr:
+    NUMBER {
+
+    }|
+    FLOATNUM {
+
+    }|
+    IDENT {
+
+    }|
+    LBRACKET expr_priority_2 RBRACKET {
+
+    }
+
+strval:
+    STRVAL {
+
+    }
+
+not:
+    NOT {
+
+    }
+
+logic_operands:
+    AND {
+
+    }|
+    OR {
+
+    }
+
+equal_sign:
+    EQUAL {
+
+    }|
+    NOTEQ {
+
+    }|
+    MORE {
+
+    }|
+    LESS {
+
+    }|
+    MOREEQ {
+
+    }|
+    LESSEQ {
+
+    }
+
+sign_priority_2:
+    PLUS {
+
+    }|
+    MINUS {
+
+    }
+
+sign_priority_1:
+    STAR {
+
+    }|
+    DIV {
 
     }
 %%
@@ -213,7 +316,7 @@ RootNode * parse_request(const char* in) {
 
 int yyerror(const char *errmsg){
     std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
-    //fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
+    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
     return 0;
 }
