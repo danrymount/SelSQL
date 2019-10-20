@@ -42,7 +42,8 @@ Error ActionsUtils::checkConstraint(std::vector<std::string> columns, std::vecto
             } else {
                 auto valIt = std::find(columns.begin(), columns.end(), tableCol.first);
                 if (valIt == columns.end()) {
-                    val = "null";
+                    // val = "null";
+                    continue;
                 } else {
                     int columnIndex = std::distance(columns.begin(), valIt);
                     val = values[columnIndex];
@@ -150,7 +151,7 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::pair<std::
                                                                  std::vector<std::pair<std::string, std::string>> row,
                                                                  Expr exprs) {
     std::vector<std::pair<Cmp, std::string>> res;
-    std::queue<double> curExpr;
+    std::vector<double> curExpr;
     auto columnName = record.first;
     auto val = record.second;
     for (int index = 0; index < exprs.size(); index++) {
@@ -175,14 +176,14 @@ std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::pair<std::
                 }
 
                 if (std::isdigit(*elem.c_str())) {
-                    curExpr.push(std::stoi(elem));
+                    curExpr.emplace_back(std::stoi(elem));
                     continue;
                 }
-                double a = curExpr.front();
-                curExpr.pop();
-                double b = curExpr.front();
-                curExpr.pop();
-                curExpr.push(ActionsUtils::calculate[elem](a, b));
+                double a = curExpr.back();
+                curExpr.pop_back();
+                double b = curExpr.back();
+                curExpr.pop_back();
+                curExpr.emplace_back(ActionsUtils::calculate[elem](b, a));
             }
             res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
         } else {

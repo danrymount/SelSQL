@@ -21,14 +21,16 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         requestToResponse(_request);
         return response;
     }
+    cursor.second->StartPos();
 
     auto expr = _request.expression;
 
     do {
         auto record = cursor.second->Fetch();
-
+        // std::cout << cursor.second->current_pos << std::endl;
         if (expr.first.empty()) {
             cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
+
         } else {
             RecordsData row;
             row.emplace_back(record);
@@ -37,6 +39,13 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
                 continue;
             cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
         }
+
+        //        response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values,
+        //        cursor); if (response.error.getErrorCode()) {
+        //            requestToResponse(_request);
+        //            return response;
+        //        }
+        //        cursor.second->StartPos();
 
     } while (!cursor.second->Next());
 
