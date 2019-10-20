@@ -9,6 +9,7 @@
 #include <utility>
 #include "../../Utils/Headers/CommonUtils.h"
 #include "BaseNode.h"
+#include "ConstraintNode.h"
 
 class VariableNode : public BaseNode {
    public:
@@ -24,6 +25,11 @@ class VariableNode : public BaseNode {
     NodeType getNodeType() override { return BaseNode::getNodeType(); }
 
     std::vector<ConstraintNode *> getConstraints() { return constraints; }
+
+    void accept(TreeVisitor v) override { v.visit(this); }
+
+    std::string getVarName() { return name; }
+    Type getVarType() { return type; }
 
    private:
     std::string name;

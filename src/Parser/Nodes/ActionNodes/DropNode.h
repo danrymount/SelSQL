@@ -1,19 +1,19 @@
 //
-// Created by sapiest on 18.10.2019.
+// Created by sapiest on 20.10.2019.
 //
 
-#ifndef SELSQL_CREATENODE_H
-#define SELSQL_CREATENODE_H
+#ifndef SELSQL_DROPNODE_H
+#define SELSQL_DROPNODE_H
 
-#include <map>
 #include <string>
-#include <utility>
+#include <vector>
 #include "../BaseNode.h"
+#include "../VariableNode.h"
 #include "BaseActionNode.h"
-class CreateNode : public BaseActionNode {
+class DropNode : public BaseActionNode {
    public:
-    CreateNode(std::string _name, std::vector<VariableNode*> _children)
-                                                                                                        : BaseActionNode(NodeType::CREATE,
+    DropNode(std::string _name, std::vector<VariableNode*> _children)
+                                                                                                        : BaseActionNode(NodeType::DROP,
                                                                                                                          std::move(_name),
                                                                                                                          std::move(_children)) {
     }
@@ -21,4 +21,4 @@ class CreateNode : public BaseActionNode {
     void accept(TreeVisitor v) override { v.visit(this); }
 };
 
-#endif  // SELSQL_CREATENODE_H
+#endif  // SELSQL_DROPNODE_H

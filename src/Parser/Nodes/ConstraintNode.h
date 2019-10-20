@@ -15,6 +15,8 @@ class ConstraintNode : public BaseNode {
 
     Constraint getConstraint() { return constraint; }
 
+    void accept(TreeVisitor v) override { v.visit(this); }
+
    private:
     Constraint constraint;
 };

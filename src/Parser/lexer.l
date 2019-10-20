@@ -3,7 +3,6 @@
     #include <string>
     #include "../../src/Parser/Nodes/ConstraintNode.h"
     #include "../../src/Parser/Nodes/VariableNode.h"
-    #include "../../src/Parser/Nodes/VariablesListNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/CreateNode.h"
 
     #include "parser.h"
@@ -21,14 +20,14 @@ IDENT   ([A-Za-z0-9]*)
 STRVAL  (\'[-a-zA-Z0-9]*\')
 
 %%
-"CREATE TABLE"          {return CREATE_TABLE;}
-"SHOW CREATE TABLE"     {return SHOW_CREATE_TABLE;}
-"DROP TABLE"            {return DROP_TABLE;}
-"INSERT INTO"           {return INSERT_INTO;}
+"CREATE TABLE"          {return CREATE_TABLE_ACTION;}
+"SHOW CREATE TABLE"     {return SHOWCREATE_TABLE_ACTION;}
+"DROP TABLE"            {return DROP_TABLE_ACTION;}
+"INSERT INTO"           {return INSERT_INTO_ACTION;}
 "VALUES"                {return VALUES;}
-"SELECT"                {return SELECT;}
+"SELECT"                {return SELECT_ACTION;}
 "FROM"                  {return FROM;}
-"UPDATE"                {return UPDATE;}
+"UPDATE"                {return UPDATE_ACTION;}
 "SET"                   {return SET;}
 "("                     {return LBRACKET;}
 ")"                     {return RBRACKET;}

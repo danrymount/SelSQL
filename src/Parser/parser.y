@@ -10,8 +10,10 @@
     #include "../../src/Parser/Nodes/RootNode.h"
     #include "../../src/Parser/Nodes/ConstraintNode.h"
     #include "../../src/Parser/Nodes/VariableNode.h"
-    #include "../../src/Parser/Nodes/VariablesListNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/CreateNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/DropNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/ShowCreateNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/BaseActionNode.h"
 
 
     extern int yylineno;
@@ -24,11 +26,11 @@
 
     std::vector<ConstraintNode*> constraintsList;
     std::vector<VariableNode*> variablesList;
-    std::map<NodeType, BaseNode*> children;
+    std::vector<BaseActionNode*> children;
 
 %}
 
-%token CREATE_TABLE SHOW_CREATE_TABLE DROP_TABLE INSERT_INTO VALUES SELECT FROM UPDATE SET
+%token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION VALUES SELECT_ACTION FROM UPDATE_ACTION SET
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
 %token IDENT FLOATNUM NUMBER STRVAL LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL
@@ -37,7 +39,6 @@
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<VariablesList> variables
 %type<string> IDENT
 //%type<string> id
 //%type<string> request
@@ -49,7 +50,6 @@
     char *string;
     ConstraintNode *Constraint;
     VariableNode *Variable;
-    VariablesListNode *VariablesList;
     Type t;
 }
 
@@ -72,22 +72,22 @@ query:
     }
 
 request:
-    CREATE_TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
-    	children.insert(std::make_pair(NodeType::CREATE, new CreateNode(std::string($2), variablesList)));
+    CREATE_TABLE_ACTION IDENT LBRACKET variables RBRACKET SEMICOLON{
+    	children.emplace_back(new CreateNode(std::string($2), variablesList));
     }|
-    DROP_TABLE IDENT SEMICOLON{
+    DROP_TABLE_ACTION IDENT SEMICOLON{
+	children.emplace_back(new DropNode(std::string($2), variablesList));
+    }|
+    SHOWCREATE_TABLE_ACTION IDENT SEMICOLON{
+	children.emplace_back(new ShowCreateNode(std::string($2)));
+    }|
+    INSERT_INTO_ACTION IDENT colnames VALUES insert_values SEMICOLON {
 
     }|
-    SHOW_CREATE_TABLE IDENT SEMICOLON{
+    SELECT_ACTION cols_select FROM IDENT SEMICOLON {
 
     }|
-    INSERT_INTO IDENT colnames VALUES insert_values SEMICOLON {
-
-    }|
-    SELECT cols_select FROM IDENT SEMICOLON {
-
-    }|
-    UPDATE IDENT SET update_list SEMICOLON {
+    UPDATE_ACTION IDENT SET update_list SEMICOLON {
 
     }
 
