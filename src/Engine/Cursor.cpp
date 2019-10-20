@@ -44,9 +44,28 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
 }
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
-    int position = table->last_record_pos * table->record_size;
-    if (table->deleted) {
-        position = table->deleted_pos[--table->deleted] * table->record_size;
+    size_t pos_in_block = 0;
+    DataBlock* block;
+    int no_place = 1;
+    for (auto i : dataBlocks_) {
+        if (i->deleted) {
+            block = i;
+            pos_in_block = i->deleted_pos_[--i->deleted] * table->record_size;
+            no_place = 0;
+            break;
+        } else if (i->last_record_pos < Constants::DATA_BLOCK_SIZE / table->record_size - 1) {
+            block = i;
+            pos_in_block = i->last_record_pos++ * table->record_size;
+            no_place = 0;
+            break;
+        }
+    }
+    if (no_place) {
+        block = new DataBlock();
+        block->record_size = table->record_size;
+        auto new_del_pos = new char[Constants::DATA_BLOCK_SIZE];
+        block->setDeletedPos(new_del_pos);
+        dataBlocks_.emplace_back(block);
     }
 
     int count = 0;
@@ -66,7 +85,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     }
     auto fields = table->getFields();
     unsigned char record[table->record_size];
-    int next_pos = 0;
+    size_t next_pos = 0;
     for (size_t i = 0; i < vals.size(); ++i) {
         Type type = fields[i].second.type;
         SaveFieldData(vals[i].second, type, record, next_pos);
@@ -74,25 +93,26 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     }
 
     table->record_amount++;
-    table->last_record_pos++;
-    std::memcpy(&data[position], record, table->record_size);
+    block->record_amount++;
+    std::memcpy(&block->data_[pos_in_block], record, table->record_size);
 
     return 0;
 }
 int Cursor::Commit() {
-    fileManager->UpdateFile(table, data);
+    fileManager->UpdateFile(table, dataBlocks_);
     return 0;
 }
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
+    auto block = dataBlocks_[current_block];
     unsigned char record[table->record_size];
     std::vector<std::pair<std::string, std::string>> values;
-    std::memcpy(record, &data[current_pos * table->record_size], table->record_size);
+    std::memcpy(record, &block->data_[current_pos_in_block * table->record_size], table->record_size);
     int field_pos = 0;
     for (int i = 0; i < table->fields.size(); ++i) {
         unsigned char field[Constants::TYPE_SIZE[table->fields[i].second.type] + 1];
         Type type = table->fields[i].second.type;
         std::string value = "";
-        std::memcpy(field, &data[field_pos + current_pos * table->record_size],
+        std::memcpy(field, &block->data_[field_pos + current_pos_in_block * table->record_size],
                     Constants::TYPE_SIZE[table->fields[i].second.type] + 1);
         if (field[0] == '0' or field[0] == '\000') {
             return std::vector<std::pair<std::string, std::string>>();
@@ -134,19 +154,23 @@ int Cursor::Next() {
     if (readed_data > table->record_amount - 1) {
         return 1;
     } else {
-        current_pos++;
+        current_pos_in_block++;
         return 0;
     }
 }
 int Cursor::Delete() {
-    std::memset(&data[current_pos * table->record_size], '0', table->record_size);
-    table->deleted_pos[table->deleted++] = current_pos;
-    table->last_record_pos++;
+    auto block = dataBlocks_[current_block];
+    std::memset(&block->data_[current_pos_in_block * table->record_size], '0', table->record_size);
+    block->deleted_pos_[block->deleted++] = current_pos_in_block;
+    block->last_record_pos++;
+    //    dataBlocks_[current_block]->deleted_pos_[dataBlocks_[current_block]] = current_pos_in_block;
+    //    table->last_record_pos++;
     return 0;
 }
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+    auto block = dataBlocks_[current_block];
     unsigned char record[table->record_size];
-    std::memcpy(record, &data[current_pos * table->record_size], table->record_size);
+    std::memcpy(record, &block->data_[current_pos_in_block * table->record_size], table->record_size);
     auto fields = table->getFields();
     int next_pos = 0;
     for (size_t i = 0; i < vals.size(); ++i) {
@@ -160,12 +184,12 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
 
-    std::memcpy(&data[current_pos * table->record_size], record, table->record_size);
+    std::memcpy(&block->data_[current_pos_in_block * table->record_size], record, table->record_size);
 
     return 0;
 }
 int Cursor::StartPos() {
-    current_pos = 0;
+    current_pos_in_block = 0;
     readed_data = 0;
     return 0;
 }

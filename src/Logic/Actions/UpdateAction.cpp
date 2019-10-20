@@ -27,7 +27,7 @@ BigResponse UpdateAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     do {
         auto record = cursor.second->Fetch();
-        // std::cout << cursor.second->current_pos << std::endl;
+        // std::cout << cursor.second->current_pos_in_block << std::endl;
         if (expr.first.empty()) {
             cursor.second->Update(_request.dmlData.columns, _request.dmlData.values);
 

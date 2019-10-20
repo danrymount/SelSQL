@@ -37,25 +37,25 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    std::shared_ptr<Table> table = cursor.first;
-
-    if (_request.dmlData.columns.empty() && (table->getFields().size() != _request.dmlData.values.size())) {
-        response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
-
-        return response;
-    }
-
-    response.error = ActionsUtils::checkFieldsExist(table, _request.dmlData.columns);
-    if (response.error.getErrorCode()) {
-        return response;
-    }
-
-    // response.dqlData.record = actionsUtils.getTableRecord(cursor);
-    response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values, cursor);
-    if (response.error.getErrorCode()) {
-        requestToResponse(_request);
-        return response;
-    }
+    //    std::shared_ptr<Table> table = cursor.first;
+    //
+    //    if (_request.dmlData.columns.empty() && (table->getFields().size() != _request.dmlData.values.size())) {
+    //        response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+    //
+    //        return response;
+    //    }
+    //
+    //    response.error = ActionsUtils::checkFieldsExist(table, _request.dmlData.columns);
+    //    if (response.error.getErrorCode()) {
+    //        return response;
+    //    }
+    //
+    //    // response.dqlData.record = actionsUtils.getTableRecord(cursor);
+    //    response.error = actionsUtils.checkConstraint(_request.dmlData.columns, _request.dmlData.values, cursor);
+    //    if (response.error.getErrorCode()) {
+    //        requestToResponse(_request);
+    //        return response;
+    //    }
 
     cursor.second->Insert(_request.dmlData.columns, _request.dmlData.values);
     cursor.second->Commit();

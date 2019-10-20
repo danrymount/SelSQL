@@ -20,7 +20,8 @@ class Constants {
     static const int DATA_BLOCK_START_POS = MD_TABLE_NAME_SIZE + MD_TABLE_COLUMN_AMOUNT_SIZE +
                                             MD_TABLE_COLUMN_AMOUNT_MAX * (MD_COLUMN_NAME_SIZE + MD_COLUMN_TYPE_SIZE +
                                                                           MD_COLUMN_CONSTR_AMOUNT_SIZE +
-                                                                          MD_COLUMN_CONSTR_AMOUNT_MAX * MD_COLUMN_CONSTR_SIZE);
+                                                                          MD_COLUMN_CONSTR_AMOUNT_MAX * MD_COLUMN_CONSTR_SIZE) +
+                                            4;
     static const int DATA_BLOCK_SIZE = 16 * 1024;
     static const int DATA_BLOCK_RECORD_AMOUNT = sizeof(int);
     static const int DATA_BLOCK_RECORD_LAST_POS = sizeof(int);
