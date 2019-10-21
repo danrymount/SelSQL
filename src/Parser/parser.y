@@ -80,6 +80,8 @@ query:
     	tree = new RootNode(children);
 
     	variablesList.clear();
+    	columnsList.clear();
+    	valuesList.clear();
     	children.clear();
     }
 
@@ -94,7 +96,8 @@ request:
 	children.emplace_back(new ShowCreateNode(std::string($2)));
     }|
     INSERT_INTO_ACTION IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
-	children.emplace_back(new InsertNode(std::string($2)), new ColumnsAndValuesNode(columnsList, valuesList));
+	children.emplace_back(new InsertNode(std::string($2), new ColumnsAndValuesNode(columnsList, valuesList)));
+	std::cout << children.size() << std::endl;
     }|
     SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
 	//children.emplace_back(new SelectNode(std::string($4)));
@@ -166,6 +169,7 @@ colname:
 	$$ = new ColumnNode(std::string($1));
     }|
     colname COMMA IDENT {
+    	columnsList.emplace_back($1);
 	$$ = new ColumnNode(std::string($3));
     }
 

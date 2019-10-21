@@ -25,6 +25,7 @@ class BaseActionNode : public BaseNode {
         }
     }
 
+    void setChildren(std::vector<BaseNode*> _children) { children = std::move(_children); }
     std::vector<BaseNode*> getChildren() { return children; }
     std::string getTableName() { return tableName; }
     Action getAction() { return action; }

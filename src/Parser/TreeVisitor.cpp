@@ -23,8 +23,6 @@
 #include "../Logic/Headers/MainLogic.h"
 #include "Headers/TreeVisitor.h"
 void TreeVisitor::visit(RootNode* node) {
-    if (node == nullptr)
-        return;
     std::cout << "ROOT" << std::endl;
     request = std::make_shared<BigRequest>();
     response = std::make_shared<BigResponse>();
@@ -53,7 +51,7 @@ void TreeVisitor::visit(DropNode* node) {
     for (auto& child : node->getChildren()) {
         child->accept(this);
     }
-    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
+    // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
@@ -66,6 +64,20 @@ void TreeVisitor::visit(ShowCreateNode* node) {
     }
     response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
+
+void TreeVisitor::visit(InsertNode* node) {
+    request->action = node->getAction();
+    request->tableName = node->getTableName();
+    std::cout << "INSERT" << std::endl;
+    for (auto& child : node->getChildren()) {
+        child->accept(this);
+    }
+    // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
+}
+
+void TreeVisitor::visit(SelectNode* node) {}
+void TreeVisitor::visit(UpdateNode* node) {}
+void TreeVisitor::visit(DeleteNode* node) {}
 
 void TreeVisitor::visit(ConstraintNode* node) {
     std::cout << "CONSTRAINT = ";
@@ -94,10 +106,11 @@ void TreeVisitor::visit(NullValueNode* node) { std::cout << node->getValue() << 
 
 void TreeVisitor::visit(ColumnNode* node) { std::cout << node->getName() << std::endl; }
 
-void TreeVisitor::visit(InsertNode* node) {}
-
-void TreeVisitor::visit(SelectNode* node) {}
-void TreeVisitor::visit(UpdateNode* node) {}
-void TreeVisitor::visit(DeleteNode* node) {}
-
-void TreeVisitor::visit(ColumnsAndValuesNode* node) {}
+void TreeVisitor::visit(ColumnsAndValuesNode* node) {
+    for (auto& column : node->getColumns()) {
+        column->accept(this);
+    }
+    for (auto& value : node->getValues()) {
+        value->accept(this);
+    }
+}
