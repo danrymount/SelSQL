@@ -47,8 +47,8 @@ int Client::getMessage() {
             //            throw ClientException();
         }
         if (FD_ISSET(client_socket, &readmask)) {
-            memset(rec_message, 0, sizeof(recieved_message));
-            int result = recv(client_socket, rec_message, sizeof(recieved_message) - 1, 0);
+            memset(rec_message, 0, sizeof(rec_message));
+            int result = recv(client_socket, rec_message, sizeof(rec_message) - 1, 0);
             if (result < 0) {
                 throw ClientException();
             }
