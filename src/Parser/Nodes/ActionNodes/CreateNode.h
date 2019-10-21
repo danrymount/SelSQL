@@ -12,7 +12,7 @@
 #include "BaseActionNode.h"
 class CreateNode : public BaseActionNode {
    public:
-    CreateNode(std::string _name, std::vector<VariableNode*> _children)
+    CreateNode(std::string _name, std::vector<BaseNode*> _children)
                                                                                                         : BaseActionNode(Action::CREATE,
                                                                                                                          std::move(_name),
                                                                                                                          std::move(_children)) {

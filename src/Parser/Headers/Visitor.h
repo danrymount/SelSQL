@@ -16,6 +16,11 @@ class CharValueNode;
 class FloatValueNode;
 class NullValueNode;
 class ColumnNode;
+class SelectNode;
+class InsertNode;
+class UpdateNode;
+class DeleteNode;
+class ColumnsAndValuesNode;
 
 class Visitor {
    public:
@@ -24,9 +29,15 @@ class Visitor {
     virtual void visit(CreateNode* node) = 0;
     virtual void visit(DropNode* node) = 0;
     virtual void visit(ShowCreateNode* node) = 0;
+    virtual void visit(InsertNode* node) = 0;
+    virtual void visit(SelectNode* node) = 0;
+    virtual void visit(UpdateNode* node) = 0;
+    virtual void visit(DeleteNode* node) = 0;
 
     virtual void visit(ConstraintNode* node) = 0;
     virtual void visit(VariableNode* node) = 0;
+
+    virtual void visit(ColumnsAndValuesNode* node) = 0;
 
     virtual void visit(IntValueNode* node) = 0;
     virtual void visit(CharValueNode* node) = 0;

@@ -4,9 +4,14 @@
 
 #include <iostream>
 #include "Nodes/ActionNodes/CreateNode.h"
+#include "Nodes/ActionNodes/DeleteNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
+#include "Nodes/ActionNodes/InsertNode.h"
+#include "Nodes/ActionNodes/SelectNode.h"
 #include "Nodes/ActionNodes/ShowCreateNode.h"
+#include "Nodes/ActionNodes/UpdateNode.h"
 #include "Nodes/ColumnNode.h"
+#include "Nodes/ColumnsAndValuesNode.h"
 #include "Nodes/ConstraintNode.h"
 #include "Nodes/RootNode.h"
 #include "Nodes/ValuesNodes/CharValueNode.h"
@@ -88,3 +93,11 @@ void TreeVisitor::visit(FloatValueNode* node) { std::cout << node->getValue() <<
 void TreeVisitor::visit(NullValueNode* node) { std::cout << node->getValue() << std::endl; }
 
 void TreeVisitor::visit(ColumnNode* node) { std::cout << node->getName() << std::endl; }
+
+void TreeVisitor::visit(InsertNode* node) {}
+
+void TreeVisitor::visit(SelectNode* node) {}
+void TreeVisitor::visit(UpdateNode* node) {}
+void TreeVisitor::visit(DeleteNode* node) {}
+
+void TreeVisitor::visit(ColumnsAndValuesNode* node) {}

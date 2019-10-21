@@ -25,6 +25,10 @@ class VariableNode : public BaseNode {
 
     void accept(TreeVisitor *v) override { v->visit(this); }
 
+    void setSize(int _size) { size = _size; }
+
+    int getSize() { return size; }
+
     std::string getVarName() { return name; }
     Type getVarType() { return type; }
 
@@ -32,6 +36,7 @@ class VariableNode : public BaseNode {
     std::string name;
     Type type;
     std::vector<ConstraintNode *> constraints;
+    int size = 0;
 };
 
 #endif  // SELSQL_VARIABLENODE_H

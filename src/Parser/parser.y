@@ -16,13 +16,18 @@
     #include "../../src/Parser/Nodes/ActionNodes/DropNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/ShowCreateNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/BaseActionNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/InsertNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/SelectNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/DeleteNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/UpdateNode.h"
+
     #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/IntValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/CharValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/FloatValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/NullValueNode.h"
     #include "../../src/Parser/Nodes/ColumnNode.h"
-
+    #include "../../src/Parser/Nodes/ColumnsAndValuesNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -33,7 +38,7 @@
     RootNode *tree;
 
     std::vector<ConstraintNode*> constraintsList;
-    std::vector<VariableNode*> variablesList;
+    std::vector<BaseNode*> variablesList;
     std::vector<BaseActionNode*> children;
     std::vector<BaseValueNode*> valuesList;
     std::vector<ColumnNode*> columnsList;
@@ -50,7 +55,7 @@
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<string> IDENT FLOATNUM NUMBER STRVAL STAR
+%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
 %type<Value> values
 %type<Column> colname col_select
 //%type<string> id
@@ -89,16 +94,16 @@ request:
 	children.emplace_back(new ShowCreateNode(std::string($2)));
     }|
     INSERT_INTO_ACTION IDENT colnames VALUES insert_values SEMICOLON {
-
+	children.emplace_back(new InsertNode(std::string($2)), new ColumnsAndValuesNode(columnsList, valuesList));
     }|
     SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON {
-
+	//children.emplace_back(new SelectNode(std::string($4)));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-
+	//children.emplace_back(new UpdateNode(std::string($2)));
     }|
     DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
-
+	//children.emplace_back(new DeleteNode(std::string($2)));
     }
 
 variables:
@@ -112,6 +117,9 @@ variables:
 variable:
     IDENT type{
     	$$ = new VariableNode(std::string($1), $2);
+    	if ($2 == Type::TYPE_CHAR) {
+    		$$->setSize(yylval.charLen);
+    	}
     }|
     IDENT type constraints {
 	$$ = new VariableNode(std::string($1), $2, constraintsList);
@@ -203,7 +211,7 @@ update_elem:
 
 values:
     STRVAL {
-	$$ = new CharValueNode(std::string($1), 0);
+	$$ = new CharValueNode(std::string($1));
     }|
     NUMBER {
 	$$ = new IntValueNode(std::stoi($1));
@@ -212,7 +220,7 @@ values:
 	$$ = new FloatValueNode(std::stod($1));
     }|
     VALNULL {
-
+	$$ = new NullValueNode(std::string($1));
     }
 
 where_exprs:

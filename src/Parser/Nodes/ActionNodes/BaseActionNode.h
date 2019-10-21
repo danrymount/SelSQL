@@ -11,7 +11,7 @@
 #include "../VariableNode.h"
 class BaseActionNode : public BaseNode {
    public:
-    BaseActionNode(Action _action, std::string _name, std::vector<VariableNode*> _children)
+    BaseActionNode(Action _action, std::string _name, std::vector<BaseNode*> _children)
                                                                                                         : action(_action),
                                                                                                           tableName(std::move(_name)),
                                                                                                           children(std::move(_children)) {
@@ -25,12 +25,12 @@ class BaseActionNode : public BaseNode {
         }
     }
 
-    std::vector<VariableNode*> getChildren() { return children; }
+    std::vector<BaseNode*> getChildren() { return children; }
     std::string getTableName() { return tableName; }
     Action getAction() { return action; }
 
    private:
-    std::vector<VariableNode*> children;
+    std::vector<BaseNode*> children;
     std::string tableName;
     Action action;
 };

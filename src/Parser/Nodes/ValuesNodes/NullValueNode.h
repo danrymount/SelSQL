@@ -4,10 +4,12 @@
 
 #ifndef SELSQL_NULLVALUENODE_H
 #define SELSQL_NULLVALUENODE_H
+#include <utility>
+
 #include "BaseValueNode.h"
 class NullValueNode : public BaseValueNode {
    public:
-    explicit NullValueNode(std::string& _value) : value(_value) {
+    explicit NullValueNode(std::string _value) : value(std::move(_value)) {
         std::transform(value.begin(), value.end(), value.begin(), [](unsigned char c) { return std::tolower(c); });
     }
 

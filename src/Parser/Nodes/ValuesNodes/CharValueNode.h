@@ -9,17 +9,14 @@
 #include "BaseValueNode.h"
 class CharValueNode : public BaseValueNode {
    public:
-    CharValueNode(std::string _value, int _size) : value(std::move(_value)), size(_size) {}
+    explicit CharValueNode(std::string _value) : value(std::move(_value)) {}
 
     std::string getValue() { return value; };
-
-    int getSize() { return size; }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:
     std::string value;
-    int size;
 };
 
 #endif  // SELSQL_CHARVALUENODE_H
