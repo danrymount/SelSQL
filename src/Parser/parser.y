@@ -3,7 +3,9 @@
     #include <stdio.h>
     #include <stdlib.h>
     #include <iostream>
+    #include <sstream>
     #include <string>
+    #include <ctype.h>
     #include "../../src/Utils/Headers/CommonUtils.h"
 
     #include "../../src/Parser/Nodes/BaseNode.h"
@@ -41,7 +43,7 @@
 %token VALUES FROM SET WHERE AND OR NOT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
-%token IDENT FLOATNUM NUMBER STRVAL
+%token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV
 
 
@@ -64,15 +66,16 @@
     BaseValueNode* Value;
     ColumnNode* Column;
     Type t;
+    int charLen;
 }
 
 %%
 query:
     request {
-//    	tree = new RootNode(children);
-//
-//    	variablesList.clear();
-//    	children.clear();
+    	tree = new RootNode(children);
+
+    	variablesList.clear();
+    	children.clear();
     }
 
 request:
@@ -207,6 +210,9 @@ values:
     }|
     FLOATNUM {
 	$$ = new FloatValueNode(std::stod($1));
+    }|
+    VALNULL {
+
     }
 
 where_exprs:
@@ -214,14 +220,20 @@ where_exprs:
     /*empty*/ { };
 
 where_expr:
-    expr_priority_3|
+    expr_priority_4|
     not where_expr {
 
     }|
-    where_expr logic_operands where_expr {
+    where_expr logic_or where_expr {
 
     }|
     LBRACKET where_expr RBRACKET
+
+expr_priority_4:
+    expr_priority_3|
+    expr_priority_4 logic_and expr_priority_4|
+    LBRACKET expr_priority_4 RBRACKET
+
 
 expr_priority_3:
     expr_priority_2|
@@ -260,10 +272,12 @@ not:
 
     }
 
-logic_operands:
+logic_and:
     AND {
 
-    }|
+    }
+
+logic_or:
     OR {
 
     }

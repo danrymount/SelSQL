@@ -1,5 +1,7 @@
 %{
     #include <stdio.h>
+    #include <iostream>
+    #include <sstream>
     #include <string>
     #include "../../src/Parser/Nodes/ConstraintNode.h"
     #include "../../src/Parser/Nodes/VariableNode.h"
@@ -11,15 +13,18 @@
     #include <memory>
     #include <cstring>
     void showError();
+    void yyerror(const char *s);
     int ch;
+    std::string charLen;
 %}
 
 %option noinput noyywrap case-insensitive yylineno
 
-NUMBER  ([-0-9])*
+NUMBER   ([-0-9])*
 FLOATNUM ([0-9]+"."[0-9]+)+
-IDENT   ([A-Za-z0-9]*)
-STRVAL  (\'[-a-zA-Z0-9]*\')
+IDENT    ([A-Za-z0-9]*)
+STRVAL   (\'[-a-zA-Z0-9]*\')
+CHAR     "CHAR("[-0-9]*")"
 
 %%
 "CREATE TABLE"          {ch += yyleng; return CREATE_TABLE_ACTION;}
@@ -52,10 +57,24 @@ STRVAL  (\'[-a-zA-Z0-9]*\')
 ";"                     {ch += yyleng; return SEMICOLON;}
 "INT"                   {ch += yyleng; return INT;}
 "FLOAT"                 {ch += yyleng; return FLOAT;}
-"CHAR"                  {ch += yyleng; return CHAR;}
+"NULL"                  {ch += yyleng; return VALNULL;}
 "UNIQUE"                {ch += yyleng; return CONSTR_UNIQUE;}
 "NOT NULL"              {ch += yyleng; return CONSTR_NOT_NULL;}
 "PRIMARY KEY"           {ch += yyleng; return CONSTR_PRIMARY_KEY;}
+{CHAR}                  {ch += yyleng;
+                        charLen = "";
+                        for (int i = 0; i < yyleng; i++) {
+                            if(isdigit(yytext[i])) {
+                                charLen += yytext[i];
+                            }
+                        }
+                        try {
+                            yylval.charLen = std::stoi(charLen);
+                        } catch(...) {
+                            yyerror("Char oversize");
+                            return 1;
+                        }
+                        return CHAR;}
 {NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
 {FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {STRVAL}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return STRVAL; }
