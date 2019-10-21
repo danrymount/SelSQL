@@ -6,8 +6,13 @@
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
 #include "Nodes/ActionNodes/ShowCreateNode.h"
+#include "Nodes/ColumnNode.h"
 #include "Nodes/ConstraintNode.h"
 #include "Nodes/RootNode.h"
+#include "Nodes/ValuesNodes/CharValueNode.h"
+#include "Nodes/ValuesNodes/FloatValueNode.h"
+#include "Nodes/ValuesNodes/IntValueNode.h"
+#include "Nodes/ValuesNodes/NullValueNode.h"
 #include "Nodes/VariableNode.h"
 
 #include "../Logic/Headers/MainLogic.h"
@@ -71,3 +76,15 @@ void TreeVisitor::visit(VariableNode* node) {
         child->accept(this);
     }
 }
+void TreeVisitor::visit(IntValueNode* node) {
+    std::cout << node->getValue() << std::endl;
+    // request->dmlData.values.emplace_back(node->getValue());
+}
+
+void TreeVisitor::visit(CharValueNode* node) { std::cout << node->getValue() << std::endl; }
+
+void TreeVisitor::visit(FloatValueNode* node) { std::cout << node->getValue() << std::endl; }
+
+void TreeVisitor::visit(NullValueNode* node) { std::cout << node->getValue() << std::endl; }
+
+void TreeVisitor::visit(ColumnNode* node) { std::cout << node->getName() << std::endl; }

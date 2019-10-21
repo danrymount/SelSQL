@@ -4,6 +4,8 @@
     #include "../../src/Parser/Nodes/ConstraintNode.h"
     #include "../../src/Parser/Nodes/VariableNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/CreateNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
+    #include "../../src/Parser/Nodes/ColumnNode.h"
 
     #include "parser.h"
     #include <memory>

@@ -14,6 +14,12 @@
     #include "../../src/Parser/Nodes/ActionNodes/DropNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/ShowCreateNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/BaseActionNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/IntValueNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/CharValueNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/FloatValueNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/NullValueNode.h"
+    #include "../../src/Parser/Nodes/ColumnNode.h"
 
 
     extern int yylineno;
@@ -27,7 +33,8 @@
     std::vector<ConstraintNode*> constraintsList;
     std::vector<VariableNode*> variablesList;
     std::vector<BaseActionNode*> children;
-
+    std::vector<BaseValueNode*> valuesList;
+    std::vector<ColumnNode*> columnsList;
 %}
 
 %token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
@@ -41,7 +48,9 @@
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<string> IDENT
+%type<string> IDENT FLOATNUM NUMBER STRVAL STAR
+%type<Value> values
+%type<Column> colname col_select
 //%type<string> id
 //%type<string> request
 
@@ -52,19 +61,12 @@
     char *string;
     ConstraintNode *Constraint;
     VariableNode *Variable;
+    BaseValueNode* Value;
+    ColumnNode* Column;
     Type t;
 }
 
 %%
-//
-//request:
-//    id {
-//    std::cout << "TT="<< $$ << std::endl;
-//    }
-//;
-//
-//id:
-//    STRINGG { $$ = $1;}
 query:
     request {
 //    	tree = new RootNode(children);
@@ -144,38 +146,40 @@ constraint:
     }
 
 colnames:
-    LBRACKET colname RBRACKET
+    LBRACKET colname RBRACKET{
+	columnsList.emplace_back($2);
+    }
 
 colname:
     IDENT {
-
+	$$ = new ColumnNode(std::string($1));
     }|
     colname COMMA IDENT {
-
+	$$ = new ColumnNode(std::string($3));
     }
 
 insert_values:
     values {
-
+	valuesList.emplace_back($1);
     }|
     insert_values COMMA values {
-
+	valuesList.emplace_back($3);
     }
 
 cols_select:
     col_select {
-
+	columnsList.emplace_back($1);
     }|
     cols_select COMMA col_select {
-
+	columnsList.emplace_back($3);
     }
 
 col_select:
     STAR {
-
+	$$ = new ColumnNode($1);
     }|
     IDENT {
-
+	$$ = new ColumnNode($1);
     }
 
 update_list:
@@ -196,13 +200,13 @@ update_elem:
 
 values:
     STRVAL {
-
+	$$ = new CharValueNode(std::string($1), 0);
     }|
     NUMBER {
-
+	$$ = new IntValueNode(std::stoi($1));
     }|
     FLOATNUM {
-
+	$$ = new FloatValueNode(std::stod($1));
     }
 
 where_exprs:

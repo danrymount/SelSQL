@@ -11,6 +11,11 @@ class DropNode;
 class ShowCreateNode;
 class ConstraintNode;
 class VariableNode;
+class IntValueNode;
+class CharValueNode;
+class FloatValueNode;
+class NullValueNode;
+class ColumnNode;
 
 class Visitor {
    public:
@@ -22,5 +27,12 @@ class Visitor {
 
     virtual void visit(ConstraintNode* node) = 0;
     virtual void visit(VariableNode* node) = 0;
+
+    virtual void visit(IntValueNode* node) = 0;
+    virtual void visit(CharValueNode* node) = 0;
+    virtual void visit(FloatValueNode* node) = 0;
+    virtual void visit(NullValueNode* node) = 0;
+
+    virtual void visit(ColumnNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H
