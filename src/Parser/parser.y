@@ -45,11 +45,11 @@
 %}
 
 %token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
-%token VALUES FROM SET WHERE AND OR NOT
+%token VALUES FROM SET WHERE AS AND OR NOT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
-%token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV
+%token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
 
 
 %type<Constraint> constraint
@@ -93,10 +93,10 @@ request:
     SHOWCREATE_TABLE_ACTION IDENT SEMICOLON{
 	children.emplace_back(new ShowCreateNode(std::string($2)));
     }|
-    INSERT_INTO_ACTION IDENT colnames VALUES insert_values SEMICOLON {
+    INSERT_INTO_ACTION IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(std::string($2)), new ColumnsAndValuesNode(columnsList, valuesList));
     }|
-    SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON {
+    SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
 	//children.emplace_back(new SelectNode(std::string($4)));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
@@ -191,6 +191,35 @@ col_select:
     }|
     IDENT {
 	$$ = new ColumnNode($1);
+    }|
+    IDENT DOT IDENT {
+
+    }
+
+alias:
+    AS IDENT {
+
+    }|
+    /*empty*/ {
+
+    }
+
+join:
+    JOIN IDENT alias ON join_expr{
+
+    }|
+    /*empty*/ {
+
+    }
+
+join_expr:
+    id equal_sign id
+id:
+    IDENT {
+
+    }|
+    IDENT DOT IDENT {
+
     }
 
 update_list:
