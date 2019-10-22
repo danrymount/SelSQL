@@ -272,8 +272,7 @@ where_expr:
 
 expr_priority_4:
     expr_priority_3|
-    expr_priority_4 logic_and expr_priority_4|
-    LBRACKET expr_priority_4 RBRACKET
+    expr_priority_4 logic_and where_expr
 
 
 expr_priority_3:
