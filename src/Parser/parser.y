@@ -43,6 +43,8 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/UpdateExprNode.h"
+    #include "../../src/Parser/Nodes/UpdatesAndExprNode.h"
 
     #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/IntValueNode.h"
@@ -53,6 +55,7 @@
     #include "../../src/Parser/Nodes/VariableListNode.h"
     #include "../../src/Parser/Nodes/ColumnsAndValuesNode.h"
     #include "../../src/Parser/Nodes/ColumnsAndExprNode.h"
+
 
     extern int yylineno;
     extern int ch;
@@ -67,6 +70,7 @@
     std::vector<BaseActionNode*> children;
     std::vector<BaseValueNode*> valuesList;
     std::vector<ColumnNode*> columnsList;
+    std::vector<BaseExprNode*> updateList;
 %}
 
 %token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
@@ -83,7 +87,7 @@
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
 %type<Value> values
 %type<Column> colname col_select
-%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr
+%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr update_elem
 %type<Cmp> equal_sign
 //%type<string> id
 //%type<string> request
@@ -113,6 +117,7 @@ query:
     	columnsList.clear();
     	valuesList.clear();
     	children.clear();
+    	updateList.clear();
     }
 
 request:
@@ -132,7 +137,7 @@ request:
 	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, $7)));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-        children.emplace_back(new UpdateNode(std::string($2), $5));
+        children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), $5)));
     }|
     DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
 	children.emplace_back(new DeleteNode(std::string($2), $3));
@@ -258,18 +263,18 @@ id:
 
 update_list:
     update_elem {
-
+	updateList.emplace_back($1);
     }|
     update_list COMMA update_elem {
-
+	updateList.emplace_back($3);
     }
 
 update_elem:
     IDENT EQUAL expr_priority_2 {
-
+	$$ = new EqualsNode(new IdentNode(std::string($1)), $3);
     }|
     IDENT EQUAL STRVAL {
-
+    	$$ = new EqualsNode(new IdentNode(std::string($1)), new IdentNode(std::string($3)));
     }
 
 values:

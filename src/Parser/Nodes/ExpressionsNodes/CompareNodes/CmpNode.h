@@ -8,6 +8,7 @@
 class CmpNode : public BaseExprNode {
    public:
     CmpNode() = default;
+    CmpNode(BaseExprNode* _left, BaseExprNode* _right) : left(_left), right(_right) {}
 
     void addChilds(BaseExprNode* _left, BaseExprNode* _right) {
         left = _left;

@@ -54,6 +54,10 @@ class TreeVisitor : public Visitor {
     std::shared_ptr<BigResponse> getResponse() { return response; }
 
    private:
+   public:
+    void visit(UpdateExprNode* node) override;
+    void visit(UpdatesAndExprNode* node) override;
+   private:
     std::shared_ptr<BigRequest> request;
     std::shared_ptr<BigResponse> response;
 };

@@ -26,13 +26,16 @@
 #include "Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
+#include "Nodes/ExpressionsNodes/UpdateExprNode.h"
 #include "Nodes/RootNode.h"
+#include "Nodes/UpdatesAndExprNode.h"
 #include "Nodes/ValuesNodes/CharValueNode.h"
 #include "Nodes/ValuesNodes/FloatValueNode.h"
 #include "Nodes/ValuesNodes/IntValueNode.h"
 #include "Nodes/ValuesNodes/NullValueNode.h"
 #include "Nodes/VariableListNode.h"
 #include "Nodes/VariableNode.h"
+
 void TreeVisitor::visit(RootNode* node) {
     std::cout << "ROOT" << std::endl;
     request = std::make_shared<BigRequest>();
@@ -145,3 +148,5 @@ void TreeVisitor::visit(VariableListNode* node) {
 }
 
 void TreeVisitor::visit(ColumnsAndExprNode* node) {}
+void TreeVisitor::visit(UpdateExprNode* node) {}
+void TreeVisitor::visit(UpdatesAndExprNode* node) {}

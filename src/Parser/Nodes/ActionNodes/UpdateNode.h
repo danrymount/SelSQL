@@ -7,23 +7,12 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class UpdateNode : public BaseActionNode {
    public:
-    UpdateNode(std::string _name, BaseNode* _child, BaseExprNode* _expr)
-                                                                                                        : BaseActionNode(Action::UPDATE,
-                                                                                                                         std::move(_name),
-                                                                                                                         _child),
-                                                                                                          expr(_expr) {}
 
-    explicit UpdateNode(std::string _name, BaseExprNode* _expr)
+    explicit UpdateNode(std::string _name, BaseNode* _child)
                                                                                                         : BaseActionNode(Action::UPDATE,
-                                                                                                                         std::move(_name)),
-                                                                                                          expr(_expr) {}
+                                                                                                                         std::move(_name), _child){}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
-
-    BaseExprNode* getExpr() { return expr; }
-
-   private:
-    BaseExprNode* expr = nullptr;
 };
 
 #endif  // SELSQL_UPDATENODE_H

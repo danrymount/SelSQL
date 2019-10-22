@@ -1,0 +1,19 @@
+//
+// Created by sapiest on 23.10.2019.
+//
+
+#ifndef SELSQL_UPDATESANDEXPRNODE_H
+#define SELSQL_UPDATESANDEXPRNODE_H
+#include "BaseNode.h"
+#include "ExpressionsNodes/UpdateExprNode.h"
+class UpdatesAndExprNode : public BaseNode {
+   public:
+    UpdatesAndExprNode(UpdateExprNode* _updates, BaseExprNode* _expr) : updates(_updates), expr(_expr) {}
+
+    void accept(TreeVisitor* v) override { v->visit(this); }
+
+   private:
+    UpdateExprNode* updates;
+    BaseExprNode* expr;
+};
+#endif  // SELSQL_UPDATESANDEXPRNODE_H
