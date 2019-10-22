@@ -36,6 +36,9 @@ class MoreEqNode;
 class LessNode;
 class LessEqNode;
 class IdentNode;
+class VariableListNode;
+class ColumnsAndExprNode;
+
 
 class Visitor {
    public:
@@ -78,5 +81,8 @@ class Visitor {
     virtual void visit(MoreNode* node) = 0;
     virtual void visit(LessEqNode* node) = 0;
     virtual void visit(LessNode* node) = 0;
+
+    virtual void visit(VariableListNode* node) = 0;
+    virtual void visit(ColumnsAndExprNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

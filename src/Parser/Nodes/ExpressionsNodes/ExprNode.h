@@ -13,12 +13,14 @@ class ExprNode : public BaseExprNode {
 
     explicit ExprNode(BaseNode* _child) { child = static_cast<BaseExprNode*>(_child); }
 
+    ExprNode() = default;
+
     void accept(TreeVisitor* v) override { v->visit(this); }
 
     BaseExprNode* getChild() { return child; }
 
    private:
-    BaseExprNode* child;
+    BaseExprNode* child = nullptr;
 };
 
 #endif  // SELSQL_EXPRNODE_H

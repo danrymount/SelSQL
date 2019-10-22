@@ -4,13 +4,13 @@
 
 #ifndef SELSQL_SELECTNODE_H
 #define SELSQL_SELECTNODE_H
+#include "../ExpressionsNodes/BaseExprNode.h"
 class SelectNode : public BaseActionNode {
    public:
-    SelectNode(std::string _name, std::vector<BaseNode*> _children)
+    SelectNode(std::string _name, BaseNode* _child)
                                                                                                         : BaseActionNode(Action::SELECT,
                                                                                                                          std::move(_name),
-                                                                                                                         std::move(_children)) {
-    }
+                                                                                                                         _child){}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

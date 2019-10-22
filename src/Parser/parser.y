@@ -50,7 +50,9 @@
     #include "../../src/Parser/Nodes/ValuesNodes/FloatValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/NullValueNode.h"
     #include "../../src/Parser/Nodes/ColumnNode.h"
+    #include "../../src/Parser/Nodes/VariableListNode.h"
     #include "../../src/Parser/Nodes/ColumnsAndValuesNode.h"
+    #include "../../src/Parser/Nodes/ColumnsAndExprNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -61,7 +63,7 @@
     RootNode *tree;
 
     std::vector<ConstraintNode*> constraintsList;
-    std::vector<BaseNode*> variablesList;
+    std::vector<VariableNode*> variablesList;
     std::vector<BaseActionNode*> children;
     std::vector<BaseValueNode*> valuesList;
     std::vector<ColumnNode*> columnsList;
@@ -78,7 +80,7 @@
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL strval
+%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
 %type<Value> values
 %type<Column> colname col_select
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr
@@ -115,31 +117,25 @@ query:
 
 request:
     CREATE_TABLE_ACTION IDENT LBRACKET variables RBRACKET SEMICOLON{
-    	children.emplace_back(new CreateNode(std::string($2), variablesList));
+	children.emplace_back(new CreateNode(std::string($2), new VariableListNode(variablesList)));
     }|
     DROP_TABLE_ACTION IDENT SEMICOLON{
-	children.emplace_back(new DropNode(std::string($2), variablesList));
+	children.emplace_back(new DropNode(std::string($2)));
     }|
     SHOWCREATE_TABLE_ACTION IDENT SEMICOLON{
 	children.emplace_back(new ShowCreateNode(std::string($2)));
     }|
     INSERT_INTO_ACTION IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
-    	std::vector<BaseNode*> list;
-    	list.emplace_back(new ColumnsAndValuesNode(columnsList, valuesList));
-	children.emplace_back(new InsertNode(std::string($2), list));
+	children.emplace_back(new InsertNode(std::string($2), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
     SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
-    	std::vector<BaseNode*> list;
-    	for(auto &col: columnsList){
-    	    list.emplace_back(col);
-    	}
-	children.emplace_back(new SelectNode(std::string($4), list));
+	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, $7)));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-        children.emplace_back(new UpdateNode(std::string($2)));
+        children.emplace_back(new UpdateNode(std::string($2), $5));
     }|
     DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
-	children.emplace_back(new DeleteNode(std::string($2)));
+	children.emplace_back(new DeleteNode(std::string($2), $3));
     }
 
 variables:
@@ -224,10 +220,10 @@ cols_select:
 
 col_select:
     STAR {
-	$$ = new ColumnNode($1);
+	$$ = new ColumnNode("*");
     }|
     IDENT {
-	$$ = new ColumnNode($1);
+	$$ = new ColumnNode(std::string($1));
     }|
     IDENT DOT IDENT {
 
@@ -294,7 +290,7 @@ where_exprs:
     WHERE where_expr{
     	$$ = new ExprNode($2);
     }|
-    /*empty*/ { };
+    /*empty*/ { $$ = new ExprNode();};
 
 where_expr:
     expr_priority_4{

@@ -11,27 +11,23 @@
 #include "../VariableNode.h"
 class BaseActionNode : public BaseNode {
    public:
-    BaseActionNode(Action _action, std::string _name, std::vector<BaseNode*> _children)
+    BaseActionNode(Action _action, std::string _name, BaseNode* _child)
                                                                                                         : action(_action),
                                                                                                           tableName(std::move(_name)),
-                                                                                                          children(std::move(_children)) {
+                                                                                                          child(_child) {
     }
 
     BaseActionNode(Action _action, std::string _name) : action(_action), tableName(std::move(_name)) {}
 
-    ~BaseActionNode() override {
-        for (auto& ch : children) {
-            delete ch;
-        }
-    }
+    ~BaseActionNode() override { delete child; }
 
-    void setChildren(std::vector<BaseNode*> _children) { children = std::move(_children); }
-    std::vector<BaseNode*> getChildren() { return children; }
+    void setChildren(BaseNode* _child) { child = _child; }
+    BaseNode* getChild() { return child; }
     std::string getTableName() { return tableName; }
     Action getAction() { return action; }
 
    private:
-    std::vector<BaseNode*> children;
+    BaseNode* child;
     std::string tableName;
     Action action;
 };

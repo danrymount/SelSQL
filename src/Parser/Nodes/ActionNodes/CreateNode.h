@@ -12,10 +12,10 @@
 #include "BaseActionNode.h"
 class CreateNode : public BaseActionNode {
    public:
-    CreateNode(std::string _name, std::vector<BaseNode*> _children)
+    CreateNode(std::string _name, BaseNode* _child)
                                                                                                         : BaseActionNode(Action::CREATE,
                                                                                                                          std::move(_name),
-                                                                                                                         std::move(_children)) {
+                                                                                                                         _child) {
     }
 
     void accept(TreeVisitor* v) override { v->visit(this); }

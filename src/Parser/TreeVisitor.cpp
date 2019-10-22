@@ -2,7 +2,9 @@
 // Created by sapiest on 20.10.2019.
 //
 
+#include "Headers/TreeVisitor.h"
 #include <iostream>
+#include "../Logic/Headers/MainLogic.h"
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DeleteNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
@@ -11,6 +13,7 @@
 #include "Nodes/ActionNodes/ShowCreateNode.h"
 #include "Nodes/ActionNodes/UpdateNode.h"
 #include "Nodes/ColumnNode.h"
+#include "Nodes/ColumnsAndExprNode.h"
 #include "Nodes/ColumnsAndValuesNode.h"
 #include "Nodes/ConstraintNode.h"
 #include "Nodes/ExpressionsNodes/CompareNodes/EqualsNode.h"
@@ -28,10 +31,8 @@
 #include "Nodes/ValuesNodes/FloatValueNode.h"
 #include "Nodes/ValuesNodes/IntValueNode.h"
 #include "Nodes/ValuesNodes/NullValueNode.h"
+#include "Nodes/VariableListNode.h"
 #include "Nodes/VariableNode.h"
-
-#include "../Logic/Headers/MainLogic.h"
-#include "Headers/TreeVisitor.h"
 void TreeVisitor::visit(RootNode* node) {
     std::cout << "ROOT" << std::endl;
     request = std::make_shared<BigRequest>();
@@ -47,9 +48,7 @@ void TreeVisitor::visit(CreateNode* node) {
     request->tableName = node->getTableName();
     std::cout << "CREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
-    for (auto& child : node->getChildren()) {
-        child->accept(this);
-    }
+    node->getChild()->accept(this);
     response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
@@ -58,9 +57,6 @@ void TreeVisitor::visit(DropNode* node) {
     request->tableName = node->getTableName();
     std::cout << "DROP" << std::endl;
     std::cout << node->getTableName() << std::endl;
-    for (auto& child : node->getChildren()) {
-        child->accept(this);
-    }
     // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
@@ -69,9 +65,6 @@ void TreeVisitor::visit(ShowCreateNode* node) {
     request->tableName = node->getTableName();
     std::cout << "SHOWCREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
-    for (auto& child : node->getChildren()) {
-        child->accept(this);
-    }
     response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
@@ -79,9 +72,7 @@ void TreeVisitor::visit(InsertNode* node) {
     request->action = node->getAction();
     request->tableName = node->getTableName();
     std::cout << "INSERT" << std::endl;
-    for (auto& child : node->getChildren()) {
-        child->accept(this);
-    }
+    node->getChild()->accept(this);
     // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
@@ -146,3 +137,11 @@ void TreeVisitor::visit(LessEqNode* node) {}
 void TreeVisitor::visit(LessNode* node) {}
 
 void TreeVisitor::visit(IdentNode* node) {}
+
+void TreeVisitor::visit(VariableListNode* node) {
+    for (auto& var : node->getVariables()) {
+        var->accept(this);
+    }
+}
+
+void TreeVisitor::visit(ColumnsAndExprNode* node) {}

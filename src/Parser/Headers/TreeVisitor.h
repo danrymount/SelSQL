@@ -49,7 +49,8 @@ class TreeVisitor : public Visitor {
     void visit(MoreNode* node) override;
     void visit(LessEqNode* node) override;
     void visit(LessNode* node) override;
-
+    void visit(VariableListNode* node) override;
+    void visit(ColumnsAndExprNode* node) override;
     std::shared_ptr<BigResponse> getResponse() { return response; }
 
    private:
