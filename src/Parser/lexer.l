@@ -10,6 +10,7 @@
     #include "../../src/Parser/Nodes/ColumnNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/BaseExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/ExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/CmpNode.h"
 
     #include "parser.h"
     #include <memory>

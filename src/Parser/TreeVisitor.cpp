@@ -13,7 +13,13 @@
 #include "Nodes/ColumnNode.h"
 #include "Nodes/ColumnsAndValuesNode.h"
 #include "Nodes/ConstraintNode.h"
+#include "Nodes/ExpressionsNodes/CompareNodes/EqualsNode.h"
+#include "Nodes/ExpressionsNodes/CompareNodes/LessEqNode.h"
+#include "Nodes/ExpressionsNodes/CompareNodes/MoreEqNode.h"
+#include "Nodes/ExpressionsNodes/CompareNodes/MoreNode.h"
+#include "Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
 #include "Nodes/ExpressionsNodes/ExprNode.h"
+#include "Nodes/ExpressionsNodes/IndentNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
@@ -126,7 +132,17 @@ void TreeVisitor::visit(AndLogicNode* node) {}
 void TreeVisitor::visit(OrLogicNode* node) {}
 
 void TreeVisitor::visit(NotLogicNode* node) {}
+
 void TreeVisitor::visit(AddNode* node) {}
 void TreeVisitor::visit(DivNode* node) {}
 void TreeVisitor::visit(SubNode* node) {}
 void TreeVisitor::visit(MultNode* node) {}
+
+void TreeVisitor::visit(EqualsNode* node) {}
+void TreeVisitor::visit(NoEqualsNode* node) {}
+void TreeVisitor::visit(MoreEqNode* node) {}
+void TreeVisitor::visit(MoreNode* node) {}
+void TreeVisitor::visit(LessEqNode* node) {}
+void TreeVisitor::visit(LessNode* node) {}
+
+void TreeVisitor::visit(IdentNode* node) {}

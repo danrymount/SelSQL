@@ -39,8 +39,10 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/MoreEqNode.h"
 
     #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
-    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
-    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
+
+    #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
 
     #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/IntValueNode.h"
@@ -79,7 +81,8 @@
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL strval
 %type<Value> values
 %type<Column> colname col_select
-%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr equal_sign
+%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr
+%type<Cmp> equal_sign
 //%type<string> id
 //%type<string> request
 
@@ -93,6 +96,7 @@
     BaseValueNode* Value;
     ColumnNode* Column;
     BaseExprNode* Expr;
+    CmpNode* Cmp;
 
     Type t;
     int charLen;
@@ -247,6 +251,7 @@ join:
 
 join_expr:
     id equal_sign id
+
 id:
     IDENT {
 
@@ -296,10 +301,11 @@ where_expr:
     	$$ = $1;
     }|
     NOT where_expr {
-	//$$ = new NotLogicNode($2);
+   	std::cout << $2 << std::endl;
+	$$ = new NotLogicNode($2);
     }|
-    where_expr logic_or where_expr {
-	//$$ = new OrLogicNode($1, $3);
+    where_expr OR where_expr {
+	$$ = new OrLogicNode($1, $3);
     }|
     LBRACKET where_expr RBRACKET{
     	$$ = new ExprNode($2);
@@ -309,20 +315,21 @@ expr_priority_4:
     expr_priority_3{
     	$$ = $1;
     }|
-    expr_priority_4 logic_and where_expr{
+    expr_priority_4 AND where_expr{
 	$$ = new AndLogicNode($1, $3);
     }
-
 
 expr_priority_3:
     expr_priority_2{
     	$$ = $1;
     }|
     expr_priority_3 equal_sign expr_priority_2{
-    	//$$ = new CmpNode($1, $2, $3);
+    	$2->addChilds($1, $3);
+    	$$ = $2;
     }|
-    expr_priority_3 equal_sign strval{
-    	//$$ = new CmpNode($1, $2, std::string($3));
+    expr_priority_3 equal_sign STRVAL{
+        $2->addChilds($1, new IdentNode(std::string($3)));
+        $$ = $2;
     }
 
 expr_priority_2:
@@ -361,44 +368,24 @@ expr:
 	$$ = new ExprNode($2);
     }
 
-strval:
-    STRVAL {
-	$$ = $1;
-    }
-
-not:
-    NOT {
-
-    }
-
-logic_and:
-    AND {
-
-    }
-
-logic_or:
-    OR {
-
-    }
-
 equal_sign:
     EQUAL {
-
+	$$ = new EqualsNode();
     }|
     NOTEQ {
-
+	$$ = new NoEqualsNode();
     }|
     MORE {
-
+	$$ = new MoreNode();
     }|
     LESS {
-
+	$$ = new LessNode();
     }|
     MOREEQ {
-
+	$$ = new MoreEqNode();
     }|
     LESSEQ {
-
+	$$ = new LessEqNode();
     }
 %%
 

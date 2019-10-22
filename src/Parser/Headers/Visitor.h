@@ -29,6 +29,13 @@ class AddNode;
 class DivNode;
 class MultNode;
 class SubNode;
+class EqualsNode;
+class NoEqualsNode;
+class MoreNode;
+class MoreEqNode;
+class LessNode;
+class LessEqNode;
+class IdentNode;
 
 class Visitor {
    public:
@@ -44,6 +51,7 @@ class Visitor {
 
     virtual void visit(ConstraintNode* node) = 0;
     virtual void visit(VariableNode* node) = 0;
+    virtual void visit(IdentNode* node) = 0;
 
     virtual void visit(ColumnsAndValuesNode* node) = 0;
 
@@ -63,5 +71,12 @@ class Visitor {
     virtual void visit(DivNode* node) = 0;
     virtual void visit(SubNode* node) = 0;
     virtual void visit(MultNode* node) = 0;
+
+    virtual void visit(EqualsNode* node) = 0;
+    virtual void visit(NoEqualsNode* node) = 0;
+    virtual void visit(MoreEqNode* node) = 0;
+    virtual void visit(MoreNode* node) = 0;
+    virtual void visit(LessEqNode* node) = 0;
+    virtual void visit(LessNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H
