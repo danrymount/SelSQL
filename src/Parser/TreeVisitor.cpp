@@ -13,6 +13,10 @@
 #include "Nodes/ColumnNode.h"
 #include "Nodes/ColumnsAndValuesNode.h"
 #include "Nodes/ConstraintNode.h"
+#include "Nodes/ExpressionsNodes/ExprNode.h"
+#include "Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
+#include "Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
+#include "Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "Nodes/RootNode.h"
 #include "Nodes/ValuesNodes/CharValueNode.h"
 #include "Nodes/ValuesNodes/FloatValueNode.h"
@@ -114,3 +118,15 @@ void TreeVisitor::visit(ColumnsAndValuesNode* node) {
         value->accept(this);
     }
 }
+
+void TreeVisitor::visit(ExprNode* node) {}
+
+void TreeVisitor::visit(AndLogicNode* node) {}
+
+void TreeVisitor::visit(OrLogicNode* node) {}
+
+void TreeVisitor::visit(NotLogicNode* node) {}
+void TreeVisitor::visit(AddNode* node) {}
+void TreeVisitor::visit(DivNode* node) {}
+void TreeVisitor::visit(SubNode* node) {}
+void TreeVisitor::visit(MultNode* node) {}

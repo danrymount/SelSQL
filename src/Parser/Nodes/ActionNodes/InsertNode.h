@@ -10,10 +10,10 @@
 #include "BaseActionNode.h"
 class InsertNode : public BaseActionNode {
    public:
-    InsertNode(std::string _name, ColumnsAndValuesNode* child) : BaseActionNode(Action::INSERT, std::move(_name)) {
-        std::vector<BaseNode*> t;
-        t.emplace_back(child);
-        BaseActionNode::setChildren(t);
+    InsertNode(std::string _name, std::vector<BaseNode*> _children)
+                                                                                                        : BaseActionNode(Action::INSERT,
+                                                                                                                         std::move(_name),
+                                                                                                                         std::move(_children)) {
     }
 
     void accept(TreeVisitor* v) override { v->visit(this); }

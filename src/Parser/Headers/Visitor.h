@@ -21,6 +21,14 @@ class InsertNode;
 class UpdateNode;
 class DeleteNode;
 class ColumnsAndValuesNode;
+class AndLogicNode;
+class OrLogicNode;
+class NotLogicNode;
+class ExprNode;
+class AddNode;
+class DivNode;
+class MultNode;
+class SubNode;
 
 class Visitor {
    public:
@@ -45,5 +53,15 @@ class Visitor {
     virtual void visit(NullValueNode* node) = 0;
 
     virtual void visit(ColumnNode* node) = 0;
+
+    virtual void visit(ExprNode* node) = 0;
+    virtual void visit(AndLogicNode* node) = 0;
+    virtual void visit(OrLogicNode* node) = 0;
+    virtual void visit(NotLogicNode* node) = 0;
+
+    virtual void visit(AddNode* node) = 0;
+    virtual void visit(DivNode* node) = 0;
+    virtual void visit(SubNode* node) = 0;
+    virtual void visit(MultNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

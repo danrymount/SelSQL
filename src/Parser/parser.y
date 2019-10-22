@@ -21,6 +21,27 @@
     #include "../../src/Parser/Nodes/ActionNodes/DeleteNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/UpdateNode.h"
 
+    #include "../../src/Parser/Nodes/ExpressionsNodes/BaseExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ExprNode.h"
+
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ArithmeticNodes/ArithmeticNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ArithmeticNodes/DivNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ArithmeticNodes/MultNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ArithmeticNodes/SubNode.h"
+
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/CmpNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/EqualsNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/LessNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/LessEqNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/MoreNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/MoreEqNode.h"
+
+    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
+
     #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/IntValueNode.h"
     #include "../../src/Parser/Nodes/ValuesNodes/CharValueNode.h"
@@ -45,7 +66,7 @@
 %}
 
 %token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
-%token VALUES FROM SET WHERE AS AND OR NOT
+%token VALUES FROM SET WHERE AS AND OR NOT JOIN ON
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
@@ -55,9 +76,10 @@
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
+%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL strval
 %type<Value> values
 %type<Column> colname col_select
+%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr equal_sign
 //%type<string> id
 //%type<string> request
 
@@ -70,6 +92,8 @@
     VariableNode *Variable;
     BaseValueNode* Value;
     ColumnNode* Column;
+    BaseExprNode* Expr;
+
     Type t;
     int charLen;
 }
@@ -96,17 +120,22 @@ request:
 	children.emplace_back(new ShowCreateNode(std::string($2)));
     }|
     INSERT_INTO_ACTION IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
-	children.emplace_back(new InsertNode(std::string($2), new ColumnsAndValuesNode(columnsList, valuesList)));
-	std::cout << children.size() << std::endl;
+    	std::vector<BaseNode*> list;
+    	list.emplace_back(new ColumnsAndValuesNode(columnsList, valuesList));
+	children.emplace_back(new InsertNode(std::string($2), list));
     }|
     SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
-	//children.emplace_back(new SelectNode(std::string($4)));
+    	std::vector<BaseNode*> list;
+    	for(auto &col: columnsList){
+    	    list.emplace_back(col);
+    	}
+	children.emplace_back(new SelectNode(std::string($4), list));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-	//children.emplace_back(new UpdateNode(std::string($2)));
+        children.emplace_back(new UpdateNode(std::string($2)));
     }|
     DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
-	//children.emplace_back(new DeleteNode(std::string($2)));
+	children.emplace_back(new DeleteNode(std::string($2)));
     }
 
 variables:
@@ -257,54 +286,84 @@ values:
     }
 
 where_exprs:
-    WHERE where_expr|
+    WHERE where_expr{
+    	$$ = new ExprNode($2);
+    }|
     /*empty*/ { };
 
 where_expr:
-    expr_priority_4|
-    not where_expr {
-
+    expr_priority_4{
+    	$$ = $1;
+    }|
+    NOT where_expr {
+	//$$ = new NotLogicNode($2);
     }|
     where_expr logic_or where_expr {
-
+	//$$ = new OrLogicNode($1, $3);
     }|
-    LBRACKET where_expr RBRACKET
+    LBRACKET where_expr RBRACKET{
+    	$$ = new ExprNode($2);
+    }
 
 expr_priority_4:
-    expr_priority_3|
-    expr_priority_4 logic_and where_expr
+    expr_priority_3{
+    	$$ = $1;
+    }|
+    expr_priority_4 logic_and where_expr{
+	$$ = new AndLogicNode($1, $3);
+    }
 
 
 expr_priority_3:
-    expr_priority_2|
-    expr_priority_3 equal_sign expr_priority_2|
-    expr_priority_3 equal_sign strval
+    expr_priority_2{
+    	$$ = $1;
+    }|
+    expr_priority_3 equal_sign expr_priority_2{
+    	//$$ = new CmpNode($1, $2, $3);
+    }|
+    expr_priority_3 equal_sign strval{
+    	//$$ = new CmpNode($1, $2, std::string($3));
+    }
 
 expr_priority_2:
-    expr_priority_1|
-    expr_priority_2 sign_priority_2 expr_priority_1
+    expr_priority_1{
+    	$$ = $1;
+    }|
+    expr_priority_2 PLUS expr_priority_1{
+	$$ = new AddNode($1, $3);
+    }|
+    expr_priority_2 MINUS expr_priority_1{
+    	$$ = new SubNode($1, $3);
+    }
 
 expr_priority_1:
-    expr|
-    expr_priority_1 sign_priority_1 expr
+    expr{
+    	$$ = new ExprNode($1);
+    }|
+    expr_priority_1 STAR expr{
+	$$ = new MultNode($1, $3);
+    }|
+    expr_priority_1 DIV expr{
+    	$$ = new DivNode($1, $3);
+    }
 
 expr:
     NUMBER {
-
+	$$ = new ExprNode(new IntValueNode(std::stoi($1)));
     }|
     FLOATNUM {
-
+	$$ = new ExprNode(new FloatValueNode(std::stod($1)));
     }|
     IDENT {
-
+	$$ = new ExprNode(new CharValueNode(std::string($1)));
     }|
     LBRACKET expr_priority_2 RBRACKET {
-
+	$$ = new ExprNode($2);
     }
 
 strval:
     STRVAL {
-
+	$$ = $1;
     }
 
 not:
@@ -339,22 +398,6 @@ equal_sign:
 
     }|
     LESSEQ {
-
-    }
-
-sign_priority_2:
-    PLUS {
-
-    }|
-    MINUS {
-
-    }
-
-sign_priority_1:
-    STAR {
-
-    }|
-    DIV {
 
     }
 %%

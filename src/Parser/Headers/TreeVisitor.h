@@ -30,6 +30,14 @@ class TreeVisitor : public Visitor {
     void visit(DeleteNode* node) override;
     void visit(ColumnsAndValuesNode* node) override;
     void visit(ColumnNode* node) override;
+    void visit(ExprNode* node) override;
+    void visit(AndLogicNode* node) override;
+    void visit(OrLogicNode* node) override;
+    void visit(NotLogicNode* node) override;
+    void visit(AddNode* node) override;
+    void visit(DivNode* node) override;
+    void visit(SubNode* node) override;
+    void visit(MultNode* node) override;
 
     std::shared_ptr<BigResponse> getResponse() { return response; }
 

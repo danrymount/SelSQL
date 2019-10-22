@@ -7,34 +7,13 @@
 
 #include "../Headers/TreeVisitor.h"
 
-enum class NodeType {
-    CREATE,
-    DROP,
-    SHOWCREATE,
-    INSERT,
-    SELECT,
-    UPDATE,
-    DELETE,
-    ROOT,
-    IDENTIFIER,
-    VARIABLE,
-    VARIABLES_LIST,
-    CONSTRAINT
-};
-
 class BaseNode {
    public:
-    // explicit BaseNode(NodeType _nodeType) : nodeType(_nodeType) {}
     BaseNode() = default;
 
     virtual ~BaseNode() = default;
 
-    // virtual NodeType getNodeType() { return nodeType; }
-
     virtual void accept(TreeVisitor* v) = 0;
-
-    // private:
-    // NodeType nodeType;
 };
 
 #endif  // SELSQL_BASENODE_H
