@@ -67,7 +67,8 @@ int FileManager::OpenFile(std::string table_name) {
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     if (files_.find(table->name) != files_.end()) {
-        return 1;
+        files_[table->name]->close();
+        files_.erase(table->name);
     }
 
     std::ifstream file;
@@ -100,7 +101,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         return 0;
     }
     this->WriteDataBlock(table->name, data);
-    this->files_[table->name]->close();
+
     return 0;
 }
 
