@@ -25,7 +25,7 @@ class Cursor {
         table = t;
         fileManager = fm;
         dataBlocks_ = fileManager->ReadDataBlocks(t->name);
-        //        data = new unsigned char[Constants::DATA_BLOCK_SIZE];
+        //        data = new unsigned char[Constants::DATA_SIZE];
         //        data = fileManager->GetData(table->name);
         for (const auto& i : table->fields) {
             vals.emplace_back(std::make_pair(i.first, ""));

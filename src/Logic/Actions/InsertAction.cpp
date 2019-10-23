@@ -32,7 +32,7 @@ BigResponse InsertAction::execute(BigRequest& _request, MainEngine* mainEngine) 
         return response;
     }
 
-    if (cursor.first->record_amount == Constants::DATA_BLOCK_SIZE / cursor.first->record_size) {
+    if (cursor.first->record_amount == Constants::DATA_SIZE / cursor.first->record_size) {
         response.error = Error(ErrorConstants::ERR_TABLE_FULL);
         return response;
     }

@@ -113,13 +113,13 @@ std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_nam
     if (table->record_amount == 0) {
         auto dataBlock = new DataBlock;
         dataBlock->record_size = table->record_size;
-        dataBlock->max_deleted_amount = Constants::DATA_BLOCK_SIZE / table->record_size;
+        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
         dataBlock->setDeletedPos(new char[dataBlock->max_deleted_amount * sizeof(short int)]);
         data.emplace_back(dataBlock);
         return data;
     }
     while (readed_data != table->record_amount) {
-        auto new_data = new char[Constants::DATA_BLOCK_SIZE];
+        auto new_data = new char[Constants::DATA_SIZE];
         auto dataBlock = new DataBlock();
         infile->seekg(offset, std::ios::beg);
         dataBlock->record_size = table->record_size;
@@ -127,7 +127,7 @@ std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_nam
         readed_data += dataBlock->record_amount;
         dataBlock->last_record_pos = read_int(infile);
         dataBlock->deleted = read_int(infile);
-        dataBlock->max_deleted_amount = Constants::DATA_BLOCK_SIZE / table->record_size;
+        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
         char* deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
         infile->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));
         dataBlock->setDeletedPos(deleted);
@@ -135,8 +135,8 @@ std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_nam
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   dataBlock->max_deleted_amount * sizeof(short int);
         infile->seekg(offset, std::ios::beg);
-        infile->read(new_data, Constants::DATA_BLOCK_SIZE);
-        offset += Constants::DATA_BLOCK_SIZE;
+        infile->read(new_data, Constants::DATA_SIZE);
+        offset += Constants::DATA_SIZE;
         dataBlock->setData(new_data);
         data.emplace_back(dataBlock);
     }
@@ -156,8 +156,8 @@ void FileManager::WriteDataBlock(std::string table_name, const std::vector<DataB
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   block->max_deleted_amount * sizeof(short int);
         outfile->seekp(offset, std::ios::beg);
-        outfile->write(block->data_, Constants::DATA_BLOCK_SIZE);
-        offset += Constants::DATA_BLOCK_SIZE;
+        outfile->write(block->data_, Constants::DATA_SIZE);
+        offset += Constants::DATA_SIZE;
         delete block;
     }
     outfile->close();

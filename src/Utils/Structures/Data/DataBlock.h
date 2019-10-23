@@ -8,7 +8,7 @@
 #include "../../Headers/Constants.h"
 class DataBlock {
    public:
-    char* data_ = new char[Constants::DATA_BLOCK_SIZE];
+    char* data_ = new char[Constants::DATA_SIZE];
     short int* deleted_pos_;
     size_t record_amount = 0;
     size_t record_size = 0;

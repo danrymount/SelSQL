@@ -53,7 +53,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
             pos_in_block = i->deleted_pos_[--i->deleted] * table->record_size;
             no_place = 0;
             break;
-        } else if (i->last_record_pos < Constants::DATA_BLOCK_SIZE / table->record_size - 1) {
+        } else if (i->last_record_pos < Constants::DATA_SIZE / table->record_size - 1) {
             block = i;
             pos_in_block = i->last_record_pos++ * table->record_size;
             no_place = 0;
@@ -63,7 +63,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     if (no_place) {
         block = new DataBlock();
         block->record_size = table->record_size;
-        auto new_del_pos = new char[Constants::DATA_BLOCK_SIZE];
+        auto new_del_pos = new char[Constants::DATA_SIZE];
         block->setDeletedPos(new_del_pos);
         dataBlocks_.emplace_back(block);
     }

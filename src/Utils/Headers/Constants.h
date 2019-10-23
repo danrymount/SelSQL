@@ -22,7 +22,7 @@ class Constants {
                                                                           MD_COLUMN_CONSTR_AMOUNT_SIZE +
                                                                           MD_COLUMN_CONSTR_AMOUNT_MAX * MD_COLUMN_CONSTR_SIZE) +
                                             4;
-    static const int DATA_BLOCK_SIZE = 16 * 1024;
+    static const int DATA_SIZE = 1 * 1024;
     static const int DATA_BLOCK_RECORD_AMOUNT = sizeof(int);
     static const int DATA_BLOCK_RECORD_LAST_POS = sizeof(int);
     static const int DATA_BLOCK_DELETED_AMOUNT = sizeof(int);
