@@ -18,7 +18,7 @@ BigResponse MainEngine::ShowCreateTable(BigRequest request) {
     if (file_manager_->OpenFile(request.ddlData.table.name)) {
         bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     } else {
-        bigResponse.ddlData.table = *file_manager_->GetTableData(request.ddlData.table.name);
+        bigResponse.ddlData.table = *file_manager_->GetTable(request.ddlData.table.name);
     }
 
     return bigResponse;
@@ -43,7 +43,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     if (file_manager_->OpenFile(table_name)) {
         return std::make_pair(table, cursor1);
     };
-    table = std::make_shared<Table>(*file_manager_->GetTableData(table_name));
+    table = std::make_shared<Table>(*file_manager_->GetTable(table_name));
     cursor1 = std::make_shared<Cursor>(table, file_manager_);
     return std::make_pair(table, cursor1);
 }

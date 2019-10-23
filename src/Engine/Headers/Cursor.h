@@ -9,22 +9,24 @@
 #include "FileManager.h"
 class Cursor {
     std::shared_ptr<FileManager> fileManager;
-    unsigned char* data;
+    std::vector<DataBlock*> dataBlocks_;
 
     std::vector<std::pair<std::string, std::string>> vals;
 
     void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
     void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
+    int current_block = 0;
 
    public:
-    int current_pos = 0;
+    int current_pos_in_block = 0;
     int readed_data = 0;
     std::shared_ptr<Table> table;
-    Cursor(std::shared_ptr<Table> t, std::shared_ptr<FileManager> fm) {
+    Cursor(const std::shared_ptr<Table>& t, const std::shared_ptr<FileManager>& fm) {
         table = t;
         fileManager = fm;
-        data = new unsigned char[Constants::DATA_BLOCK_SIZE];
-        data = fileManager->GetData(table->name);
+        dataBlocks_ = fileManager->ReadDataBlocks(t->name);
+        //        data = new unsigned char[Constants::DATA_SIZE];
+        //        data = fileManager->GetData(table->name);
         for (const auto& i : table->fields) {
             vals.emplace_back(std::make_pair(i.first, ""));
         }
