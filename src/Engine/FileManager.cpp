@@ -58,6 +58,7 @@ int FileManager::OpenFile(std::string table_name) {
                                           std::ios::binary | std::ios::out | std::ios::in);
     if (!files_[table_name]->is_open()) {
         files_.erase(table_name);
+
         return 1;
     }
     ReadTableMetaData(table_name);
@@ -84,6 +85,7 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     WriteDataBlock(table);
 
     files_[table->name]->close();
+    files_.erase(table->name);
     return 0;
 }
 Table* FileManager::GetTableData(std::string table_name) { return &table_data[table_name]; }
