@@ -6,7 +6,7 @@
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
     std::fstream* new_file = files_[table->name];
-    new_file->seekp(0);
+    new_file->seekp(0, std::ios::beg);
     new_file->write(table->name.c_str(), table->name.size());
     new_file->seekp(Constants::MD_COLUMN_NAME_SIZE);
     write_int(new_file, table->getFields().size());
@@ -59,7 +59,6 @@ int FileManager::OpenFile(std::string table_name) {
                                           std::ios::binary | std::ios::out | std::ios::in);
     if (!files_[table_name]->is_open()) {
         files_.erase(table_name);
-
         return 1;
     }
     ReadTableMetaData(table_name);
@@ -67,10 +66,11 @@ int FileManager::OpenFile(std::string table_name) {
     return 0;
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
-    if (files_.find(table->name) != files_.end()) {
-        files_[table->name]->close();
-        files_.erase(table->name);
-    }
+    this->CloseAllFiles();
+//    if (files_.find(table->name) != files_.end()) {
+//        files_[table->name]->close();
+//        files_.erase(table->name);
+//    }
 
     std::ifstream file;
     file.open(table->name + Constants::FILE_TYPE);
@@ -83,17 +83,14 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
                                            std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc);
 
     WriteTableMetaData(table);
-    files_[table->name]->close();
-    files_.erase(table->name);
+    this->CloseAllFiles();
+//    files_[table->name]->close();
     return 0;
 }
 Table* FileManager::GetTable(std::string table_name) { return table_data[table_name]; }
 
 int FileManager::DeleteTable(std::string table_name) {
-    if (files_.find(table_name) != files_.end()) {
-        files_[table_name]->close();
-        files_.erase(table_name);
-    }
+    this->CloseAllFiles();
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
 
@@ -103,7 +100,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         return 0;
     }
     this->WriteDataBlock(table->name, data);
-
+    this->CloseAllFiles();
     return 0;
 }
 
@@ -163,8 +160,16 @@ void FileManager::WriteDataBlock(std::string table_name, const std::vector<DataB
         offset += Constants::DATA_SIZE;
         delete block;
     }
-    outfile->close();
+
 }
+
+void FileManager::CloseAllFiles() {
+    for (auto i : files_){
+        i.second->close();
+    }
+    files_.clear();
+}
+
 void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
 int read_int(std::fstream* file) {
     int res;

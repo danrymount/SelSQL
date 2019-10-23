@@ -31,7 +31,7 @@ class Cursor {
             vals.emplace_back(std::make_pair(i.first, ""));
         }
     };
-    Cursor() = default;
+    Cursor();
     int Insert(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Commit();
     int Next();
@@ -39,6 +39,6 @@ class Cursor {
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
     int StartPos();
     std::vector<std::pair<std::string, std::string>> Fetch();
-    void d();
+    ~Cursor();
 };
 #endif  // SELSQL_CURSOR_H

@@ -1,7 +1,7 @@
 #include "Headers/Cursor.h"
 #include <cstring>
 
-void convert(unsigned char* dist, std::string val, Type type) {
+void convert(unsigned char *dist, std::string val, Type type) {
     unsigned char null_flag = 'n';
     switch (type) {
         case TYPE_INT: {
@@ -35,7 +35,7 @@ void convert(unsigned char* dist, std::string val, Type type) {
     dist[0] = null_flag;
 }
 
-void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos) {
+void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int start_pos) {
     unsigned char null_flag = 'n';
     unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
     auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
@@ -45,7 +45,7 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char* dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     size_t pos_in_block = 0;
-    DataBlock* block;
+    DataBlock *block;
     int no_place = 1;
     for (auto i : dataBlocks_) {
         if (i->deleted) {
@@ -69,7 +69,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     }
 
     int count = 0;
-    for (auto& i : vals) {
+    for (auto &i : vals) {
         if (cols.empty()) {
             if (count < new_data.size()) {
                 i.second = new_data[count++];
@@ -98,10 +98,12 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
 
     return 0;
 }
+
 int Cursor::Commit() {
     fileManager->UpdateFile(table, dataBlocks_);
     return 0;
 }
+
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     auto block = dataBlocks_[current_block];
     unsigned char record[table->record_size];
@@ -127,7 +129,8 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     readed_data++;
     return values;
 }
-void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos) {
+
+void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int start_pos) {
     switch (type) {
         case TYPE_INT: {
             int v;
@@ -150,6 +153,7 @@ void Cursor::GetFieldData(std::string* dist, Type type, unsigned char* src, int 
         }
     }
 }
+
 int Cursor::Next() {
     if (readed_data > table->record_amount - 1) {
         return 1;
@@ -158,6 +162,7 @@ int Cursor::Next() {
         return 0;
     }
 }
+
 int Cursor::Delete() {
     auto block = dataBlocks_[current_block];
     std::memset(&block->data_[current_pos_in_block * table->record_size], '0', table->record_size);
@@ -167,6 +172,7 @@ int Cursor::Delete() {
     //    table->last_record_pos++;
     return 0;
 }
+
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
     auto block = dataBlocks_[current_block];
     unsigned char record[table->record_size];
@@ -188,12 +194,20 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
     return 0;
 }
+
 int Cursor::StartPos() {
     current_pos_in_block = 0;
     readed_data = 0;
     return 0;
 }
-void Cursor::d() {
+
+Cursor::~Cursor() {
     if (!table->name.empty())
-        Commit();
+        fileManager->CloseAllFiles();
 }
+
+Cursor::Cursor() {
+    table = std::make_shared<Table>();
+}
+
+

@@ -59,7 +59,7 @@ class Table {
 
     void clear() {
         name.erase();
-        fields.clear();
+//        fields.clear();
     }
 
     std::string name;

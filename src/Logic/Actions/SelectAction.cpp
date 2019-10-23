@@ -73,7 +73,7 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
             std::cout << std::endl;
         }
     }
-
+    cursor.second->Commit();
     response.select_message = stringstream.str();
     return response;
 }

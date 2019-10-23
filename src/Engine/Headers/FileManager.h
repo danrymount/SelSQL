@@ -25,6 +25,7 @@ class FileManager {
     void WriteDataBlock(std::string table_name, const std::vector<DataBlock*>& data);
 
    public:
+    void CloseAllFiles();
     std::vector<DataBlock*> ReadDataBlocks(const std::string& table_name);
     int OpenFile(std::string table_name);
     int CreateFile(const std::shared_ptr<Table>& table);
