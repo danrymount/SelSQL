@@ -55,7 +55,8 @@
     #include "../../src/Parser/Nodes/VariableListNode.h"
     #include "../../src/Parser/Nodes/ColumnsAndValuesNode.h"
     #include "../../src/Parser/Nodes/ColumnsAndExprNode.h"
-
+    #include "../../src/Parser/Nodes/ExpressionsNodes/IndentExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ValueExprNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -293,7 +294,7 @@ values:
 
 where_exprs:
     WHERE where_expr{
-    	$$ = new ExprNode($2);
+    	$$ = $2;
     }|
     /*empty*/ { $$ = new ExprNode();};
 
@@ -305,7 +306,7 @@ where_expr:
 	$$ = new OrLogicNode($1, $3);
     }|
     LBRACKET where_expr RBRACKET{
-    	$$ = new ExprNode($2);
+    	$$ = $2;
     }|
     NOT LBRACKET where_expr RBRACKET{
     	$$ = new NotLogicNode($3);
@@ -354,7 +355,7 @@ expr_priority_2:
 
 expr_priority_1:
     expr{
-    	$$ = new ExprNode($1);
+    	$$ = $1;
     }|
     expr_priority_1 STAR expr{
 	$$ = new MultNode($1, $3);
@@ -365,16 +366,16 @@ expr_priority_1:
 
 expr:
     NUMBER {
-	$$ = new ExprNode(new IntValueNode(std::stoi($1)));
+	$$ = new ValueExprNode(std::string($1));
     }|
     FLOATNUM {
-	$$ = new ExprNode(new FloatValueNode(std::stod($1)));
+	$$ = new ValueExprNode(std::string($1));
     }|
     IDENT {
-	$$ = new ExprNode(new CharValueNode(std::string($1)));
+	$$ = new IndentExprNode(std::string($1));
     }|
     LBRACKET expr_priority_2 RBRACKET {
-	$$ = new ExprNode($2);
+	$$ = $2;
     }
 
 equal_sign:

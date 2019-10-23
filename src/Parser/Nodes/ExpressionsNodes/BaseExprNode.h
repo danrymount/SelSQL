@@ -8,5 +8,14 @@
 class BaseExprNode : public BaseNode {
    public:
     BaseExprNode() = default;
+
+    virtual std::string getBaseValue() { return std::string(); }
+
+    int getResult() { return result; }
+
+    void setResult(int _res) { result = _res; }
+
+   private:
+    int result = -1;
 };
 #endif  // SELSQL_BASEEXPRNODE_H

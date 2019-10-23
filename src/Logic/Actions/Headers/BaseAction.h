@@ -5,17 +5,29 @@
 #ifndef SELSQL_BASEACTION_H
 #define SELSQL_BASEACTION_H
 
+#include <utility>
+
 #include "../../../Engine/Headers/MainEngine.h"
+#include "../../../Parser/Nodes/ActionNodes/BaseActionNode.h"
+#include "../../../Parser/Nodes/BaseNode.h"
 #include "../../../Utils/Headers/ActionsUtils.h"
 #include "../../../Utils/Structures/BigResponse.h"
 
 class BaseAction {
    protected:
-    int errorCode;
+    int errorCode = 0;
     ActionsUtils actionsUtils;
 
    public:
-    virtual BigResponse execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) = 0;
+    BaseAction(std::shared_ptr<TreeVisitor> _visitor) : visitor(std::move(_visitor)) {}
+
+    virtual Error execute(std::shared_ptr<BaseActionNode>) = 0;
+
+    //virtual BigResponse execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) = 0;
+
+    MainEngine getEngine() { return mainEngine; }
+
+    std::shared_ptr<TreeVisitor> getTreeVisitor() { return visitor; }
 
     // move to Engine
     void requestToResponse(std::shared_ptr<BigRequest> _request) {
@@ -38,6 +50,11 @@ class BaseAction {
         }
     }
     BigResponse response;
+
+   private:
+    // shared ptr
+    MainEngine mainEngine;
+    std::shared_ptr<TreeVisitor> visitor;
 };
 
 #endif  // SELSQL_BASEACTION_H

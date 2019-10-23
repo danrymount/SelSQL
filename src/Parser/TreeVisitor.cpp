@@ -4,7 +4,11 @@
 
 #include "Headers/TreeVisitor.h"
 #include <iostream>
+#include "../Logic/Actions/Headers/InsertAction.h"
+#include "../Logic/Actions/Headers/SelectAction.h"
 #include "../Logic/Headers/MainLogic.h"
+#include "Headers/InsertVisitor.h"
+#include "Headers/SelectVisitor.h"
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DeleteNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
@@ -22,6 +26,7 @@
 #include "Nodes/ExpressionsNodes/CompareNodes/MoreNode.h"
 #include "Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
 #include "Nodes/ExpressionsNodes/ExprNode.h"
+#include "Nodes/ExpressionsNodes/IndentExprNode.h"
 #include "Nodes/ExpressionsNodes/IndentNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
@@ -52,7 +57,6 @@ void TreeVisitor::visit(CreateNode* node) {
     std::cout << "CREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
     node->getChild()->accept(this);
-    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(DropNode* node) {
@@ -68,18 +72,25 @@ void TreeVisitor::visit(ShowCreateNode* node) {
     request->tableName = node->getTableName();
     std::cout << "SHOWCREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
-    response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(InsertNode* node) {
     request->action = node->getAction();
     request->tableName = node->getTableName();
     std::cout << "INSERT" << std::endl;
-    node->getChild()->accept(this);
+    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
+    auto action = std::make_shared<InsertNode>(*node);
+    InsertAction(visitor).execute(action);
+
     // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
-void TreeVisitor::visit(SelectNode* node) {}
+void TreeVisitor::visit(SelectNode* node) {
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
+    auto action = std::make_shared<SelectNode>(*node);
+    SelectAction(visitor).execute(action);
+}
+
 void TreeVisitor::visit(UpdateNode* node) {}
 void TreeVisitor::visit(DeleteNode* node) {}
 
@@ -150,3 +161,7 @@ void TreeVisitor::visit(VariableListNode* node) {
 void TreeVisitor::visit(ColumnsAndExprNode* node) {}
 void TreeVisitor::visit(UpdateExprNode* node) {}
 void TreeVisitor::visit(UpdatesAndExprNode* node) {}
+void TreeVisitor::visit(IndentExprNode* node) {}
+void TreeVisitor::visit(ValueExprNode* node) {}
+
+void TreeVisitor::visit(LogicNode* node) {}

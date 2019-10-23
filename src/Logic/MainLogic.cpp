@@ -6,7 +6,7 @@
 #include "Actions/Headers/ActionFactory.h"
 
 BigResponse MainLogic::executeRequest(std::shared_ptr<BigRequest> _request) {
-    ActionFactory actionFactory;
+    //ActionFactory actionFactory;
 
-    return actionFactory.create(_request->action)->execute(_request, mainEngine);
+    //return actionFactory.create(_request->action)->execute(_request, mainEngine);
 }

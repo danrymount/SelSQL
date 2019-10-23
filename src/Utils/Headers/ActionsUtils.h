@@ -36,44 +36,64 @@ class ActionsUtils {
     }
 
     static int compareEquals(const std::string& a, const std::string& b) {
-        if (isNumbers(a, b)) {
-            return std::stod(a) == std::stod(b);
-        } else {
+        if (!isNumbers(a, b)) {
             auto c = a.substr(1, a.length() - 2);
             if (isChars(c, b)) {
-                int res = c.compare(b);
-                if (!res)
-                    return 1;
-                else
-                    return 0;
+                return c == b;
             }
         }
+        return std::stod(a) == std::stod(b);
     }
 
     static int compareNoEquals(const std::string& a, const std::string& b) { return !compareEquals(a, b); }
 
-    std::array<std::function<int(const std::string&, const std::string&)>, 6> checkSign = {[](const std::string& a,
-                                                                                                           const std::string& b) {
-                                                                                                            return std::stod(a) >=
-                                                                                                                   std::stod(b);
-                                                                                                        },
-                                                                                                        [](const std::string& a,
-                                                                                                           const std::string& b) {
-                                                                                                            return std::stod(a) >
-                                                                                                                   std::stod(b);
-                                                                                                        },
+    static int compareMore(const std::string& a, const std::string& b) {
+        if (!isNumbers(a, b)) {
+            auto c = a.substr(1, a.length() - 2);
+            if (isChars(c, b)) {
+                return c > b;
+            }
+        }
+        return std::stod(a) > std::stod(b);
+    }
+
+    static int compareMoreEq(const std::string& a, const std::string& b) {
+        if (!isNumbers(a, b)) {
+            auto c = a.substr(1, a.length() - 2);
+            if (isChars(c, b)) {
+                return c >= b;
+            }
+        }
+        return std::stod(a) >= std::stod(b);
+    }
+
+    static int compareLess(const std::string& a, const std::string& b) {
+        if (!isNumbers(a, b)) {
+            auto c = a.substr(1, a.length() - 2);
+            if (isChars(c, b)) {
+                return c < b;
+            }
+        }
+        return std::stod(a) < std::stod(b);
+    }
+
+    static int compareLessEq(const std::string& a, const std::string& b) {
+        if (!isNumbers(a, b)) {
+            auto c = a.substr(1, a.length() - 2);
+            if (isChars(c, b)) {
+                return c <= b;
+            }
+        }
+        return std::stod(a) <= std::stod(b);
+    }
+
+    inline static std::array<std::function<int(const std::string&, const std::string&)>, 6> checkSign = {
+                                                                                                        compareMoreEq,
+                                                                                                        compareMore,
                                                                                                         compareNoEquals,
                                                                                                         compareEquals,
-                                                                                                        [](const std::string& a,
-                                                                                                           const std::string& b) {
-                                                                                                            return std::stod(a) <
-                                                                                                                   std::stod(b);
-                                                                                                        },
-                                                                                                        [](const std::string& a,
-                                                                                                           const std::string& b) {
-                                                                                                            return std::stod(a) <=
-                                                                                                                   std::stod(b);
-                                                                                                        }};
+                                                                                                        compareLess,
+                                                                                                        compareLessEq};
 
     typedef std::vector<std::pair<std::string, std::string>> Record;
     std::string makeRequestCreateFromTable(Table table);
@@ -87,36 +107,29 @@ class ActionsUtils {
 
     static void PrintSelect(std::vector<std::pair<std::string, std::vector<std::string>>> values);
 
+    inline static std::array<std::function<double(double a, double b)>, 4> calculate = {[](double a, double b) {
+                                                                                            return a + b;
+                                                                                        },
+                                                                                        {[](double a, double b) {
+                                                                                            return a - b;
+                                                                                        }},
+                                                                                        {[](double a, double b) {
+                                                                                            return a * b;
+                                                                                        }},
+                                                                                        {[](double a, double b) {
+                                                                                            if (b != 0)
+                                                                                                return a / b;
+                                                                                            else
+                                                                                                return 0.0;  // zero
+                                                                                                             // division
+                                                                                        }}};
+
    private:
     ParserUtils parserUtils;
 
     static std::vector<std::pair<Cmp, std::string>> countExpr(std::pair<std::string, std::string> record,
                                                               std::vector<std::pair<std::string, std::string>> row,
                                                               Expr exprs);
-
-    inline static std::map<std::string, std::function<double(double a, double b)>> calculate = {{"+",
-                                                                                                 [](double a,
-                                                                                                    double b) {
-                                                                                                     return a + b;
-                                                                                                 }},
-                                                                                                {"-",
-                                                                                                 [](double a,
-                                                                                                    double b) {
-                                                                                                     return a - b;
-                                                                                                 }},
-                                                                                                {"*",
-                                                                                                 [](double a,
-                                                                                                    double b) {
-                                                                                                     return a * b;
-                                                                                                 }},
-                                                                                                {"/", [](double a,
-                                                                                                         double b) {
-                                                                                                     if (b != 0)
-                                                                                                         return a / b;
-                                                                                                     else
-                                                                                                         return 0.0;  // zero
-                                                                                                                      // division
-                                                                                                 }}};
 
     inline static std::map<std::string, std::function<int(int a, int b)>> logicCalculate = {{"and",
                                                                                              [](int a, int b) {

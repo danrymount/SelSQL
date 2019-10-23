@@ -13,6 +13,8 @@ class IdentNode : public BaseExprNode {
 
     std::string getName() { return name; }
 
+    std::string getBaseValue() override {  return name; }
+
     void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:

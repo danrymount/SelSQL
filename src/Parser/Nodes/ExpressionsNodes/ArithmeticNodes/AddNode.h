@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_ADDNODE_H
 #define SELSQL_ADDNODE_H
+#include "ArithmeticNode.h"
 class AddNode : public ArithmeticNode {
    public:
     AddNode(BaseExprNode* _left, BaseExprNode* _right) : ArithmeticNode(_left, _right) {}

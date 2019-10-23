@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_CMPNODE_H
 #define SELSQL_CMPNODE_H
+#include "../../ValuesNodes/BaseValueNode.h"
 #include "../BaseExprNode.h"
 class CmpNode : public BaseExprNode {
    public:
@@ -22,5 +23,6 @@ class CmpNode : public BaseExprNode {
    private:
     BaseExprNode* left = nullptr;
     BaseExprNode* right = nullptr;
+
 };
 #endif  // SELSQL_CMPNODE_H

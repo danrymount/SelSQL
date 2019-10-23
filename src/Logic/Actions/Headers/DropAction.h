@@ -8,7 +8,7 @@
 #include "BaseAction.h"
 class DropAction : public BaseAction {
    public:
-    BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
+    //BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_DROPACTION_H

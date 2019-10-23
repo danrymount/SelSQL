@@ -150,50 +150,51 @@ RecordsData ActionsUtils::checkExpression(std::pair<Expr, vecString> expr, Recor
 std::vector<std::pair<Cmp, std::string>> ActionsUtils::countExpr(std::pair<std::string, std::string> record,
                                                                  std::vector<std::pair<std::string, std::string>> row,
                                                                  Expr exprs) {
-    std::vector<std::pair<Cmp, std::string>> res;
-    std::vector<double> curExpr;
-    auto columnName = record.first;
-    auto val = record.second;
-    for (int index = 0; index < exprs.size(); index++) {
-        auto expr = exprs[index];
-        auto valExpr = expr.first.first;
-        if (valExpr != columnName)
-            continue;
-        if (std::isdigit(*val.c_str())) {
-            auto cmp = expr.first.second;
-            auto tempExpr = expr.second;
-            if (tempExpr.empty()) {
-                continue;
-            }
-            int i = 0;
-            while (i != tempExpr.size()) {
-                auto elem = tempExpr[i];
-                i++;
-                for (auto& col : row) {
-                    if (elem == col.first) {
-                        elem = col.second;
-                    }
-                }
-
-                if (std::isdigit(*elem.c_str())) {
-                    curExpr.emplace_back(std::stoi(elem));
-                    continue;
-                }
-                double a = curExpr.back();
-                curExpr.pop_back();
-                double b = curExpr.back();
-                curExpr.pop_back();
-                curExpr.emplace_back(ActionsUtils::calculate[elem](b, a));
-            }
-            res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
-        } else {
-            auto curExprVal = expr.second[0].substr(1, expr.second[0].length() - 2);
-            auto cmp = expr.first.second;
-            res.emplace_back(std::make_pair(cmp, curExprVal));
-        }
-    }
-    return res;
+//    std::vector<std::pair<Cmp, std::string>> res;
+//    std::vector<double> curExpr;
+//    auto columnName = record.first;
+//    auto val = record.second;
+//    for (int index = 0; index < exprs.size(); index++) {
+//        auto expr = exprs[index];
+//        auto valExpr = expr.first.first;
+//        if (valExpr != columnName)
+//            continue;
+//        if (std::isdigit(*val.c_str())) {
+//            auto cmp = expr.first.second;
+//            auto tempExpr = expr.second;
+//            if (tempExpr.empty()) {
+//                continue;
+//            }
+//            int i = 0;
+//            while (i != tempExpr.size()) {
+//                auto elem = tempExpr[i];
+//                i++;
+//                for (auto& col : row) {
+//                    if (elem == col.first) {
+//                        elem = col.second;
+//                    }
+//                }
+//
+//                if (std::isdigit(*elem.c_str())) {
+//                    curExpr.emplace_back(std::stoi(elem));
+//                    continue;
+//                }
+//                double a = curExpr.back();
+//                curExpr.pop_back();
+//                double b = curExpr.back();
+//                curExpr.pop_back();
+//                curExpr.emplace_back(ActionsUtils::calculate[elem](b, a));
+//            }
+//            res.emplace_back(std::make_pair(cmp, std::to_string(curExpr.front())));
+//        } else {
+//            auto curExprVal = expr.second[0].substr(1, expr.second[0].length() - 2);
+//            auto cmp = expr.first.second;
+//            res.emplace_back(std::make_pair(cmp, curExprVal));
+//        }
+//    }
+//    return res;
 }
+
 int ActionsUtils::checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems) {
     // TODO починить со скобками.
     std::queue<int> elems;
