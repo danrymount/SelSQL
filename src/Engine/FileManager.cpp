@@ -100,7 +100,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         return 0;
     }
     this->WriteDataBlock(table->name, data);
-    //    this->WriteData(table, src);
+    this->files_[table->name]->close();
     return 0;
 }
 
