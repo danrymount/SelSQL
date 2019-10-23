@@ -5,6 +5,7 @@
 #ifndef SELSQL_ACTIONSUTILS_H
 #define SELSQL_ACTIONSUTILS_H
 #include <functional>
+#include <map>
 #include <string>
 #include "../../Engine/Headers/Cursor.h"
 #include "../Structures/Data/Table.h"
@@ -81,6 +82,8 @@ class ActionsUtils {
     RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
 
     static int checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems);
+
+    static void PrintSelect(std::vector<std::pair<std::string, std::vector<std::string>>> values);
 
    private:
     ParserUtils parserUtils;
