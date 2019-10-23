@@ -23,7 +23,7 @@
 
 %option noinput noyywrap case-insensitive yylineno
 
-NUMBER   ([-?][0-9]*)
+NUMBER   ([0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
 STRVAL   [']([^'])*[']
