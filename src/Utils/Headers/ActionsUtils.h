@@ -5,7 +5,9 @@
 #ifndef SELSQL_ACTIONSUTILS_H
 #define SELSQL_ACTIONSUTILS_H
 #include <functional>
+#include <iostream>
 #include <map>
+#include <sstream>
 #include <string>
 #include "../../Engine/Headers/Cursor.h"
 #include "../Structures/Data/Table.h"

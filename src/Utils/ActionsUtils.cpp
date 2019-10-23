@@ -247,6 +247,7 @@ Error ActionsUtils::checkFieldsExist(std::shared_ptr<Table> table, std::vector<s
 void ActionsUtils::PrintSelect(std::vector<std::pair<std::string, std::vector<std::string>>> values) {
     std::string str;
     std::vector<int> len;
+    std::stringstream stringstream;
     for (const auto& elem : values) {
         int maxLen = elem.first.length();
         for (const auto& elem1 : elem.second) {
@@ -258,31 +259,32 @@ void ActionsUtils::PrintSelect(std::vector<std::pair<std::string, std::vector<st
     }
     int n = len.size();
     for (int i = 0; i < n; i++) {
-        std::cout << values[i].first;
+        stringstream << values[i].first;
         int lenStr = values[i].first.length();
         for (int j = lenStr; j < len[i]; j++) {
-            std::cout << "\40";
+            stringstream << "\40";
         }
-        std::cout << "|";
+        stringstream << "|";
     }
-    std::cout << std::endl;
+    stringstream << std::endl;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < len[i]; j++) {
-            std::cout << "-";
+            stringstream << "-";
         }
-        std::cout << "|";
+        stringstream << "|";
     }
-    std::cout << std::endl;
+    stringstream << std::endl;
     int countCol = values[0].second.size();
     for (int i = 0; i < countCol; i++) {
         for (int j = 0; j < n; j++) {
-            std::cout << values[i].second[j];
+            stringstream << values[i].second[j];
             int lenStr = values[i].second[j].length();
             for (int k = lenStr; k < len[j]; k++) {
-                std::cout << "\40";
+                stringstream << "\40";
             }
-            std::cout << "|";
+            stringstream << "|";
         }
-        std::cout << std::endl;
+        stringstream << std::endl;
     }
+    std::cout << stringstream.str();
 }
