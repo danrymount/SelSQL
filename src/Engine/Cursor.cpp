@@ -193,4 +193,7 @@ int Cursor::StartPos() {
     readed_data = 0;
     return 0;
 }
-Cursor::~Cursor() { Commit(); }
+void Cursor::d() {
+    if (!table->name.empty())
+        Commit();
+}
