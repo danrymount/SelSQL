@@ -26,7 +26,7 @@
 NUMBER   ([0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
-STRVAL   (\'[-a-zA-Z0-9]*\')
+STRVAL   [']([^'])*[']
 CHAR     "CHAR("[-0-9]*")"
 
 %%
@@ -85,7 +85,7 @@ CHAR     "CHAR("[-0-9]*")"
                         return CHAR;}
 {NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
 {FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
-{STRVAL}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return STRVAL; }
+{STRVAL}                {ch += yyleng; yylval.string = new char[100](); yylval.string = yytext; return STRVAL; }
 {IDENT}                 {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
 
 %%
