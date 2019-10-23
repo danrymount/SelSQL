@@ -1,5 +1,6 @@
 
 #include "Logic/Headers/MainLogic.h"
+#include "Parser/Headers/TreeVisitor.h"
 #include "Utils/Structures/BigResponse.h"
 #include "parser.cpp"
 
