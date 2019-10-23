@@ -196,7 +196,7 @@ constraint:
 colnames:
     LBRACKET colname RBRACKET{
 	columnsList.emplace_back($2);
-    }
+    }|
 
 colname:
     IDENT {
