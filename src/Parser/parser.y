@@ -73,8 +73,8 @@
     std::vector<BaseExprNode*> updateList;
 %}
 
-%token CREATE_TABLE_ACTION SHOWCREATE_TABLE_ACTION DROP_TABLE_ACTION INSERT_INTO_ACTION SELECT_ACTION UPDATE_ACTION DELETE_FROM_ACTION
-%token VALUES FROM SET WHERE AS AND OR NOT JOIN ON
+%token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
+%token VALUES SET WHERE AS AND OR NOT JOIN ON
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
@@ -87,7 +87,7 @@
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
 %type<Value> values
 %type<Column> colname col_select
-%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr update_elem
+%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr update_elem
 %type<Cmp> equal_sign
 //%type<string> id
 //%type<string> request
@@ -121,17 +121,17 @@ query:
     }
 
 request:
-    CREATE_TABLE_ACTION IDENT LBRACKET variables RBRACKET SEMICOLON{
-	children.emplace_back(new CreateNode(std::string($2), new VariableListNode(variablesList)));
+    CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
+	children.emplace_back(new CreateNode(std::string($3), new VariableListNode(variablesList)));
     }|
-    DROP_TABLE_ACTION IDENT SEMICOLON{
-	children.emplace_back(new DropNode(std::string($2)));
+    DROP_ACTION TABLE IDENT SEMICOLON{
+	children.emplace_back(new DropNode(std::string($3)));
     }|
-    SHOWCREATE_TABLE_ACTION IDENT SEMICOLON{
-	children.emplace_back(new ShowCreateNode(std::string($2)));
+    SHOW_ACTION CREATE_ACTION TABLE IDENT SEMICOLON{
+	children.emplace_back(new ShowCreateNode(std::string($4)));
     }|
-    INSERT_INTO_ACTION IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
-	children.emplace_back(new InsertNode(std::string($2), new ColumnsAndValuesNode(columnsList, valuesList)));
+    INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
+	children.emplace_back(new InsertNode(std::string($3), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
     SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
 	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, $7)));
@@ -139,8 +139,8 @@ request:
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), $5)));
     }|
-    DELETE_FROM_ACTION IDENT where_exprs SEMICOLON {
-	children.emplace_back(new DeleteNode(std::string($2), $3));
+    DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
+	children.emplace_back(new DeleteNode(std::string($3), $4));
     }
 
 variables:
@@ -298,26 +298,34 @@ where_exprs:
     /*empty*/ { $$ = new ExprNode();};
 
 where_expr:
-    expr_priority_4{
+    expr_priority_5{
     	$$ = $1;
-    }|
-    NOT where_expr {
-   	std::cout << $2 << std::endl;
-	$$ = new NotLogicNode($2);
     }|
     where_expr OR where_expr {
 	$$ = new OrLogicNode($1, $3);
     }|
     LBRACKET where_expr RBRACKET{
     	$$ = new ExprNode($2);
+    }|
+    NOT LBRACKET where_expr RBRACKET{
+    	$$ = new NotLogicNode($3);
+    }
+
+
+expr_priority_5:
+    expr_priority_4{
+    	$$ = $1;
+    }|
+    where_expr AND where_expr{
+	$$ = new AndLogicNode($1, $3);
     }
 
 expr_priority_4:
-    expr_priority_3{
+    expr_priority_3 {
     	$$ = $1;
     }|
-    expr_priority_4 AND where_expr{
-	$$ = new AndLogicNode($1, $3);
+    NOT expr_priority_4{
+    	$$ = new NotLogicNode($2);
     }
 
 expr_priority_3:

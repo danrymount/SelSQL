@@ -23,18 +23,21 @@
 
 %option noinput noyywrap case-insensitive yylineno
 
-NUMBER   ([-0-9])*
+NUMBER   ([0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
 STRVAL   (\'[-a-zA-Z0-9]*\')
 CHAR     "CHAR("[-0-9]*")"
 
 %%
-"CREATE TABLE"          {ch += yyleng; return CREATE_TABLE_ACTION;}
-"SHOW CREATE TABLE"     {ch += yyleng; return SHOWCREATE_TABLE_ACTION;}
-"DROP TABLE"            {ch += yyleng; return DROP_TABLE_ACTION;}
-"INSERT INTO"           {ch += yyleng; return INSERT_INTO_ACTION;}
-"DELETE FROM"           {ch += yyleng; return DELETE_FROM_ACTION;}
+"CREATE"                {ch += yyleng; return CREATE_ACTION;}
+"SHOW"                  {ch += yyleng; return SHOW_ACTION;}
+"DROP"                  {ch += yyleng; return DROP_ACTION;}
+"INSERT"                {ch += yyleng; return INSERT_ACTION;}
+"DELETE"                {ch += yyleng; return DELETE_ACTION;}
+"TABLE"                 {ch += yyleng; return TABLE;}
+"INTO"                  {ch += yyleng; return INTO;}
+"FROM"                  {ch += yyleng; return FROM;}
 "VALUES"                {ch += yyleng; return VALUES;}
 "SELECT"                {ch += yyleng; return SELECT_ACTION;}
 "FROM"                  {ch += yyleng; return FROM;}
