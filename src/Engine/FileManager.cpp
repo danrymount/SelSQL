@@ -1,6 +1,7 @@
 #include "Headers/FileManager.h"
 #include <cstring>
 #include <memory>
+#include "../Utils/Structures/Data/DataBlock.h"
 #include "../Utils/Structures/Data/Table.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
@@ -18,15 +19,12 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         }
     }
 
-    files_[table->name]->seekp(Constants::DATA_BLOCK_START_POS + Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
-                                                                                                                                   Constants::DATA_BLOCK_RECORD_LAST_POS +
-                                                                                                                                   Constants::DATA_BLOCK_SIZE * sizeof(int),
-                               std::ios::beg);
-    write_int(files_[table->name], 1);
+    files_[table->name]->seekp(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
+    write_int(files_[table->name], table->record_amount);
 }
 
 void FileManager::ReadTableMetaData(std::string table_name) {
-    Table table;
+    auto table = new Table();
     char name[Constants::MD_TABLE_NAME_SIZE];
     int column_size;
     files_[table_name]->read(name, Constants::MD_TABLE_NAME_SIZE);
@@ -48,9 +46,12 @@ void FileManager::ReadTableMetaData(std::string table_name) {
             constraints.emplace_back(Constraint(constr_type));
         }
         var.setConstraints(constraints);
-        table.addField(std::string(var_name), var);
+        table->addField(std::string(var_name), var);
     }
-    table.name = std::string(name);
+    table->name = std::string(name);
+    files_[table_name]->seekg(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
+    table->record_amount = read_int(files_[table_name]);
+    table->calcRecordSize();
     table_data[table_name] = table;
 }
 int FileManager::OpenFile(std::string table_name) {
@@ -62,13 +63,13 @@ int FileManager::OpenFile(std::string table_name) {
         return 1;
     }
     ReadTableMetaData(table_name);
-    ReadDataBlock(table_name);
 
     return 0;
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     if (files_.find(table->name) != files_.end()) {
-        return 1;
+        files_[table->name]->close();
+        files_.erase(table->name);
     }
 
     std::ifstream file;
@@ -82,13 +83,11 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
                                            std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc);
 
     WriteTableMetaData(table);
-    WriteDataBlock(table);
-
     files_[table->name]->close();
     files_.erase(table->name);
     return 0;
 }
-Table* FileManager::GetTableData(std::string table_name) { return &table_data[table_name]; }
+Table* FileManager::GetTable(std::string table_name) { return table_data[table_name]; }
 
 int FileManager::DeleteTable(std::string table_name) {
     if (files_.find(table_name) != files_.end()) {
@@ -97,64 +96,74 @@ int FileManager::DeleteTable(std::string table_name) {
     }
     return std::remove((table_name + Constants::FILE_TYPE).c_str());
 }
-unsigned char* FileManager::GetData(std::string table_name) {
-    auto new_data = new char[Constants::DATA_BLOCK_SIZE];
-    if (table_data[table_name].record_amount == 0) {
-        return reinterpret_cast<unsigned char*>(new_data);
-    }
 
-    files_[table_name]->seekp(Constants::DATA_BLOCK_START_POS + Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
-                                                                                                                                  Constants::DATA_BLOCK_RECORD_LAST_POS +
-                                                                                                                                  table_data[table_name].max_deleted_amount * sizeof(int),
-                              std::ios::beg);
-
-    files_[table_name]->read(new_data, Constants::DATA_BLOCK_SIZE);
-    //    std::cerr << files_[table_name]->tellg();
-    files_[table_name]->seekg(0, std::ios::beg);
-    //    std::cerr << files_[table_name]->tellg();
-    auto res = reinterpret_cast<unsigned char*>(new_data);
-    return res;
-}
-int FileManager::UpdateFile(const std::shared_ptr<Table>& table, unsigned char* src) {
+int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<DataBlock*>& data) {
     this->WriteTableMetaData(table);
-    this->WriteDataBlock(table);
-    this->WriteData(table, src);
+    if (data.size() == 0) {
+        return 0;
+    }
+    this->WriteDataBlock(table->name, data);
+
     return 0;
 }
-void FileManager::WriteData(const std::shared_ptr<Table>& table, unsigned char* src) {
-    std::fstream* new_file = files_[table->name];
 
-    auto res = reinterpret_cast<char*>(src);
-    new_file->seekp(Constants::DATA_BLOCK_START_POS + Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
-                                                                                                                        Constants::DATA_BLOCK_RECORD_LAST_POS +
-                                                                                                                        table->max_deleted_amount * sizeof(int),
-                    std::ios::beg);
+std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_name) {
+    std::vector<DataBlock*> data;
+    int readed_data = 0;
+    int offset = Constants::DATA_BLOCK_START_POS;
+    auto infile = files_[table_name];
+    auto table = table_data[table_name];
+    if (table->record_amount == 0) {
+        auto dataBlock = new DataBlock;
+        dataBlock->record_size = table->record_size;
+        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
+        dataBlock->setDeletedPos(new char[dataBlock->max_deleted_amount * sizeof(short int)]);
+        data.emplace_back(dataBlock);
+        return data;
+    }
+    while (readed_data != table->record_amount) {
+        auto new_data = new char[Constants::DATA_SIZE];
+        auto dataBlock = new DataBlock();
+        infile->seekg(offset, std::ios::beg);
+        dataBlock->record_size = table->record_size;
+        dataBlock->record_amount = read_int(infile);
+        readed_data += dataBlock->record_amount;
+        dataBlock->last_record_pos = read_int(infile);
+        dataBlock->deleted = read_int(infile);
+        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
+        char* deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
+        infile->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));
+        dataBlock->setDeletedPos(deleted);
+        offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
+                  Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
+                  dataBlock->max_deleted_amount * sizeof(short int);
+        infile->seekg(offset, std::ios::beg);
+        infile->read(new_data, Constants::DATA_SIZE);
+        offset += Constants::DATA_SIZE;
+        dataBlock->setData(new_data);
+        data.emplace_back(dataBlock);
+    }
 
-    //        std::cerr << new_file->tellp();
-    new_file->write(res, Constants::DATA_BLOCK_SIZE);
-
-    new_file->close();
+    return data;
 }
-void FileManager::ReadDataBlock(std::string table_name) {
-    Table* table = &table_data[table_name];
-    files_[table_name]->seekg(Constants::DATA_BLOCK_START_POS);
-    table->record_amount = read_int(files_[table_name]);
-    table->last_record_pos = read_int(files_[table_name]);
-    table->deleted = read_int(files_[table_name]);
-    table->calcMaxDeleted();
-    char* deleted = new char[table->max_deleted_amount * sizeof(int)];
-    files_[table_name]->read(deleted, table->max_deleted_amount * sizeof(int));
-    std::memcpy(table->deleted_pos, deleted, table->max_deleted_amount * sizeof(int));
-}
-void FileManager::WriteDataBlock(const std::shared_ptr<Table>& table) {
-    files_[table->name]->seekg(Constants::DATA_BLOCK_START_POS);
-    write_int(files_[table->name], table->record_amount);
-    write_int(files_[table->name], table->last_record_pos);
-    write_int(files_[table->name], table->deleted);
-
-    char* deleted = new char[table->max_deleted_amount * sizeof(int)];
-    std::memcpy(deleted, table->deleted_pos, table->max_deleted_amount * sizeof(int));
-    files_[table->name]->write(deleted, table->max_deleted_amount * sizeof(int));
+void FileManager::WriteDataBlock(std::string table_name, const std::vector<DataBlock*>& data) {
+    auto outfile = files_[table_name];
+    int offset = Constants::DATA_BLOCK_START_POS;
+    for (auto block : data) {
+        outfile->seekp(offset, std::ios::beg);
+        write_int(outfile, block->record_amount);
+        write_int(outfile, block->last_record_pos);
+        write_int(outfile, block->deleted);
+        outfile->write(block->getDeletedPos(), block->max_deleted_amount * sizeof(short int));
+        offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
+                  Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
+                  block->max_deleted_amount * sizeof(short int);
+        outfile->seekp(offset, std::ios::beg);
+        outfile->write(block->data_, Constants::DATA_SIZE);
+        offset += Constants::DATA_SIZE;
+        delete block;
+    }
+    outfile->close();
 }
 void write_int(std::fstream* file, int value) { file->write(reinterpret_cast<char*>(&value), sizeof(int)); }
 int read_int(std::fstream* file) {
