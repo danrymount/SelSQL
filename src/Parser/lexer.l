@@ -23,11 +23,11 @@
 
 %option noinput noyywrap case-insensitive yylineno
 
-NUMBER   ([0-9]*)
+NUMBER   ([-?][0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
 STRVAL   [']([^'])*[']
-CHAR     "CHAR("[-0-9]*")"
+CHAR     "CHAR("[0-9]*")"
 
 %%
 "CREATE"                {ch += yyleng; return CREATE_ACTION;}
