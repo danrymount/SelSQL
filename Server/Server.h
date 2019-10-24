@@ -18,8 +18,8 @@
 #include "../src/Utils/Structures/BigResponse.h"
 #include "Exception.h"
 
-#define MAX_CONN 100
-#define DEBUG 0
+#define MAX_CONN 1
+#define DEBUG 1
 
 void runServer();
 int ListenClient(int id, Server* server);

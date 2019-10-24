@@ -25,7 +25,10 @@ Client::Client() {
     }
 }
 int Client::sendMessage(std::string message) {
-    server_connection = send(client_socket, message.c_str(), MESSAGE_SIZE, 0);
+    message.resize(MESSAGE_SIZE);
+    char m[MESSAGE_SIZE];
+    memcpy(m,message.c_str(),MESSAGE_SIZE);
+    server_connection = send(client_socket, m, MESSAGE_SIZE, 0);
     if (server_connection <= 0) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
@@ -43,12 +46,12 @@ int Client::getMessage() {
     FD_SET(client_socket, &allreads);
     for (;;) {
         readmask = allreads;
-        if (select(client_socket + 1, &readmask, NULL, NULL, NULL) <= 0) {
+        if (select(client_socket, &readmask, NULL, NULL, NULL) <= 0) {
             //            throw ClientException();
         }
         if (FD_ISSET(client_socket, &readmask)) {
             memset(rec_message, 0, sizeof(rec_message));
-            int result = recv(client_socket, rec_message, sizeof(rec_message) - 1, 0);
+            int result = recv(client_socket, rec_message, MESSAGE_SIZE, 0);
             if (result < 0) {
                 throw ClientException();
             }
@@ -77,6 +80,7 @@ int Client::execRequest(std::string request) {
 Client::~Client() {
     closesocket(server_connection);
     closesocket(client_socket);
+    WSACleanup();
 }
 
 #include "WinClient.h"

@@ -6,6 +6,7 @@
 #include <iostream>
 
 Server::Server(int max_connection) {
+    WSACleanup();
     WORD wV = MAKEWORD(2, 2);
     WSADATA d;
     WSAStartup(wV, &d);

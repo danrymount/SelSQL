@@ -43,5 +43,6 @@ BigResponse DeleteAction::execute(BigRequest& _request, MainEngine* mainEngine) 
 
     cursor.second->table->record_amount -= delete_count;
     cursor.second->Commit();
+    cursor.second.reset();
     return response;
 }

@@ -4,7 +4,9 @@
 
 #include "Server.h"
 #include "parser.cpp"
+
 std::mutex m;
+
 std::string executeRequest(std::string request) {
     std::lock_guard<std::mutex> guard(m);
     BigResponse result = parse_request(request.c_str());
@@ -28,12 +30,11 @@ std::string executeRequest(std::string request) {
     return message;
 }
 
-int ListenClient(int id, Server* server) {
+int ListenClient(int id, Server *server) {
     server->AcceptSocket(id);
     if (DEBUG) {
         std::cout << "Client " << id + 1 << " connected" << std::endl;
     }
-
     while (true) {
         std::string message;
         int err = server->ListenSocket(id);
@@ -46,7 +47,6 @@ int ListenClient(int id, Server* server) {
             if (DEBUG) {
                 std::cout << "Client " << id + 1 << " connected" << std::endl;
             }
-
             continue;
         }
         if (DEBUG) {
@@ -62,6 +62,8 @@ int ListenClient(int id, Server* server) {
 
         server->SendMessage(message, id);
     }
+
+
 }
 
 void runServer() {
