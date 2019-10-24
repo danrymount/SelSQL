@@ -19,6 +19,7 @@
     void yyerror(const char *s);
     int ch;
     std::string charLen;
+    std::string str;
 %}
 
 %option noinput noyywrap case-insensitive yylineno
@@ -26,8 +27,8 @@
 NUMBER   ([0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
-STRVAL   [']([^'])*[']
-CHAR     "CHAR("[0-9]*")"
+STRVAL   [']([^']|[']['])*[']
+CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 
 %%
 "CREATE"                {ch += yyleng; return CREATE_ACTION;}
@@ -85,7 +86,18 @@ CHAR     "CHAR("[0-9]*")"
                         return CHAR;}
 {NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
 {FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
-{STRVAL}                {ch += yyleng; yylval.string = new char[100](); yylval.string = yytext; return STRVAL; }
+{STRVAL}                {ch += yyleng;
+                        yylval.string = new char[100]();
+                        str = "";
+                        for (int i = 0; i < yyleng; i++) {
+                            if (yytext[i] == '\'' && yytext[i+1] == '\'' && i != 0 && i != yyleng-2) {
+                                str += yytext[i];
+                                i += 1;
+                            } else {
+                                str += yytext[i];
+                            }
+                        }
+                        yylval.string = &str[0]; return STRVAL; }
 {IDENT}                 {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
 
 %%

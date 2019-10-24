@@ -105,7 +105,7 @@ class ActionsUtils {
 
     static int checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems);
 
-    static void PrintSelect(std::vector<std::pair<std::string, std::vector<std::string>>> values);
+    static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 
     inline static std::array<std::function<double(double a, double b)>, 4> calculate = {[](double a, double b) {
                                                                                             return a + b;

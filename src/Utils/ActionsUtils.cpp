@@ -245,23 +245,25 @@ Error ActionsUtils::checkFieldsExist(std::shared_ptr<Table> table, std::vector<s
     return error;
 }
 
-void ActionsUtils::PrintSelect(std::vector<std::pair<std::string, std::vector<std::string>>> values) {
+void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values) {
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
-    for (const auto& elem : values) {
-        int maxLen = elem.first.length();
-        for (const auto& elem1 : elem.second) {
-            if (elem1.length() > maxLen) {
-                maxLen = elem1.length();
-            }
-        }
-        len.emplace_back(maxLen);
+    int n = values.size();
+    int strSize = values[0].size();
+    for (int i = 0; i < strSize; i++) {
+        len.push_back(values[0][i].first.length());
     }
-    int n = len.size();
     for (int i = 0; i < n; i++) {
-        stringstream << values[i].first;
-        int lenStr = values[i].first.length();
+        for (int j = 0; j < n; j++) {
+            int maxLen = len[j];
+            values[i][j].second.length() > len[j] ? len[j] = values[i][j].second.length() : len[j] = len[j];
+        }
+    }
+    n = len.size();
+    for (int i = 0; i < n; i++) {
+        stringstream << values[0][i].first;
+        int lenStr = values[0][i].first.length();
         for (int j = lenStr; j < len[i]; j++) {
             stringstream << "\40";
         }
@@ -275,11 +277,10 @@ void ActionsUtils::PrintSelect(std::vector<std::pair<std::string, std::vector<st
         stringstream << "|";
     }
     stringstream << std::endl;
-    int countCol = values[0].second.size();
-    for (int i = 0; i < countCol; i++) {
+    for (int i = 0; i < strSize; i++) {
         for (int j = 0; j < n; j++) {
-            stringstream << values[i].second[j];
-            int lenStr = values[i].second[j].length();
+            stringstream << values[i][j].second;
+            int lenStr = values[i][j].second.length();
             for (int k = lenStr; k < len[j]; k++) {
                 stringstream << "\40";
             }
