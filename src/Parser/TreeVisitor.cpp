@@ -4,9 +4,13 @@
 
 #include "Headers/TreeVisitor.h"
 #include <iostream>
+#include "../Logic/Actions/Headers/CreateAction.h"
+#include "../Logic/Actions/Headers/DropAction.h"
 #include "../Logic/Actions/Headers/InsertAction.h"
 #include "../Logic/Actions/Headers/SelectAction.h"
+#include "../Logic/Actions/Headers/ShowCreateAction.h"
 #include "../Logic/Headers/MainLogic.h"
+#include "Headers/CreateVisitor.h"
 #include "Headers/InsertVisitor.h"
 #include "Headers/SelectVisitor.h"
 #include "Nodes/ActionNodes/CreateNode.h"
@@ -52,36 +56,38 @@ void TreeVisitor::visit(RootNode* node) {
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    request->action = node->getAction();
-    request->tableName = node->getTableName();
+    // request->action = node->getAction();
+    // request->tableName = node->getTableName();
     std::cout << "CREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
-    node->getChild()->accept(this);
+    // node->getChild()->accept(this);
+    auto action = std::make_shared<CreateNode>(*node);
+    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    request->action = node->getAction();
-    request->tableName = node->getTableName();
-    std::cout << "DROP" << std::endl;
-    std::cout << node->getTableName() << std::endl;
+    print("DROP");
+    print(node->getTableName());
+    auto action = std::make_shared<DropNode>(*node);
+    auto visitor = std::make_shared<TreeVisitor>(*this);
+    DropAction(visitor).execute(action);
     // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
-    request->action = node->getAction();
-    request->tableName = node->getTableName();
     std::cout << "SHOWCREATE" << std::endl;
     std::cout << node->getTableName() << std::endl;
+    auto action = std::make_shared<ShowCreateNode>(*node);
+    auto visitor = std::make_shared<TreeVisitor>(*this);
+    ShowCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(InsertNode* node) {
-    request->action = node->getAction();
-    request->tableName = node->getTableName();
     std::cout << "INSERT" << std::endl;
     auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
     auto action = std::make_shared<InsertNode>(*node);
     InsertAction(visitor).execute(action);
-
     // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 

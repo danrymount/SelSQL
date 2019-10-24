@@ -45,3 +45,4 @@
 //    cursor.second->Commit();
 //    return response;
 //}
+Error DeleteAction::execute(std::shared_ptr<BaseActionNode>) { return Error(); }

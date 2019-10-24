@@ -19,7 +19,7 @@ class BaseAction {
     ActionsUtils actionsUtils;
 
    public:
-    BaseAction(std::shared_ptr<TreeVisitor> _visitor) : visitor(std::move(_visitor)) {}
+    explicit BaseAction(std::shared_ptr<TreeVisitor> _visitor) : visitor(std::move(_visitor)) {}
 
     virtual Error execute(std::shared_ptr<BaseActionNode>) = 0;
 
