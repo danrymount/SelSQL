@@ -3,6 +3,7 @@
 //
 
 #include "Headers/DropAction.h"
+#include "../../Parser/Nodes/ActionNodes/BaseActionNode.h"
 //BigResponse DropAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
 //    response = mainEngine->DropTable(_request.get());
 //    if (!response.error.getErrorCode())
@@ -12,3 +13,7 @@
 //
 //    return response;
 //}
+Error DropAction::execute(std::shared_ptr<BaseActionNode> node) {
+    //getEngine().DropTable(node->getTableName());
+    return Error();
+}

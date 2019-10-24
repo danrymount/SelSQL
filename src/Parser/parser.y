@@ -372,6 +372,7 @@ expr:
 	$$ = new ValueExprNode(std::string($1));
     }|
     IDENT {
+    	std::cout << "STRING" << $1 << std::endl;
 	$$ = new IndentExprNode(std::string($1));
     }|
     LBRACKET expr_priority_2 RBRACKET {
@@ -413,8 +414,16 @@ RootNode * parse_request(const char* in) {
 }
 
 int yyerror(const char *errmsg){
+
+
     std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
+
+    variablesList.clear();
+    columnsList.clear();
+    valuesList.clear();
+    children.clear();
+    updateList.clear();
 
     return 0;
 }
