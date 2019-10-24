@@ -3,7 +3,8 @@
 //
 
 #include "Headers/CreateAction.h"
-//BigResponse CreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+#include "../../Parser/Headers/CreateVisitor.h"
+// BigResponse CreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
 //    response = mainEngine->CreateTable(_request.get());
 //    requestToResponse(_request);
 //    if (!response.error.getErrorCode())
@@ -13,4 +14,11 @@
 //
 //    return response;
 //}
-Error CreateAction::execute(std::shared_ptr<BaseActionNode>) { return Error(); }
+
+Error CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
+    root->getChild()->accept(getTreeVisitor().get());
+    auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
+    v->setTableName(root->getTableName());
+    auto t = v->getTable();
+    //getEngine().CreateTable()
+}

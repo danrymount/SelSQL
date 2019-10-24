@@ -5,14 +5,17 @@
 #include "Headers/TreeVisitor.h"
 #include <iostream>
 #include "../Logic/Actions/Headers/CreateAction.h"
+#include "../Logic/Actions/Headers/DeleteAction.h"
 #include "../Logic/Actions/Headers/DropAction.h"
 #include "../Logic/Actions/Headers/InsertAction.h"
 #include "../Logic/Actions/Headers/SelectAction.h"
 #include "../Logic/Actions/Headers/ShowCreateAction.h"
-#include "../Logic/Headers/MainLogic.h"
+#include "../Logic/Actions/Headers/UpdateAction.h"
 #include "Headers/CreateVisitor.h"
+#include "Headers/DeleteVisitor.h"
 #include "Headers/InsertVisitor.h"
 #include "Headers/SelectVisitor.h"
+#include "Headers/UpdateVisitor.h"
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DeleteNode.h"
 #include "Nodes/ActionNodes/DropNode.h"
@@ -56,11 +59,6 @@ void TreeVisitor::visit(RootNode* node) {
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    // request->action = node->getAction();
-    // request->tableName = node->getTableName();
-    std::cout << "CREATE" << std::endl;
-    std::cout << node->getTableName() << std::endl;
-    // node->getChild()->accept(this);
     auto action = std::make_shared<CreateNode>(*node);
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
     CreateAction(visitor).execute(action);
@@ -72,12 +70,9 @@ void TreeVisitor::visit(DropNode* node) {
     auto action = std::make_shared<DropNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
     DropAction(visitor).execute(action);
-    // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
-    std::cout << "SHOWCREATE" << std::endl;
-    std::cout << node->getTableName() << std::endl;
     auto action = std::make_shared<ShowCreateNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
     ShowCreateAction(visitor).execute(action);
@@ -88,7 +83,6 @@ void TreeVisitor::visit(InsertNode* node) {
     auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
     auto action = std::make_shared<InsertNode>(*node);
     InsertAction(visitor).execute(action);
-    // response = std::make_shared<BigResponse>(MainLogic::executeRequest(request));
 }
 
 void TreeVisitor::visit(SelectNode* node) {
@@ -97,77 +91,45 @@ void TreeVisitor::visit(SelectNode* node) {
     SelectAction(visitor).execute(action);
 }
 
-void TreeVisitor::visit(UpdateNode* node) {}
-void TreeVisitor::visit(DeleteNode* node) {}
-
-void TreeVisitor::visit(ConstraintNode* node) {
-    std::cout << "CONSTRAINT = ";
-    std::cout << node->getConstraint() << std::endl;
-    request->ddlData.table.addConstraint(node->getConstraint());
+void TreeVisitor::visit(UpdateNode* node) {
+    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
+    auto action = std::make_shared<UpdateNode>(*node);
+    UpdateAction(visitor).execute(action);
 }
 
-void TreeVisitor::visit(VariableNode* node) {
-    std::cout << "VAR = ";
-    std::cout << node->getVarName() << " TYPE = " << node->getVarType() << std::endl;
-    request->ddlData.table.addField(node->getVarName(), node->getVarType());
-    for (auto& child : node->getConstraints()) {
-        child->accept(this);
-    }
-}
-void TreeVisitor::visit(IntValueNode* node) {
-    std::cout << node->getValue() << std::endl;
-    // request->dmlData.values.emplace_back(node->getValue());
+void TreeVisitor::visit(DeleteNode* node) {
+    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
+    auto action = std::make_shared<DeleteNode>(*node);
+    DeleteAction(visitor).execute(action);
 }
 
-void TreeVisitor::visit(CharValueNode* node) { std::cout << node->getValue() << std::endl; }
-
-void TreeVisitor::visit(FloatValueNode* node) { std::cout << node->getValue() << std::endl; }
-
-void TreeVisitor::visit(NullValueNode* node) { std::cout << node->getValue() << std::endl; }
-
-void TreeVisitor::visit(ColumnNode* node) { std::cout << node->getName() << std::endl; }
-
-void TreeVisitor::visit(ColumnsAndValuesNode* node) {
-    for (auto& column : node->getColumns()) {
-        column->accept(this);
-    }
-    for (auto& value : node->getValues()) {
-        value->accept(this);
-    }
-}
-
+void TreeVisitor::visit(ConstraintNode* node) {}
+void TreeVisitor::visit(VariableNode* node) {}
+void TreeVisitor::visit(IntValueNode* node) {}
+void TreeVisitor::visit(CharValueNode* node) {}
+void TreeVisitor::visit(FloatValueNode* node) {}
+void TreeVisitor::visit(NullValueNode* node) {}
+void TreeVisitor::visit(ColumnNode* node) {}
+void TreeVisitor::visit(ColumnsAndValuesNode* node) {}
 void TreeVisitor::visit(ExprNode* node) {}
-
 void TreeVisitor::visit(AndLogicNode* node) {}
-
 void TreeVisitor::visit(OrLogicNode* node) {}
-
 void TreeVisitor::visit(NotLogicNode* node) {}
-
 void TreeVisitor::visit(AddNode* node) {}
 void TreeVisitor::visit(DivNode* node) {}
 void TreeVisitor::visit(SubNode* node) {}
 void TreeVisitor::visit(MultNode* node) {}
-
 void TreeVisitor::visit(EqualsNode* node) {}
 void TreeVisitor::visit(NoEqualsNode* node) {}
 void TreeVisitor::visit(MoreEqNode* node) {}
 void TreeVisitor::visit(MoreNode* node) {}
 void TreeVisitor::visit(LessEqNode* node) {}
 void TreeVisitor::visit(LessNode* node) {}
-
 void TreeVisitor::visit(IdentNode* node) {}
-
-void TreeVisitor::visit(VariableListNode* node) {
-    for (auto& var : node->getVariables()) {
-        var->accept(this);
-    }
-}
-
+void TreeVisitor::visit(VariableListNode* node) {}
 void TreeVisitor::visit(ColumnsAndExprNode* node) {}
 void TreeVisitor::visit(UpdateExprNode* node) {}
 void TreeVisitor::visit(UpdatesAndExprNode* node) {}
 void TreeVisitor::visit(IndentExprNode* node) {}
 void TreeVisitor::visit(ValueExprNode* node) {}
-
-void TreeVisitor::visit(LogicNode* node) {}
+void TreeVisitor::visit(AssignUpdateNode* node) {}

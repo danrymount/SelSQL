@@ -12,6 +12,9 @@ class UpdatesAndExprNode : public BaseNode {
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
+    UpdateExprNode* getUpdates() { return updates; }
+    BaseExprNode* getExpr() { return expr; }
+
    private:
     UpdateExprNode* updates;
     BaseExprNode* expr;

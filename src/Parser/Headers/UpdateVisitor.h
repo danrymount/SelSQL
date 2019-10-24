@@ -1,16 +1,15 @@
 //
-// Created by sapiest on 23.10.2019.
+// Created by sapiest on 24.10.2019.
 //
 
-#ifndef SELSQL_SELECTVISITOR_H
-#define SELSQL_SELECTVISITOR_H
-#include "../Nodes/ColumnNode.h"
-#include "../Nodes/ColumnsAndExprNode.h"
+#ifndef SELSQL_UPDATEVISITOR_H
+#define SELSQL_UPDATEVISITOR_H
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/ArithmeticNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/DivNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/MultNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/SubNode.h"
+#include "../Nodes/ExpressionsNodes/AssignUpdateNode.h"
 #include "../Nodes/ExpressionsNodes/CompareNodes/EqualsNode.h"
 #include "../Nodes/ExpressionsNodes/CompareNodes/LessEqNode.h"
 #include "../Nodes/ExpressionsNodes/CompareNodes/LessNode.h"
@@ -19,29 +18,42 @@
 #include "../Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
 #include "../Nodes/ExpressionsNodes/ExprNode.h"
 #include "../Nodes/ExpressionsNodes/IndentExprNode.h"
+#include "../Nodes/ExpressionsNodes/IndentNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
+#include "../Nodes/ExpressionsNodes/UpdateExprNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
+#include "../Nodes/UpdatesAndExprNode.h"
 #include "TreeVisitor.h"
-class SelectVisitor : public TreeVisitor {
+class UpdateVisitor : public TreeVisitor {
    public:
-    void visit(ColumnsAndExprNode* node) override {
-        for (auto& col : node->getColumns()) {
-            col->accept(this);
-        }
+    void visit(UpdatesAndExprNode* node) override {
+        node->getUpdates()->accept(this);
         expr = node->getExpr();
         node->getExpr()->accept(this);
-        result = node->getExpr()->getResult();
     }
-
-    void visit(ColumnNode* node) override { columns.emplace_back(node->getName()); }
 
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
         }
     }
+
+    void visit(UpdateExprNode* node) override {
+        for (auto& child : node->getChildren()) {
+            child->accept(this);
+            updateValues.insert(std::move(curUpdateValue));
+        }
+    }
+
+    void visit(AssignUpdateNode* node) override {
+        curUpdateValue.first = node->getBaseValue();
+        node->getExpr()->accept(this);
+        curUpdateValue.second = std::move(curValue);
+    }
+
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
     void visit(AndLogicNode* node) override {
         node->getLeft()->accept(this);
@@ -160,8 +172,6 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(ValueExprNode* node) override { curValue = node->getName(); }
 
-    std::vector<std::string> getColumns() { return columns; }
-
     bool getResult() { return result; }
 
     Error getError() { return error; }
@@ -169,12 +179,12 @@ class SelectVisitor : public TreeVisitor {
     BaseExprNode* getExpr() { return expr; }
 
    private:
-    std::string curValue;
-    std::vector<std::string> columns;
-    bool result = true;
     std::map<std::string, std::string> values;
+    std::map<std::string, std::string> updateValues;
+    std::pair<std::string, std::string> curUpdateValue;
+    std::string curValue;
     Error error;
     BaseExprNode* expr;
+    bool result;
 };
-
-#endif  // SELSQL_SELECTVISITOR_H
+#endif  // SELSQL_UPDATEVISITOR_H

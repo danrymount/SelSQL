@@ -24,7 +24,7 @@ struct Condition {
     std::string value;
 };
 
-static int DEBUG_MODE = 0;
+static int DEBUG_MODE = 1;
 
 template <typename T>
 void print(const T &elem) {

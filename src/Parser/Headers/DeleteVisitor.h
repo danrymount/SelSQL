@@ -1,11 +1,9 @@
 //
-// Created by sapiest on 23.10.2019.
+// Created by sapiest on 24.10.2019.
 //
 
-#ifndef SELSQL_SELECTVISITOR_H
-#define SELSQL_SELECTVISITOR_H
-#include "../Nodes/ColumnNode.h"
-#include "../Nodes/ColumnsAndExprNode.h"
+#ifndef SELSQL_DELETEVISITOR_H
+#define SELSQL_DELETEVISITOR_H
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/ArithmeticNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/DivNode.h"
@@ -24,19 +22,7 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
 #include "TreeVisitor.h"
-class SelectVisitor : public TreeVisitor {
-   public:
-    void visit(ColumnsAndExprNode* node) override {
-        for (auto& col : node->getColumns()) {
-            col->accept(this);
-        }
-        expr = node->getExpr();
-        node->getExpr()->accept(this);
-        result = node->getExpr()->getResult();
-    }
-
-    void visit(ColumnNode* node) override { columns.emplace_back(node->getName()); }
-
+class DeleteVisitor: public TreeVisitor{
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
@@ -160,8 +146,6 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(ValueExprNode* node) override { curValue = node->getName(); }
 
-    std::vector<std::string> getColumns() { return columns; }
-
     bool getResult() { return result; }
 
     Error getError() { return error; }
@@ -169,12 +153,10 @@ class SelectVisitor : public TreeVisitor {
     BaseExprNode* getExpr() { return expr; }
 
    private:
-    std::string curValue;
-    std::vector<std::string> columns;
-    bool result = true;
     std::map<std::string, std::string> values;
+    std::string curValue;
     Error error;
     BaseExprNode* expr;
+    bool result;
 };
-
-#endif  // SELSQL_SELECTVISITOR_H
+#endif  // SELSQL_DELETEVISITOR_H

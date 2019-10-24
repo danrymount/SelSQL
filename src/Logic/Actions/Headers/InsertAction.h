@@ -10,9 +10,7 @@
 #include "BaseAction.h"
 class InsertAction : public BaseAction {
    public:
-    explicit InsertAction(std::shared_ptr<TreeVisitor> _visitor)
-                                                                                                        : BaseAction(std::move(_visitor)) {
-    }
+    explicit InsertAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
 
     Error execute(std::shared_ptr<BaseActionNode>) override;
 

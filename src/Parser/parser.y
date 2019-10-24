@@ -57,6 +57,7 @@
     #include "../../src/Parser/Nodes/ColumnsAndExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/ValueExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/AssignUpdateNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -141,7 +142,7 @@ request:
         children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), $5)));
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
-	children.emplace_back(new DeleteNode(std::string($3), $4));
+	children.emplace_back(new DeleteNode(std::string($3), new ExprNode($4)));
     }
 
 variables:
@@ -161,6 +162,9 @@ variable:
     }|
     IDENT type constraints {
 	$$ = new VariableNode(std::string($1), $2, constraintsList);
+	if ($2 == Type::TYPE_CHAR) {
+		$$->setSize(yylval.charLen);
+	}
 	constraintsList.clear();
     }
 
@@ -272,10 +276,10 @@ update_list:
 
 update_elem:
     IDENT EQUAL expr_priority_2 {
-	$$ = new EqualsNode(new IdentNode(std::string($1)), $3);
+	$$ = new AssignUpdateNode(std::string($1), $3);
     }|
     IDENT EQUAL STRVAL {
-    	$$ = new EqualsNode(new IdentNode(std::string($1)), new IdentNode(std::string($3)));
+    	$$ = new AssignUpdateNode(std::string($1), new IdentNode(std::string($3)));
     }
 
 values:

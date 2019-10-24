@@ -42,7 +42,7 @@ class UpdateExprNode;
 class UpdatesAndExprNode;
 class IndentExprNode;
 class ValueExprNode;
-class LogicNode;
+class AssignUpdateNode;
 
 class Visitor {
    public:
@@ -70,7 +70,6 @@ class Visitor {
     virtual void visit(ColumnNode* node) = 0;
 
     virtual void visit(ExprNode* node) = 0;
-    virtual void visit(LogicNode* node) = 0;
 
     virtual void visit(AndLogicNode* node) = 0;
     virtual void visit(OrLogicNode* node) = 0;
@@ -95,5 +94,7 @@ class Visitor {
     virtual void visit(UpdatesAndExprNode* node) = 0;
     virtual void visit(IndentExprNode* node) = 0;
     virtual void visit(ValueExprNode* node) = 0;
+
+    virtual void visit(AssignUpdateNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

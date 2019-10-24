@@ -3,8 +3,9 @@
 //
 
 #include "Headers/DeleteAction.h"
+#include "../../Parser/Headers/DeleteVisitor.h"
 
-//BigResponse DeleteAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+// BigResponse DeleteAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
 //    cursor = mainEngine->GetCursor(_request->tableName);
 //    if (cursor.first->name.empty()) {
 //        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -45,4 +46,7 @@
 //    cursor.second->Commit();
 //    return response;
 //}
-Error DeleteAction::execute(std::shared_ptr<BaseActionNode>) { return Error(); }
+Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
+    root->getChild()->accept(getTreeVisitor().get());
+    auto v = static_cast<DeleteVisitor*>(getTreeVisitor().get());
+}

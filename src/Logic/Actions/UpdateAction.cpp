@@ -3,7 +3,8 @@
 //
 
 #include "Headers/UpdateAction.h"
-//BigResponse UpdateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+#include "../../Parser/Headers/UpdateVisitor.h"
+// BigResponse UpdateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
 //    // response = mainEngine->Update(&_request);
 //    cursor = mainEngine->GetCursor(_request->tableName);
 //    if (cursor.first->name.empty()) {
@@ -53,4 +54,9 @@
 //
 //    return response;
 //}
-Error UpdateAction::execute(std::shared_ptr<BaseActionNode>) { return Error(); }
+Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
+    cursor = getEngine().GetCursor(root->getTableName());
+
+    root->getChild()->accept(getTreeVisitor().get());
+    auto v = static_cast<UpdateVisitor*>(getTreeVisitor().get());
+}

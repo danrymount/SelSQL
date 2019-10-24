@@ -15,4 +15,7 @@
 //
 //    return response;
 //}
-Error ShowCreateAction::execute(std::shared_ptr<BaseActionNode>) { return Error(); }
+Error ShowCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
+    //getEngine().ShowCreateTable(root->getTableName());
+    return Error();
+}
