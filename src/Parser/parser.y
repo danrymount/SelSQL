@@ -136,10 +136,10 @@ request:
 	children.emplace_back(new InsertNode(std::string($3), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
     SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, $7)));
+	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($7))));
     }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-        children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), $5)));
+        children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
 	children.emplace_back(new DeleteNode(std::string($3), new ExprNode($4)));

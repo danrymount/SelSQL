@@ -77,9 +77,47 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto values = v->getValues();
 
     if ((values.size() != columns.size()) && (!columns.empty())) {
-        return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);;
+        return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+    }
+
+    for (int i = 0; i < columns.size(); ++i) {
+        auto col = columns[i];
+        for (int j = 0; j < columns.size(); ++j) {
+            if (i == j)
+                continue;
+            if (col == columns[j]) {
+                return Error(ErrorConstants::ERR_SAME_COLUMN);
+            }
+        }
     }
 
     cursor = getEngine().GetCursor(root->getTableName());
-    return Error();
+
+    auto table = cursor.first;
+    if (table->name.empty()) {
+        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    if (table->record_amount == Constants::DATA_BLOCK_SIZE / table->record_size) {
+        return Error(ErrorConstants::ERR_TABLE_FULL);
+    }
+
+    if (columns.empty() && (table->getFields().size() != values.size())) {
+        return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+    }
+
+    error = ActionsUtils::checkFieldsExist(table, columns);
+    if (error.getErrorCode()) {
+        return error;
+    }
+
+    error = actionsUtils.checkConstraint(columns, values, cursor);
+    if (error.getErrorCode()) {
+        return error;
+    }
+
+    cursor.second->Insert(columns, values);
+    cursor.second->Commit();
+
+    return error;
 }

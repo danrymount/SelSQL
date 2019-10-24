@@ -133,9 +133,10 @@ class DeleteVisitor: public TreeVisitor{
     void visit(IndentExprNode* node) override {
         int flag = 0;
         for (auto& val : values) {
-            if (node->getValue() == val.first) {
-                node->setValue(val.second);
+            if (node->getBaseValue() == val.first) {
+                curValue = val.second;
                 flag = 1;
+                break;
             }
         }
         if (!flag) {

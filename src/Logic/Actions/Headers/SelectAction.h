@@ -14,7 +14,6 @@ class SelectAction : public BaseAction {
     explicit SelectAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
 
     Error execute(std::shared_ptr<BaseActionNode>) override;
-    // BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 
    private:
     void printAll(BigResponse& response);
@@ -24,7 +23,7 @@ class SelectAction : public BaseAction {
     void printField(std::string field);
 
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-    // std::vector<std::pair<std::string, std::string>> record;
+    std::vector<std::vector<std::pair<std::string, std::string>>> records;
 };
 
 #endif  // SELSQL_SELECTACTION_H

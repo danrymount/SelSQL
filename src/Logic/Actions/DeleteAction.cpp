@@ -46,6 +46,7 @@
 //    cursor.second->Commit();
 //    return response;
 //}
+
 Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<DeleteVisitor*>(getTreeVisitor().get());

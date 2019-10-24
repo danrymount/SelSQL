@@ -13,7 +13,7 @@ class IndentExprNode : public BaseExprNode {
 
     std::string getValue() { return name; }
 
-    void setValue(std::string _val) { name = std::move(_val); }
+    std::string getBaseValue() override { return name; }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 

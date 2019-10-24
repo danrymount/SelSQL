@@ -4,6 +4,8 @@
 
 #ifndef SELSQL_SELECTVISITOR_H
 #define SELSQL_SELECTVISITOR_H
+#include <utility>
+
 #include "../Nodes/ColumnNode.h"
 #include "../Nodes/ColumnsAndExprNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
@@ -31,8 +33,6 @@ class SelectVisitor : public TreeVisitor {
             col->accept(this);
         }
         expr = node->getExpr();
-        node->getExpr()->accept(this);
-        result = node->getExpr()->getResult();
     }
 
     void visit(ColumnNode* node) override { columns.emplace_back(node->getName()); }
@@ -40,6 +40,7 @@ class SelectVisitor : public TreeVisitor {
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
+            result = node->getChild()->getResult();
         }
     }
 
@@ -147,9 +148,10 @@ class SelectVisitor : public TreeVisitor {
     void visit(IndentExprNode* node) override {
         int flag = 0;
         for (auto& val : values) {
-            if (node->getValue() == val.first) {
-                node->setValue(val.second);
+            if (node->getBaseValue() == val.first) {
+                curValue = val.second;
                 flag = 1;
+                break;
             }
         }
         if (!flag) {
@@ -168,11 +170,13 @@ class SelectVisitor : public TreeVisitor {
 
     BaseExprNode* getExpr() { return expr; }
 
+    void setValues(std::vector<std::pair<std::string, std::string>>  _values) { values = std::move(_values); }
+
    private:
     std::string curValue;
     std::vector<std::string> columns;
     bool result = true;
-    std::map<std::string, std::string> values;
+    std::vector<std::pair<std::string, std::string>>  values;
     Error error;
     BaseExprNode* expr;
 };

@@ -103,10 +103,33 @@ void SelectAction::printField(std::string field) {
     stringstream << field << " | ";
 }
 Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
+    cursor = getEngine().GetCursor(root->getTableName());
+    auto table = cursor.first;
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor*>(getTreeVisitor().get());
-    auto res = v->getResult();
-    std::cout << res << std::endl;
     auto columns = v->getColumns();
+    auto expr = v->getExpr();
+
+    if (table->name.empty()) {
+        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    if (cursor.first->record_amount == 0) {
+        return error;
+    }
+
+    do {
+        auto _record = cursor.second->Fetch();
+        if (_record.empty()) {
+            continue;
+        }
+        v->setValues(_record);
+        expr->accept(v);
+        if(v->getResult()){
+            records.push_back(_record);
+        }
+
+    } while (!cursor.second->Next());
+
     return Error();
 };
