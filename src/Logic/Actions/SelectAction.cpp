@@ -17,6 +17,7 @@ BigResponse SelectAction::execute(BigRequest& _request, MainEngine* mainEngine) 
     }
 
     if (cursor.first->record_amount == 0) {
+        cursor.second.reset();
         return response;
     }
     do {
