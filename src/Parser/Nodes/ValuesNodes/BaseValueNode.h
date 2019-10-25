@@ -5,8 +5,8 @@
 #ifndef SELSQL_BASEVALUENODE_H
 #define SELSQL_BASEVALUENODE_H
 
-#include "../BaseNode.h"
-class BaseValueNode : public BaseNode {
+#include "../ExpressionsNodes/BaseExprNode.h"
+class BaseValueNode : public BaseExprNode {
    public:
     BaseValueNode() = default;
 };

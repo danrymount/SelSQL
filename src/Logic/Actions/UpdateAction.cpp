@@ -71,21 +71,22 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         return error;
     }
 
-    error = actionsUtils.checkConstraint(updateColumns, cursor);
-    if (error.getErrorCode()) {
-        return error;
-    }
+    std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
 
     do {
         auto record = cursor.second->Fetch();
-      
+
         if (record.empty()) {
             continue;
         }
-      
+
         v->setValues(record);
         expr->accept(getTreeVisitor().get());
         if (v->getResult()) {
+            error = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
+            if (error.getErrorCode()) {
+                return error;
+            }
             // TODO сменить входные параметры
             std::vector<std::string> columns;
             std::vector<std::string> values;

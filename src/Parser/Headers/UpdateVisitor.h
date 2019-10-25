@@ -25,6 +25,7 @@
 #include "../Nodes/ExpressionsNodes/UpdateExprNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
 #include "../Nodes/UpdatesAndExprNode.h"
+#include "../Nodes/ValuesNodes/NullValueNode.h"
 #include "TreeVisitor.h"
 class UpdateVisitor : public TreeVisitor {
    public:
@@ -32,6 +33,8 @@ class UpdateVisitor : public TreeVisitor {
         node->getUpdates()->accept(this);
         expr = node->getExpr();
     }
+
+    void visit(NullValueNode* node) override { curValue = "null"; }
 
     void visit(ExprNode* node) override {
         if (node->getChild()) {
@@ -181,7 +184,7 @@ class UpdateVisitor : public TreeVisitor {
 
     std::vector<std::pair<std::string, std::string>> getUpdates() { return updateValues; }
 
-    void setValues(std::vector<std::pair<std::string, std::string>>  _values) { values = std::move(_values); }
+    void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = std::move(_values); }
 
    private:
     std::vector<std::pair<std::string, std::string>> values;

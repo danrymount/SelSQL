@@ -20,7 +20,8 @@ class ActionsUtils {
     std::array<std::function<Error(std::string, std::string)>, 3> constraintsCheckers = {checkNotNull, checkPrimaryKey,
                                                                                          checkUnique};
 
-    static Error checkFieldsExist(const std::shared_ptr<Table>& table, const std::vector<std::pair<std::string, std::string>>& updateColumns);
+    static Error checkFieldsExist(const std::shared_ptr<Table>& table,
+                                  const std::vector<std::pair<std::string, std::string>>& updateColumns);
 
     static int isNumbers(const std::string& a, const std::string& b) {
         if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
@@ -95,13 +96,26 @@ class ActionsUtils {
                                                                                                         compareLessEq};
 
     typedef std::vector<std::pair<std::string, std::string>> Record;
+
     static std::string makeRequestCreateFromTable(std::shared_ptr<Table> table);
 
-    Error checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
-                          std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
-
+    Error checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns, std::shared_ptr<Table> table,
+                          std::vector<ActionsUtils::Record> records, bool isUpdate = false);
 
     static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
+
+
+    static std::vector<Record> getAllRecords(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
+        std::vector<Record> records;
+
+        cursor.second->StartPos();
+        do {
+            auto record = cursor.second->Fetch();
+            records.emplace_back(record);
+        } while (!cursor.second->Next());
+        cursor.second->StartPos();
+        return records;
+    }
 
     inline static std::array<std::function<double(double a, double b)>, 4> calculate = {[](double a, double b) {
                                                                                             return a + b;
@@ -122,6 +136,8 @@ class ActionsUtils {
 
    private:
     ParserUtils parserUtils;
+
+    static int checkSameForUpdate(const Record& oldRec, const Record& newRec);
 
     static Error checkNotNull(std::string newVal, std::string oldVal = "");
 
