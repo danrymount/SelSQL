@@ -21,9 +21,5 @@ Error CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     v->setTableName(root->getTableName());
     auto t = v->getTable();
 
-    //TODO поменятб входной параметр
-    BigRequest request;
-    request.tableName = root->getTableName();
-    request.ddlData.table = v->getTable();
-    getEngine().CreateTable(&request);
+    return getEngine().CreateTable(std::make_shared<Table>(v->getTable()));
 }

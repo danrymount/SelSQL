@@ -116,10 +116,11 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         if(v->getResult()){
             records.push_back(_record);
         }
-        ///TODO зачем это?
-        cursor.second->Commit();
     } while (!cursor.second->Next());
 
     ActionsUtils::PrintSelect(records);
+
+    cursor.second->StartPos();
+
     return Error();
 };

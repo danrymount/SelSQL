@@ -11,7 +11,6 @@
 #include "../../../Parser/Nodes/ActionNodes/BaseActionNode.h"
 #include "../../../Parser/Nodes/BaseNode.h"
 #include "../../../Utils/Headers/ActionsUtils.h"
-#include "../../../Utils/Structures/BigResponse.h"
 
 class BaseAction {
    public:

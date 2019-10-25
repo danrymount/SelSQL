@@ -11,34 +11,37 @@
 #include "CommonUtils.h"
 
 class ParserUtils {
-    std::map<std::string, Type> mapOfStringToType = {{"int", TYPE_INT},
-                                                     {"float", TYPE_FLOAT},
+    inline static std::map<std::string, Type> mapOfStringToType = {{"int", TYPE_INT},
+                                                                   {"float", TYPE_FLOAT},
 
-                                                     {"char", TYPE_CHAR}};
-    std::map<std::string, Constraint> mapOfStringToConstraint = {{"not", NOT_NULL},
-                                                                 {"unique", UNIQUE},
-                                                                 {"primary", PRIMARY_KEY}};
+                                                                   {"char", TYPE_CHAR}};
+    inline static std::map<std::string, Constraint> mapOfStringToConstraint = {{"not", NOT_NULL},
+                                                                               {"unique", UNIQUE},
+                                                                               {"primary", PRIMARY_KEY}};
 
-    std::map<std::string, Action> mapOfAction = {{"create", CREATE}, {"show", SHOW_CREATE}, {"drop", DROP},
-                                                 {"insert", INSERT}, {"delete", DELETE_ACT}, {"select", SELECT},
-                                                 {"update", UPDATE}};
+    inline static std::map<std::string, Action> mapOfAction = {{"create", CREATE},     {"show", SHOW_CREATE},
+                                                               {"drop", DROP},         {"insert", INSERT},
+                                                               {"delete", DELETE_ACT}, {"select", SELECT},
+                                                               {"update", UPDATE}};
 
-    std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},
-                                           {">", GREATER}, {">=", GREATEREQUALS}, {"<>", NOEQUALS}};
+    inline static std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},
+                                                         {">", GREATER}, {">=", GREATEREQUALS}, {"<>", NOEQUALS}};
 
-    std::map<Constraint, std::string> mapOfConstraintToString = {{NOT_NULL, "NOT NULL"},
-                                                                 {UNIQUE, "UNIQUE"},
-                                                                 {PRIMARY_KEY, "PRIMARY KEY"}};
-    std::map<Type, std::string> mapOfTypeToString = {{TYPE_INT, "INT"}, {TYPE_FLOAT, "FLOAT"}, {TYPE_CHAR, "CHAR"}};
+    inline static std::map<Constraint, std::string> mapOfConstraintToString = {{NOT_NULL, "NOT NULL"},
+                                                                               {UNIQUE, "UNIQUE"},
+                                                                               {PRIMARY_KEY, "PRIMARY KEY"}};
+    inline static std::map<Type, std::string> mapOfTypeToString = {{TYPE_INT, "INT"},
+                                                                   {TYPE_FLOAT, "FLOAT"},
+                                                                   {TYPE_CHAR, "CHAR"}};
 
    public:
     static std::string chrToString(char* name);
-    std::string typeToString(Type type);
-    std::string constraintToString(Constraint constraint);
-    Type stringToType(std::string name);
-    Constraint stringToConstraint(std::string name);
-    Action stringToAction(std::string name);
-    Cmp stringToCmp(const std::string& name);
+    static std::string typeToString(Type type);
+    static std::string constraintToString(Constraint constraint);
+    static Type stringToType(std::string name);
+    static Constraint stringToConstraint(std::string name);
+    static Action stringToAction(std::string name);
+    static Cmp stringToCmp(const std::string& name);
 };
 
 #endif  // SELSQL_PARSERUTILS_H

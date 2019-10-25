@@ -6,20 +6,20 @@
 #include <queue>
 #include <utility>
 
-std::string ActionsUtils::makeRequestCreateFromTable(Table table) {
+std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> table) {
     const char space = ' ';
     const char semicolon = ';';
     const char comma = ',';
     std::string str = "CREATE TABLE ";
-    str += table.name + '(';
-    for (int i = 0; i < table.getFields().size(); ++i) {
-        auto field = table.getFields()[i];
+    str += table->name + '(';
+    for (int i = 0; i < table->getFields().size(); ++i) {
+        auto field = table->getFields()[i];
         str += field.first + space;
-        str += parserUtils.typeToString(field.second.type) + space;
+        str += ParserUtils::typeToString(field.second.type) + space;
         for (auto& constraint : field.second.getConstraints()) {
-            str += parserUtils.constraintToString(constraint) + space;
+            str += ParserUtils::constraintToString(constraint) + space;
         }
-        if (i != table.getFields().size() - 1 && table.getFields().size() > 1) {
+        if (i != table->getFields().size() - 1 && table->getFields().size() > 1) {
             str += comma;
         }
     }
@@ -36,6 +36,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
     std::shared_ptr<Table> table = cursor.first;
     std::string colName;
 
+    cursor.second->StartPos();
     do {
         auto record = cursor.second->Fetch();
         int i = 0;

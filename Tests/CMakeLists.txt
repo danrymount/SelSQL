@@ -24,12 +24,12 @@ FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
 
 if (UNIX)
     add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
-            Headers/TestUtils.h . ../src/Utils/Structures/BigRequest.h ../Client/Linux/LinuxClient.cpp)
+            Headers/TestUtils.h . ../Client/Linux/LinuxClient.cpp)
 endif ()
 
 if (WIN32)
     add_executable(Tests main_test.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} TestClass.cpp
-            Headers/TestUtils.h . ../src/Utils/Structures/BigRequest.h ../Client/Win/WinClient.cpp)
+            Headers/TestUtils.h . ../Client/Win/WinClient.cpp)
     target_link_libraries(Tests ws2_32)
 endif ()
 

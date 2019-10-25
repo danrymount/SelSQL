@@ -16,6 +16,11 @@
 //    return response;
 //}
 Error ShowCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
-    //getEngine().ShowCreateTable(root->getTableName());
+    auto table = getEngine().ShowCreateTable(root->getTableName());
+    if(table->name.empty()){
+        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+    //TODO make print for showcreate
+    ActionsUtils::makeRequestCreateFromTable(table);
     return Error();
 }

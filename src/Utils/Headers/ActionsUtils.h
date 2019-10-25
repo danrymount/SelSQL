@@ -95,7 +95,7 @@ class ActionsUtils {
                                                                                                         compareLessEq};
 
     typedef std::vector<std::pair<std::string, std::string>> Record;
-    std::string makeRequestCreateFromTable(Table table);
+    static std::string makeRequestCreateFromTable(std::shared_ptr<Table> table);
 
     Error checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
                           std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);

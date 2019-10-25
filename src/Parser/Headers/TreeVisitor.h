@@ -6,7 +6,7 @@
 #define SELSQL_TREEVISITOR_H
 
 #include <memory>
-#include "../../Utils/Structures/BigResponse.h"
+#include "../../Utils/Structures/Error.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
    public:

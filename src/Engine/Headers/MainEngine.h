@@ -6,9 +6,9 @@
 #define SELSQL_MAINENGINE_H
 
 #include <memory>
-#include "../../Utils/Structures/BigResponse.h"
 #include "../../Utils/Structures/Data/Table.h"
 
+#include "../../Utils/Structures/Error.h"
 #include "../Headers/FileManager.h"
 #include "Cursor.h"
 class MainEngine {
