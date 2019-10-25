@@ -78,9 +78,11 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     do {
         auto record = cursor.second->Fetch();
+      
         if (record.empty()) {
             continue;
         }
+      
         v->setValues(record);
         expr->accept(getTreeVisitor().get());
         if (v->getResult()) {

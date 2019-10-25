@@ -16,12 +16,13 @@ class Client {
     int client_socket;
     sockaddr_in peer;
     int server_connection;
-
-   public:
-    explicit Client();
     int sendMessage(std::string message);
     int getMessage();
-    char recieved_message[MESSAGE_SIZE];
+
+   public:
+    std::string response;
+    int execRequest(std::string request);
+    explicit Client();
     ~Client();
 };
 

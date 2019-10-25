@@ -63,6 +63,27 @@ class TestUtils {
                 bIt++;
         }
     }
+    static void clear() {
+        std::string command;
+#ifdef __WIN32
+        const char *delete_command = "rmdir /Q /S ";
+#else
+        const char *delete_command = "rm -rf ";
+#endif
+
+        std::string name = "*" + Constants::FILE_TYPE;
+
+        command = delete_command + name;
+        std::system(command.c_str());
+    }
+
+    static void checkRequests(const std::vector<std::pair<std::string, std::string>> &requests) {
+        Client client;
+        for (const auto &request : requests) {
+            client.execRequest(request.first);
+            EXPECT_EQ(client.response, request.second);
+        }
+    }
 };
 
 #endif  // SELSQL_TESTUTILS_H
