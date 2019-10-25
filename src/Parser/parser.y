@@ -76,7 +76,7 @@
 %}
 
 %token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
-%token VALUES SET WHERE AS AND OR NOT JOIN ON
+%token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT FLOAT CHAR
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
@@ -136,14 +136,20 @@ request:
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(std::string($3), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
-    SELECT_ACTION cols_select FROM IDENT alias join where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($7))));
-    }|
+    select union_intercest|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
 	children.emplace_back(new DeleteNode(std::string($3), new ExprNode($4)));
+    }
+
+select:
+    SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON {
+	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($5))));
+    }|
+    SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
+
     }
 
 variables:
@@ -251,23 +257,32 @@ alias:
     }
 
 join:
-    JOIN IDENT alias ON join_expr{
-
-    }|
-    /*empty*/ {
+    join_expr|
+    join join_type join_expr ON where_expr{
 
     }
 
 join_expr:
-    id equal_sign id
+    IDENT alias|
+    LBRACKET join RBRACKET alias
 
-id:
-    IDENT {
+join_type:
+    JOIN {
 
     }|
-    IDENT DOT IDENT {
+    LEFT JOIN {
+
+    }|
+    RIGHT JOIN {
+
+    }|
+    FULL JOIN {
 
     }
+
+union_intercest:
+    UNION select|
+    INTERSECT select|
 
 update_list:
     update_elem {
@@ -381,6 +396,9 @@ expr:
     IDENT {
     	std::cout << "STRING" << $1 << std::endl;
 	$$ = new IndentExprNode(std::string($1));
+    }|
+    IDENT DOT IDENT {
+
     }|
     LBRACKET expr_priority_2 RBRACKET {
 	$$ = $2;
