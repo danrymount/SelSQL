@@ -168,8 +168,8 @@ Error ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
     return Error();
 }
 
-Error ActionsUtils::checkFieldsExist(std::shared_ptr<Table> table,
-                                     std::vector<std::pair<std::string, std::string>> updateColumns) {
+Error ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
+                                     const std::vector<std::pair<std::string, std::string>>& updateColumns) {
     std::vector<int> existCols;
     for (auto& col : updateColumns) {
         //проверить для insert и update

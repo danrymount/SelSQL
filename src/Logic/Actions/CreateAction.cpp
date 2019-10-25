@@ -20,5 +20,10 @@ Error CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
     v->setTableName(root->getTableName());
     auto t = v->getTable();
-    //getEngine().CreateTable()
+
+    //TODO поменятб входной параметр
+    BigRequest request;
+    request.tableName = root->getTableName();
+    request.ddlData.table = v->getTable();
+    getEngine().CreateTable(&request);
 }

@@ -175,10 +175,10 @@ class SelectVisitor : public TreeVisitor {
    private:
     std::string curValue;
     std::vector<std::string> columns;
-    bool result = true;
     std::vector<std::pair<std::string, std::string>>  values;
     Error error;
     BaseExprNode* expr;
+    bool result = true;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H

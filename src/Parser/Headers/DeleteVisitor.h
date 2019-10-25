@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_DELETEVISITOR_H
 #define SELSQL_DELETEVISITOR_H
+#include "../Nodes/ActionNodes/DeleteNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/ArithmeticNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/DivNode.h"
@@ -22,7 +23,10 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
 #include "TreeVisitor.h"
-class DeleteVisitor: public TreeVisitor{
+class DeleteVisitor : public TreeVisitor {
+   public:
+    void visit(DeleteNode* node) override { expr = static_cast<BaseExprNode*>(node->getChild()); }
+
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
@@ -153,11 +157,13 @@ class DeleteVisitor: public TreeVisitor{
 
     BaseExprNode* getExpr() { return expr; }
 
+    void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = _values; }
+
    private:
-    std::vector<std::pair<std::string, std::string>>  values;
+    std::vector<std::pair<std::string, std::string>> values;
     std::string curValue;
     Error error;
     BaseExprNode* expr;
-    bool result;
+    bool result = true;
 };
 #endif  // SELSQL_DELETEVISITOR_H

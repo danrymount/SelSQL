@@ -97,4 +97,6 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
     } while (!cursor.second->Next());
+
+    return error;
 }

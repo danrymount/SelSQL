@@ -20,7 +20,7 @@ class ActionsUtils {
     std::array<std::function<Error(std::string, std::string)>, 3> constraintsCheckers = {checkNotNull, checkPrimaryKey,
                                                                                          checkUnique};
 
-    static Error checkFieldsExist(std::shared_ptr<Table> table, std::vector<std::pair<std::string, std::string>> updateColumns);
+    static Error checkFieldsExist(const std::shared_ptr<Table>& table, const std::vector<std::pair<std::string, std::string>>& updateColumns);
 
     static int isNumbers(const std::string& a, const std::string& b) {
         if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))

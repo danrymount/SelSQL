@@ -190,6 +190,6 @@ class UpdateVisitor : public TreeVisitor {
     std::string curValue;
     Error error;
     BaseExprNode* expr;
-    bool result;
+    bool result = true;
 };
 #endif  // SELSQL_UPDATEVISITOR_H

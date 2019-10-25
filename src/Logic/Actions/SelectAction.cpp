@@ -87,9 +87,18 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto v = static_cast<SelectVisitor*>(getTreeVisitor().get());
     auto columns = v->getColumns();
     auto expr = v->getExpr();
+    std::vector<std::pair<std::string, std::string>> columnValues;
+    for (auto &col: columns) {
+        columnValues.emplace_back(std::make_pair(col, ""));
+    }
 
     if (table->name.empty()) {
         return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    error = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+    if (error.getErrorCode()) {
+        return error;
     }
 
     if (cursor.first->record_amount == 0) {

@@ -98,7 +98,7 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
-    if (table->record_amount == Constants::DATA_BLOCK_SIZE / table->record_size) {
+    if (table->record_amount == Constants::DATA_SIZE / table->record_size) {
         return Error(ErrorConstants::ERR_TABLE_FULL);
     }
 
