@@ -60,6 +60,7 @@ Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     int delete_count = 0;
 
     if (cursor.first->record_amount == 0) {
+        cursor.second.reset();
         return error;
     }
 
@@ -81,5 +82,6 @@ Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     cursor.second->table->record_amount -= delete_count;
     cursor.second->Commit();
+    cursor.second.reset();
     return error;
 }

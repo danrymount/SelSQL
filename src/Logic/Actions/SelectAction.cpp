@@ -102,6 +102,7 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     if (cursor.first->record_amount == 0) {
+        cursor.second.reset();
         return error;
     }
 
@@ -115,7 +116,8 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         if(v->getResult()){
             records.push_back(_record);
         }
-
+        ///TODO зачем это?
+        cursor.second->Commit();
     } while (!cursor.second->Next());
 
     ActionsUtils::PrintSelect(records);

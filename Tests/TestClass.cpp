@@ -556,573 +556,427 @@
 ////    EXPECT_EQ(0, result.error.getErrorCode());
 ////    // EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
 ////}
-////
-//// TEST(INSERT_TEST, TEST1) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(CHAR, std::vector<Constraint>{UNIQUE})},
-////                                                            {"count", Variable(CHAR,
-////                                                            std::vector<Constraint>{UNIQUE})}};
-////    std::vector<std::string> _values = {"4", "5"};
-////    std::vector<std::string> _columns;
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
-////                    DQLdata(), err);
-////    str = "CREATE TABLE tname(id INT, count INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT INTO tname VALUES(4,5);";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    TestUtils::compareDml(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(INSERT_TEST, TEST2) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////    std::vector<std::string> _values = {"4", "5"};
-////    std::vector<std::string> _columns = {"id", "count"};
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    BigResponse obj(INSERT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(_columns, _values, _conditions),
-////                    DQLdata(), err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT INTO tname(id, count) VALUES(4,5);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    TestUtils::compareDml(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST1_EMPTY) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns = {"id"};
-////    std::map<std::string, Condition> _conditions;
-////
-////    Error err;
-////    DQLdata dql = DQLdata(_columns, _conditions);
-////    BigResponse obj = BigResponse(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), dql, err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SELECT id from tname;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    MainLogic::executeRequest(res);
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST2) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns = {"id"};
-////    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
-////
-////    Error err;
-////    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
-////                    err);
-////    str = "CREATE TABLE tname(id INT, count INT, name CHAR);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SELECT id from tname where id = 3;";
-////    res = parse_request(str.c_str());
-////    auto t = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, t.error.getErrorCode());
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SELECT_TEST, TEST3) {
-////    std::vector<std::pair<std::string, Variable>> fields = {{"id", Variable(INT, std::vector<Constraint>())},
-////                                                            {"count", Variable(INT, std::vector<Constraint>())},
-////                                                            {"name", Variable(CHAR, std::vector<Constraint>())}};
-////
-////    std::vector<std::string> _columns;
-////    std::map<std::string, Condition> _conditions = {{"id", Condition(EQUALS, "3")}};
-////
-////    Error err;
-////    BigResponse obj(SELECT, "tname", DDLdata(Table("tname", fields), ""), DMLdata(), DQLdata(_columns, _conditions),
-////                    err);
-////    str = "CREATE TABLE tname(id INT, count INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "INSERT into tname(id, count);";
-////    res = parse_request(str.c_str());
-////    str = "SELECT * from tname where id = 3;";
-////    res = parse_request(str.c_str());
-////    auto t = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, t.error.getErrorCode());
-////    TestUtils::compareDql(obj, res);
-////    str = "DROP TABLE tname;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-//
-// TEST(SERVER_TEST_SELECT, TEST1) {
-//    Client client;
-//    client.execRequest("CREATE TABLE t(id INT PRIMARY KEY);");
-//    client.execRequest("INSERT INTO t values(0);");
-//    client.execRequest("INSERT INTO t values(1);");
-//    client.execRequest("SELECT * from t;");
-//    EXPECT_EQ(client.response, " | id | \n | 0 | \n | 1 | \n");
-//    client.execRequest("DROP table t;");
-//}
-//
-// TEST(SERVER_TEST_SELECT, TEST2) {
-//    Client client;
-//    client.execRequest("CREATE TABLE b(id INT PRIMARY KEY, age int NOT NULL);");
-//    client.execRequest("INSERT INTO b values(0, 10);");
-//    client.execRequest("INSERT INTO b values(1, 20);");
-//    client.execRequest("SELECT * from b;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 0 | 10 | \n | 1 | 20 | \n");
-//    client.execRequest("DROP table b;");
-//}
-//
-////
-//// TEST(SERVER_TEST_UPDATE, TEST1) {
-////    Client client;
-////    std::string request = "CREATE TABLE c(id INT PRIMARY KEY, age int NOT NULL);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "INSERT INTO c values(1, 20);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "UPDATE c SET id = 8;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "SELECT * from c;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    std::string answer = " | id | age | \n | 8 | 20 | \n";
-////    std::string received_message = std::string(client.recieved_message);
-////    request = "DROP table c;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    EXPECT_EQ(received_message, answer);
-////}
-//
-//// TEST(SERVER_TEST_UPDATE, TEST2) {
-////    Client client;
-////    std::string request = "CREATE TABLE d(id INT PRIMARY KEY, age int NOT NULL);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "INSERT INTO d values(10, 20);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "UPDATE d SET id = 15, age = 9;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "SELECT * from d;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    std::string answer = " | id | age | \n | 15 | 9 | \n";
-////    std::string received_message = std::string(client.recieved_message);
-////    request = "DROP table d;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    EXPECT_EQ(received_message, answer);
-////}
-//
-// TEST(SERVER_TEST_DELETE, TEST1) {
-//    Client client;
-//    client.execRequest("CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);");
-//    client.execRequest("DELETE FROM e;");
-//    client.execRequest("SELECT * from e;");
-//    EXPECT_EQ(client.response, "Success");
-//    client.execRequest("DROP table e;");
-//}
-//
-// TEST(SERVER_TEST_DELETE, TEST2) {
-//    Client client;
-//    client.execRequest("CREATE TABLE f(id INT , age int NOT NULL);");
-//    client.execRequest("INSERT INTO f values(10, 20);");
-//    client.execRequest("INSERT INTO f values(1, 2);");
-//    client.execRequest("DELETE FROM f;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, "Success");
-//    client.execRequest("DROP table f;");
-//}
-//
-// TEST(SERVER_TEST_ALL, TEST1) {
-//    Client client;
-//    client.execRequest("CREATE TABLE f(id INT , age int NOT NULL);");
-//    client.execRequest("INSERT INTO f values(10, 20);");
-//    client.execRequest("INSERT INTO f values(1, 2);");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n");
-//    client.execRequest("UPDATE f SET id = 5;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 5 | 20 | \n | 5 | 2 | \n");
-//    client.execRequest("DROP table f;");
-//    EXPECT_EQ(client.response, "Success");
-//}
-//
-// TEST(SERVER_TEST_WHERE, TEST1) {
-//    Client client;
-//    client.execRequest("CREATE TABLE f(id INT , age int NOT NULL);");
-//    client.execRequest("INSERT INTO f values(10, 20);");
-//    client.execRequest("INSERT INTO f values(1, 2);");
-//    client.execRequest("SELECT * from f where id = 2;");
-//    EXPECT_EQ(client.response, " | id | age | \n");
-//    client.execRequest("SELECT * from f where id = 1;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 1 | 2 | \n");
-//    client.execRequest("UPDATE f SET id = 5 where id = 4;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n");
-//    client.execRequest("UPDATE f SET id = 5 where id = 10;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 5 | 20 | \n | 1 | 2 | \n");
-//    client.execRequest("DELETE FROM f where id = 5;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 1 | 2 | \n");
-//    client.execRequest("DROP table f;");
-//}
-//
-// TEST(SERVER_TEST_WHERE, TEST2) {
-//    Client client;
-//    client.execRequest("CREATE TABLE f(id INT , age int NOT NULL);");
-//    client.execRequest("INSERT INTO f values(10, 20);");
-//    client.execRequest("INSERT INTO f values(1, 2);");
-//    client.execRequest("SELECT * from f where id = 4*(7-2) - 10;");
-//    EXPECT_EQ(client.response, " | id | age | \n");
-//    client.execRequest("SELECT * from f where id = 1 or id = 2;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 1 | 2 | \n");
-//    client.execRequest("UPDATE f SET id = 5 where id = 2 and id = 1;");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 1 | 2 | \n");
-//    client.execRequest("SELECT * from f;");
-//    EXPECT_EQ(client.response, " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n");
-//    client.execRequest("UPDATE f SET id = 5 where not id = 10;");
-//    client.execRequest("DROP table f;");
-//}
-//
-// TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
-//    Client client;
-//    client.execRequest("CREATE TABLE g(id INT PRIMARY KEY, age int NOT NULL);");
-//    client.execRequest("SHOW CREATE TABLE g;");
-//    EXPECT_EQ(client.response, "CREATE TABLE g(id INT PRIMARY KEY, age INT NOT NULL );");
-//    client.execRequest("DROP table g;");
-//}
-//
-// TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
-//    Client client;
-//    client.execRequest("CREATE TABLE h(id INT);");
-//    client.execRequest("SHOW CREATE TABLE h;");
-//    EXPECT_EQ(client.response, "CREATE TABLE h(id INT );");
-//    client.execRequest("DROP table h");
-//}
-//
+
+TEST(SERVER_TEST_SELECT, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
+                   {"INSERT INTO t values(0);", "Success"},
+                   {"INSERT INTO t values(1);", "Success"},
+                   {"SELECT * from t;", " | id | \n | 0 | \n | 1 | \n"}});
+}
+
+TEST(SERVER_TEST_SELECT, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE b(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                   {"INSERT INTO b values(0, 10);", "Success"},
+                   {"INSERT INTO b values(1, 20);", "Success"},
+                   {"SELECT * from b;", " | id | age | \n | 0 | 10 | \n | 1 | 20 | \n"}});
+}
+
+TEST(SERVER_TEST_CREATE, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
+                    "char(50));",
+                    "Success"},
+                   {"INSERT INTO bb values(1, 10.5, 'Vasya');", "Success"},
+                   {"SHOW CREATE TABLE b;",
+                    "CREATE TABLE bbb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
+                    "char(50));"},
+                   {"SELECT * from bb;", " | id | age | name | \n | 1 | 10.5 | Vasya | \n"}});
+}
+
+TEST(SERVER_TEST_CREATE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bbb(id INT PRIMARY KEY, age float NOT NULL, name char(50) UNIQUE);", "Success"},
+                   {"INSERT INTO bbb values(0, 10.5, 'Vasya');", "Success"},
+                   {"SHOW CREATE TABLE bbb;",
+                    "CREATE TABLE bbb(id INT PRIMARY KEY, age float NOT NULL, name char(50) UNIQUE);"},
+                   {"SELECT * from bbb;", " | id | age | name | \n | 1 | 10.5 | Vasya | \n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE c(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                   {"INSERT INTO c values(1, 20);", "Success"},
+                   {"UPDATE c SET id = 8;", "Success"},
+                   {"SELECT * from c;", " | id | age | \n | 8 | 20 | \n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE d(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                   {"INSERT INTO d values(10, 20);", "Success"},
+                   {"UPDATE d SET id = 15, age = 9;", "Success"},
+                   {"SELECT * from d;", " | id | age | \n | 15 | 9 | \n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE dd(age float PRIMARY KEY, name char(100));", "Success"},
+                   {"INSERT INTO dd values(1.5, 'Petya');", "Success"},
+                   {"UPDATE dd SET age = 5.5, name = 'Vasya';", "Success"},
+                   {"SELECT * from dd;", " | age | name | \n | 5.5 | Vasya | \n"}});
+}
+
+TEST(SERVER_TEST_DELETE, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                   {"DELETE FROM e;", "Success"},
+                   {"SELECT * from e;", "Success"}});
+}
+
+TEST(SERVER_TEST_DELETE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE f(id INT , age int NOT NULL);", "Success"},
+                   {"INSERT INTO f values(10, 20);", "Success"},
+                   {"INSERT INTO f values(1, 2);", "Success"},
+                   {"DELETE FROM f;", "Success"},
+                   {"SELECT * from f;", "Success"}});
+}
+
+TEST(SERVER_TEST_DELETE, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE ff(id INT , age float NOT NULL, name char(75));", "Success"},
+                   {"INSERT INTO ff values(10, 2.0, 'Vvv');", "Success"},
+                   {"INSERT INTO ff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
+                   {"DELETE FROM ff;", "Success"},
+                   {"SELECT * from ff;", "Success"}});
+}
+
+TEST(SERVER_TEST_DELETE, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fff(id INT , age float NOT NULL, name char(75));", "Success"},
+                   {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
+                   {"INSERT INTO fff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
+                   {"DELETE FROM fff where id = 1;", "Success"},
+                   {"SELECT * from fff;", ""},
+                   {"DELETE FROM fff where name = 'Vvv';", "Success"},
+                   {"SELECT * from fff;", "Success"}});
+}
+
+TEST(SERVER_TEST_ALL, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fe(id INT , age int NOT NULL);", "Success"},
+                   {"INSERT INTO fe values(10, 20);", "Success"},
+                   {"INSERT INTO fe values(1, 2);", "Success"},
+                   {"SELECT * from fe;", " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n"},
+                   {"UPDATE fe SET id = 5;", "Success"},
+                   {"SELECT * from fe;", " | id | age | \n | 5 | 20 | \n | 5 | 2 | \n"}});
+}
+
+TEST(SERVER_TEST_WHERE, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fr(id INT , age int NOT NULL);", "Success"},
+                   {"INSERT INTO fr values(10, 20);", "Success"},
+                   {"INSERT INTO fr values(1, 2);", "Success"},
+                   {"SELECT * from fr where id = 2;", " | id | age | \n"},
+                   {"SELECT * from fr where id = 1;", " | id | age | \n | 1 | 2 | \n"},
+                   {"UPDATE fr SET id = 5 where id = 4;", "Success"},
+                   {"SELECT * from fr;", " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n"},
+                   {"UPDATE fr SET id = 5 where not id = 10;", "Success"},
+                   {"SELECT * from fr;", " | id | age | \n | 5 | 20 | \n | 1 | 2 | \n"},
+                   {"DELETE frROM fr where id = 5;", "Success"},
+                   {"SELECT * from fr;", " | id | age | \n | 1 | 2 | \n"}});
+}
+
+TEST(SERVER_TEST_WHERE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE ft(id INT , age int NOT NULL);", "Success"},
+                   {"INSERT INTO ft values(10, 20);", "Success"},
+                   {"INSERT INTO ft values(1, 2);", "Success"},
+                   {"SELECT * from ft where id = 4*(7-2) - 10;", " | id | age | \n"},
+                   {"SELECT * from ft where id = 1 or id = 2;", " | id | age | \n | 1 | 2 | \n"},
+                   {"UPDATE ft SET id = 5 where id = 2 and id = 1;", "Success"},
+                   {"SELECT * from ft;", " | id | age | \n | 10 | 20 | \n | 1 | 2 | \n"},
+                   {"UPDATE ft SET id = 5 where not id = 10;", "Success"},
+                   {"SELECT * from ft;", " | id | age | \n | 10 | 20 | \n | 5 | 2 | \n"}});
+}
+
+TEST(SERVER_TEST_WHERE, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fy(id INT NOT NULL , age float, name char(150));", "Success"},
+                   {"INSERT INTO fy values(1, 2.9, 'sfsf');", "Success"},
+                   {"INSERT INTO fy values(2, 3.789, 'qwerty');", "Success"},
+                   {"INSERT INTO fy values(3, 0.789, 'hgfdsa');", "Success"},
+                   {"SELECT * from fy where id + 1 = id + 1;", "\n"},
+                   {"SELECT * from fy where id = 1 or id = 2;", "\n"},
+                   {"SELECT * from fy where id = 3 and name = 'sfsf' or name = 'qwerty';", "\n"},
+                   {"SELECT * from fy where id = 3 or name = 'hgfdsa';", ""},
+                   {"SELECT * from fy where not age = 2.9 and name = 'qwerty';", ""}});
+}
+
+TEST(SERVER_TEST_WHERE, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fo(id INT NOT NULL , age float, name char(150));", "Success"},
+                   {"INSERT INTO fo values(1, 2.9, 'sfsf');", "Success"},
+                   {"INSERT INTO fo values(2, 3.789, 'qwerty');", "Success"},
+                   {"INSERT INTO fo values(3, 0.789, 'hgfdsa');", "Success"},
+                   {"SELECT * from fo where id + 5 = id + 1;", "\n"},
+                   {"SELECT * from fo where not(id = (1+7)*2 - 13 or id = 2 and age = 3.789) and name = "
+                    "'sfsf';",
+                    "\n"},
+                   {"SELECT * from fo where not id = 3 and (name = 'sfsf' or id = 1');", "\n"},
+                   {"SELECT * from fo where id = 3 or not name = 'hgfdsa' or age = '0.789';", ""},
+                   {"SELECT * from fo where id = 18/(2+2*2) and not(age = 2.9 and name = 'sfsf');", ""}});
+}
+
+TEST(SERVER_TEST_WHERE, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fp(id INT NOT NULL , age float, name char(150));", "Success"},
+                   {"INSERT INTO fp values(1, 2.9, 'sfsf');", "Success"},
+                   {"INSERT INTO fp values(2, 3.789, 'qwerty');", "Success"},
+                   {"INSERT INTO fp values(3, 0.789, 'hgfdsa');", "Success"},
+                   {"SELECT * from fp where id + 5 > id + 1;", "\n"},
+                   {"SELECT * from fp where id > 1;", "\n"},
+                   {"SELECT * from fp where name > 'a';", "\n"},
+                   {"SELECT * from fp where id != 3 or not name != 'hgfdsa' and age <= 3.789;", ""},
+                   {"SELECT * from fp where id >= 18/(2+2*2) and age != 2.9;", ""}});
+}
+
+TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE g(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                   {"SHOW CREATE TABLE g;", "CREATE TABLE g(id INT PRIMARY KEY, age INT NOT NULL );"}});
+}
+
+TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE h(id INT);", "Success"}, {"SHOW CREATE TABLE h;", "CREATE TABLE h(id INT );"}});
+}
+
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
-                              {"CREATE TABLE i(id INT);", "Table already exists ERROR: 1"},
-                              {"DROP table i;", "Success"}});
+                   {"CREATE TABLE i(id INT);", "Table already exists ERROR: 1"}});
 }
-//
-//// TEST(SERVER_TEST_ERROR, TEST2) {
-////    Client client;
-////    std::string request = "CREATE TABLE j(id INT);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "insert into j values('sdfsdf');";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    std::string answer = "";
-////    std::string response = std::string(client.recieved_message);
-////    request = "DROP table j;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    EXPECT_EQ(response, answer);
-////}
-//
-// TEST(SERVER_TEST_ERROR, TEST3) {
-//    Client client;
-//    client.execRequest("CREATE TABLE k(id INT UNIQUE);");
-//    client.execRequest("insert into k values(1);");
-//    client.execRequest("insert into k values(1);");
-//    EXPECT_EQ(client.response, "Value already exists, use UNIQUE value ERROR: 9");
-//    client.execRequest("DROP table k;");
+
+// TEST(SERVER_TEST_ERROR, TEST2) {
+//    TestUtils::clear();
+//   TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
+//                              {"insert into j values('sdfsdf');", ""},
+//                              {"DROP table j;", "Success"}});
 //}
-//
-// TEST(SERVER_TEST_ERROR, TEST4) {
-//    Client client;
-//    std::string request = "CREATE TABLE l(id INT UNIQUE, di FLOAT NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "insert into l values(1, 2);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "insert into l values(3, null);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Null values unavailable ERROR: 8";
-//    std::string received_message = std::string(client.recieved_message);
-//    request = "DROP table l;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-//// TEST(SERVER_TEST_ERROR, TEST5) {
-////    Client client;
-////    std::string request = "CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "insert into m values(1, 2);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "insert into m values(3, 4);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "update m set di = null, id = 3;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    std::string answer = "";
-////    std::string response = std::string(client.recieved_message);
-////    request = "DROP table m;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    EXPECT_EQ(response, answer);
-////}
-//
-// TEST(SERVER_TEST_ERROR, TEST6) {
-//    Client client;
-//    std::string request = "insert into qqq values(1, 2);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Table doesn`t exist ERROR: 2";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_ERROR, TEST7) {
-//    Client client;
-//    std::string request = "CREATE TABLE as(id INT UNIQUE, di FLOAT NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "insert into as(id) values(1, 2);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Invalid count of columns and values ERROR: 5";
-//    std::string received_message = std::string(client.recieved_message);
-//    request = "DROP table m;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_ERROR, TEST8) {
-//    Client client;
-//    std::string request = "CREATE TABLE as(id INT UNIQUE, id FLOAT NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Field name already used";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_ERROR, TEST9) {
-//    Client client;
-//    std::string request = "CREATE TABLE asa(id INT UNIQUE UNIQUE, id1 FLOAT NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Constraint already exists";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_ERROR, TEST10) {
-//    Client client;
-//    std::string request = "CREATE TABLE asas(id INT UNIQUE, id1 FLOAT NOT NULL);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    request = "insert into asas(id) values(1);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "Null values unavailable ERROR: 8";
-//    std::string received_message = std::string(client.recieved_message);
-//    request = "DROP table asas;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-//// TEST(SERVER_TEST_ERROR, TEST11) {
-////    Client client;
-////    std::string request = "CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    request = "insert into asas(isasfdasf, id) values(1, 2);";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    std::string answer = "";
-////    std::string response = std::string(client.recieved_message);
-////    request = "DROP table asas;";
-////    client.sendMessage(request);
-////    client.getMessage();
-////    EXPECT_EQ(response, answer);
-////}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST0) {
-//    Client client;
-//    std::string request = "";
-//
-//    client.execRequest() client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected $end (Str num 1, sym num 0): ";
-//    std::string received_message = std::string(client.response);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST1) {
-//    Client client;
-//    std::string request = "creat table t (id int);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 5): creat";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST2) {
-//    Client client;
-//    std::string request = "create tale t (id int);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 6): create";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST3) {
-//    Client client;
-//    std::string request = "create table 555 (id int);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 15): 555";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST4) {
-//    Client client;
-//    std::string request = "create table t (id innt);";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING, expecting TYPE (Str num 1, sym num 20): innt";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST5) {
-//    Client client;
-//    std::string request = "dro table t;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): dro";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST6) {
-//    Client client;
-//    std::string request = "drop table t, y;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 12): ,";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST7) {
-//    Client client;
-//    std::string request = "drop table t";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 11): ";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST8) {
-//    Client client;
-//    std::string request = "shw create table t;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 3): shw";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST9) {
-//    Client client;
-//    std::string request = "show crate table t;";
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 4): show";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
-//
-// TEST(SERVER_TEST_SYN_ERROR, TEST10) {
-//    Client client;
-//    client.execRequest("inser into t values(1);");
-//    EXPECT_EQ(received_message, answer);
-//    std::string request = ;
-//    client.sendMessage(request);
-//    client.getMessage();
-//    std::string answer = "syntax error, unexpected STRING (Str num 1, sym num 5): inser";
-//    std::string received_message = std::string(client.recieved_message);
-//    EXPECT_EQ(received_message, answer);
-//}
+
+TEST(SERVER_TEST_ERROR, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE k(id INT UNIQUE);", "Success"},
+                   {"insert into k values(1);", "Success"},
+                   {"insert into k values(1);", "Value already exists, use UNIQUE value ERROR: 9"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
+                   {"insert into m values(1, 2);", "Success"},
+                   {"insert into m values(3, 4);", "Null values unavailable ERROR: 8"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
+                   {"insert into m values(1, 2);", "Success"},
+                   {"insert into m values(3, 4);", "Success"},
+                   {"update m set di = null, id = 3;", "Null values unavailable ERROR: 8"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into qqq values(1, 2);", "Table doesn`t exist ERROR: 2"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST7) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE as(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
+                   {"insert into as(id) values(1, 2);", "Invalid count of columns and values ERROR: 5"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST8) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE as(id INT UNIQUE, id FLOAT NOT NULL);", "Field name already used"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST9) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE asa(id INT UNIQUE UNIQUE, id1 FLOAT NOT NULL);", "Constraint already exists"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST10) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT NOT NULL);", "Success"},
+                   {"insert into asas(id) values(1);", "Null values unavailable ERROR: 8"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST11) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);", "Success"},
+                   {"insert into asas(isasfdasf, id) values(1, 2);", "Field doesnt exist ERROR: 6"},
+                   {"DROP table asas;", "Success"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST12) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);", "Success"},
+                   {"DROP TABLE asas;", "Success"},
+                   {"insert into asas values (1, 5.5);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST0) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"", "syntax error, unexpected $end (Str num 1, sym num 0): "}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"creat table t (id int);", "syntax error, unexpected STRING (Str num 1, sym num 5): creat"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create tale t (id int);", "syntax error, unexpected STRING (Str num 1, sym num 6): create"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table 555 (id int);",
+                    "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 15): 555"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (id innt);",
+                    "syntax error, unexpected STRING, expecting TYPE (Str num 1, sym num 20): innt"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"dro table t;", "syntax error, unexpected STRING (Str num 1, sym num 3): dro"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"drop table t, y;",
+                    "syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 12): ,"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST7) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"drop table t", "syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 11): "}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST8) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"shw create table t;", "syntax error, unexpected STRING (Str num 1, sym num 3): shw"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST9) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"show crate table t;", "syntax error, unexpected STRING (Str num 1, sym num 4): show"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST10) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into 'tt' values(1);", ""}});
+}
 
 TEST(SERVER_TEST_SYN_ERROR, TEST11) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"inser into t values(1);",
-                               "syntax error, unexpected STRING (Str num 1, sym num 5): inser"}});
+    TestUtils::checkRequests({{"inser into t values(1);", "syntax error, unexpected STRING (Str num 1, sym num 5): inser"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST12) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"insert ito t values(1);",
-                               "syntax error, unexpected STRING (Str num 1, sym num 6): insert"}});
+    TestUtils::checkRequests({{"insert ito t values(1);", "syntax error, unexpected STRING (Str num 1, sym num 6): insert"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST13) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(1);",
-                               "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 14): 1"}});
+                    "syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 14): 1"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST14) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(col) valus;",
-                               "syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 22): valus"}});
+                    "syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 22): valus"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST15) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(col) (5);",
-                               "syntax error, unexpected NUMBER, expecting SEMICOLON (Str num 1, sym num 19): 5"}});
+                    "syntax error, unexpected NUMBER, expecting SEMICOLON (Str num 1, sym num 19): 5"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST16) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"с", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST17) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (id charrrr(50));", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST18) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (name char(45454554525452452452452));", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST19) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (name char54545(20));", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST20) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (name 456456);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST21) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table 645 (name int);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST22) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (name int, nn char);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST23) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t (name int;", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST24) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into t (col) (col);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST25) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into t (col) ();", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST26) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t ();", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST27) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"show create table (t);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST28) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into t values;", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST29) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert into t values(&^&);", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST30) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"insert t values(7);", ""}});
 }
