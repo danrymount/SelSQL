@@ -124,6 +124,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         return data;
     }
     while (readed_data != table->record_amount) {
+        //        std::cerr<<offset<<std::endl;
         auto new_data = new char[Constants::DATA_SIZE];
         auto dataBlock = std::make_shared<DataBlock>();
         infile->seekg(offset, std::ios::beg);
@@ -139,6 +140,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   dataBlock->max_deleted_amount * sizeof(short int);
+        //        std::cerr<<offset<<std::endl;
         infile->seekg(offset, std::ios::beg);
         infile->read(new_data, Constants::DATA_SIZE);
         offset += Constants::DATA_SIZE;
@@ -152,7 +154,7 @@ void FileManager::WriteDataBlock(const std::string& table_name, const std::vecto
     auto outfile = files_[table_name];
     int offset = Constants::DATA_BLOCK_START_POS;
     for (const auto& block : data) {
-        std::cerr << offset << std::endl;
+        //        std::cerr << offset << std::endl;
         outfile->seekp(offset, std::ios::beg);
         write_int(outfile, block->record_amount);
         write_int(outfile, block->last_record_pos);
@@ -161,10 +163,16 @@ void FileManager::WriteDataBlock(const std::string& table_name, const std::vecto
         offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   block->max_deleted_amount * sizeof(short int);
+        //        std::cerr<<offset<<std::endl;
         outfile->seekp(offset, std::ios::beg);
         outfile->write(block->data_, Constants::DATA_SIZE);
+        //        char new_d[Constants::DATA_SIZE];
+        //        outfile->seekg(offset,std::ios::beg);
+        //        outfile->read(new_d,Constants::DATA_SIZE);
         offset += Constants::DATA_SIZE;
     }
+    outfile->seekp(offset, std::ios::beg);
+    write_int(outfile, 0);
 }
 
 void FileManager::CloseAllFiles() {
