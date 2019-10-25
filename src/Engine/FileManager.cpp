@@ -5,15 +5,17 @@
 #include "../Utils/Structures/Data/Table.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
-    std::shared_ptr<std::fstream> new_file = files_[table->name];
+    auto new_file = files_[table->name];
     new_file->seekp(0, std::ios::beg);
-    new_file->write(table->name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+    std::string name;
+    name.reserve(Constants::MD_COLUMN_NAME_SIZE);
+    name = table->name;
+    new_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
     write_int(new_file, table->getFields().size());
-    std::vector<std::pair<std::string, Variable>> fields = table->getFields();
-    for (auto& field : fields) {
-        std::cerr << field.first.c_str() << std::endl;
-        std::cerr << new_file->tellp() << std::endl;
-        new_file->write(field.first.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+    for (auto& field : table->getFields()) {
+        name.clear();
+        name = field.first;
+        new_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
         write_int(new_file, Type(field.second.type));
         write_int(new_file, field.second.getConstraints().size());
         for (auto constr : field.second.getConstraints()) {
@@ -21,8 +23,9 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         }
     }
 
-    files_[table->name]->seekp(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
-    write_int(files_[table->name], table->record_amount);
+    std::cerr << Constants::DATA_BLOCK_START_POS - 4 << std::endl;
+    new_file->seekp(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
+    write_int(new_file, table->record_amount);
 }
 
 void FileManager::ReadTableMetaData(std::string table_name) {
@@ -69,10 +72,10 @@ int FileManager::OpenFile(std::string table_name) {
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     this->CloseAllFiles();
-//    if (files_.find(table->name) != files_.end()) {
-//        files_[table->name]->close();
-//        files_.erase(table->name);
-//    }
+    //    if (files_.find(table->name) != files_.end()) {
+    //        files_[table->name]->close();
+    //        files_.erase(table->name);
+    //    }
 
     std::ifstream file;
     file.open(table->name + Constants::FILE_TYPE);
@@ -86,7 +89,7 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
 
     WriteTableMetaData(table);
     this->CloseAllFiles();
-//    files_[table->name]->close();
+
     return 0;
 }
 std::shared_ptr<Table> FileManager::GetTable(std::string table_name) { return table_data[table_name]; }
@@ -101,7 +104,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
     if (data.size() == 0) {
         return 0;
     }
-    this->WriteDataBlock(table->name, data);
+    this->WriteDataBlock(std::string(table->name), data);
     this->CloseAllFiles();
     return 0;
 }
@@ -145,10 +148,11 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
 
     return data;
 }
-void FileManager::WriteDataBlock(std::string table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
+void FileManager::WriteDataBlock(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
     auto outfile = files_[table_name];
     int offset = Constants::DATA_BLOCK_START_POS;
-    for (auto block : data) {
+    for (const auto& block : data) {
+        std::cerr << offset << std::endl;
         outfile->seekp(offset, std::ios::beg);
         write_int(outfile, block->record_amount);
         write_int(outfile, block->last_record_pos);
@@ -161,7 +165,6 @@ void FileManager::WriteDataBlock(std::string table_name, const std::vector<std::
         outfile->write(block->data_, Constants::DATA_SIZE);
         offset += Constants::DATA_SIZE;
     }
-
 }
 
 void FileManager::CloseAllFiles() {
@@ -171,10 +174,10 @@ void FileManager::CloseAllFiles() {
     files_.clear();
 }
 
-void write_int(std::shared_ptr<std::fstream> file, int value) {
+void write_int(const std::shared_ptr<std::fstream>& file, int value) {
     file->write(reinterpret_cast<char*>(&value), sizeof(int));
 }
-int read_int(std::shared_ptr<std::fstream> file) {
+int read_int(const std::shared_ptr<std::fstream>& file) {
     int res;
     file->read(reinterpret_cast<char*>(&res), sizeof(int));
     return res;

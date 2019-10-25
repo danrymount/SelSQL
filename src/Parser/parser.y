@@ -119,7 +119,7 @@ query:
     	valuesList.clear();
     	children.clear();
     	updateList.clear();
-    	delete [] yylval.string;
+
     }
 
 request:
