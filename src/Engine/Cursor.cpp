@@ -155,7 +155,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::Next() {
-    if (readed_data > table->record_amount - 1) {
+    if (readed_data + 1 > table->record_amount) {
         return 1;
     } else {
         current_pos_in_block++;
