@@ -55,8 +55,44 @@
 //    return response;
 //}
 Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
-    cursor = getEngine().GetCursor(root->getTableName());
-
     root->getChild()->accept(getTreeVisitor().get());
-    auto v = static_cast<UpdateVisitor*>(getTreeVisitor().get());
+    auto v = static_cast<UpdateVisitor *>(getTreeVisitor().get());
+    auto updateColumns = v->getUpdates();
+    auto expr = v->getExpr();
+
+    cursor = getEngine().GetCursor(root->getTableName());
+    auto table = cursor.first;
+    if (table->name.empty()) {
+        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    error = ActionsUtils::checkFieldsExist(table, updateColumns);
+    if (error.getErrorCode()) {
+        return error;
+    }
+
+    error = actionsUtils.checkConstraint(updateColumns, cursor);
+    if (error.getErrorCode()) {
+        return error;
+    }
+
+    do {
+        auto record = cursor.second->Fetch();
+        if (record.empty()) {
+            continue;
+        }
+        v->setValues(record);
+        expr->accept(getTreeVisitor().get());
+        if (v->getResult()) {
+            // TODO сменить входные параметры
+            std::vector<std::string> columns;
+            std::vector<std::string> values;
+            for (auto &colValue : updateColumns) {
+                columns.emplace_back(colValue.first);
+                values.emplace_back(colValue.second);
+            }
+            cursor.second->Update(columns, values);
+        }
+
+    } while (!cursor.second->Next());
 }

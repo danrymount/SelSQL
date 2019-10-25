@@ -106,12 +106,22 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
-    error = ActionsUtils::checkFieldsExist(table, columns);
+    std::vector<std::pair<std::string, std::string>> columnsValues;
+    for (int i = 0; i < values.size(); i++) {
+        std::pair<std::string, std::string> curColValue;
+        if(columns[0] == "*"){
+            columnsValues.emplace_back(std::make_pair(columns[0], values[i]));
+            continue;
+        }
+        columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
+    }
+
+    error = ActionsUtils::checkFieldsExist(table, columnsValues);
     if (error.getErrorCode()) {
         return error;
     }
 
-    error = actionsUtils.checkConstraint(columns, values, cursor);
+    error = actionsUtils.checkConstraint(columnsValues, cursor);
     if (error.getErrorCode()) {
         return error;
     }

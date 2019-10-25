@@ -154,7 +154,7 @@ class DeleteVisitor: public TreeVisitor{
     BaseExprNode* getExpr() { return expr; }
 
    private:
-    std::map<std::string, std::string> values;
+    std::vector<std::pair<std::string, std::string>>  values;
     std::string curValue;
     Error error;
     BaseExprNode* expr;

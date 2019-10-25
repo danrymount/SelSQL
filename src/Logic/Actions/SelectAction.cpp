@@ -79,29 +79,7 @@
 //    return response;
 //}
 
-void SelectAction::printAll(BigResponse& response) {
-    for (auto record : response.dqlData.record) {
-        stringstream << " | ";
-        std::cout << " | ";
-        for (auto field : record) {
-            std::cout << field.second << " | ";
-            stringstream << field.second << " | ";
-        }
-        stringstream << std::endl;
-        std::cout << std::endl;
-    }
-}
-void SelectAction::printAllHeader(std::shared_ptr<Table> table) {
-    for (auto col : table->getFields()) {
-        std::cout << col.first << " | ";
-        stringstream << col.first << " | ";
-    }
-}
 
-void SelectAction::printField(std::string field) {
-    std::cout << field << " | ";
-    stringstream << field << " | ";
-}
 Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
@@ -131,5 +109,6 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     } while (!cursor.second->Next());
 
+    ActionsUtils::PrintSelect(records);
     return Error();
 };

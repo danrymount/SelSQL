@@ -14,7 +14,6 @@ class UpdateAction : public BaseAction {
 
    private:
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-    //BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_UPDATEACTION_H

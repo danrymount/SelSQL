@@ -31,19 +31,19 @@ class UpdateVisitor : public TreeVisitor {
     void visit(UpdatesAndExprNode* node) override {
         node->getUpdates()->accept(this);
         expr = node->getExpr();
-        node->getExpr()->accept(this);
     }
 
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
+            result = node->getChild()->getResult();
         }
     }
 
     void visit(UpdateExprNode* node) override {
         for (auto& child : node->getChildren()) {
             child->accept(this);
-            updateValues.insert(std::move(curUpdateValue));
+            updateValues.emplace_back(std::move(curUpdateValue));
         }
     }
 
@@ -179,9 +179,13 @@ class UpdateVisitor : public TreeVisitor {
 
     BaseExprNode* getExpr() { return expr; }
 
+    std::vector<std::pair<std::string, std::string>> getUpdates() { return updateValues; }
+
+    void setValues(std::vector<std::pair<std::string, std::string>>  _values) { values = std::move(_values); }
+
    private:
-    std::map<std::string, std::string> values;
-    std::map<std::string, std::string> updateValues;
+    std::vector<std::pair<std::string, std::string>> values;
+    std::vector<std::pair<std::string, std::string>> updateValues;
     std::pair<std::string, std::string> curUpdateValue;
     std::string curValue;
     Error error;

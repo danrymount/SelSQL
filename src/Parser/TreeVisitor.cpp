@@ -49,9 +49,6 @@
 #include "Nodes/VariableNode.h"
 
 void TreeVisitor::visit(RootNode* node) {
-    std::cout << "ROOT" << std::endl;
-    request = std::make_shared<BigRequest>();
-    response = std::make_shared<BigResponse>();
     for (auto& child : node->getChildren()) {
         // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
         child->accept(this);
@@ -61,46 +58,44 @@ void TreeVisitor::visit(RootNode* node) {
 void TreeVisitor::visit(CreateNode* node) {
     auto action = std::make_shared<CreateNode>(*node);
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
-    CreateAction(visitor).execute(action);
+    error = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    print("DROP");
     print(node->getTableName());
     auto action = std::make_shared<DropNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
-    DropAction(visitor).execute(action);
+    error = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
     auto action = std::make_shared<ShowCreateNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
-    ShowCreateAction(visitor).execute(action);
+    error = ShowCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(InsertNode* node) {
-    std::cout << "INSERT" << std::endl;
     auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
     auto action = std::make_shared<InsertNode>(*node);
-    InsertAction(visitor).execute(action);
+    error = InsertAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(SelectNode* node) {
     auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
     auto action = std::make_shared<SelectNode>(*node);
-    SelectAction(visitor).execute(action);
+    error = SelectAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(UpdateNode* node) {
     auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
     auto action = std::make_shared<UpdateNode>(*node);
-    UpdateAction(visitor).execute(action);
+    error = UpdateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DeleteNode* node) {
     auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
     auto action = std::make_shared<DeleteNode>(*node);
-    DeleteAction(visitor).execute(action);
+    error = DeleteAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ConstraintNode* node) {}

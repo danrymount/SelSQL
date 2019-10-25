@@ -53,7 +53,7 @@ class TreeVisitor : public Visitor {
     void visit(ColumnsAndExprNode* node) override;
     void visit(IndentExprNode* node) override;
 
-    std::shared_ptr<BigResponse> getResponse() { return response; }
+    Error getError() { return error; }
 
    private:
    public:
@@ -63,8 +63,7 @@ class TreeVisitor : public Visitor {
     void visit(AssignUpdateNode* node) override;
 
    private:
-    std::shared_ptr<BigRequest> request;
-    std::shared_ptr<BigResponse> response;
+    Error error;
 };
 
 #endif  // SELSQL_TREEVISITOR_H

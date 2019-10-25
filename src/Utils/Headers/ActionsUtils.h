@@ -17,11 +17,10 @@
 
 class ActionsUtils {
    public:
-    std::array<std::function<Error(const std::string&, const std::string&)>, 3> constraintsCheckers = {checkNotNull,
-                                                                                                       checkPrimaryKey,
-                                                                                                       checkUnique};
+    std::array<std::function<Error(std::string, std::string)>, 3> constraintsCheckers = {checkNotNull, checkPrimaryKey,
+                                                                                         checkUnique};
 
-    static Error checkFieldsExist(std::shared_ptr<Table> table, std::vector<std::string> colNames);
+    static Error checkFieldsExist(std::shared_ptr<Table> table, std::vector<std::pair<std::string, std::string>> updateColumns);
 
     static int isNumbers(const std::string& a, const std::string& b) {
         if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
@@ -98,12 +97,9 @@ class ActionsUtils {
     typedef std::vector<std::pair<std::string, std::string>> Record;
     std::string makeRequestCreateFromTable(Table table);
 
-    Error checkConstraint(std::vector<std::string> columns, std::vector<std::string> values,
+    Error checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
                           std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor);
 
-    RecordsData checkExpression(std::pair<Expr, vecString> expr, RecordsData records);
-
-    static int checkLogic(std::vector<int> binRes, std::vector<std::string> logicElems);
 
     static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 
@@ -127,26 +123,11 @@ class ActionsUtils {
    private:
     ParserUtils parserUtils;
 
-    static std::vector<std::pair<Cmp, std::string>> countExpr(std::pair<std::string, std::string> record,
-                                                              std::vector<std::pair<std::string, std::string>> row,
-                                                              Expr exprs);
+    static Error checkNotNull(std::string newVal, std::string oldVal = "");
 
-    inline static std::map<std::string, std::function<int(int a, int b)>> logicCalculate = {{"and",
-                                                                                             [](int a, int b) {
-                                                                                                 return a and b;
-                                                                                             }},
-                                                                                            {"or",
-                                                                                             [](int a, int b) {
-                                                                                                 return a or b;
-                                                                                             }}
+    static Error checkUnique(std::string newVal, std::string oldVal);
 
-    };
-
-    static Error checkNotNull(const std::string& newVal, const std::string& oldVal);
-
-    static Error checkUnique(const std::string& newVal, const std::string& oldVal);
-
-    static Error checkPrimaryKey(const std::string& newVal, const std::string& oldVal);
+    static Error checkPrimaryKey(std::string newVal, std::string oldVal);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H
