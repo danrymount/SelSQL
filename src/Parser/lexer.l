@@ -70,6 +70,14 @@ CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "UNIQUE"                {ch += yyleng; return CONSTR_UNIQUE;}
 "NOT NULL"              {ch += yyleng; return CONSTR_NOT_NULL;}
 "PRIMARY KEY"           {ch += yyleng; return CONSTR_PRIMARY_KEY;}
+"JOIN"                  {ch += yyleng; return JOIN;}
+"LEFT"                  {ch += yyleng; return LEFT;}
+"RIGHT"                 {ch += yyleng; return RIGHT;}
+"FULL"                  {ch += yyleng; return FULL;}
+"ON"                    {ch += yyleng; return ON;}
+"UNION"                 {ch += yyleng; return UNION;}
+"INTERSECT"             {ch += yyleng; return INTERSECT;}
+
 {CHAR}                  {ch += yyleng;
                         charLen = "";
                         for (int i = 0; i < yyleng; i++) {
