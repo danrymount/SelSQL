@@ -17,7 +17,7 @@ class MainLogic {
     inline static MainEngine* mainEngine = new MainEngine();
 
    public:
-    static BigResponse executeRequest(BigRequest& _request);
+    static BigResponse executeRequest(std::shared_ptr<BigRequest> _request);
 };
 
 #endif  // SELSQL_MAINLOGIC_H

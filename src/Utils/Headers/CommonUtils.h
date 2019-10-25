@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <iostream>
 enum Type { TYPE_INT, TYPE_FLOAT, TYPE_CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
@@ -22,6 +23,15 @@ struct Condition {
     Cmp sign;
     std::string value;
 };
+
+static int DEBUG_MODE = 1;
+
+template <typename T>
+void print(const T &elem) {
+    if (DEBUG_MODE) {
+        std::cout << elem << std::endl;
+    }
+}
 
 typedef std::vector<std::string> vecString;
 typedef std::vector<std::pair<std::pair<std::string, Cmp>, vecString>> Expr;

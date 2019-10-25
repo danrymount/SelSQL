@@ -3,12 +3,18 @@
 //
 
 #include "Headers/DropAction.h"
-BigResponse DropAction::execute(BigRequest& _request, MainEngine* mainEngine) {
-    response = mainEngine->DropTable(&_request);
-    if (!response.error.getErrorCode())
-        return response;
-    // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
-    response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+#include "../../Parser/Nodes/ActionNodes/BaseActionNode.h"
+//BigResponse DropAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+//    response = mainEngine->DropTable(_request.get());
+//    if (!response.error.getErrorCode())
+//        return response;
+//    // std::cout << Constants::ERR_TABLE_NOT_EXISTS << std::endl;
+//    response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+//
+//    return response;
+//}
 
-    return response;
+Error DropAction::execute(std::shared_ptr<BaseActionNode> root) {
+    //getEngine().DropTable(node->getTableName());
+    return Error();
 }

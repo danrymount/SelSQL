@@ -1,77 +1,113 @@
 %{
     #include <stdio.h>
+    #include <iostream>
+    #include <sstream>
     #include <string>
+    #include "../../src/Parser/Nodes/ConstraintNode.h"
+    #include "../../src/Parser/Nodes/VariableNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/CreateNode.h"
+    #include "../../src/Parser/Nodes/ValuesNodes/BaseValueNode.h"
+    #include "../../src/Parser/Nodes/ColumnNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/BaseExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/ExprNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/CmpNode.h"
+
     #include "parser.h"
     #include <memory>
     #include <cstring>
     void showError();
+    void yyerror(const char *s);
     int ch;
+    std::string charLen;
+    std::string str;
 %}
 
 %option noinput noyywrap case-insensitive yylineno
 
-all "*"
-numbers ([-0-9])+
-floatnumb ([0-9]+"."[0-9]+)+
-words   ([A-Za-z0-9]*)
-valstr (\'[-a-zA-Z0-9]*\')
-ddlcreate "CREATE TABLE"
-ddldrop "DROP TABLE"
-ddlshow "SHOW CREATE TABLE"
-types "INT"|"FLOAT"|"CHAR"
-insert "INSERT INTO"
-select "SELECT"
-values "VALUES"
-where "WHERE"
-from "FROM"
-delete "DELETE FROM"
-update "UPDATE"
-set "SET"
-null "NULL"
-
-
-equally "="
-notequally "!="
-sign "+"|"-"
-div "/"
-comp ">="|"<="|"<"|">"
-logic "and"|"or"
-not "NOT"
-brackets "("|")"
-constraints "UNIQUE"|"NOT NULL"|"PRIMARY KEY"
-other [^\40()<>=',;a-zA-Z0-9]+
+NUMBER   ([0-9]*)
+FLOATNUM ([0-9]+"."[0-9]+)+
+IDENT    ([A-Za-z0-9]*)
+STRVAL   [']([^']|[']['])*[']
+CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 
 %%
-{all}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return ALL; }
-{ddldrop}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DDLDROP; }
-{ddlcreate}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DDLCREATE; }
-{ddlshow}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DDLSHOW; }
-{insert}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DMLINSERT; }
-{select}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DQLSELECT; }
-{delete}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DMLDELETE; }
-{update}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DMLUPDATE; }
-{values}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALUES; }
-{types}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return TYPE; }
-{set}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SET; }
-{brackets}      { ch += yyleng; sscanf(yytext, "%s", yylval.string); return BRACKET; }
-{equally}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return EQUALLY; }
-{notequally}    { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOTEQUALLY; }
-{sign}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return SIGN; }
-{div}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return DIV; }
-{comp}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return COMP; }
-{logic}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return LOGIC; }
-{not}           { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NOT; }
-{constraints}   { ch += yyleng; sscanf(yytext, "%s", yylval.string); return CONSTRAINT; }
-{from}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FROM; }
-{where}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return WHERE; }
-{numbers}       { ch += yyleng; sscanf(yytext, "%s", yylval.string); return NUMBER; }
-{floatnumb}     { ch += yyleng; sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
-{null}          { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALNULL; }
-{words}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return STRING; }
-{valstr}        { ch += yyleng; sscanf(yytext, "%s", yylval.string); return VALSTR; }
-{other}         { ch += yyleng; sscanf(yytext, "%s", yylval.string); return OTHER; }
-";"             { ch += yyleng; return SEMICOLON; }
-","             { ch += yyleng; return COMMA; }
+"CREATE"                {ch += yyleng; return CREATE_ACTION;}
+"SHOW"                  {ch += yyleng; return SHOW_ACTION;}
+"DROP"                  {ch += yyleng; return DROP_ACTION;}
+"INSERT"                {ch += yyleng; return INSERT_ACTION;}
+"DELETE"                {ch += yyleng; return DELETE_ACTION;}
+"TABLE"                 {ch += yyleng; return TABLE;}
+"INTO"                  {ch += yyleng; return INTO;}
+"FROM"                  {ch += yyleng; return FROM;}
+"VALUES"                {ch += yyleng; return VALUES;}
+"SELECT"                {ch += yyleng; return SELECT_ACTION;}
+"FROM"                  {ch += yyleng; return FROM;}
+"UPDATE"                {ch += yyleng; return UPDATE_ACTION;}
+"SET"                   {ch += yyleng; return SET;}
+"AS"                    {ch += yyleng; return AS;}
+"WHERE"                 {ch += yyleng; return WHERE;}
+"NOT"                   {ch += yyleng; return NOT;}
+"AND"                   {ch += yyleng; return AND;}
+"OR"                    {ch += yyleng; return OR;}
+"("                     {ch += yyleng; return LBRACKET;}
+")"                     {ch += yyleng; return RBRACKET;}
+"="                     {ch += yyleng; return EQUAL;}
+"*"                     {ch += yyleng; return STAR;}
+"/"                     {ch += yyleng; return DIV;}
+"+"                     {ch += yyleng; return PLUS;}
+"-"                     {ch += yyleng; return MINUS;}
+">"                     {ch += yyleng; return MORE;}
+"<"                     {ch += yyleng; return LESS;}
+">="                    {ch += yyleng; return MOREEQ;}
+"<="                    {ch += yyleng; return LESSEQ;}
+"!="                    {ch += yyleng; return NOTEQ;}
+","                     {ch += yyleng; return COMMA;}
+";"                     {ch += yyleng; return SEMICOLON;}
+"."                     {ch += yyleng; return DOT;}
+"INT"                   {ch += yyleng; return INT;}
+"FLOAT"                 {ch += yyleng; return FLOAT;}
+"NULL"                  {ch += yyleng; return VALNULL;}
+"UNIQUE"                {ch += yyleng; return CONSTR_UNIQUE;}
+"NOT NULL"              {ch += yyleng; return CONSTR_NOT_NULL;}
+"PRIMARY KEY"           {ch += yyleng; return CONSTR_PRIMARY_KEY;}
+"JOIN"                  {ch += yyleng; return JOIN;}
+"LEFT"                  {ch += yyleng; return LEFT;}
+"RIGHT"                 {ch += yyleng; return RIGHT;}
+"FULL"                  {ch += yyleng; return FULL;}
+"ON"                    {ch += yyleng; return ON;}
+"UNION"                 {ch += yyleng; return UNION;}
+"INTERSECT"             {ch += yyleng; return INTERSECT;}
+
+{CHAR}                  {ch += yyleng;
+                        charLen = "";
+                        for (int i = 0; i < yyleng; i++) {
+                            if(isdigit(yytext[i])) {
+                                charLen += yytext[i];
+                            }
+                        }
+                        try {
+                            yylval.charLen = std::stoi(charLen);
+                        } catch(...) {
+                            yyerror("Char oversize");
+                            return 1;
+                        }
+                        return CHAR;}
+{NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
+{FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
+{STRVAL}                {ch += yyleng;
+                        yylval.string = new char[100]();
+                        str = "";
+                        for (int i = 0; i < yyleng; i++) {
+                            if (yytext[i] == '\'' && yytext[i+1] == '\'' && i != 0 && i != yyleng-2) {
+                                str += yytext[i];
+                                i += 1;
+                            } else {
+                                str += yytext[i];
+                            }
+                        }
+                        yylval.string = &str[0]; return STRVAL; }
+{IDENT}                 {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
+
 %%
 
 void showError(){
