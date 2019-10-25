@@ -28,7 +28,7 @@ class ErrorConstants {
     inline static const int ERR_SAME_COLUMN = 7;
     inline static const int ERR_NOT_NULL = 8;
     inline static const int ERR_UNIQUE = 9;
-    inline static const int ERR_TABLE_FULL = 9;
+    inline static const int ERR_TABLE_FULL = 10;
 
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
