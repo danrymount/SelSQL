@@ -7,7 +7,7 @@
     auto visitor = new TreeVisitor();
     while (true) {
         std::getline(std::cin, str);
-        auto tree = parse_request(str.c_str());
+        RootNode *tree = parse_request(str.c_str());
         if (tree == nullptr) {
             std::cerr << "PARSE ERROR" << std::endl;
         } else {
@@ -19,8 +19,6 @@
             //                std::cout << result->ddlData.returnMsg << std::endl;
             //            }
         }
-        //delete tree;
         printf("ENTER NEW COMMAND\n");
     }
-    delete visitor;
 }

@@ -136,7 +136,10 @@ request:
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(std::string($3), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
-    select union_intercest|
+    //select union_intercest|
+    SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON{
+    	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($5))));
+    }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
@@ -147,9 +150,10 @@ request:
 select:
     SELECT_ACTION cols_select FROM IDENT where_exprs SEMICOLON {
 	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($5))));
+	std::cout << "0" <<std::endl;
     }|
     SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
-
+	std::cout << "1" <<std::endl;
     }
 
 variables:
@@ -449,6 +453,7 @@ int yyerror(const char *errmsg){
     valuesList.clear();
     children.clear();
     updateList.clear();
+    tree = nullptr;
 
     return 0;
 }

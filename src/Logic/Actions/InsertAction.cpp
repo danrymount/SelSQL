@@ -107,10 +107,12 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     std::vector<std::pair<std::string, std::string>> columnsValues;
+    std::vector<std::string> newCols;
     for (int i = 0; i < values.size(); i++) {
         std::pair<std::string, std::string> curColValue;
-        if(columns[0] == "*"){
-            columnsValues.emplace_back(std::make_pair(columns[0], values[i]));
+        if (columns[0] == "*") {
+            columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
+            newCols.emplace_back(cursor.first->getFields()[i].first);
             continue;
         }
         columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
@@ -126,7 +128,7 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return error;
     }
 
-    cursor.second->Insert(columns, values);
+    cursor.second->Insert(newCols, values);
     cursor.second->Commit();
 
     cursor.second->StartPos();
