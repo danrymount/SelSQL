@@ -29,16 +29,22 @@ std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> tabl
     return str;
 }
 
-Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
-                                    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
-    std::string val;
-    Error error;
-    std::shared_ptr<Table> table = cursor.first;
-    std::string colName;
+int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec) {
+    for (int i = 0; i < oldRec.size(); ++i) {
+        if (oldRec[i].second != newRec[i].second) {
+            return 0;
+        }
+    }
+    return 1;
+}
 
-    cursor.second->StartPos();
-    do {
-        auto record = cursor.second->Fetch();
+Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
+                                    std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
+                                    bool isUpdate) {
+    Error error;
+    std::string colName;
+    int countSameVal = 0;
+    for (auto& record : records) {
         int i = 0;
         for (auto& colValue : updateColumns) {
             auto value = colValue.second;
@@ -47,6 +53,9 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
             } else {
                 colName = colValue.first;
             }
+
+            //countSameVal += checkSameForUpdate(record, updateColumns); не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE, age INT); ,
+            //могу быть записи (1, 0), а обновить на (1, 2) update t set id = 1, age = 2 where id = 1;
 
             for (auto& field : table->getFields()) {
                 if (field.first != colName) {
@@ -63,6 +72,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
                         }
                         continue;
                     }
+
                     for (auto& elem : record) {
                         if (elem.first != colName) {
                             continue;
@@ -70,73 +80,24 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
                         auto curVal = elem.second;
                         std::transform(curVal.begin(), curVal.end(), curVal.begin(),
                                        [](unsigned char c) { return std::tolower(c); });
-                        error = constraintsCheckers[constraint](val, curVal);
-                        if (error.getErrorCode()) {
+                        error = constraintsCheckers[constraint](value, curVal);
+                        if (error.getErrorCode() == ErrorConstants::ERR_UNIQUE && isUpdate) {
+                            if(countSameVal > 1){
+                                return error;
+                            }
+                        }else if (error.getErrorCode()) {
                             return error;
                         }
                     }
                 }
             }
         }
-
-    } while (!cursor.second->Next());
-
-    cursor.second->StartPos();
-    //    do {
-    //        /// for rows data
-    //        for (int i = 0; i < table->getFields().size(); ++i) {
-    //            auto tableCol = table->getFields()[i];
-    //            if (updateColumns.empty()) {
-    //                val = values[i];
-    //            } else {
-    //                auto valIt = std::find(columns.begin(), columns.end(), tableCol.first);
-    //                if (valIt == columns.end()) {
-    //                    // val = "null";
-    //                    continue;
-    //                } else {
-    //                    int columnIndex = std::distance(columns.begin(), valIt);
-    //                    val = values[columnIndex];
-    //                    std::transform(val.begin(), val.end(), val.begin(),
-    //                                   [](unsigned char c) { return std::tolower(c); });
-    //                }
-    //            }
-    //
-    //            auto record = cursor.second->Fetch();
-    //            for (int j = 0; j < tableCol.second.getConstraints().size(); ++j) {
-    //                auto id = tableCol.second.getConstraints()[j];
-    //                if (record.empty()) {
-    //                    if (!id || id == PRIMARY_KEY) {
-    //                        error = checkNotNull(val, val);
-    //                        if (error.getErrorCode()) {
-    //                            return error;
-    //                        }
-    //                    }
-    //                } else {
-    //                    for (auto& elem : record) {
-    //                        if (tableCol.first == elem.first) {
-    //                            auto curVal = elem.second;
-    //                            std::transform(curVal.begin(), curVal.end(), curVal.begin(),
-    //                                           [](unsigned char c) { return std::tolower(c); });
-    //                            error = constraintsCheckers[id](val, curVal);
-    //                            if (error.getErrorCode()) {
-    //                                return error;
-    //                            }
-    //                            break;
-    //                        }
-    //                    }
-    //                }
-    //            }
-    //        }
-    //        if (cursor.first->record_amount == 0) {
-    //            break;
-    //        }
-    //    } while (!cursor.second->Next());
-
+    }
     return error;
 }
 
 Error ActionsUtils::checkNotNull(std::string newVal, std::string oldVal) {
-    std::string temp = std::move(newVal);
+    std::string temp = newVal;
     std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
     if (temp == "null") {
         return Error(ErrorConstants::ERR_NOT_NULL);

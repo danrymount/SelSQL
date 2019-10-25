@@ -40,7 +40,7 @@ class InsertVisitor : public TreeVisitor {
     }
 
     void visit(NullValueNode* node) override {
-        values.emplace_back(node->getValue());
+        values.emplace_back("null");
     }
 
     std::vector<std::string> getValues() { return values; }

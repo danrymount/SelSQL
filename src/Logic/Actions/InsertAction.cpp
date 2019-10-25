@@ -76,7 +76,7 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto columns = v->getColumns();
     auto values = v->getValues();
 
-    if ((values.size() != columns.size()) && (!columns.empty())) {
+    if ((values.size() != columns.size()) && !(columns.size() == 1 && columns[0] == "*")) {
         return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
@@ -118,12 +118,14 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
     }
 
+    std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
+
     error = ActionsUtils::checkFieldsExist(table, columnsValues);
     if (error.getErrorCode()) {
         return error;
     }
 
-    error = actionsUtils.checkConstraint(columnsValues, cursor);
+    error = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
     if (error.getErrorCode()) {
         return error;
     }

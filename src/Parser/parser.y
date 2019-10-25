@@ -299,10 +299,9 @@ update_elem:
     }|
     IDENT EQUAL STRVAL {
     	$$ = new AssignUpdateNode(std::string($1), new IdentNode(std::string($3)));
-    }
-    |
-    IDENT EQUAL VALNULL {
-
+    }|
+    IDENT EQUAL VALNULL{
+    	$$ = new AssignUpdateNode(std::string($1), new NullValueNode(std::string($1)));
     }
 
 values:

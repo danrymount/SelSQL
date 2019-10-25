@@ -106,6 +106,7 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         return error;
     }
 
+    cursor.second->StartPos();
     do {
         auto _record = cursor.second->Fetch();
         if (_record.empty()) {
