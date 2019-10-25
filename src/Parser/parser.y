@@ -300,6 +300,10 @@ update_elem:
     IDENT EQUAL STRVAL {
     	$$ = new AssignUpdateNode(std::string($1), new IdentNode(std::string($3)));
     }
+    |
+    IDENT EQUAL VALNULL {
+
+    }
 
 values:
     STRVAL {
