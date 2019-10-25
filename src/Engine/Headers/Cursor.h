@@ -9,7 +9,7 @@
 #include "FileManager.h"
 class Cursor {
     std::shared_ptr<FileManager> fileManager;
-    std::vector<DataBlock*> dataBlocks_;
+    std::vector<std::shared_ptr<DataBlock>> dataBlocks_;
 
     std::vector<std::pair<std::string, std::string>> vals;
 

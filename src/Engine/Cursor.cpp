@@ -45,9 +45,9 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     size_t pos_in_block = 0;
-    DataBlock *block;
+    std::shared_ptr<DataBlock> block;
     int no_place = 1;
-    for (auto i : dataBlocks_) {
+    for (const auto &i : dataBlocks_) {
         if (i->deleted) {
             block = i;
             pos_in_block = i->deleted_pos_[--i->deleted] * table->record_size;
@@ -61,7 +61,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     if (no_place) {
-        block = new DataBlock();
+        block = std::make_shared<DataBlock>();
         block->record_size = table->record_size;
         auto new_del_pos = new char[Constants::DATA_SIZE];
         block->setDeletedPos(new_del_pos);

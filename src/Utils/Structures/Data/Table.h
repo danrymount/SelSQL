@@ -39,7 +39,7 @@ class Table {
 
     int addConstraint(Constraint constraint) { return fields[fields.size() - 1].second.addConstraint(constraint); }
 
-    FieldsMap getFields() { return fields; }
+    //    FieldsMap getFields() { return fields; }
 
     FieldsMap getFields() const { return fields; }
 
