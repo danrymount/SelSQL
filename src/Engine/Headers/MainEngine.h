@@ -12,7 +12,6 @@
 #include "../Headers/FileManager.h"
 #include "Cursor.h"
 class MainEngine {
-    Cursor* cursor;
 
    public:
     std::shared_ptr<FileManager> file_manager_;
