@@ -19,7 +19,7 @@ class BigResponse : public BigRequest {
     BigResponse() = default;
 
     BigResponse(Action _action, std::string _tableName, DDLdata _ddlData, DMLdata _dmlData, DQLdata _dqlData,
-                Error _error,  std::pair<Expr, vecString> _expression)
+                Error _error, std::pair<Expr, vecString> _expression)
                                                                                                         : BigRequest(_action,
                                                                                                                      _tableName,
                                                                                                                      _ddlData,

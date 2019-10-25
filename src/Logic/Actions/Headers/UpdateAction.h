@@ -7,10 +7,13 @@
 
 #include "BaseAction.h"
 class UpdateAction : public BaseAction {
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-
    public:
-    BigResponse execute(BigRequest& _request, MainEngine* mainEngine) override;
+    explicit UpdateAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
+
+    Error execute(std::shared_ptr<BaseActionNode>) override;
+
+   private:
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
 };
 
 #endif  // SELSQL_UPDATEACTION_H
