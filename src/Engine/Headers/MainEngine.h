@@ -20,9 +20,9 @@ class MainEngine {
     explicit MainEngine();
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string table_name);
 
-    BigResponse CreateTable(BigRequest* request);
-    BigResponse ShowCreateTable(BigRequest request);
-    BigResponse DropTable(BigRequest* request);
+    Error CreateTable(const std::shared_ptr<Table>& table);
+    std::shared_ptr<Table> ShowCreateTable(const std::string& table_name);
+    Error DropTable(const std::string& table_name);
 };
 
 #endif  // SELSQL_MAINENGINE_H

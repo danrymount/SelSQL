@@ -4,35 +4,36 @@
 
 #include "Headers/MainEngine.h"
 
-BigResponse MainEngine::CreateTable(BigRequest* request) {
-    BigResponse bigResponse;
-    int error = file_manager_->CreateFile(std::make_shared<Table>(request->ddlData.table));
+Error MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
+    Error result;
+    int error = file_manager_->CreateFile(table);
     file_manager_->CloseAllFiles();
     if (error) {
-        bigResponse.error = Error(ErrorConstants::ERR_TABLE_EXISTS);
+        result = Error(ErrorConstants::ERR_TABLE_EXISTS);
     }
-    return bigResponse;
+    return result;
 }
 
-BigResponse MainEngine::ShowCreateTable(BigRequest request) {
-    BigResponse bigResponse;
-    if (file_manager_->OpenFile(request.ddlData.table.name)) {
-        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-    } else {
-        bigResponse.ddlData.table = *file_manager_->GetTable(request.ddlData.table.name);
+std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& table_name) {
+    std::shared_ptr<Table> table(new Table());
+    if (file_manager_->OpenFile(table_name)) {
+        return table;
     }
+    table = file_manager_->GetTable(table_name);
     file_manager_->CloseAllFiles();
-    return bigResponse;
+    return table;
 }
 
-BigResponse MainEngine::DropTable(BigRequest* request) {
-    BigResponse bigResponse;
-    int error = file_manager_->DeleteTable(request->ddlData.table.name);
+Error MainEngine::DropTable(const std::string& table_name) {
+    Error result;
+    int error = file_manager_->DeleteTable(table_name);
     if (error) {
-        bigResponse.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        result = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
     file_manager_->CloseAllFiles();
-    return bigResponse;
+    return result;
+
+    return result;
 }  // returns 0 if table is dropped and non-zero if table doesnt exist
 
 MainEngine::MainEngine() { file_manager_ = std::make_shared<FileManager>(); }
