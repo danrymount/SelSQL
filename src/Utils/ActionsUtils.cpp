@@ -197,19 +197,19 @@ void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, st
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
+    stringstream << std::endl;
     int n = values.size();
     int strSize = values[0].size();
     for (int i = 0; i < strSize; i++) {
         len.push_back(values[0][i].first.length());
     }
     for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
+        for (int j = 0; j < strSize; j++) {
             int maxLen = len[j];
             values[i][j].second.length() > len[j] ? len[j] = values[i][j].second.length() : len[j] = len[j];
         }
     }
-    n = len.size();
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < strSize; i++) {
         stringstream << values[0][i].first;
         int lenStr = values[0][i].first.length();
         for (int j = lenStr; j < len[i]; j++) {
@@ -218,15 +218,15 @@ void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, st
         stringstream << "|";
     }
     stringstream << std::endl;
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < strSize; i++) {
         for (int j = 0; j < len[i]; j++) {
             stringstream << "-";
         }
         stringstream << "|";
     }
     stringstream << std::endl;
-    for (int i = 0; i < strSize; i++) {
-        for (int j = 0; j < n; j++) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < strSize; j++) {
             stringstream << values[i][j].second;
             int lenStr = values[i][j].second.length();
             for (int k = lenStr; k < len[j]; k++) {
