@@ -13,8 +13,8 @@
 #include "../../Utils/Structures/Data/DataBlock.h"
 #include "../../Utils/Structures/Data/Table.h"
 
-void write_int(std::shared_ptr<std::fstream> file, int value);
-int read_int(std::shared_ptr<std::fstream> file);
+void write_int(const std::shared_ptr<std::fstream>& file, int value);
+int read_int(const std::shared_ptr<std::fstream>& file);
 
 class FileManager {
     std::map<std::string, std::shared_ptr<std::fstream>> files_;
@@ -22,7 +22,7 @@ class FileManager {
 
     void ReadTableMetaData(std::string table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
-    void WriteDataBlock(std::string table_name, const std::vector<std::shared_ptr<DataBlock>>& data);
+    void WriteDataBlock(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data);
 
    public:
     void CloseAllFiles();
@@ -31,7 +31,6 @@ class FileManager {
     int CreateFile(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> GetTable(std::string table_name);
     int DeleteTable(std::string table_name);
-    //    unsigned char* GetData(std::string table_name);
     explicit FileManager() = default;
     int UpdateFile(const std::shared_ptr<Table>& table, const std::vector<std::shared_ptr<DataBlock>>& data);
 };

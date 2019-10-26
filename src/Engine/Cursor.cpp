@@ -53,7 +53,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
             pos_in_block = i->deleted_pos_[--i->deleted] * table->record_size;
             no_place = 0;
             break;
-        } else if (i->last_record_pos < Constants::DATA_SIZE / table->record_size - 1) {
+        } else if (i->last_record_pos <= Constants::DATA_SIZE / table->record_size - 1) {
             block = i;
             pos_in_block = i->last_record_pos++ * table->record_size;
             no_place = 0;
@@ -61,6 +61,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     if (no_place) {
+        pos_in_block = 0;
         block = std::make_shared<DataBlock>();
         block->record_size = table->record_size;
         auto new_del_pos = new char[Constants::DATA_SIZE];
@@ -155,12 +156,24 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::Next() {
-    if (readed_data + 1 > table->record_amount) {
-        return 1;
-    } else {
+    if (dataBlocks_[current_block]->record_amount > readed_data) {
         current_pos_in_block++;
         return 0;
+    } else {
+        if (dataBlocks_.size() - 1 == current_block) {
+            return 1;
+        }
+        current_block++;
+        readed_data = 0;
+        current_pos_in_block = 0;
+        return 0;
     }
+    //        if (readed_data + 1 > table->record_amount) {
+    //            return 1;
+    //        } else {
+    //            current_pos_in_block++;
+    //            return 0;
+    //        }
 }
 
 int Cursor::Delete() {
@@ -198,6 +211,7 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 int Cursor::StartPos() {
     current_pos_in_block = 0;
     readed_data = 0;
+    current_block = 0;
     return 0;
 }
 
@@ -206,8 +220,4 @@ Cursor::~Cursor() {
         fileManager->CloseAllFiles();
 }
 
-Cursor::Cursor() {
-    table = std::make_shared<Table>();
-}
-
-
+Cursor::Cursor() { table = std::make_shared<Table>(); }

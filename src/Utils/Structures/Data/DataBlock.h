@@ -8,7 +8,7 @@
 #include "../../Headers/Constants.h"
 class DataBlock {
    public:
-    char* data_ = new char[Constants::DATA_SIZE];
+    char* data_;
     short int* deleted_pos_;
     size_t record_amount = 0;
     size_t record_size = 0;
@@ -18,7 +18,7 @@ class DataBlock {
     void setDeletedPos(char* pos) { deleted_pos_ = reinterpret_cast<short*>(pos); }
     char* getDeletedPos() { return reinterpret_cast<char*>(deleted_pos_); }
     void setData(char* pos) { data_ = pos; };
-    DataBlock() = default;
+    DataBlock() { data_ = new char[Constants::DATA_SIZE]; };
 
     ~DataBlock() {
         delete[] data_;
