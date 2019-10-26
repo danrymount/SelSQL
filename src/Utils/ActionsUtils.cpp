@@ -29,13 +29,28 @@ std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> tabl
     return str;
 }
 
-int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec) {
+int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec, std::shared_ptr<Table> table) {
     for (int i = 0; i < oldRec.size(); ++i) {
-        if (oldRec[i].second != newRec[i].second) {
-            return 0;
+        auto tableCol = table->getFields()[i];
+        if(tableCol.first == oldRec[i].first){
+            for (int j = 0; j < newRec.size(); ++j) {
+                if(oldRec[i].first == newRec[j].first){
+                    for(auto &constr: tableCol.second.getConstraints()){
+                        if(constr == Constraint::NOT_NULL){
+                            continue;
+                        }
+                        auto curVal = newRec[j].second;
+                        std::transform(curVal.begin(), curVal.end(), curVal.begin(),
+                                       [](unsigned char c) { return std::tolower(c); });
+                        if(oldRec[i].second == curVal){
+                            return 1;
+                        }
+                    }
+                }
+            }
         }
     }
-    return 1;
+    return 0;
 }
 
 Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
@@ -46,6 +61,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
     int countSameVal = 0;
     for (auto& record : records) {
         int i = 0;
+        countSameVal += checkSameForUpdate(record, updateColumns, table);
         for (auto& colValue : updateColumns) {
             auto value = colValue.second;
             if (colValue.first == "*") {
@@ -53,8 +69,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
             } else {
                 colName = colValue.first;
             }
-
-            //countSameVal += checkSameForUpdate(record, updateColumns); не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE, age INT); ,
+            // не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE, age INT); ,
             //могу быть записи (1, 0), а обновить на (1, 2) update t set id = 1, age = 2 where id = 1;
 
             for (auto& field : table->getFields()) {
@@ -85,6 +100,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
                             if(countSameVal > 1){
                                 return error;
                             }
+                            error = Error();
                         }else if (error.getErrorCode()) {
                             return error;
                         }

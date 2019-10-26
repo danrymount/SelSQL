@@ -104,7 +104,6 @@ class ActionsUtils {
 
     static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 
-
     static std::vector<Record> getAllRecords(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
         std::vector<Record> records;
 
@@ -137,7 +136,7 @@ class ActionsUtils {
    private:
     ParserUtils parserUtils;
 
-    static int checkSameForUpdate(const Record& oldRec, const Record& newRec);
+    static int checkSameForUpdate(const Record& oldRec, const Record& newRec, std::shared_ptr<Table> table);
 
     static Error checkNotNull(std::string newVal, std::string oldVal = "");
 

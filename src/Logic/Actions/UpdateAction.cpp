@@ -71,18 +71,27 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         return error;
     }
 
-    std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
-
+    std::vector<ActionsUtils::Record> records;  // = ActionsUtils::getAllRecords(cursor);
+    // cursor.second->StartPos();
     do {
         auto record = cursor.second->Fetch();
-
         if (record.empty()) {
             continue;
         }
-
         v->setValues(record);
         expr->accept(getTreeVisitor().get());
         if (v->getResult()) {
+            records.emplace_back(record);
+        }
+    } while (!cursor.second->Next());
+    cursor.second->StartPos();
+
+    do {
+        auto _record = cursor.second->Fetch();
+        for (auto &record : records) {
+            if (_record != record) {
+                continue;
+            }
             error = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
             if (error.getErrorCode()) {
                 return error;
@@ -98,6 +107,34 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
     } while (!cursor.second->Next());
+
+    cursor.second->StartPos();
+
+    //    do {
+    //        auto record = cursor.second->Fetch();
+    //
+    //        if (record.empty()) {
+    //            continue;
+    //        }
+    //
+    //        v->setValues(record);
+    //        expr->accept(getTreeVisitor().get());
+    //        if (v->getResult()) {
+    //            error = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
+    //            if (error.getErrorCode()) {
+    //                return error;
+    //            }
+    //            // TODO сменить входные параметры
+    //            std::vector<std::string> columns;
+    //            std::vector<std::string> values;
+    //            for (auto &colValue : updateColumns) {
+    //                columns.emplace_back(colValue.first);
+    //                values.emplace_back(colValue.second);
+    //            }
+    //            cursor.second->Update(columns, values);
+    //        }
+    //
+    //    } while (!cursor.second->Next());
 
     cursor.second->StartPos();
 
