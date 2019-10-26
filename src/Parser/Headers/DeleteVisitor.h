@@ -30,6 +30,7 @@ class DeleteVisitor : public TreeVisitor {
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
+            result = node->getChild()->getResult();
         }
     }
 

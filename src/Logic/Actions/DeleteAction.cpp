@@ -73,7 +73,7 @@ Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         v->setValues(record);
         expr->accept(getTreeVisitor().get());
-        if (expr->getResult()) {
+        if (v->getResult()) {
             delete_count++;
             cursor.second->Delete();
         }
