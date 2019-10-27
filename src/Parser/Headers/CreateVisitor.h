@@ -22,9 +22,13 @@ class CreateVisitor : public TreeVisitor {
     void visit(ConstraintNode* node) override { table.addConstraint(node->getConstraint()); }
 
     void visit(VariableNode* node) override {
-        table.addField(node->getVarName(), node->getVarType());
-        for (auto& child : node->getConstraints()) {
-            child->accept(this);
+        if (values.find(node->getVarName()) != values.end()) {
+            table.addField(node->getVarName(), node->getVarType());
+            for (auto& child : node->getConstraints()) {
+                child->accept(this);
+            }
+        } else {
+            error = Message(ErrorConstants::ERR_SAME_COLUMN);
         }
     }
 
@@ -32,7 +36,11 @@ class CreateVisitor : public TreeVisitor {
 
     void setTableName(std::string _name) { table.name = std::move(_name); }
 
+    Message getError() { return error; }
+
    private:
+    Message error;
+    std::map<std::string, int> values;
     Table table;
 };
 

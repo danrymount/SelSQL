@@ -38,10 +38,10 @@ class ActionsUtils {
 
     static int compareEquals(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            auto c = a.substr(1, a.length() - 2);
-            if (isChars(c, b)) {
-                return c == b;
-            }
+            //auto c = a.substr(1, a.length() - 2);
+            //if (isChars(c, b)) {
+                return a == b;
+            //}
         }
         return std::stod(a) == std::stod(b);
     }
@@ -50,40 +50,40 @@ class ActionsUtils {
 
     static int compareMore(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            auto c = a.substr(1, a.length() - 2);
-            if (isChars(c, b)) {
-                return c > b;
-            }
+            //auto c = a.substr(1, a.length() - 2);
+            //if (isChars(c, b)) {
+                return a > b;
+            //}
         }
         return std::stod(a) > std::stod(b);
     }
 
     static int compareMoreEq(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            auto c = a.substr(1, a.length() - 2);
-            if (isChars(c, b)) {
-                return c >= b;
-            }
+            //auto c = a.substr(1, a.length() - 2);
+            //if (isChars(c, b)) {
+                return a >= b;
+            //}
         }
         return std::stod(a) >= std::stod(b);
     }
 
     static int compareLess(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            auto c = a.substr(1, a.length() - 2);
-            if (isChars(c, b)) {
-                return c < b;
-            }
+            //auto c = a.substr(1, a.length() - 2);
+            //if (isChars(c, b)) {
+                return a < b;
+            //}
         }
         return std::stod(a) < std::stod(b);
     }
 
     static int compareLessEq(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            auto c = a.substr(1, a.length() - 2);
-            if (isChars(c, b)) {
-                return c <= b;
-            }
+            //auto c = a.substr(1, a.length() - 2);
+            //if (isChars(c, b)) {
+                return a <= b;
+            //}
         }
         return std::stod(a) <= std::stod(b);
     }

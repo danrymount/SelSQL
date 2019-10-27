@@ -21,6 +21,7 @@
 #include "../Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
 #include "../Nodes/ExpressionsNodes/ExprNode.h"
 #include "../Nodes/ExpressionsNodes/IndentExprNode.h"
+#include "../Nodes/ExpressionsNodes/IndentNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
@@ -160,7 +161,9 @@ class SelectVisitor : public TreeVisitor {
         }
     }
 
-    void visit(ValueExprNode* node) override { curValue = node->getName(); }
+    void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
+
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
     std::vector<std::string> getColumns() { return columns; }
 
@@ -170,7 +173,7 @@ class SelectVisitor : public TreeVisitor {
 
     BaseExprNode* getExpr() { return expr; }
 
-    void setValues(std::vector<std::pair<std::string, std::string>>  _values) { values = std::move(_values); }
+    void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = std::move(_values); }
 
    private:
     std::string curValue;
