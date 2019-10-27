@@ -33,10 +33,10 @@ class Variable {
     void setConstraints(ConstraintsVector &constraints_) { this->constraints = constraints_; }
 
     Type type;
+    int size = 0;
 
    private:
     std::vector<Constraint> constraints;
-    int size = 0;
 };
 
 #endif  // SELSQL_VARIABLE_H

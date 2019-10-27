@@ -17,6 +17,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         name = field.first;
         new_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
         write_int(new_file, Type(field.second.type));
+        write_int(new_file, field.second.size);
         write_int(new_file, field.second.getConstraints().size());
         for (auto constr : field.second.getConstraints()) {
             write_int(new_file, Constraint(constr));
@@ -38,13 +39,15 @@ void FileManager::ReadTableMetaData(std::string table_name) {
         Variable var;
         char var_name[Constants::MD_COLUMN_NAME_SIZE];
         int type = 0;
+        int type_size = 0;
         int constr_size = 0;
         std::vector<Constraint> constraints;
         files_[table_name]->read(var_name, Constants::MD_COLUMN_NAME_SIZE);
         type = read_int(files_[table_name]);
+        type_size = read_int(files_[table_name]);
         constr_size = read_int(files_[table_name]);
         var.type = Type(type);
-
+        var.size = type_size;
         for (int j = 0; j < constr_size; ++j) {
             int constr_type = 0;
             constr_type = read_int(files_[table_name]);
