@@ -20,6 +20,9 @@ Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
     v->setTableName(root->getTableName());
     auto t = v->getTable();
-
+    auto error = v->getError();
+    if (error.getErrorCode()) {
+        return error;
+    }
     return getEngine().CreateTable(std::make_shared<Table>(v->getTable()));
 }

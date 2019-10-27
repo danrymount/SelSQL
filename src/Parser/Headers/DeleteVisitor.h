@@ -18,6 +18,7 @@
 #include "../Nodes/ExpressionsNodes/CompareNodes/NoEqualsNode.h"
 #include "../Nodes/ExpressionsNodes/ExprNode.h"
 #include "../Nodes/ExpressionsNodes/IndentExprNode.h"
+#include "../Nodes/ExpressionsNodes/IndentNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/AndLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
@@ -150,7 +151,9 @@ class DeleteVisitor : public TreeVisitor {
         }
     }
 
-    void visit(ValueExprNode* node) override { curValue = node->getName(); }
+    void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
+
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
     bool getResult() { return result; }
 

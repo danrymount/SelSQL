@@ -5,7 +5,6 @@
 #include "../Client/Linux/LinuxClient.h"
 #endif
 #include <gtest/gtest.h>
-#include "../src/Logic/Headers/MainLogic.h"
 #include "../src/Utils/Structures/Data/Table.h"
 #include "../src/Utils/Structures/Data/Variable.h"
 #include "Headers/TestUtils.h"
