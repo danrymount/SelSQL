@@ -19,16 +19,25 @@ class CreateVisitor : public TreeVisitor {
         }
     }
 
-    void visit(ConstraintNode* node) override { table.addConstraint(node->getConstraint()); }
+    void visit(ConstraintNode* node) override {
+        if (contraints.find(node->getConstraint()) == contraints.end()) {
+            contraints.insert(std::make_pair(node->getConstraint(), 1));
+            table.addConstraint(node->getConstraint());
+        } else {
+            error = Message(ErrorConstants::ERR_SAME_CONSTRAINT);
+        }
+    }
 
     void visit(VariableNode* node) override {
-        if (values.find(node->getVarName()) != values.end()) {
+        if (values.find(node->getVarName()) == values.end()) {
+            values.insert(std::make_pair(node->getVarName(), 1));
             table.addField(node->getVarName(), node->getVarType());
             for (auto& child : node->getConstraints()) {
                 child->accept(this);
             }
+            contraints.clear();
         } else {
-            error = Message(ErrorConstants::ERR_SAME_COLUMN);
+            error = Message(ErrorConstants::ERR_SAME_FIELD_NAME);
         }
     }
 
@@ -41,6 +50,7 @@ class CreateVisitor : public TreeVisitor {
    private:
     Message error;
     std::map<std::string, int> values;
+    std::map<Constraint, int> contraints;
     Table table;
 };
 
