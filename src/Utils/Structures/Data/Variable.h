@@ -12,8 +12,10 @@ class Variable {
     typedef std::vector<Constraint> ConstraintsVector;
 
     Variable() = default;
+
     Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(_constraints){};
     explicit Variable(Type type_) : type(type_) {}
+    Variable(Type _type, int _size): type(_type), size(_size){};
 
     int addConstraint(Constraint constraint) {
         for (auto &constraint_ : constraints) {
@@ -34,6 +36,7 @@ class Variable {
 
    private:
     std::vector<Constraint> constraints;
+    int size = 0;
 };
 
 #endif  // SELSQL_VARIABLE_H

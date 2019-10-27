@@ -32,6 +32,12 @@ class Table {
         last_var_name = field_name;
     }
 
+    void addFiledWithSize(const std::string &field_name, Type type, int size){
+        fields.emplace_back(std::make_pair(field_name, Variable(type, size)));
+        last_var_name = field_name;
+    }
+
+
     void addField(const std::string &field_name, const Variable &var) {
         fields.emplace_back(std::make_pair(field_name, var));
         last_var_name = field_name;

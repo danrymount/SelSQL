@@ -31,7 +31,11 @@ class CreateVisitor : public TreeVisitor {
     void visit(VariableNode* node) override {
         if (values.find(node->getVarName()) == values.end()) {
             values.insert(std::make_pair(node->getVarName(), 1));
-            table.addField(node->getVarName(), node->getVarType());
+            if(node->getVarType() == Type::TYPE_CHAR){
+                table.addFiledWithSize(node->getVarName(), node->getVarType(), node->getSize());
+            }else{
+                table.addField(node->getVarName(), node->getVarType());
+            }
             for (auto& child : node->getConstraints()) {
                 child->accept(this);
             }
