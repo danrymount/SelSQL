@@ -78,7 +78,7 @@
 %token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
 %token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
-%token INT FLOAT CHAR
+%token INT_TYPE FLOAT_TYPE CHAR_TYPE
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
 
@@ -177,13 +177,13 @@ variable:
     }
 
 type:
-    INT {
+    INT_TYPE {
 	$$ = Type::TYPE_INT;
     }|
-    FLOAT {
+    FLOAT_TYPE {
 	$$ = Type::TYPE_FLOAT;
     }|
-    CHAR {
+    CHAR_TYPE {
 	$$ = Type::TYPE_CHAR;
     }
 
@@ -328,14 +328,9 @@ where_expr:
     expr_priority_5{
     	$$ = $1;
     }|
-    where_expr OR where_expr {
+    where_expr OR expr_priority_5 {
+    	std::cout << "OR" << std::endl;
 	$$ = new OrLogicNode($1, $3);
-    }|
-    LBRACKET where_expr RBRACKET{
-    	$$ = $2;
-    }|
-    NOT LBRACKET where_expr RBRACKET{
-    	$$ = new NotLogicNode($3);
     }
 
 
@@ -343,7 +338,8 @@ expr_priority_5:
     expr_priority_4{
     	$$ = $1;
     }|
-    where_expr AND where_expr{
+    expr_priority_5 AND expr_priority_4{
+    	std::cout << "AND" << std::endl;
 	$$ = new AndLogicNode($1, $3);
     }
 
@@ -353,6 +349,12 @@ expr_priority_4:
     }|
     NOT expr_priority_4{
     	$$ = new NotLogicNode($2);
+    }|
+    LBRACKET where_expr RBRACKET{
+    	$$ = $2;
+    }|
+    NOT LBRACKET where_expr RBRACKET{
+    	$$ = new NotLogicNode($3);
     }
 
 expr_priority_3:
