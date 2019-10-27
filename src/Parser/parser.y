@@ -329,7 +329,6 @@ where_expr:
     	$$ = $1;
     }|
     where_expr OR expr_priority_5 {
-    	std::cout << "OR" << std::endl;
 	$$ = new OrLogicNode($1, $3);
     }
 
@@ -339,7 +338,6 @@ expr_priority_5:
     	$$ = $1;
     }|
     expr_priority_5 AND expr_priority_4{
-    	std::cout << "AND" << std::endl;
 	$$ = new AndLogicNode($1, $3);
     }
 
