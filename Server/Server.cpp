@@ -3,32 +3,46 @@
 //
 
 #include "Server.h"
+#include "../src/Parser/Headers/TreeVisitor.h"
 #include "parser.cpp"
 
 std::mutex m;
 
 std::string executeRequest(std::string request) {
     std::lock_guard<std::mutex> guard(m);
-    BigResponse result = parse_request(request.c_str());
-    std::string message = "Success";
-    if (result.error.getErrorCode())
-        message = result.error.getErrorMsg();
-    else {
-        result = MainLogic::executeRequest(result);
-
-        if (!result.select_message.empty()) {
-            message = result.select_message;
+    auto visitor = new TreeVisitor();
+    RootNode *tree = parse_request(request.c_str());
+    if (tree == nullptr) {
+        return "PARSE ERROR";
+    } else {
+        tree->accept(visitor);
+        auto message = visitor->getMessage();
+        std::string res = "Success";
+        if (!visitor->getMessage().getMsg().empty()) {
+            res = visitor->getMessage().getMsg();
         }
-
-        if (result.error.getErrorCode())
-            message = result.error.getErrorMsg() + std::string(" ERROR: ") +
-                      std::to_string(result.error.getErrorCode());
-        else if (result.ddlData.returnMsg.size() > 0) {
-            message = result.ddlData.returnMsg;
-        }
+        return res;
     }
-    return message;
 }
+// BigResponse result = parse_request(request.c_str());
+// std::string message = "Success";
+// if (result.error.getErrorCode())
+//    message = result.error.getErrorMsg();
+// else {
+//    result = MainLogic::executeRequest(result);
+//
+//    if (!result.select_message.empty()) {
+//        message = result.select_message;
+//    }
+//
+//    if (result.error.getErrorCode())
+//        message = result.error.getErrorMsg() + std::string(" ERROR: ") + std::to_string(result.error.getErrorCode());
+//    else if (result.ddlData.returnMsg.size() > 0) {
+//        message = result.ddlData.returnMsg;
+//    }
+//}
+// return message;
+//}
 
 int ListenClient(int id, Server *server) {
     server->AcceptSocket(id);
@@ -62,8 +76,6 @@ int ListenClient(int id, Server *server) {
 
         server->SendMessage(message, id);
     }
-
-
 }
 
 void runServer() {

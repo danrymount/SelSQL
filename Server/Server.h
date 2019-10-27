@@ -14,8 +14,6 @@
 #include <mutex>
 #include <sstream>
 #include <thread>
-#include "../src/Logic/Headers/MainLogic.h"
-#include "../src/Utils/Structures/BigResponse.h"
 #include "Exception.h"
 
 #define MAX_CONN 1
