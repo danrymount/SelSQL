@@ -12,16 +12,15 @@
 #include "../Headers/FileManager.h"
 #include "Cursor.h"
 class MainEngine {
-
-   public:
     std::shared_ptr<FileManager> file_manager_;
 
-    explicit MainEngine();
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string table_name);
+   public:
 
+    explicit MainEngine();
     Message CreateTable(const std::shared_ptr<Table>& table);
-    std::shared_ptr<Table> ShowCreateTable(const std::string& table_name);
-    Message DropTable(const std::string& table_name);
+    std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
+    Message DropTable(const std::string& tableName);
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string tableName);
 };
 
 #endif  // SELSQL_MAINENGINE_H

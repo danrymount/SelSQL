@@ -105,7 +105,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ActionsUtils::getTableInfo(table, 1));
     }
 
-    cursor.second->StartPos();
+    cursor.second->Reset();
     do {
         auto _record = cursor.second->Fetch();
         if (_record.empty()) {

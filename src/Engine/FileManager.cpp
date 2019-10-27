@@ -108,7 +108,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         return 0;
     }
 
-    this->WriteDataBlock(std::string(table->name), data);
+    this->WriteDataBlocks(std::string(table->name), data);
     return 0;
 }
 
@@ -153,7 +153,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
 
     return data;
 }
-void FileManager::WriteDataBlock(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
+void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
     auto outfile = files_[table_name];
     int offset = Constants::DATA_BLOCK_START_POS;
     for (const auto& block : data) {

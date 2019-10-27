@@ -22,7 +22,7 @@
 //        requestToResponse(_request);
 //        return response;
 //    }
-//    cursor.second->StartPos();
+//    cursor.second->Reset();
 //
 //    auto expr = _request->expression;
 //
@@ -46,7 +46,7 @@
 //        //            requestToResponse(_request);
 //        //            return response;
 //        //        }
-//        //        cursor.second->StartPos();
+//        //        cursor.second->Reset();
 //
 //    } while (!cursor.second->Next());
 //
@@ -72,7 +72,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     std::vector<ActionsUtils::Record> records;  // = ActionsUtils::getAllRecords(cursor);
-    // cursor.second->StartPos();
+    // cursor.second->Reset();
     do {
         auto record = cursor.second->Fetch();
         if (record.empty()) {
@@ -84,7 +84,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             records.emplace_back(record);
         }
     } while (!cursor.second->Next());
-    cursor.second->StartPos();
+    cursor.second->Reset();
 
     do {
         auto _record = cursor.second->Fetch();
@@ -108,7 +108,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     } while (!cursor.second->Next());
 
-    cursor.second->StartPos();
+    cursor.second->Reset();
 
     //    do {
     //        auto record = cursor.second->Fetch();
@@ -136,7 +136,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     //
     //    } while (!cursor.second->Next());
 
-    cursor.second->StartPos();
+    cursor.second->Reset();
 
     return message;
 }

@@ -22,7 +22,7 @@ class FileManager {
 
     void ReadTableMetaData(std::string table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
-    void WriteDataBlock(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data);
+    void WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data);
 
    public:
     void CloseAllFiles();

@@ -47,15 +47,15 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     size_t pos_in_block = 0;
     std::shared_ptr<DataBlock> block;
     int no_place = 1;
-    for (const auto &i : dataBlocks_) {
+    for (const auto &i : data_blocks_) {
         if (i->deleted) {
             block = i;
-            pos_in_block = i->deleted_pos_[--i->deleted] * table->record_size;
+            pos_in_block = i->deleted_pos_[--i->deleted] * table_->record_size;
             no_place = 0;
             break;
-        } else if (i->last_record_pos <= Constants::DATA_SIZE / table->record_size - 1) {
+        } else if (i->last_record_pos <= Constants::DATA_SIZE / table_->record_size - 1) {
             block = i;
-            pos_in_block = i->last_record_pos++ * table->record_size;
+            pos_in_block = i->last_record_pos++ * table_->record_size;
             no_place = 0;
             break;
         }
@@ -63,14 +63,14 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     if (no_place) {
         block = std::make_shared<DataBlock>();
         pos_in_block = block->last_record_pos++;
-        block->record_size = table->record_size;
-        block->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
+        block->record_size = table_->record_size;
+        block->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;
         block->setDeletedPos(new char[block->max_deleted_amount * sizeof(short int)]);
-        dataBlocks_.emplace_back(block);
+        data_blocks_.emplace_back(block);
     }
 
     int count = 0;
-    for (auto &i : vals) {
+    for (auto &i : values_) {
         if (cols.empty()) {
             if (count < new_data.size()) {
                 i.second = new_data[count++];
@@ -84,39 +84,39 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
             }
         }
     }
-    auto fields = table->getFields();
-    unsigned char record[table->record_size];
+    auto fields = table_->getFields();
+    unsigned char record[table_->record_size];
     size_t next_pos = 0;
-    for (size_t i = 0; i < vals.size(); ++i) {
+    for (size_t i = 0; i < values_.size(); ++i) {
         Type type = fields[i].second.type;
-        SaveFieldData(vals[i].second, type, record, next_pos);
+        SaveFieldData(values_[i].second, type, record, next_pos);
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
 
-    table->record_amount++;
+    table_->record_amount++;
     block->record_amount++;
-    std::memcpy(&block->data_[pos_in_block], record, table->record_size);
+    std::memcpy(&block->data_[pos_in_block], record, table_->record_size);
 
     return 0;
 }
 
 int Cursor::Commit() {
-    fileManager->UpdateFile(table, dataBlocks_);
+    file_manager_->UpdateFile(table_, data_blocks_);
     return 0;
 }
 
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
-    auto block = dataBlocks_[current_block];
-    unsigned char record[table->record_size];
+    auto block = data_blocks_[current_block_];
+    unsigned char record[table_->record_size];
     std::vector<std::pair<std::string, std::string>> values;
-    std::memcpy(record, &block->data_[current_pos_in_block * table->record_size], table->record_size);
+    std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
     int field_pos = 0;
-    for (int i = 0; i < table->fields.size(); ++i) {
-        unsigned char field[Constants::TYPE_SIZE[table->fields[i].second.type] + 1];
-        Type type = table->fields[i].second.type;
+    for (int i = 0; i < table_->fields.size(); ++i) {
+        unsigned char field[Constants::TYPE_SIZE[table_->fields[i].second.type] + 1];
+        Type type = table_->fields[i].second.type;
         std::string value = "";
-        std::memcpy(field, &block->data_[field_pos + current_pos_in_block * table->record_size],
-                    Constants::TYPE_SIZE[table->fields[i].second.type] + 1);
+        std::memcpy(field, &block->data_[field_pos + current_pos * table_->record_size],
+                    Constants::TYPE_SIZE[table_->fields[i].second.type] + 1);
         if (field[0] == '0' or field[0] == '\000') {
             return std::vector<std::pair<std::string, std::string>>();
         }
@@ -124,8 +124,8 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
             GetFieldData(&value, type, field, 0);
         }
 
-        values.emplace_back(std::make_pair(table->fields[i].first, value));
-        field_pos += Constants::TYPE_SIZE[table->fields[i].second.type] + 1;
+        values.emplace_back(std::make_pair(table_->fields[i].first, value));
+        field_pos += Constants::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
     readed_data++;
     return values;
@@ -156,77 +156,80 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::Next() {
-    if (dataBlocks_[current_block]->record_amount > readed_data) {
-        current_pos_in_block++;
+    if (data_blocks_[current_block_]->record_amount > readed_data) {
+        current_pos++;
         return 0;
     } else {
-        if (dataBlocks_.size() - 1 == current_block) {
+        if (data_blocks_.size() - 1 == current_block_) {
             return 1;
         }
-        current_block++;
+        current_block_++;
         readed_data = 0;
-        current_pos_in_block = 0;
+        current_pos = 0;
         return 0;
     }
-    //        if (readed_data + 1 > table->record_amount) {
-    //            return 1;
-    //        } else {
-    //            current_pos_in_block++;
-    //            return 0;
-    //        }
 }
 
 int Cursor::Delete() {
-    auto block = dataBlocks_[current_block];
-    std::memset(&block->data_[current_pos_in_block * table->record_size], '0', table->record_size);
-    block->deleted_pos_[block->deleted++] = current_pos_in_block;
+    auto block = data_blocks_[current_block_];
+    std::memset(&block->data_[current_pos * table_->record_size], '0', table_->record_size);
+    block->deleted_pos_[block->deleted++] = current_pos;
     block->last_record_pos++;
-    deleted[block]++;
-    //    dataBlocks_[current_block]->deleted_pos_[dataBlocks_[current_block]] = current_pos_in_block;
+    deleted_[block]++;
+    //    data_blocks_[current_block_]->deleted_pos_[data_blocks_[current_block_]] = current_pos;
     //    table->last_record_pos++;
     return 0;
 }
 
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
-    auto block = dataBlocks_[current_block];
-    unsigned char record[table->record_size];
-    std::memcpy(record, &block->data_[current_pos_in_block * table->record_size], table->record_size);
-    auto fields = table->getFields();
+    auto block = data_blocks_[current_block_];
+    unsigned char record[table_->record_size];
+    std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
+    auto fields = table_->getFields();
     int next_pos = 0;
-    for (size_t i = 0; i < vals.size(); ++i) {
+    for (size_t i = 0; i < values_.size(); ++i) {
         Type type = fields[i].second.type;
 
         for (size_t j = 0; j < cols.size(); j++) {
-            if (vals[i].first == cols[j]) {
+            if (values_[i].first == cols[j]) {
                 SaveFieldData(new_data[j], type, record, next_pos);
             }
         }
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
 
-    std::memcpy(&block->data_[current_pos_in_block * table->record_size], record, table->record_size);
+    std::memcpy(&block->data_[current_pos * table_->record_size], record, table_->record_size);
 
     return 0;
 }
 
-int Cursor::StartPos() {
-    current_pos_in_block = 0;
+int Cursor::Reset() {
+    current_pos = 0;
     readed_data = 0;
-    current_block = 0;
+    current_block_ = 0;
     return 0;
 }
 
 Cursor::~Cursor() {
-    if (!table->name.empty()) {
+    if (!table_->name.empty()) {
         int del = 0;
-        for (const auto &i : deleted) {
+        for (const auto &i : deleted_) {
             i.first->record_amount -= i.second;
             del += i.second;
         }
-        table->record_amount -= del;
+        table_->record_amount -= del;
         Commit();
-        fileManager->CloseAllFiles();
+        file_manager_->CloseAllFiles();
     }
 }
 
-Cursor::Cursor() { table = std::make_shared<Table>(); }
+Cursor::Cursor() { table_ = std::make_shared<Table>(); }
+
+Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager)
+                                                                                                    : table_(table),
+                                                                                                      file_manager_(file_manager) {
+    data_blocks_ = file_manager_->ReadDataBlocks(table->name);
+    for (const auto &i : table_->fields) {
+        values_.emplace_back(std::make_pair(i.first, ""));
+    }
+}

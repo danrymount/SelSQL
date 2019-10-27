@@ -110,12 +110,12 @@ class ActionsUtils {
     static std::vector<Record> getAllRecords(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
         std::vector<Record> records;
 
-        cursor.second->StartPos();
+        cursor.second->Reset();
         do {
             auto record = cursor.second->Fetch();
             records.emplace_back(record);
         } while (!cursor.second->Next());
-        cursor.second->StartPos();
+        cursor.second->Reset();
         return records;
     }
 
