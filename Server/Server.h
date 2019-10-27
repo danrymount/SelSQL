@@ -19,8 +19,8 @@
 #define MAX_CONN 1
 #define DEBUG 1
 
-void runServer();
+void RunServer();
 int ListenClient(int id, Server* server);
-std::string executeRequest(std::string request);
+std::string ExecuteRequest(std::string request);
 
 #endif  // SELSQL_SERVER_H

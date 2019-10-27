@@ -16,10 +16,11 @@
 static const int MESSAGE_SIZE = 1024;
 
 class Server {
+    int server_socket_;
+    std::vector<int> communication_socket_;
+    sockaddr_in addr_;
+
    public:
-    int server_socket;
-    std::vector<int> communication_socket;
-    sockaddr_in addr;
 
     char recieved_message[MESSAGE_SIZE];
     explicit Server(int max_connection);

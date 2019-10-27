@@ -20,6 +20,6 @@
 
 #include "Server.h"
 int main() {
-    runServer();
+    RunServer();
     return 0;
 }

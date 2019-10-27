@@ -38,9 +38,9 @@ class ActionsUtils {
 
     static int compareEquals(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            //auto c = a.substr(1, a.length() - 2);
-            //if (isChars(c, b)) {
-                return a == b;
+            // auto c = a.substr(1, a.length() - 2);
+            // if (isChars(c, b)) {
+            return a == b;
             //}
         }
         return std::stod(a) == std::stod(b);
@@ -50,9 +50,9 @@ class ActionsUtils {
 
     static int compareMore(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            //auto c = a.substr(1, a.length() - 2);
-            //if (isChars(c, b)) {
-                return a > b;
+            // auto c = a.substr(1, a.length() - 2);
+            // if (isChars(c, b)) {
+            return a > b;
             //}
         }
         return std::stod(a) > std::stod(b);
@@ -60,9 +60,9 @@ class ActionsUtils {
 
     static int compareMoreEq(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            //auto c = a.substr(1, a.length() - 2);
-            //if (isChars(c, b)) {
-                return a >= b;
+            // auto c = a.substr(1, a.length() - 2);
+            // if (isChars(c, b)) {
+            return a >= b;
             //}
         }
         return std::stod(a) >= std::stod(b);
@@ -70,9 +70,9 @@ class ActionsUtils {
 
     static int compareLess(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            //auto c = a.substr(1, a.length() - 2);
-            //if (isChars(c, b)) {
-                return a < b;
+            // auto c = a.substr(1, a.length() - 2);
+            // if (isChars(c, b)) {
+            return a < b;
             //}
         }
         return std::stod(a) < std::stod(b);
@@ -80,9 +80,9 @@ class ActionsUtils {
 
     static int compareLessEq(const std::string& a, const std::string& b) {
         if (!isNumbers(a, b)) {
-            //auto c = a.substr(1, a.length() - 2);
-            //if (isChars(c, b)) {
-                return a <= b;
+            // auto c = a.substr(1, a.length() - 2);
+            // if (isChars(c, b)) {
+            return a <= b;
             //}
         }
         return std::stod(a) <= std::stod(b);
@@ -101,7 +101,8 @@ class ActionsUtils {
     static std::string makeRequestCreateFromTable(std::shared_ptr<Table> table);
 
     Message checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
-                            std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records, bool isUpdate = false);
+                            std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
+                            bool isUpdate = false);
 
     static std::string getSelectMessage(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 

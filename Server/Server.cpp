@@ -8,7 +8,7 @@
 
 std::mutex m;
 
-std::string executeRequest(std::string request) {
+std::string ExecuteRequest(std::string request) {
     std::lock_guard<std::mutex> guard(m);
     auto visitor = new TreeVisitor();
     RootNode *tree = parse_request(request.c_str());
@@ -24,25 +24,6 @@ std::string executeRequest(std::string request) {
         return res;
     }
 }
-// BigResponse result = parse_request(request.c_str());
-// std::string message = "Success";
-// if (result.error.getErrorCode())
-//    message = result.error.getErrorMsg();
-// else {
-//    result = MainLogic::executeRequest(result);
-//
-//    if (!result.select_message.empty()) {
-//        message = result.select_message;
-//    }
-//
-//    if (result.error.getErrorCode())
-//        message = result.error.getErrorMsg() + std::string(" ERROR: ") + std::to_string(result.error.getErrorCode());
-//    else if (result.ddlData.returnMsg.size() > 0) {
-//        message = result.ddlData.returnMsg;
-//    }
-//}
-// return message;
-//}
 
 int ListenClient(int id, Server *server) {
     server->AcceptSocket(id);
@@ -68,7 +49,7 @@ int ListenClient(int id, Server *server) {
             std::cout << "\t" << server->recieved_message << std::endl;
         }
 
-        message = executeRequest(std::string(server->recieved_message));
+        message = ExecuteRequest(std::string(server->recieved_message));
         if (DEBUG) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
             std::cout << "\t" << message << std::endl;
@@ -78,7 +59,7 @@ int ListenClient(int id, Server *server) {
     }
 }
 
-void runServer() {
+void RunServer() {
     std::vector<std::thread> threads;
 
     try {
