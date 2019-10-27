@@ -5,7 +5,7 @@
 #include "Headers/ShowCreateAction.h"
 #include "../../Utils/Headers/ActionsUtils.h"
 
-//BigResponse ShowCreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
+// BigResponse ShowCreateAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
 //    requestToResponse(_request);
 //    response = mainEngine->ShowCreateTable(*_request.get());
 //    if (response.error.getErrorCode()) {
@@ -17,10 +17,10 @@
 //}
 Message ShowCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto table = getEngine().ShowCreateTable(root->getTableName());
-    if(table->name.empty()){
+    if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
-    //TODO make print for showcreate
-    ActionsUtils::makeRequestCreateFromTable(table);
-    return Message();
+    // TODO make print for showcreate
+
+    return Message(ActionsUtils::makeRequestCreateFromTable(table));
 }
