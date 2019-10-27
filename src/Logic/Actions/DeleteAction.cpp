@@ -61,7 +61,7 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     if (cursor.first->record_amount == 0) {
         cursor.second.reset();
-        return error;
+        return message;
     }
 
     do {
@@ -83,5 +83,5 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    cursor.second->table->record_amount -= delete_count;
     //    cursor.second->Commit();
     //    cursor.second.reset();
-    return error;
+    return message;
 }

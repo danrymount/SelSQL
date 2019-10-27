@@ -32,17 +32,17 @@ std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> tabl
 int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec, std::shared_ptr<Table> table) {
     for (int i = 0; i < oldRec.size(); ++i) {
         auto tableCol = table->getFields()[i];
-        if(tableCol.first == oldRec[i].first){
+        if (tableCol.first == oldRec[i].first) {
             for (int j = 0; j < newRec.size(); ++j) {
-                if(oldRec[i].first == newRec[j].first){
-                    for(auto &constr: tableCol.second.getConstraints()){
-                        if(constr == Constraint::NOT_NULL){
+                if (oldRec[i].first == newRec[j].first) {
+                    for (auto& constr : tableCol.second.getConstraints()) {
+                        if (constr == Constraint::NOT_NULL) {
                             continue;
                         }
                         auto curVal = newRec[j].second;
                         std::transform(curVal.begin(), curVal.end(), curVal.begin(),
                                        [](unsigned char c) { return std::tolower(c); });
-                        if(oldRec[i].second == curVal){
+                        if (oldRec[i].second == curVal) {
                             return 1;
                         }
                     }
@@ -55,7 +55,7 @@ int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec,
 
 Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
                                       std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
-                                    bool isUpdate) {
+                                      bool isUpdate) {
     Message error;
     std::string colName;
     int countSameVal = 0;
@@ -69,7 +69,8 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
             } else {
                 colName = colValue.first;
             }
-            // не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE, age INT); ,
+            // не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE, age
+            // INT); ,
             //могу быть записи (1, 0), а обновить на (1, 2) update t set id = 1, age = 2 where id = 1;
 
             for (auto& field : table->getFields()) {
@@ -97,11 +98,11 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
                                        [](unsigned char c) { return std::tolower(c); });
                         error = constraintsCheckers[constraint](value, curVal);
                         if (error.getErrorCode() == ErrorConstants::ERR_UNIQUE && isUpdate) {
-                            if(countSameVal > 1){
+                            if (countSameVal > 1) {
                                 return error;
                             }
                             error = Message();
-                        }else if (error.getErrorCode()) {
+                        } else if (error.getErrorCode()) {
                             return error;
                         }
                     }
@@ -167,14 +168,13 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
     return Message();
 }
 
-void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values) {
+std::string ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::string, std::string>>> values) {
     if (values.empty()) {
-        return;
+        return "";
     }
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
-    stringstream << std::endl;
     int n = values.size();
     int strSize = values[0].size();
     for (int i = 0; i < strSize; i++) {
@@ -213,5 +213,17 @@ void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, st
         }
         stringstream << std::endl;
     }
-    std::cout << stringstream.str();
+    return stringstream.str();
+}
+std::string ActionsUtils::getTableInfo(const std::shared_ptr<Table>& table, int includeCols) {
+    std::stringstream stringstream;
+    stringstream << "Table " << table->name << ":" << std::endl;
+    if (includeCols) {
+        for (const auto& field : table->getFields()) {
+            stringstream << field.first << "|";
+        }
+        stringstream << std::endl;
+    }
+
+    return stringstream.str();
 }
