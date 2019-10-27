@@ -28,7 +28,7 @@ NUMBER   ([0-9]*)
 FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
 STRVAL   [']([^']|[']['])*[']
-CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
+CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 
 %%
 "CREATE"                {ch += yyleng; return CREATE_ACTION;}
@@ -64,8 +64,8 @@ CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 ","                     {ch += yyleng; return COMMA;}
 ";"                     {ch += yyleng; return SEMICOLON;}
 "."                     {ch += yyleng; return DOT;}
-"INT"                   {ch += yyleng; return INT;}
-"FLOAT"                 {ch += yyleng; return FLOAT;}
+"INT"                   {ch += yyleng; return INT_TYPE;}
+"FLOAT"                 {ch += yyleng; return FLOAT_TYPE;}
 "NULL"                  {ch += yyleng; return VALNULL;}
 "UNIQUE"                {ch += yyleng; return CONSTR_UNIQUE;}
 "NOT NULL"              {ch += yyleng; return CONSTR_NOT_NULL;}
@@ -78,7 +78,7 @@ CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "UNION"                 {ch += yyleng; return UNION;}
 "INTERSECT"             {ch += yyleng; return INTERSECT;}
 
-{CHAR}                  {ch += yyleng;
+{CHAR_TYPE}                  {ch += yyleng;
                         charLen = "";
                         for (int i = 0; i < yyleng; i++) {
                             if(isdigit(yytext[i])) {
@@ -91,7 +91,7 @@ CHAR     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
                             yyerror("Char oversize");
                             return 1;
                         }
-                        return CHAR;}
+                        return CHAR_TYPE;}
 {NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
 {FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {STRVAL}                {ch += yyleng;

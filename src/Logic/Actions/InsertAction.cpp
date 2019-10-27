@@ -108,14 +108,18 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     std::vector<std::pair<std::string, std::string>> columnsValues;
     std::vector<std::string> newCols;
-    for (int i = 0; i < values.size(); i++) {
+    for (int i = 0; i < table->getFields().size(); i++) {
         std::pair<std::string, std::string> curColValue;
         if (columns[0] == "*") {
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
             newCols.emplace_back(cursor.first->getFields()[i].first);
             continue;
         }
-        columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
+        if (i < values.size()) {
+            columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
+        } else {
+            columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, "null"));
+        }
     }
 
     std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
