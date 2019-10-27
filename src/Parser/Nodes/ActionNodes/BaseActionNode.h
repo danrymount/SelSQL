@@ -19,7 +19,11 @@ class BaseActionNode : public BaseNode {
 
     BaseActionNode(Action _action, std::string _name) : action(_action), tableName(std::move(_name)) {}
 
-    ~BaseActionNode() override { delete child; }
+    ~BaseActionNode() override {
+        if (child != NULL) {
+            delete child;
+        }
+    }
 
     void setChildren(BaseNode* _child) { child = _child; }
     BaseNode* getChild() { return child; }
