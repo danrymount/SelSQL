@@ -107,6 +107,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
     if (data.empty()) {
         return 0;
     }
+
     this->WriteDataBlock(std::string(table->name), data);
     return 0;
 }
@@ -156,6 +157,9 @@ void FileManager::WriteDataBlock(const std::string& table_name, const std::vecto
     auto outfile = files_[table_name];
     int offset = Constants::DATA_BLOCK_START_POS;
     for (const auto& block : data) {
+        if (block->record_amount == 0) {
+            continue;
+        }
         //        std::cerr << offset << std::endl;
         outfile->seekp(offset, std::ios::beg);
         write_int(outfile, block->record_amount);

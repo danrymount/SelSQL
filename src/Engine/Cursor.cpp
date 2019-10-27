@@ -61,11 +61,11 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     if (no_place) {
-        pos_in_block = 0;
         block = std::make_shared<DataBlock>();
+        pos_in_block = block->last_record_pos++;
         block->record_size = table->record_size;
-        auto new_del_pos = new char[Constants::DATA_SIZE];
-        block->setDeletedPos(new_del_pos);
+        block->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
+        block->setDeletedPos(new char[block->max_deleted_amount * sizeof(short int)]);
         dataBlocks_.emplace_back(block);
     }
 
