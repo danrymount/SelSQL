@@ -20,7 +20,7 @@ class BaseActionNode : public BaseNode {
     BaseActionNode(Action _action, std::string _name) : action(_action), tableName(std::move(_name)) {}
 
     ~BaseActionNode() override {
-        if (child != NULL) {
+        if (child != nullptr) {
             delete child;
         }
     }
@@ -31,7 +31,7 @@ class BaseActionNode : public BaseNode {
     Action getAction() { return action; }
 
    private:
-    BaseNode* child;
+    BaseNode* child = nullptr;
     std::string tableName;
     Action action;
 };
