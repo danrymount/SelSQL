@@ -1,6 +1,3 @@
-//
-// Created by quiks on 07.10.2019.
-//
 
 #ifndef SELSQL_CURSOR_H
 #define SELSQL_CURSOR_H

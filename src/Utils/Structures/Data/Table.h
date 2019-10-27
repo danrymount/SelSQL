@@ -1,6 +1,3 @@
-//
-// Created by sapiest on 07.10.2019.
-//
 
 #ifndef SELSQL_TABLE_H
 #define SELSQL_TABLE_H
@@ -8,6 +5,7 @@
 #include <map>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include "../../Headers/CommonUtils.h"
 #include "../../Headers/Constants.h"
 #include "Variable.h"
@@ -18,25 +16,20 @@ class Table {
 
     size_t record_amount = 0;
     size_t record_size = 0;
-    //    size_t last_record_pos = 0;
-    //    size_t deleted = 0;
-    //    size_t max_deleted_amount = 0;
-    //
-    //    int *deleted_pos;
+
     Table() = default;
 
-    Table(std::string _name, FieldsMap _fields) : name(_name), fields(_fields) {}
+    Table(std::string _name, FieldsMap _fields) : name(std::move(_name)), fields(std::move(_fields)) {}
 
     void addField(const std::string &field_name, Type type) {
         fields.emplace_back(std::make_pair(field_name, Variable(type)));
         last_var_name = field_name;
     }
 
-    void addFiledWithSize(const std::string &field_name, Type type, int size){
+    void addFiledWithSize(const std::string &field_name, Type type, int size) {
         fields.emplace_back(std::make_pair(field_name, Variable(type, size)));
         last_var_name = field_name;
     }
-
 
     void addField(const std::string &field_name, const Variable &var) {
         fields.emplace_back(std::make_pair(field_name, var));
@@ -47,7 +40,7 @@ class Table {
 
     //    FieldsMap getFields() { return fields; }
 
-    FieldsMap getFields() const { return fields; }
+    [[nodiscard]] FieldsMap getFields() const { return fields; }
 
     void calcRecordSize() {
         record_size = 0;
@@ -65,7 +58,7 @@ class Table {
 
     void clear() {
         name.erase();
-//        fields.clear();
+        fields.clear();
     }
 
     std::string name;

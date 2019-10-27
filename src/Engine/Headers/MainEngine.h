@@ -20,7 +20,7 @@ class MainEngine {
     Message CreateTable(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
     Message DropTable(const std::string& tableName);
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string tableName);
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(const std::string& tableName);
 };
 
 #endif  // SELSQL_MAINENGINE_H

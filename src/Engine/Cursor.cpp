@@ -1,5 +1,6 @@
 #include "Headers/Cursor.h"
 #include <cstring>
+#include <utility>
 
 void convert(unsigned char *dist, std::string val, Type type) {
     unsigned char null_flag = 'n';
@@ -36,10 +37,9 @@ void convert(unsigned char *dist, std::string val, Type type) {
 }
 
 void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int start_pos) {
-    unsigned char null_flag = 'n';
     unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
     auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
-    convert(temp_field, val, type);
+    convert(temp_field, std::move(val), type);
     std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
 }
 
@@ -114,7 +114,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     for (int i = 0; i < table_->fields.size(); ++i) {
         unsigned char field[Constants::TYPE_SIZE[table_->fields[i].second.type] + 1];
         Type type = table_->fields[i].second.type;
-        std::string value = "";
+        std::string value;
         std::memcpy(field, &block->data_[field_pos + current_pos * table_->record_size],
                     Constants::TYPE_SIZE[table_->fields[i].second.type] + 1);
         if (field[0] == '0' or field[0] == '\000') {
@@ -176,8 +176,6 @@ int Cursor::Delete() {
     block->deleted_pos_[block->deleted++] = current_pos;
     block->last_record_pos++;
     deleted_[block]++;
-    //    data_blocks_[current_block_]->deleted_pos_[data_blocks_[current_block_]] = current_pos;
-    //    table->last_record_pos++;
     return 0;
 }
 

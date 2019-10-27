@@ -26,7 +26,7 @@ std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& tableName)
 
 Message MainEngine::DropTable(const std::string& tableName) {
     Message result;
-    int error = file_manager_->DeleteTable(tableName);
+    int error = file_manager_->DeleteFile(tableName);
     if (error) {
         result = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
@@ -36,15 +36,15 @@ Message MainEngine::DropTable(const std::string& tableName) {
 
 MainEngine::MainEngine() { file_manager_ = std::make_shared<FileManager>(); }
 
-std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(std::string tableName) {
+std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName) {
     file_manager_->CloseAllFiles();
     std::shared_ptr<Table> table(new Table());
-    std::shared_ptr<Cursor> cursor1(new Cursor());
+    std::shared_ptr<Cursor> cursor(new Cursor());
 
     if (file_manager_->OpenFile(tableName)) {
-        return std::make_pair(table, cursor1);
-    };
+        return std::make_pair(table, cursor);
+    }
     table = std::make_shared<Table>(*file_manager_->GetTable(tableName));
-    cursor1 = std::make_shared<Cursor>(table, file_manager_);
-    return std::make_pair(table, cursor1);
+    cursor = std::make_shared<Cursor>(table, file_manager_);
+    return std::make_pair(table, cursor);
 }
