@@ -4,12 +4,12 @@
 
 #include "Headers/MainEngine.h"
 
-Error MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
-    Error result;
+Message MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
+    Message result;
     int error = file_manager_->CreateFile(table);
     file_manager_->CloseAllFiles();
     if (error) {
-        result = Error(ErrorConstants::ERR_TABLE_EXISTS);
+        result = Message(ErrorConstants::ERR_TABLE_EXISTS);
     }
     return result;
 }
@@ -24,11 +24,11 @@ std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& table_name
     return table;
 }
 
-Error MainEngine::DropTable(const std::string& table_name) {
-    Error result;
+Message MainEngine::DropTable(const std::string& table_name) {
+    Message result;
     int error = file_manager_->DeleteTable(table_name);
     if (error) {
-        result = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        result = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
     file_manager_->CloseAllFiles();
     return result;

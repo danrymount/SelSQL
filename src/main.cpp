@@ -12,12 +12,8 @@
             std::cerr << "PARSE ERROR" << std::endl;
         } else {
             tree->accept(visitor);
-            auto error = visitor->getError();
-            if (error.getErrorCode())
-                std::cerr << error.getErrorMsg() << " ERROR: " << error.getErrorCode() << std::endl;
-            //            else if (result->ddlData.returnMsg.size() > 0) {
-            //                std::cout << result->ddlData.returnMsg << std::endl;
-            //            }
+            auto message = visitor->getMessage();
+            std::cout << message.getMsg() << std::endl;
         }
         printf("ENTER NEW COMMAND\n");
     }

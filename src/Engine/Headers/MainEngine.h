@@ -8,7 +8,7 @@
 #include <memory>
 #include "../../Utils/Structures/Data/Table.h"
 
-#include "../../Utils/Structures/Error.h"
+#include "../../Utils/Structures/Message.h"
 #include "../Headers/FileManager.h"
 #include "Cursor.h"
 class MainEngine {
@@ -19,9 +19,9 @@ class MainEngine {
     explicit MainEngine();
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(std::string table_name);
 
-    Error CreateTable(const std::shared_ptr<Table>& table);
+    Message CreateTable(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> ShowCreateTable(const std::string& table_name);
-    Error DropTable(const std::string& table_name);
+    Message DropTable(const std::string& table_name);
 };
 
 #endif  // SELSQL_MAINENGINE_H

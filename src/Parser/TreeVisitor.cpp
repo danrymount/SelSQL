@@ -58,44 +58,44 @@ void TreeVisitor::visit(RootNode* node) {
 void TreeVisitor::visit(CreateNode* node) {
     auto action = std::make_shared<CreateNode>(*node);
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
-    error = CreateAction(visitor).execute(action);
+    message = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
     print(node->getTableName());
     auto action = std::make_shared<DropNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
-    error = DropAction(visitor).execute(action);
+    message = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
     auto action = std::make_shared<ShowCreateNode>(*node);
     auto visitor = std::make_shared<TreeVisitor>(*this);
-    error = ShowCreateAction(visitor).execute(action);
+    message = ShowCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(InsertNode* node) {
     auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
     auto action = std::make_shared<InsertNode>(*node);
-    error = InsertAction(visitor).execute(action);
+    message = InsertAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(SelectNode* node) {
     auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
     auto action = std::make_shared<SelectNode>(*node);
-    error = SelectAction(visitor).execute(action);
+    message = SelectAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(UpdateNode* node) {
     auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
     auto action = std::make_shared<UpdateNode>(*node);
-    error = UpdateAction(visitor).execute(action);
+    message = UpdateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DeleteNode* node) {
     auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
     auto action = std::make_shared<DeleteNode>(*node);
-    error = DeleteAction(visitor).execute(action);
+    message = DeleteAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ConstraintNode* node) {}

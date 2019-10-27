@@ -10,12 +10,12 @@
 //    if (!response.error.getErrorCode())
 //        return response;
 //    // std::cout << Constants::ERR_TABLE_EXISTS << std::endl;
-//    response.error = Error(ErrorConstants::ERR_TABLE_EXISTS);
+//    response.error = Message(ErrorConstants::ERR_TABLE_EXISTS);
 //
 //    return response;
 //}
 
-Error CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
+Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
     v->setTableName(root->getTableName());

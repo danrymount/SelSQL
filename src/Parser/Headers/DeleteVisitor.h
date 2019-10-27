@@ -146,7 +146,7 @@ class DeleteVisitor : public TreeVisitor {
         }
         if (!flag) {
             result = false;
-            error = Error(ErrorConstants::ERR_NO_SUCH_FIELD);
+            error = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
         }
     }
 
@@ -154,7 +154,7 @@ class DeleteVisitor : public TreeVisitor {
 
     bool getResult() { return result; }
 
-    Error getError() { return error; }
+    Message getMessage() { return error; }
 
     BaseExprNode* getExpr() { return expr; }
 
@@ -163,7 +163,7 @@ class DeleteVisitor : public TreeVisitor {
    private:
     std::vector<std::pair<std::string, std::string>> values;
     std::string curValue;
-    Error error;
+    Message error;
     BaseExprNode* expr;
     bool result = true;
 };

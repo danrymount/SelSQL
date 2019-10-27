@@ -79,6 +79,6 @@ void runServer() {
             threads[i].join();
         }
     } catch (ServerException) {
-        std::cerr << "Error" << std::endl;
+        std::cerr << "Message" << std::endl;
     }
 };

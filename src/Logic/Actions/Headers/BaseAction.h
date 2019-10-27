@@ -16,7 +16,7 @@ class BaseAction {
    public:
     explicit BaseAction(std::shared_ptr<TreeVisitor> _visitor) : visitor(std::move(_visitor)) {}
 
-    virtual Error execute(std::shared_ptr<BaseActionNode>) = 0;
+    virtual Message execute(std::shared_ptr<BaseActionNode>) = 0;
 
     MainEngine getEngine() { return mainEngine; }
 
@@ -24,7 +24,7 @@ class BaseAction {
 
    protected:
     ActionsUtils actionsUtils;
-    Error error;
+    Message error;
 
    private:
     // shared ptr

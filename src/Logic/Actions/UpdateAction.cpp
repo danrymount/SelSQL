@@ -8,7 +8,7 @@
 //    // response = mainEngine->Update(&_request);
 //    cursor = mainEngine->GetCursor(_request->tableName);
 //    if (cursor.first->name.empty()) {
-//        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+//        response.error = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
 //        return response;
 //    }
 //
@@ -54,7 +54,7 @@
 //
 //    return response;
 //}
-Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
+Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<UpdateVisitor *>(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
@@ -63,7 +63,7 @@ Error UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
     if (table->name.empty()) {
-        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     error = ActionsUtils::checkFieldsExist(table, updateColumns);

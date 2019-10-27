@@ -11,17 +11,18 @@
 #include <string>
 #include "../../Engine/Headers/Cursor.h"
 #include "../Structures/Data/Table.h"
-#include "../Structures/Error.h"
+#include "../Structures/Message.h"
 #include "CommonUtils.h"
 #include "ParserUtils.h"
 
 class ActionsUtils {
    public:
-    std::array<std::function<Error(std::string, std::string)>, 3> constraintsCheckers = {checkNotNull, checkPrimaryKey,
-                                                                                         checkUnique};
+    std::array<std::function<Message(std::string, std::string)>, 3> constraintsCheckers = {checkNotNull,
+                                                                                           checkPrimaryKey,
+                                                                                           checkUnique};
 
-    static Error checkFieldsExist(const std::shared_ptr<Table>& table,
-                                  const std::vector<std::pair<std::string, std::string>>& updateColumns);
+    static Message checkFieldsExist(const std::shared_ptr<Table>& table,
+                                    const std::vector<std::pair<std::string, std::string>>& updateColumns);
 
     static int isNumbers(const std::string& a, const std::string& b) {
         if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
@@ -99,8 +100,8 @@ class ActionsUtils {
 
     static std::string makeRequestCreateFromTable(std::shared_ptr<Table> table);
 
-    Error checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns, std::shared_ptr<Table> table,
-                          std::vector<ActionsUtils::Record> records, bool isUpdate = false);
+    Message checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
+                            std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records, bool isUpdate = false);
 
     static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 
@@ -138,11 +139,11 @@ class ActionsUtils {
 
     static int checkSameForUpdate(const Record& oldRec, const Record& newRec, std::shared_ptr<Table> table);
 
-    static Error checkNotNull(std::string newVal, std::string oldVal = "");
+    static Message checkNotNull(std::string newVal, std::string oldVal = "");
 
-    static Error checkUnique(std::string newVal, std::string oldVal);
+    static Message checkUnique(std::string newVal, std::string oldVal);
 
-    static Error checkPrimaryKey(std::string newVal, std::string oldVal);
+    static Message checkPrimaryKey(std::string newVal, std::string oldVal);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H

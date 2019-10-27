@@ -53,10 +53,10 @@ int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec,
     return 0;
 }
 
-Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
-                                    std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
+Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
+                                      std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
                                     bool isUpdate) {
-    Error error;
+    Message error;
     std::string colName;
     int countSameVal = 0;
     for (auto& record : records) {
@@ -100,7 +100,7 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
                             if(countSameVal > 1){
                                 return error;
                             }
-                            error = Error();
+                            error = Message();
                         }else if (error.getErrorCode()) {
                             return error;
                         }
@@ -112,16 +112,16 @@ Error ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::stri
     return error;
 }
 
-Error ActionsUtils::checkNotNull(std::string newVal, std::string oldVal) {
+Message ActionsUtils::checkNotNull(std::string newVal, std::string oldVal) {
     std::string temp = newVal;
     std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
     if (temp == "null") {
-        return Error(ErrorConstants::ERR_NOT_NULL);
+        return Message(ErrorConstants::ERR_NOT_NULL);
     }
-    return Error();
+    return Message();
 }
 
-Error ActionsUtils::checkUnique(std::string newVal, std::string oldVal) {
+Message ActionsUtils::checkUnique(std::string newVal, std::string oldVal) {
     std::string val;
     if (newVal[0] == '\'') {
         val = newVal.substr(1, newVal.length() - 1);
@@ -129,13 +129,13 @@ Error ActionsUtils::checkUnique(std::string newVal, std::string oldVal) {
         val = newVal;
     }
     if (val == oldVal) {
-        return Error(ErrorConstants::ERR_UNIQUE);
+        return Message(ErrorConstants::ERR_UNIQUE);
     }
-    return Error();
+    return Message();
 }
 
-Error ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
-    Error err = checkNotNull(newVal, oldVal);
+Message ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
+    Message err = checkNotNull(newVal, oldVal);
     if (err.getErrorCode()) {
         return err;
     }
@@ -143,11 +143,11 @@ Error ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
     if (err.getErrorCode()) {
         return err;
     }
-    return Error();
+    return Message();
 }
 
-Error ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
-                                     const std::vector<std::pair<std::string, std::string>>& updateColumns) {
+Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
+                                       const std::vector<std::pair<std::string, std::string>>& updateColumns) {
     std::vector<int> existCols;
     for (auto& col : updateColumns) {
         //проверить для insert и update
@@ -162,9 +162,9 @@ Error ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
         }
     }
     if (existCols.size() != updateColumns.size()) {
-        return Error(ErrorConstants::ERR_NO_SUCH_FIELD);
+        return Message(ErrorConstants::ERR_NO_SUCH_FIELD);
     }
-    return Error();
+    return Message();
 }
 
 void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values) {
@@ -195,13 +195,13 @@ void ActionsUtils::PrintSelect(std::vector<std::vector<std::pair<std::string, st
         stringstream << "|";
     }
     stringstream << std::endl;
-    for (int i = 0; i < strSize; i++) {
-        for (int j = 0; j < len[i]; j++) {
-            stringstream << "-";
-        }
-        stringstream << "|";
-    }
-    stringstream << std::endl;
+    //    for (int i = 0; i < strSize; i++) {
+    //        for (int j = 0; j < len[i]; j++) {
+    //            stringstream << "_";
+    //        }
+    //        stringstream << "|";
+    //    }
+    //    stringstream << std::endl;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < strSize; j++) {
             stringstream << values[i][j].second;

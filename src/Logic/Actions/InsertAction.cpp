@@ -8,7 +8,7 @@
 //    auto columns = _request->dmlData.columns;
 //    auto values = _request->dmlData.values;
 //    if ((values.size() != columns.size()) && (!columns.empty())) {
-//        response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+//        response.error = Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
 //
 //        return response;
 //    }
@@ -19,7 +19,7 @@
 //            if (i == j)
 //                continue;
 //            if (col == columns[j]) {
-//                response.error = Error(ErrorConstants::ERR_SAME_COLUMN);
+//                response.error = Message(ErrorConstants::ERR_SAME_COLUMN);
 //                requestToResponse(_request);
 //
 //                return response;
@@ -30,20 +30,20 @@
 //    cursor = mainEngine->GetCursor(_request->tableName);
 //
 //    if (cursor.first->name.empty()) {
-//        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+//        response.error = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
 //
 //        return response;
 //    }
 //
 //    if (cursor.first->record_amount == Constants::DATA_BLOCK_SIZE / cursor.first->record_size) {
-//        response.error = Error(ErrorConstants::ERR_TABLE_FULL);
+//        response.error = Message(ErrorConstants::ERR_TABLE_FULL);
 //        return response;
 //    }
 //
 //    std::shared_ptr<Table> table = cursor.first;
 //
 //    if (columns.empty() && (table->getFields().size() != values.size())) {
-//        response.error = Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+//        response.error = Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
 //
 //        return response;
 //    }
@@ -70,14 +70,14 @@
 //    return response;
 //}
 
-Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
+Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<InsertVisitor*>(getTreeVisitor().get());
     auto columns = v->getColumns();
     auto values = v->getValues();
 
     if ((values.size() != columns.size()) && !(columns.size() == 1 && columns[0] == "*")) {
-        return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+        return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
     for (int i = 0; i < columns.size(); ++i) {
@@ -86,7 +86,7 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (i == j)
                 continue;
             if (col == columns[j]) {
-                return Error(ErrorConstants::ERR_SAME_COLUMN);
+                return Message(ErrorConstants::ERR_SAME_COLUMN);
             }
         }
     }
@@ -95,15 +95,15 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     auto table = cursor.first;
     if (table->name.empty()) {
-        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     //    if (table->record_amount == Constants::DATA_SIZE / table->record_size) {
-    //        return Error(ErrorConstants::ERR_TABLE_FULL);
+    //        return Message(ErrorConstants::ERR_TABLE_FULL);
     //    }
 
     if (columns.empty() && (table->getFields().size() != values.size())) {
-        return Error(ErrorConstants::ERR_INSERT_VALUES_SIZE);
+        return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
     std::vector<std::pair<std::string, std::string>> columnsValues;

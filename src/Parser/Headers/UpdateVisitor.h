@@ -170,7 +170,7 @@ class UpdateVisitor : public TreeVisitor {
         }
         if (!flag) {
             result = false;
-            error = Error(ErrorConstants::ERR_NO_SUCH_FIELD);
+            error = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
         }
     }
 
@@ -178,7 +178,7 @@ class UpdateVisitor : public TreeVisitor {
 
     bool getResult() { return result; }
 
-    Error getError() { return error; }
+    Message getMessage() { return error; }
 
     BaseExprNode* getExpr() { return expr; }
 
@@ -191,7 +191,7 @@ class UpdateVisitor : public TreeVisitor {
     std::vector<std::pair<std::string, std::string>> updateValues;
     std::pair<std::string, std::string> curUpdateValue;
     std::string curValue;
-    Error error;
+    Message error;
     BaseExprNode* expr;
     bool result = true;
 };

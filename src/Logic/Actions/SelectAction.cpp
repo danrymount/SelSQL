@@ -8,7 +8,7 @@
 //    cursor = mainEngine->GetCursor(_request->tableName);
 //
 //    if (cursor.first->name.empty()) {
-//        response.error = Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+//        response.error = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
 //        return response;
 //    }
 //
@@ -79,8 +79,7 @@
 //    return response;
 //}
 
-
-Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
+Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
     root->getChild()->accept(getTreeVisitor().get());
@@ -93,7 +92,7 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     if (table->name.empty()) {
-        return Error(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     error = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
@@ -123,5 +122,5 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     cursor.second->StartPos();
 
-    return Error();
+    return Message();
 };

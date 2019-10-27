@@ -10,7 +10,7 @@ class ShowCreateAction : public BaseAction {
    public:
     explicit ShowCreateAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
 
-    Error execute(std::shared_ptr<BaseActionNode>) override;
+    Message execute(std::shared_ptr<BaseActionNode>) override;
     //BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 };
 

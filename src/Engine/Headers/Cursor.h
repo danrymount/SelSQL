@@ -14,7 +14,7 @@ class Cursor {
     std::vector<std::pair<std::string, std::string>> vals;
 
     void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
-    void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
+    static void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
     int current_block = 0;
     std::map<std::shared_ptr<DataBlock>, int> deleted = {};
 

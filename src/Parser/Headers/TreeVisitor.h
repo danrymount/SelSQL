@@ -6,7 +6,7 @@
 #define SELSQL_TREEVISITOR_H
 
 #include <memory>
-#include "../../Utils/Structures/Error.h"
+#include "../../Utils/Structures/Message.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
    public:
@@ -53,7 +53,7 @@ class TreeVisitor : public Visitor {
     void visit(ColumnsAndExprNode* node) override;
     void visit(IndentExprNode* node) override;
 
-    Error getError() { return error; }
+    Message getMessage() { return message; }
 
    private:
    public:
@@ -63,7 +63,7 @@ class TreeVisitor : public Visitor {
     void visit(AssignUpdateNode* node) override;
 
    private:
-    Error error;
+    Message message;
 };
 
 #endif  // SELSQL_TREEVISITOR_H

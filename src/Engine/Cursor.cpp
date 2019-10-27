@@ -224,7 +224,7 @@ Cursor::~Cursor() {
             del += i.second;
         }
         table->record_amount -= del;
-        fileManager->UpdateFile(table, dataBlocks_);
+        Commit();
         fileManager->CloseAllFiles();
     }
 }
