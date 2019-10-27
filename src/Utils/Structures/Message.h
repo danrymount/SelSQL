@@ -19,7 +19,12 @@ class Message {
 
     int getErrorCode() { return errorCode_; }
 
-    std::string getMsg() { return msg_; }
+    std::string getMsg() {
+        if (errorCode_) {
+            return msg_ + " ERROR: " + std::to_string(errorCode_);
+        }
+        return msg_;
+    }
 
    private:
     int errorCode_ = 0;
