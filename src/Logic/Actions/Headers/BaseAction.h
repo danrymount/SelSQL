@@ -24,7 +24,7 @@ class BaseAction {
 
    protected:
     ActionsUtils actionsUtils;
-    Message error;
+    Message message;
 
    private:
     // shared ptr

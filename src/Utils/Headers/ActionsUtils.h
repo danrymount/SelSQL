@@ -103,7 +103,9 @@ class ActionsUtils {
     Message checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
                             std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records, bool isUpdate = false);
 
-    static void PrintSelect(std::vector<std::vector<std::pair<std::string, std::string>>> values);
+    static std::string getSelectMessage(std::vector<std::vector<std::pair<std::string, std::string>>> values);
+
+    static std::string getTableInfo(const std::shared_ptr<Table>& table, int includeCols);
 
     static std::vector<Record> getAllRecords(std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor) {
         std::vector<Record> records;

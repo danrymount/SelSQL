@@ -124,14 +124,14 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
 
-    error = ActionsUtils::checkFieldsExist(table, columnsValues);
-    if (error.getErrorCode()) {
-        return error;
+    message = ActionsUtils::checkFieldsExist(table, columnsValues);
+    if (message.getErrorCode()) {
+        return message;
     }
 
-    error = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
-    if (error.getErrorCode()) {
-        return error;
+    message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
+    if (message.getErrorCode()) {
+        return message;
     }
 
     cursor.second->Insert(newCols, values);
@@ -139,5 +139,5 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     cursor.second->StartPos();
 
-    return error;
+    return message;
 }

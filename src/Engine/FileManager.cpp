@@ -101,7 +101,7 @@ int FileManager::DeleteTable(std::string table_name) {
 
 int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<std::shared_ptr<DataBlock>>& data) {
     this->WriteTableMetaData(table);
-    if (data.size() == 0) {
+    if (data.empty()) {
         return 0;
     }
     this->WriteDataBlock(std::string(table->name), data);

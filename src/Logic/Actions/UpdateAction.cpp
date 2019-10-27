@@ -66,9 +66,9 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
-    error = ActionsUtils::checkFieldsExist(table, updateColumns);
-    if (error.getErrorCode()) {
-        return error;
+    message = ActionsUtils::checkFieldsExist(table, updateColumns);
+    if (message.getErrorCode()) {
+        return message;
     }
 
     std::vector<ActionsUtils::Record> records;  // = ActionsUtils::getAllRecords(cursor);
@@ -92,9 +92,9 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (_record != record) {
                 continue;
             }
-            error = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
-            if (error.getErrorCode()) {
-                return error;
+            message = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
+            if (message.getErrorCode()) {
+                return message;
             }
             // TODO сменить входные параметры
             std::vector<std::string> columns;
@@ -138,5 +138,5 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     cursor.second->StartPos();
 
-    return error;
+    return message;
 }

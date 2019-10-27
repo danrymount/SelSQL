@@ -83,11 +83,11 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
     root->getChild()->accept(getTreeVisitor().get());
-    auto v = static_cast<SelectVisitor*>(getTreeVisitor().get());
+    auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
     auto columns = v->getColumns();
     auto expr = v->getExpr();
     std::vector<std::pair<std::string, std::string>> columnValues;
-    for (auto &col: columns) {
+    for (auto &col : columns) {
         columnValues.emplace_back(std::make_pair(col, ""));
     }
 
@@ -95,14 +95,14 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
-    error = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
-    if (error.getErrorCode()) {
-        return error;
+    message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+    if (message.getErrorCode()) {
+        return message;
     }
 
     if (cursor.first->record_amount == 0) {
         //        cursor.second.reset();
-        return error;
+        return Message(ActionsUtils::getTableInfo(table, 1));
     }
 
     cursor.second->StartPos();
@@ -113,14 +113,10 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
         v->setValues(_record);
         expr->accept(v);
-        if(v->getResult()){
+        if (v->getResult()) {
             records.push_back(_record);
         }
     } while (!cursor.second->Next());
 
-    ActionsUtils::PrintSelect(records);
-
-    cursor.second->StartPos();
-
-    return Message();
+    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::getSelectMessage(records));
 };
