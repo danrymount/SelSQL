@@ -181,6 +181,7 @@ int Cursor::Delete() {
     std::memset(&block->data_[current_pos_in_block * table->record_size], '0', table->record_size);
     block->deleted_pos_[block->deleted++] = current_pos_in_block;
     block->last_record_pos++;
+    deleted[block]++;
     //    dataBlocks_[current_block]->deleted_pos_[dataBlocks_[current_block]] = current_pos_in_block;
     //    table->last_record_pos++;
     return 0;
@@ -216,8 +217,16 @@ int Cursor::StartPos() {
 }
 
 Cursor::~Cursor() {
-    if (!table->name.empty())
+    if (!table->name.empty()) {
+        int del = 0;
+        for (const auto &i : deleted) {
+            i.first->record_amount -= i.second;
+            del += i.second;
+        }
+        table->record_amount -= del;
+        fileManager->UpdateFile(table, dataBlocks_);
         fileManager->CloseAllFiles();
+    }
 }
 
 Cursor::Cursor() { table = std::make_shared<Table>(); }

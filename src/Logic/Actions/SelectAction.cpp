@@ -102,7 +102,7 @@ Error SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     if (cursor.first->record_amount == 0) {
-        cursor.second.reset();
+        //        cursor.second.reset();
         return error;
     }
 

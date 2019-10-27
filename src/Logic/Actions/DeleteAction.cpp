@@ -74,14 +74,14 @@ Error DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
         v->setValues(record);
         expr->accept(getTreeVisitor().get());
         if (v->getResult()) {
-            delete_count++;
+            //            delete_count++;
             cursor.second->Delete();
         }
 
     } while (!cursor.second->Next());
 
-    cursor.second->table->record_amount -= delete_count;
-    cursor.second->Commit();
-    cursor.second.reset();
+    //    cursor.second->table->record_amount -= delete_count;
+    //    cursor.second->Commit();
+    //    cursor.second.reset();
     return error;
 }

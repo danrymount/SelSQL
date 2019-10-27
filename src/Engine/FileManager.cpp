@@ -105,7 +105,6 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         return 0;
     }
     this->WriteDataBlock(std::string(table->name), data);
-    this->CloseAllFiles();
     return 0;
 }
 

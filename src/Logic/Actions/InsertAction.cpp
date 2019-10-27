@@ -131,7 +131,7 @@ Error InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     cursor.second->Insert(newCols, values);
-    cursor.second->Commit();
+    //    cursor.second->Commit();
 
     cursor.second->StartPos();
 
