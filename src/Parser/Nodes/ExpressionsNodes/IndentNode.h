@@ -6,7 +6,7 @@
 #define SELSQL_INDENTNODE_H
 #include <utility>
 
-#include "../BaseNode.h"
+#include "BaseExprNode.h"
 class IdentNode : public BaseExprNode {
    public:
     explicit IdentNode(std::string _name) : name(std::move(_name)) {}

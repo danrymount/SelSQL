@@ -8,16 +8,24 @@
 
 #include "../Nodes/ActionNodes/CreateNode.h"
 #include "../Nodes/ConstraintNode.h"
+#include "../Nodes/ExpressionsNodes/IndentNode.h"
 #include "../Nodes/VariableListNode.h"
 #include "../Nodes/VariableNode.h"
 #include "TreeVisitor.h"
 class CreateVisitor : public TreeVisitor {
    public:
+    void visit(CreateNode* node) override {
+        node->getSource()->accept(this);
+        node->getChild()->accept(this);
+    }
+
     void visit(VariableListNode* node) override {
         for (auto& var : node->getVariables()) {
             var->accept(this);
         }
     }
+
+    void visit(IdentNode* node) override { table.name = node->getBaseValue(); }
 
     void visit(ConstraintNode* node) override {
         if (contraints.find(node->getConstraint()) == contraints.end()) {
@@ -46,8 +54,6 @@ class CreateVisitor : public TreeVisitor {
     }
 
     Table getTable() { return table; }
-
-    void setTableName(std::string _name) { table.name = std::move(_name); }
 
     Message getError() { return error; }
 

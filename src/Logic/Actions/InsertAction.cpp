@@ -91,7 +91,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
     }
 
-    cursor = getEngine().GetCursor(root->getTableName());
+    cursor = getEngine().GetCursor(v->getTableName());
 
     auto table = cursor.first;
     if (table->name.empty()) {
