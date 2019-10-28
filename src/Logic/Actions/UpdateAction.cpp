@@ -71,19 +71,22 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         return message;
     }
 
-    std::vector<ActionsUtils::Record> records;  // = ActionsUtils::getAllRecords(cursor);
+    std::vector<ActionsUtils::Record> records;
+    // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
-    do {
-        auto record = cursor.second->Fetch();
-        if (record.empty()) {
-            continue;
-        }
-        v->setValues(record);
-        expr->accept(getTreeVisitor().get());
-        if (v->getResult()) {
-            records.emplace_back(record);
-        }
-    } while (!cursor.second->Next());
+    if (cursor.first->record_amount) {
+        do {
+            auto record = cursor.second->Fetch();
+            if (record.empty()) {
+                continue;
+            }
+            v->setValues(record);
+            expr->accept(getTreeVisitor().get());
+            if (v->getResult()) {
+                records.emplace_back(record);
+            }
+        } while (!cursor.second->Next());
+    }
     cursor.second->Reset();
 
     do {

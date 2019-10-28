@@ -109,6 +109,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     auto block = data_blocks_[current_block_];
     unsigned char record[table_->record_size];
     std::vector<std::pair<std::string, std::string>> values;
+
     std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
@@ -117,7 +118,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         std::string value;
         std::memcpy(field, &block->data_[field_pos + current_pos * table_->record_size],
                     Constants::TYPE_SIZE[table_->fields[i].second.type] + 1);
-        if (field[0] == '0' or field[0] == '\000') {
+        if (field[0] != 'n' and field[0] != 'N') {
             return std::vector<std::pair<std::string, std::string>>();
         }
         if (field[0] == 'n') {

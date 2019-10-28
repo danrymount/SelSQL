@@ -114,7 +114,10 @@ class ActionsUtils {
         cursor.second->Reset();
         do {
             auto record = cursor.second->Fetch();
-            records.emplace_back(record);
+            if (!record.empty()) {
+                records.emplace_back(record);
+            }
+
         } while (!cursor.second->Next());
         cursor.second->Reset();
         return records;

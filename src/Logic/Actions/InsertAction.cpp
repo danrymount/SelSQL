@@ -121,17 +121,23 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, "null"));
         }
     }
-
-    std::vector<ActionsUtils::Record> records = ActionsUtils::getAllRecords(cursor);
+    std::vector<ActionsUtils::Record> records;
+    if (cursor.first->record_amount) {
+        records = ActionsUtils::getAllRecords(cursor);
+    }
 
     message = ActionsUtils::checkFieldsExist(table, columnsValues);
     if (message.getErrorCode()) {
         return message;
     }
 
-    message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
-    if (message.getErrorCode()) {
-        return message;
+    if (1) {
+        std::cout << "in " << records.size() << std::endl;
+        std::cout << "table" << cursor.first->record_amount << std::endl;
+        message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
+        if (message.getErrorCode()) {
+            return message;
+        }
     }
 
     cursor.second->Insert(newCols, values);

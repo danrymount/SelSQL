@@ -59,6 +59,32 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
     Message error;
     std::string colName;
     int countSameVal = 0;
+    if (records.empty()) {
+        int i = 0;
+        for (auto& colValue : updateColumns) {
+            auto value = colValue.second;
+            if (colValue.first == "*") {
+                colName = table->getFields()[i++].first;
+            } else {
+                colName = colValue.first;
+            }
+            for (auto& field : table->getFields()) {
+                if (field.first != colName) {
+                    continue;
+                }
+
+                for (auto& constraint : field.second.getConstraints()) {
+                    if (constraint == Constraint::NOT_NULL || constraint == Constraint::PRIMARY_KEY) {
+                        error = checkNotNull(value);
+                        if (error.getErrorCode()) {
+                            return error;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     for (auto& record : records) {
         int i = 0;
         countSameVal += checkSameForUpdate(record, updateColumns, table);
@@ -79,16 +105,6 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
                 }
 
                 for (auto& constraint : field.second.getConstraints()) {
-                    if (record.empty()) {
-                        if (constraint == Constraint::NOT_NULL || constraint == Constraint::PRIMARY_KEY) {
-                            error = checkNotNull(value);
-                            if (error.getErrorCode()) {
-                                return error;
-                            }
-                        }
-                        continue;
-                    }
-
                     for (auto& elem : record) {
                         if (elem.first != colName) {
                             continue;
@@ -97,12 +113,13 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
                         std::transform(curVal.begin(), curVal.end(), curVal.begin(),
                                        [](unsigned char c) { return std::tolower(c); });
                         error = constraintsCheckers[constraint](value, curVal);
-                        if (error.getErrorCode() == ErrorConstants::ERR_UNIQUE && isUpdate) {
+                        if ((error.getErrorCode() == ErrorConstants::ERR_UNIQUE) && isUpdate) {
                             if (countSameVal > 1) {
                                 return error;
                             }
                             error = Message();
                         } else if (error.getErrorCode()) {
+                            std::cout << records.size() << std::endl;
                             return error;
                         }
                     }
