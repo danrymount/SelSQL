@@ -13,14 +13,26 @@ std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> tabl
     std::string str = "CREATE TABLE ";
     str += table->name + '(';
     for (int i = 0; i < table->getFields().size(); ++i) {
+        int countConstraint = 0;
         auto field = table->getFields()[i];
         str += field.first + space;
-        str += ParserUtils::typeToString(field.second.type) + space;
+        str += ParserUtils::typeToString(field.second.type);
+        if (field.second.type == TYPE_CHAR) {
+            str += '(' + std::to_string(field.second.size) + ')';
+        }
+        if (!field.second.getConstraints().empty()) {
+            str += space;
+        }
         for (auto& constraint : field.second.getConstraints()) {
-            str += ParserUtils::constraintToString(constraint) + space;
+            countConstraint++;
+            str += ParserUtils::constraintToString(constraint);
+            if (countConstraint != field.second.getConstraints().size()) {
+                str += space;
+            }
         }
         if (i != table->getFields().size() - 1 && table->getFields().size() > 1) {
             str += comma;
+            str += space;
         }
     }
     str += ')';
