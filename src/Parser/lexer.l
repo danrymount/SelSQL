@@ -78,7 +78,7 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "UNION"                 {ch += yyleng; return UNION;}
 "INTERSECT"             {ch += yyleng; return INTERSECT;}
 
-{CHAR_TYPE}                  {ch += yyleng;
+{CHAR_TYPE}             {ch += yyleng;
                         charLen = "";
                         for (int i = 0; i < yyleng; i++) {
                             if(isdigit(yytext[i])) {
@@ -91,7 +91,7 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
                             yyerror("Char oversize");
                             return 1;
                         }
-                        return CHAR_TYPE;}
+                        return CHAR_TYPE; }
 {NUMBER}                {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return NUMBER; }
 {FLOATNUM}              {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return FLOATNUM; }
 {STRVAL}                {ch += yyleng;

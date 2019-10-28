@@ -84,14 +84,13 @@
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
 
-
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
 %type<Value> values
 %type<Column> colname col_select
-%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr update_elem
+%type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
 //%type<string> id
 //%type<string> request
@@ -311,10 +310,36 @@ values:
 	$$ = new CharValueNode(std::string($1));
     }|
     NUMBER {
-	$$ = new IntValueNode(std::stoi($1));
+    try {
+    	$$ = new IntValueNode(std::stoi($1));
+    } catch(...) {
+        yyerror("Int oversize");
+        return 1;
+    }
+    }|
+    MINUS NUMBER {
+    try {
+    	$$ = new IntValueNode(std::stoi("-"+std::string($2)));
+    } catch(...) {
+        yyerror("Int oversize");
+        return 1;
+    }
     }|
     FLOATNUM {
-	$$ = new FloatValueNode(std::stod($1));
+    try {
+        $$ = new FloatValueNode(std::stod($1));
+    } catch(...) {
+        yyerror("Float oversize");
+        return 1;
+    }
+    }|
+    MINUS FLOATNUM {
+    try {
+        $$ = new FloatValueNode(std::stod("-"+std::string($2)));
+    } catch(...) {
+        yyerror("Float oversize");
+        return 1;
+    }
     }|
     VALNULL {
 	$$ = new NullValueNode(std::string($1));
@@ -327,34 +352,36 @@ where_exprs:
     /*empty*/ { $$ = new ExprNode();};
 
 where_expr:
-    expr_priority_5{
+    expr_priority_6{
     	$$ = $1;
     }|
-    where_expr OR expr_priority_5 {
+    where_expr OR expr_priority_6 {
 	$$ = new OrLogicNode($1, $3);
     }
 
 
-expr_priority_5:
-    expr_priority_4{
+expr_priority_6:
+    expr_priority_5{
     	$$ = $1;
     }|
-    expr_priority_5 AND expr_priority_4{
+    expr_priority_6 AND expr_priority_5{
 	$$ = new AndLogicNode($1, $3);
+    }
+
+expr_priority_5:
+    expr_priority_4 {
+    	$$ = $1;
+    }|
+    NOT expr_priority_5 {
+    	$$ = new NotLogicNode($2);
     }
 
 expr_priority_4:
     expr_priority_3 {
     	$$ = $1;
     }|
-    NOT expr_priority_4{
-    	$$ = new NotLogicNode($2);
-    }|
     LBRACKET where_expr RBRACKET{
     	$$ = $2;
-    }|
-    NOT LBRACKET where_expr RBRACKET{
-    	$$ = new NotLogicNode($3);
     }
 
 expr_priority_3:
@@ -398,6 +425,12 @@ expr:
     }|
     FLOATNUM {
 	$$ = new ValueExprNode(std::string($1));
+    }|
+    MINUS NUMBER {
+	$$ = new ValueExprNode("-" + std::string($2));
+    }|
+    MINUS FLOATNUM {
+	$$ = new ValueExprNode("-" + std::string($2));
     }|
     IDENT {
     	std::cout << "STRING" << $1 << std::endl;
