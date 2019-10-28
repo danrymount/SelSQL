@@ -102,7 +102,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     if (cursor.first->record_amount == 0) {
         //        cursor.second.reset();
-        return Message(ActionsUtils::getTableInfo(table, 1));
+        return Message(ActionsUtils::getTableInfo(table, 0));
     }
 
     cursor.second->Reset();
