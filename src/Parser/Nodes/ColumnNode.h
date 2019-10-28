@@ -9,14 +9,21 @@
 #include "BaseNode.h"
 class ColumnNode : public BaseNode {
    public:
-    explicit ColumnNode(std::string _name) : name(std::move(_name)) {}
+    // explicit ColumnNode(std::string _name) : name(std::move(_name)) {}
+    explicit ColumnNode(IdentNode* _column) : column(_column) {}
 
-    std::string getName() { return name; }
+    ColumnNode(BaseNode* _alias, IdentNode* _column) : alias(_alias), column(_column) {}
+
+    // std::string getName() { return name; }
+
+    BaseNode* getAlias() { return alias; }
+    IdentNode* getColumn() { return column; }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:
-    std::string name;
+    BaseNode* alias = nullptr;
+    IdentNode* column = nullptr;
 };
 
 #endif  // SELSQL_COLUMNNODE_H

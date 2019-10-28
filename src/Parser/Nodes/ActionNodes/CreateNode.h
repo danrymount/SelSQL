@@ -12,10 +12,7 @@
 #include "BaseActionNode.h"
 class CreateNode : public BaseActionNode {
    public:
-    CreateNode(std::string _name, BaseNode* _child)
-                                                                                                        : BaseActionNode(Action::CREATE,
-                                                                                                                         std::move(_name),
-                                                                                                                         _child) {
+    CreateNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::CREATE, _source, _child) {
     }
 
     void accept(TreeVisitor* v) override { v->visit(this); }

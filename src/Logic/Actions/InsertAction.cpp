@@ -71,7 +71,7 @@
 //}
 
 Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<InsertVisitor*>(getTreeVisitor().get());
     auto columns = v->getColumns();
     auto values = v->getValues();

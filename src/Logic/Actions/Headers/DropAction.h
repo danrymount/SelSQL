@@ -12,6 +12,7 @@ class DropAction : public BaseAction {
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
     // BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
+
 };
 
 #endif  // SELSQL_DROPACTION_H

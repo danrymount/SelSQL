@@ -15,6 +15,8 @@
 //
 //    return response;
 //}
+std::string ShowCreateAction::getTableName(IdentNode* node) { return node->getBaseValue(); }
+
 Message ShowCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto table = getEngine().ShowCreateTable(root->getTableName());
     if (table->name.empty()) {

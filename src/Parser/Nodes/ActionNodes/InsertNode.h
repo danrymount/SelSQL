@@ -10,9 +10,9 @@
 #include "BaseActionNode.h"
 class InsertNode : public BaseActionNode {
    public:
-    InsertNode(std::string _name, BaseNode* _children)
+    InsertNode(BaseNode* _source, BaseNode* _children)
                                                                                                         : BaseActionNode(Action::INSERT,
-                                                                                                                         std::move(_name),
+                                                                                                                         _source,
                                                                                                                          _children) {
     }
 

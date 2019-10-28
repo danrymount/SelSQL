@@ -12,6 +12,8 @@ class ShowCreateAction : public BaseAction {
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
     //BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
+   private:
+    std::string getTableName(IdentNode* node);
 };
 
 #endif  // SELSQL_SHOWCREATEACTION_H

@@ -59,6 +59,8 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/ValueExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/AssignUpdateNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -84,6 +86,7 @@
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
 
+%type<SourceJoin> join_expr
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
@@ -92,6 +95,9 @@
 %type<Column> colname col_select
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
+%type<Idt> alias
+%type<Join> join join_type
+
 //%type<string> id
 //%type<string> request
 
@@ -105,6 +111,9 @@
     ColumnNode* Column;
     BaseExprNode* Expr;
     CmpNode* Cmp;
+    IdentNode* Idt;
+    JoinNode* Join;
+    SourceJoinNode* SourceJoin;
 
     Type t;
     int charLen;
@@ -125,31 +134,31 @@ query:
 
 request:
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
-	children.emplace_back(new CreateNode(std::string($3), new VariableListNode(variablesList)));
+	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
     }|
     DROP_ACTION TABLE IDENT SEMICOLON{
-	children.emplace_back(new DropNode(std::string($3)));
+	children.emplace_back(new DropNode(new IdentNode(std::string($3))));
     }|
     SHOW_ACTION CREATE_ACTION TABLE IDENT SEMICOLON{
-	children.emplace_back(new ShowCreateNode(std::string($4)));
+	children.emplace_back(new ShowCreateNode(new IdentNode(std::string($4))));
     }|
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
-	children.emplace_back(new InsertNode(std::string($3), new ColumnsAndValuesNode(columnsList, valuesList)));
+	children.emplace_back(new InsertNode(new IdentNode(std::string($3)), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
     select union_intercest|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
-        children.emplace_back(new UpdateNode(std::string($2), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
+        children.emplace_back(new UpdateNode(new IdentNode(std::string($2)), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
-	children.emplace_back(new DeleteNode(std::string($3), new ExprNode($4)));
+	children.emplace_back(new DeleteNode(new IdentNode(std::string($3)), new ExprNode($4)));
     }
 
 select:
     SELECT_ACTION cols_select FROM IDENT empty where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(std::string($4), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
+	children.emplace_back(new SelectNode(new IdentNode(std::string($4)), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
     }|
     SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
-
+	children.emplace_back(new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5))));
     }
 
 empty:
@@ -211,16 +220,18 @@ colnames:
     LBRACKET colname RBRACKET{
 	columnsList.emplace_back($2);
     }|{
-    	columnsList.emplace_back(new ColumnNode("*"));
+    	columnsList.emplace_back(new ColumnNode(new IdentNode("*")));
     }
 
 colname:
     IDENT {
-	$$ = new ColumnNode(std::string($1));
+    	$$ = new ColumnNode(new IdentNode($1));
+	//$$ = new ColumnNode(std::string($1));
     }|
     colname COMMA IDENT {
     	columnsList.emplace_back($1);
-	$$ = new ColumnNode(std::string($3));
+    	$$ = new ColumnNode(new IdentNode($3));
+	//$$ = new ColumnNode(std::string($3));
     }
 
 insert_values:
@@ -241,32 +252,40 @@ cols_select:
 
 col_select:
     STAR {
-	$$ = new ColumnNode("*");
+    	$$ = new ColumnNode(new IdentNode("*"));
+	//$$ = new ColumnNode("*");
     }|
     IDENT {
-	$$ = new ColumnNode(std::string($1));
+    	$$ = new ColumnNode(new IdentNode($1));
+	//$$ = new ColumnNode(std::string($1));
     }|
     IDENT DOT IDENT {
-
+	$$ = new ColumnNode(new IdentNode($1), new IdentNode($3));
     }
 
 alias:
     AS IDENT {
-
+	$$ = new IdentNode(std::string($2))
     }|
     /*empty*/ {
-
+	$$ = nullptr;
     }
 
 join:
-    join_expr|
+    join_expr{
+    	$$ = new JoinNode($1);
+    }|
     join join_type join_expr ON where_expr{
-
+	$$ = $1;
     }
 
 join_expr:
-    IDENT alias|
-    LBRACKET join RBRACKET alias
+    IDENT alias|{
+    	//$$ = new SourceJoinNode(new IdentNode($1), $2);
+    }
+    LBRACKET join RBRACKET alias{
+	//$$ = new SourceJoinNode($2, new IdentNode(std::string($4));
+    }
 
 join_type:
     JOIN {

@@ -54,13 +54,13 @@
 //
 //    return response;
 //}
+
 Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<UpdateVisitor *>(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
     auto expr = v->getExpr();
-
-    cursor = getEngine().GetCursor(root->getTableName());
+    cursor = getEngine().GetCursor(v->getTableName());
     auto table = cursor.first;
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);

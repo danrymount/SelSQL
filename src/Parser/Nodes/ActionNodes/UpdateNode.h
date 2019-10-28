@@ -7,10 +7,7 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class UpdateNode : public BaseActionNode {
    public:
-
-    explicit UpdateNode(std::string _name, BaseNode* _child)
-                                                                                                        : BaseActionNode(Action::UPDATE,
-                                                                                                                         std::move(_name), _child){}
+    explicit UpdateNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::UPDATE, _source, _child) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };
