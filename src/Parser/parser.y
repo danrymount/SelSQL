@@ -6,6 +6,7 @@
     #include <sstream>
     #include <string>
     #include <ctype.h>
+    #include <memory>
     #include "../../src/Utils/Headers/CommonUtils.h"
 
     #include "../../src/Parser/Nodes/BaseNode.h"
@@ -62,6 +63,7 @@
     extern int yylineno;
     extern int ch;
     extern char *yytext;
+    std::string* error_msg;
     int yylex();
     int yyerror(const char *s);
 
@@ -433,9 +435,9 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-RootNode * parse_request(const char* in) {
+RootNode * parse_request(const char* in, std::string* msg) {
   ch = 0;
-
+  error_msg = msg;
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
@@ -446,7 +448,8 @@ int yyerror(const char *errmsg){
 
 
     std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
-    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
+    *error_msg = str;
+//    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
     variablesList.clear();
     columnsList.clear();

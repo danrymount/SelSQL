@@ -10,10 +10,11 @@ std::mutex m;
 
 std::string ExecuteRequest(std::string request) {
     std::lock_guard<std::mutex> guard(m);
+    auto parser_msg = new std::string();
     auto visitor = new TreeVisitor();
-    RootNode *tree = parse_request(request.c_str());
+    RootNode *tree = parse_request(request.c_str(), parser_msg);
     if (tree == nullptr) {
-        return "PARSE ERROR";
+        return *parser_msg;
     } else {
         tree->accept(visitor);
         auto message = visitor->getMessage();

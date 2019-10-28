@@ -72,10 +72,6 @@ int FileManager::OpenFile(const std::string& table_name) {
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     this->CloseAllFiles();
-    //    if (files_.find(table->name) != files_.end()) {
-    //        files_[table->name]->close();
-    //        files_.erase(table->name);
-    //    }
 
     std::ifstream file;
     file.open(table->name + Constants::FILE_TYPE);
