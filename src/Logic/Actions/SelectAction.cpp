@@ -13,6 +13,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto columns = v->getColumns();
     auto expr = v->getExpr();
     std::vector<std::pair<std::string, std::string>> columnValues;
+    columnValues.reserve(columns.size());
     for (auto &col : columns) {
         columnValues.emplace_back(std::make_pair(col, ""));
     }
