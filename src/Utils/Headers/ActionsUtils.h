@@ -104,8 +104,8 @@ class ActionsUtils {
                             std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
                             bool isUpdate = false);
 
-    static void checkSelectColumns(std::vector<std::vector<std::pair<std::string, std::string>>> values,
-                                   std::vector<std::string> selectCols);
+    static std::string checkSelectColumns(std::vector<std::vector<std::pair<std::string, std::string>>> values,
+                                          std::vector<std::string> selectCols);
 
     static std::string getSelectMessage(std::vector<std::vector<std::pair<std::string, std::string>>> values);
 

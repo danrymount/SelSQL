@@ -101,7 +101,6 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     if (cursor.first->record_amount == 0) {
-        //        cursor.second.reset();
         return Message(ActionsUtils::getTableInfo(table, 0));
     }
 
@@ -118,5 +117,5 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
     } while (!cursor.second->Next());
 
-    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::getSelectMessage(records));
+    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::checkSelectColumns(records, columns));
 };

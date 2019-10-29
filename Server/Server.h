@@ -21,6 +21,6 @@
 
 void RunServer();
 int ListenClient(int id, Server* server);
-std::string ExecuteRequest(std::string request);
+std::string ExecuteRequest(const std::string& request);
 
 #endif  // SELSQL_SERVER_H
