@@ -131,11 +131,12 @@ class SelectVisitor : public TreeVisitor {
         for (auto& first : firstRecords) {
             setFirstValues(first);
             for (auto& second : secondRecords) {
+                auto f = first;
                 setSecondValues(second);
                 node->getExpr()->accept(this);
                 if (getResult()) {
-                    first.insert(first.end(), second.begin(), second.end());
-                    records.emplace_back(first);
+                    f.insert(f.end(), second.begin(), second.end());
+                    records.emplace_back(f);
                 }
             }
         }
