@@ -26,6 +26,13 @@ void convert(unsigned char *dist, std::string val, Type type) {
         case TYPE_CHAR: {
             if (!val.empty()) {
                 val.reserve(Constants::TYPE_SIZE[type]);
+                if (val.find('\'') == std::string::npos) {
+                    if (val.size() + 2 > Constants::TYPE_SIZE[type]) {
+                        throw std::exception();
+                    } else {
+                        val = '\'' + val + "\'";
+                    }
+                }
                 std::memcpy(&dist[1], val.c_str(), Constants::TYPE_SIZE[type]);
             } else {
                 null_flag = 'N';
