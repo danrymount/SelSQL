@@ -61,9 +61,12 @@ class SelectVisitor : public TreeVisitor {
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
         if (!curValue.empty()) {
-            auto tableName = curValue;
-            node->getAlias()->accept(this);
-            auto alias = curValue;
+            auto tableName = std::move(curValue);
+            std::string alias = "";
+            if (node->getAlias() != nullptr) {
+                node->getAlias()->accept(this);
+                alias = std::move(curValue);
+            }
             auto cursor = engine.GetCursor(tableName);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -84,7 +87,7 @@ class SelectVisitor : public TreeVisitor {
             }
         } else {
             node->getAlias()->accept(this);
-            auto alias = curValue;
+            auto alias = std::move(curValue);
             if (firstRecordAndAlias.empty()) {
                 firstRecordAndAlias = records;
                 std::cout << alias << std::endl;
