@@ -197,7 +197,7 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table, cons
 
 std::string ActionsUtils::checkSelectColumns(std::vector<Record> values, const std::vector<std::string>& selectCols) {
     if (values.empty()) {
-        ActionsUtils::getSelectMessage(values);
+        return "";
     }
     std::vector<std::vector<std::pair<std::string, std::string>>> printVal;
     std::map<std::string, int> colsIndex;
@@ -226,9 +226,6 @@ std::string ActionsUtils::checkSelectColumns(std::vector<Record> values, const s
 }
 
 std::string ActionsUtils::getSelectMessage(std::vector<Record> values) {
-    if (values.empty()) {
-        return "";
-    }
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
