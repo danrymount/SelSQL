@@ -60,6 +60,7 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/ValueExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/AssignUpdateNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
 
     extern int yylineno;
@@ -86,7 +87,7 @@
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
 
-%type<SourceJoin> join_expr
+
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
@@ -96,7 +97,7 @@
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
 %type<Idt> alias
-%type<Join> join join_type
+%type<BaseJoin> join join_type join_expr
 
 //%type<string> id
 //%type<string> request
@@ -112,8 +113,8 @@
     BaseExprNode* Expr;
     CmpNode* Cmp;
     IdentNode* Idt;
-    JoinNode* Join;
-    SourceJoinNode* SourceJoin;
+    BaseJoinNode* BaseJoin;
+
 
     Type t;
     int charLen;
@@ -273,23 +274,24 @@ alias:
 
 join:
     join_expr{
-    	$$ = new JoinNode($1);
+    	$$ = $1;
     }|
     join join_type join_expr ON where_expr{
-	$$ = $1;
+    	$2->addChilds($1, $3, new ExprNode($5));
+	$$ = $2;
     }
 
 join_expr:
-    IDENT alias|{
-    	//$$ = new SourceJoinNode(new IdentNode($1), $2);
-    }
+    IDENT alias{
+    	$$ = new SourceJoinNode(new IdentNode($1), $2);
+    }|
     LBRACKET join RBRACKET alias{
-	//$$ = new SourceJoinNode($2, new IdentNode(std::string($4));
+	$$ = new SourceJoinNode($2, $4);
     }
 
 join_type:
     JOIN {
-
+	$$ = new JoinNode();
     }|
     LEFT JOIN {
 
@@ -452,11 +454,10 @@ expr:
 	$$ = new ValueExprNode("-" + std::string($2));
     }|
     IDENT {
-    	std::cout << "STRING" << $1 << std::endl;
 	$$ = new IndentExprNode(std::string($1));
     }|
     IDENT DOT IDENT {
-
+	$$ = new IndentExprNode(std::string($1),std::string($3));
     }|
     LBRACKET expr_priority_2 RBRACKET {
 	$$ = $2;

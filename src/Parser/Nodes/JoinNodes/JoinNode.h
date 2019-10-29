@@ -1,21 +1,16 @@
 //
-// Created by toxaxab on 28.10.2019.
+// Created by toxaxab on 29.10.2019.
 //
 
 #ifndef SELSQL_JOINNODE_H
 #define SELSQL_JOINNODE_H
-#include "../BaseNode.h"
-#include "SourceJoinNode.h"
-class JoinNode : public BaseNode {
+#include "../ExpressionsNodes/BaseExprNode.h"
+#include "BaseJoinNode.h"
+class JoinNode : public BaseJoinNode {
    public:
-    JoinNode(SourceJoinNode* _source) : sourceJoinNode(_source) {}
 
     void accept(TreeVisitor* v) override {
         // TODO
     }
-
-   private:
-    SourceJoinNode* sourceJoinNode;
 };
-
 #endif  // SELSQL_JOINNODE_H

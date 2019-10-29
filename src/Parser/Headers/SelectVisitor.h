@@ -36,7 +36,8 @@ class SelectVisitor : public TreeVisitor {
         expr = node->getExpr();
     }
 
-    void visit(ColumnNode* node) override { columns.emplace_back(node->getName()); }
+    void visit(ColumnNode* node) override {  // columns.emplace_back(node->getName());
+    }
 
     void visit(ExprNode* node) override {
         if (node->getChild()) {

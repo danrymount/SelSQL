@@ -4,8 +4,9 @@
 
 #ifndef SELSQL_SOURCEJOINNODE_H
 #define SELSQL_SOURCEJOINNODE_H
-#include "../BaseNode.h"
-class SourceJoinNode : public BaseNode {
+
+#include "BaseJoinNode.h"
+class SourceJoinNode : public BaseJoinNode {
    public:
     SourceJoinNode(BaseNode* _source, IdentNode* _alias) : source(_source), alias(_alias) {}
 

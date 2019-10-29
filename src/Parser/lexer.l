@@ -13,7 +13,7 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/CmpNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
-    #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
 
     #include "parser.h"
     #include <memory>

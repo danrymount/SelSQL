@@ -80,7 +80,7 @@
 //}
 
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
-    cursor = getEngine().GetCursor(root->getTableName());
+    // cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
     root->getChild()->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
