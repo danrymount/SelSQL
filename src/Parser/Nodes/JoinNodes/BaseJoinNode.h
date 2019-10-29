@@ -9,10 +9,6 @@ class BaseJoinNode : public BaseNode {
    public:
     BaseJoinNode() = default;
 
-    void accept(TreeVisitor* v) override {
-        // TODO
-    }
-
     void addChilds(BaseJoinNode* _firstSource, BaseJoinNode* _secondSource, BaseExprNode* _expr) {
         firstSourceJoinNode = _firstSource;
         secondSourceJoinNode = _secondSource;

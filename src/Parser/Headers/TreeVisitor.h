@@ -53,6 +53,9 @@ class TreeVisitor : public Visitor {
     void visit(ColumnsAndExprNode* node) override;
     void visit(IndentExprNode* node) override;
 
+    void visit(SourceJoinNode* node) override;
+    void visit(JoinNode* node) override;
+
     Message getMessage() { return message; }
 
    private:
@@ -62,7 +65,7 @@ class TreeVisitor : public Visitor {
     void visit(UpdatesAndExprNode* node) override;
     void visit(AssignUpdateNode* node) override;
 
-   private:
+   protected:
     Message message;
 };
 

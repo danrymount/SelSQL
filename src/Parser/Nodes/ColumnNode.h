@@ -12,17 +12,17 @@ class ColumnNode : public BaseNode {
     // explicit ColumnNode(std::string _name) : name(std::move(_name)) {}
     explicit ColumnNode(IdentNode* _column) : column(_column) {}
 
-    ColumnNode(BaseNode* _alias, IdentNode* _column) : alias(_alias), column(_column) {}
+    ColumnNode(IdentNode* _alias, IdentNode* _column) : alias(_alias), column(_column) {}
 
     // std::string getName() { return name; }
 
-    BaseNode* getAlias() { return alias; }
+    IdentNode* getAlias() { return alias; }
     IdentNode* getColumn() { return column; }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
    private:
-    BaseNode* alias = nullptr;
+    IdentNode* alias = nullptr;
     IdentNode* column = nullptr;
 };
 

@@ -82,14 +82,16 @@
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     // cursor = getEngine().GetCursor(root->getTableName());
     auto table = cursor.first;
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
-    auto columns = v->getColumns();
+    // auto columns = v->getColumns();
     auto expr = v->getExpr();
+    auto source = v->getSource();
+    source->accept(getTreeVisitor().get());
     std::vector<std::pair<std::string, std::string>> columnValues;
-    for (auto &col : columns) {
-        columnValues.emplace_back(std::make_pair(col, ""));
-    }
+    //    for (auto &col : columns) {
+    //        columnValues.emplace_back(std::make_pair(col, ""));
+    //    }
 
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -111,7 +113,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         if (_record.empty()) {
             continue;
         }
-        v->setValues(_record);
+        // v->setValues(_record);
         expr->accept(v);
         if (v->getResult()) {
             records.push_back(_record);

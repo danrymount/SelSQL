@@ -6,6 +6,7 @@
 #define SELSQL_SELECTVISITOR_H
 #include <utility>
 
+#include "../Nodes/ActionNodes/SelectNode.h"
 #include "../Nodes/ColumnNode.h"
 #include "../Nodes/ColumnsAndExprNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
@@ -26,9 +27,17 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
+#include "../Nodes/JoinNodes/JoinNode.h"
+#include "../Nodes/JoinNodes/SourceJoinNode.h"
+
 #include "TreeVisitor.h"
 class SelectVisitor : public TreeVisitor {
    public:
+    void visit(SelectNode* node) override {
+        node->getChild()->accept(this);
+        source = node->getSource();
+    }
+
     void visit(ColumnsAndExprNode* node) override {
         for (auto& col : node->getColumns()) {
             col->accept(this);
@@ -36,7 +45,70 @@ class SelectVisitor : public TreeVisitor {
         expr = node->getExpr();
     }
 
-    void visit(ColumnNode* node) override {  // columns.emplace_back(node->getName());
+    void visit(ColumnNode* node) override {
+        if (node->getAlias() == nullptr) {
+            columns.emplace_back(std::make_pair("*", node->getColumn()->getBaseValue()));
+        } else {
+            columns.emplace_back(std::make_pair(node->getAlias()->getBaseValue(), node->getColumn()->getBaseValue()));
+        }
+        // columns.emplace_back(node->getName());
+    }
+
+    void visit(SourceJoinNode* node) override {
+        node->getSource()->accept(this);
+        auto tableName = curValue;
+        node->getAlias()->accept(this);
+        auto alias = curValue;
+        auto cursor = engine.GetCursor(tableName);
+        if (cursor.first->name.empty()) {
+            message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        } else {
+            if (firstRecords.empty()) {
+                firstRecords = addRecord(alias, cursor.second);
+            } else {
+                secondRecords = addRecord(alias, cursor.second);
+            }
+        }
+    }
+
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
+    addRecord(std::string aliasName, std::shared_ptr<Cursor> cursor) {
+        std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
+        // cursor->Reset();
+        do {
+            auto _record = cursor->Fetch();
+            if (_record.empty()) {
+                continue;
+            }
+            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+            for (auto& col : _record) {
+                _newRecord.emplace_back(std::make_pair(std::make_pair(aliasName, col.first), col.second));
+            }
+            records.emplace_back(_newRecord);
+        } while (!cursor->Next());
+        return records;
+    }
+
+    void visit(JoinNode* node) override {
+        node->getFirstSource()->accept(this);
+        node->getSecondSource()->accept(this);
+        doubleCycleJoin(node);
+        // firstRecords.clear();
+        secondRecords.clear();
+    }
+
+    void doubleCycleJoin(JoinNode* node) {
+        for (auto& first : firstRecords) {
+            setFirstValues(first);
+            for (auto& second : secondRecords) {
+                setSecondValues(second);
+                node->getExpr()->accept(this);
+                if (getResult()) {
+                    first.insert(first.end(), second.begin(), second.end());
+                    records.emplace_back(first);
+                }
+            }
+        }
     }
 
     void visit(ExprNode* node) override {
@@ -149,16 +221,29 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(IndentExprNode* node) override {
         int flag = 0;
-        for (auto& val : values) {
-            if (node->getBaseValue() == val.first) {
-                curValue = val.second;
-                flag = 1;
-                break;
+        for (auto& val : firstValues) {
+            if (node->getAliasname() == val.first.first) {
+                if (node->getBaseValue() == val.first.second) {
+                    curValue = val.second;
+                    flag = 1;
+                    break;
+                }
+            }
+        }
+        if (!flag) {
+            for (auto& val : secondValues) {
+                if (node->getAliasname() == val.first.first) {
+                    if (node->getBaseValue() == val.first.second) {
+                        curValue = val.second;
+                        flag = 1;
+                        break;
+                    }
+                }
             }
         }
         if (!flag) {
             result = false;
-            error = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
         }
     }
 
@@ -166,22 +251,34 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
-    std::vector<std::string> getColumns() { return columns; }
+    std::vector<std::pair<std::string, std::string>> getColumns() { return columns; }
 
     bool getResult() { return result; }
 
-    Message getMessage() { return error; }
+    BaseNode* getSource() { return source; }
 
     BaseExprNode* getExpr() { return expr; }
 
-    void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = std::move(_values); }
+    void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
+        firstValues = std::move(_values);
+    }
+
+    void setSecondValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
+        secondValues = std::move(_values);
+    }
 
    private:
+    MainEngine engine;
     std::string curValue;
-    std::vector<std::string> columns;
-    std::vector<std::pair<std::string, std::string>>  values;
-    Message error;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> firstRecords;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> secondRecords;
+
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
+    std::vector<std::pair<std::string, std::string>> columns;
+    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
+    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
     BaseExprNode* expr;
+    BaseNode* source;
     bool result = true;
 };
 

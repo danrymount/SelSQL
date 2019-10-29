@@ -58,19 +58,19 @@ void TreeVisitor::visit(RootNode* node) {
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    auto action = std::make_shared<CreateNode>(*node);
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    auto action = std::make_shared<CreateNode>(*node);
     message = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    auto visitor = std::make_shared<TreeVisitor>(DropVisitor());
+    auto visitor = std::make_shared<DropVisitor>(DropVisitor());
     auto action = std::make_shared<DropNode>(*node);
     message = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
-    auto visitor = std::make_shared<TreeVisitor>(ShowCreateVisitor());
+    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor());
     auto action = std::make_shared<ShowCreateNode>(*node);
     message = ShowCreateAction(visitor).execute(action);
 }
@@ -129,3 +129,5 @@ void TreeVisitor::visit(UpdatesAndExprNode* node) {}
 void TreeVisitor::visit(IndentExprNode* node) {}
 void TreeVisitor::visit(ValueExprNode* node) {}
 void TreeVisitor::visit(AssignUpdateNode* node) {}
+void TreeVisitor::visit(SourceJoinNode* node) {}
+void TreeVisitor::visit(JoinNode* node) {}
