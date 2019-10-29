@@ -38,7 +38,13 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             continue;
         }
         v->setValues(_record);
-        expr->accept(v);
+        try {
+            expr->accept(v);
+        } catch (std::exception &exception) {
+            std::string exc = exception.what();
+            return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+        }
+
         if (v->getResult()) {
             records.push_back(_record);
         }

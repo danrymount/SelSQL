@@ -29,7 +29,8 @@ class ErrorConstants {
     inline static const int ERR_NOT_NULL = 8;
     inline static const int ERR_UNIQUE = 9;
     inline static const int ERR_TABLE_FULL = 10;
-
+    inline static const int ERR_TYPE_MISMATCH = 11;
+    inline static const int ERR_STO = 12;
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
                                                             {ERR_SAME_CONSTRAINT, ERR_SAME_CONSTRAINT_str},
@@ -39,7 +40,9 @@ class ErrorConstants {
                                                             {ERR_SAME_COLUMN, ERR_SAME_COLUMN_str},
                                                             {ERR_NOT_NULL, ERR_NOT_NULL_str},
                                                             {ERR_UNIQUE, ERR_UNIQUE_str},
-                                                            {ERR_TABLE_FULL, ERR_TABLE_FULL_str}};
+                                                            {ERR_TABLE_FULL, ERR_TABLE_FULL_str},
+                                                            {ERR_TYPE_MISMATCH, "Types mismatch"},
+                                                            {ERR_STO, "Value is out of range OR is not a number"}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H

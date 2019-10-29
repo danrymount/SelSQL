@@ -4,71 +4,6 @@
 
 #include "Headers/InsertAction.h"
 #include "../../Parser/Headers/InsertVisitor.h"
-// BigResponse InsertAction::execute(std::shared_ptr<BigRequest> _request, MainEngine* mainEngine) {
-//    auto columns = _request->dmlData.columns;
-//    auto values = _request->dmlData.values;
-//    if ((values.size() != columns.size()) && (!columns.empty())) {
-//        response.error = Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
-//
-//        return response;
-//    }
-//
-//    for (int i = 0; i < columns.size(); ++i) {
-//        auto col = columns[i];
-//        for (int j = 0; j < columns.size(); ++j) {
-//            if (i == j)
-//                continue;
-//            if (col == columns[j]) {
-//                response.error = Message(ErrorConstants::ERR_SAME_COLUMN);
-//                requestToResponse(_request);
-//
-//                return response;
-//            }
-//        }
-//    }
-//
-//    cursor = mainEngine->GetCursor(_request->tableName);
-//
-//    if (cursor.first->name.empty()) {
-//        response.error = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-//
-//        return response;
-//    }
-//
-//    if (cursor.first->record_amount == Constants::DATA_BLOCK_SIZE / cursor.first->record_size) {
-//        response.error = Message(ErrorConstants::ERR_TABLE_FULL);
-//        return response;
-//    }
-//
-//    std::shared_ptr<Table> table = cursor.first;
-//
-//    if (columns.empty() && (table->getFields().size() != values.size())) {
-//        response.error = Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
-//
-//        return response;
-//    }
-//
-//    response.error = ActionsUtils::checkFieldsExist(table, columns);
-//    if (response.error.getErrorCode()) {
-//        return response;
-//    }
-//
-//    // response.dqlData.record = actionsUtils.getTableRecord(cursor);
-//    response.error = actionsUtils.checkConstraint(columns, values, cursor);
-//    if (response.error.getErrorCode()) {
-//        requestToResponse(_request);
-//        return response;
-//    }
-//
-//    cursor.second->Insert(columns, _request->dmlData.values);
-//    cursor.second->Commit();
-//    //    cursor = mainEngine->GetCursor(_request.tableName);
-//    //    for (auto i :cursor.second->Fetch()){
-//    //        std::cout<<i.first<<" == "<<i.second<<std::endl;
-//    //    }
-//
-//    return response;
-//}
 
 Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->getChild()->accept(getTreeVisitor().get());
@@ -96,6 +31,10 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto table = cursor.first;
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    }
+
+    if (columns[0] == "*" and (values.size() != cursor.first->getFields().size())) {
+        return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
     //    if (table->record_amount == Constants::DATA_SIZE / table->record_size) {
@@ -131,17 +70,16 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return message;
     }
 
-    if (1) {
-        std::cout << "in " << records.size() << std::endl;
-        std::cout << "table" << cursor.first->record_amount << std::endl;
-        message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
-        if (message.getErrorCode()) {
-            return message;
-        }
+    message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
+    if (message.getErrorCode()) {
+        return message;
     }
 
-    cursor.second->Insert(newCols, values);
-    //    cursor.second->Commit();
+    try {
+        cursor.second->Insert(newCols, values);
+    } catch (std::exception &exception) {
+        return Message(ErrorConstants::ERR_STO);
+    }
 
     cursor.second->Reset();
 
