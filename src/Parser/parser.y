@@ -62,6 +62,7 @@
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
+    #include "../../src/Parser/Nodes/TableNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -156,7 +157,7 @@ request:
 
 select:
     SELECT_ACTION cols_select FROM IDENT empty where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(new IdentNode(std::string($4)), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
+	children.emplace_back(new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
     }|
     SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
 	children.emplace_back(new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5))));

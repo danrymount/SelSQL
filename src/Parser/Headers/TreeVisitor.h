@@ -55,6 +55,7 @@ class TreeVisitor : public Visitor {
 
     void visit(SourceJoinNode* node) override;
     void visit(JoinNode* node) override;
+    void visit(TableNode* node) override;
 
     Message getMessage() { return message; }
 

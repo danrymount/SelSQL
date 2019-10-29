@@ -9,6 +9,14 @@
 class UpdatesAndExprNode : public BaseNode {
    public:
     UpdatesAndExprNode(UpdateExprNode* _updates, BaseExprNode* _expr) : updates(_updates), expr(_expr) {}
+    ~UpdatesAndExprNode() override {
+        if (updates != nullptr) {
+            delete updates;
+        }
+        if (expr != nullptr) {
+            delete expr;
+        }
+    }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 

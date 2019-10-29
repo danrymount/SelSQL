@@ -131,3 +131,4 @@ void TreeVisitor::visit(ValueExprNode* node) {}
 void TreeVisitor::visit(AssignUpdateNode* node) {}
 void TreeVisitor::visit(SourceJoinNode* node) {}
 void TreeVisitor::visit(JoinNode* node) {}
+void TreeVisitor::visit(TableNode* node) {}
