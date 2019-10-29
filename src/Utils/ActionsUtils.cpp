@@ -197,6 +197,37 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
     return Message();
 }
 
+void checkSelectColumns(std::vector<std::vector<std::pair<std::string, std::string>>> values,
+                        const std::vector<std::string>& selectCols) {
+    if (values.empty()) {
+        ActionsUtils::getSelectMessage(values);
+    }
+    std::vector<std::vector<std::pair<std::string, std::string>>> printVal;
+    std::map<std::string, int> colsIndex;
+    int strSize = values[0].size();
+    int count = 0;
+    for (auto& val : values[0]) {
+        colsIndex.insert(std::make_pair(val.first, count));
+        count++;
+    }
+    count = 0;
+    for (auto& str : values) {
+        std::vector<std::pair<std::string, std::string>> colVals;
+        for (auto& col : selectCols) {
+            if (col != "*") {
+                colVals.push_back(str[colsIndex[col]]);
+            } else {
+                for (auto& val : values[count]) {
+                    colVals.push_back(val);
+                }
+            }
+        }
+        printVal.push_back(colVals);
+        count++;
+    }
+    ActionsUtils::getSelectMessage(printVal);
+}
+
 std::string ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::string, std::string>>> values) {
     if (values.empty()) {
         return "";
@@ -206,6 +237,7 @@ std::string ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std
     std::stringstream stringstream;
     int n = values.size();
     int strSize = values[0].size();
+    len.reserve(strSize);
     for (int i = 0; i < strSize; i++) {
         len.push_back(values[0][i].first.length());
     }
@@ -224,13 +256,6 @@ std::string ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std
         stringstream << "|";
     }
     stringstream << std::endl;
-    //    for (int i = 0; i < strSize; i++) {
-    //        for (int j = 0; j < len[i]; j++) {
-    //            stringstream << "_";
-    //        }
-    //        stringstream << "|";
-    //    }
-    //    stringstream << std::endl;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < strSize; j++) {
             stringstream << values[i][j].second;
@@ -244,6 +269,7 @@ std::string ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std
     }
     return stringstream.str();
 }
+
 std::string ActionsUtils::getTableInfo(const std::shared_ptr<Table>& table, int includeCols) {
     std::stringstream stringstream;
     stringstream << "Table " << table->name << ":" << std::endl;
