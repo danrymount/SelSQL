@@ -88,37 +88,45 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto expr = v->getExpr();
     auto source = v->getSource();
     source->accept(getTreeVisitor().get());
-    std::vector<std::pair<std::string, std::string>> columnValues;
+    auto message = v->getMessage();
+    if (message.getErrorCode()) {
+        return message;
+    }
+    auto records = v->getRecords();
+    for (auto &rec : records) {
+        for (auto &col : rec) {
+            std::cout << col.first.first << "." << col.first.second << " = " << col.second << " ";
+        }
+        std::cout << std::endl;
+    }
+    // std::vector<std::pair<std::string, std::string>> columnValues;
     //    for (auto &col : columns) {
     //        columnValues.emplace_back(std::make_pair(col, ""));
     //    }
 
-    if (table->name.empty()) {
-        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-    }
+    //    if (table->name.empty()) {
+    //        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+    //    }
 
-    message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
-    if (message.getErrorCode()) {
-        return message;
-    }
+    // message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
 
-    if (cursor.first->record_amount == 0) {
-        //        cursor.second.reset();
-        return Message(ActionsUtils::getTableInfo(table, 0));
-    }
-
-    cursor.second->Reset();
-    do {
-        auto _record = cursor.second->Fetch();
-        if (_record.empty()) {
-            continue;
-        }
-        // v->setValues(_record);
-        expr->accept(v);
-        if (v->getResult()) {
-            records.push_back(_record);
-        }
-    } while (!cursor.second->Next());
-
-    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::getSelectMessage(records));
+    //    if (cursor.first->record_amount == 0) {
+    //        //        cursor.second.reset();
+    //        return Message(ActionsUtils::getTableInfo(table, 0));
+    //    }
+    //
+    //    cursor.second->Reset();
+    //    do {
+    //        auto _record = cursor.second->Fetch();
+    //        if (_record.empty()) {
+    //            continue;
+    //        }
+    //        // v->setValues(_record);
+    //        expr->accept(v);
+    //        if (v->getResult()) {
+    //            records.push_back(_record);
+    //        }
+    //    } while (!cursor.second->Next());
+    //
+    //    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::getSelectMessage(records));
 };

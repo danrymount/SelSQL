@@ -56,17 +56,30 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
-        auto tableName = curValue;
-        node->getAlias()->accept(this);
-        auto alias = curValue;
-        auto cursor = engine.GetCursor(tableName);
-        if (cursor.first->name.empty()) {
-            message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-        } else {
-            if (firstRecords.empty()) {
-                firstRecords = addRecord(alias, cursor.second);
+        if (!curValue.empty()) {
+            auto tableName = curValue;
+            node->getAlias()->accept(this);
+            auto alias = curValue;
+            auto cursor = engine.GetCursor(tableName);
+            if (cursor.first->name.empty()) {
+                message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
             } else {
-                secondRecords = addRecord(alias, cursor.second);
+                if (firstRecords.empty()) {
+                    firstRecords = addRecord(alias, cursor.second);
+
+                } else {
+                    secondRecords = addRecord(alias, cursor.second);
+                }
+            }
+        } else {
+            node->getAlias()->accept(this);
+            auto alias = curValue;
+            if (firstRecordAndAlias.empty()) {
+                firstRecordAndAlias = records;  // addRecord(alias, records);
+                std::cout << alias << std::endl;
+            } else {
+                secondRecordAndAlias = records;  // addRecord(alias, records);
+                std::cout << "!!" << alias << std::endl;
             }
         }
     }
@@ -89,15 +102,34 @@ class SelectVisitor : public TreeVisitor {
         return records;
     }
 
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
+    addRecord(std::string aliasName,
+              std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> _records) {
+        for (auto& rec : _records) {
+            for (auto& col : rec) {
+                col.first.first = aliasName;
+            }
+        }
+        return _records;
+    }
+
     void visit(JoinNode* node) override {
         node->getFirstSource()->accept(this);
         node->getSecondSource()->accept(this);
+        if (!secondRecordAndAlias.empty()) {
+            firstRecords = firstRecordAndAlias;
+            secondRecords = secondRecordAndAlias;
+            firstRecordAndAlias.clear();
+            secondRecordAndAlias.clear();
+        }
         doubleCycleJoin(node);
-        // firstRecords.clear();
+        std::cout << "STIZE= " << records.size() << std::endl;
+        firstRecords.clear();
         secondRecords.clear();
     }
 
     void doubleCycleJoin(JoinNode* node) {
+        records.clear();
         for (auto& first : firstRecords) {
             setFirstValues(first);
             for (auto& second : secondRecords) {
@@ -259,6 +291,10 @@ class SelectVisitor : public TreeVisitor {
 
     BaseExprNode* getExpr() { return expr; }
 
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> getRecords() {
+        return records;
+    }
+
     void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
         firstValues = std::move(_values);
     }
@@ -274,6 +310,9 @@ class SelectVisitor : public TreeVisitor {
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> secondRecords;
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> firstRecordAndAlias;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> secondRecordAndAlias;
+
     std::vector<std::pair<std::string, std::string>> columns;
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;

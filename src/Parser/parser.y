@@ -220,7 +220,8 @@ constraint:
 colnames:
     LBRACKET colname RBRACKET{
 	columnsList.emplace_back($2);
-    }|{
+    }|
+    {
     	columnsList.emplace_back(new ColumnNode(new IdentNode("*")));
     }
 
@@ -285,8 +286,8 @@ join_expr:
     IDENT alias{
     	$$ = new SourceJoinNode(new IdentNode($1), $2);
     }|
-    LBRACKET join RBRACKET alias{
-	$$ = new SourceJoinNode($2, $4);
+    LBRACKET join RBRACKET{
+	$$ = new SourceJoinNode($2, new IdentNode(""));
     }
 
 join_type:
