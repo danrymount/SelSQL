@@ -649,7 +649,8 @@ TEST(SERVER_TEST_ERROR, TEST25) {
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-                              {"SELECT * from fn join fn on fn.id = fn.id;", "Field doesnt exist ERROR: 6"}});
+                              {"SELECT * from fn join fn on fn.id = fn.id;",
+                               "Field doesnt exist ERROR: 6"}});  // TODO чекать на алиас в одной и той же таблице
 }
 
 TEST(SERVER_TEST_ERROR, TEST26) {

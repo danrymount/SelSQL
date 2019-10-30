@@ -46,19 +46,16 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     std::vector<std::pair<std::string, std::string>> columnsValues;
-    std::vector<std::string> newCols;
+
     for (int i = 0; i < table->getFields().size(); i++) {
         std::pair<std::string, std::string> curColValue;
         if (columns[0] == "*") {
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
-            newCols.emplace_back(cursor.first->getFields()[i].first);
             continue;
         }
         if (i < values.size()) {
-            newCols.emplace_back(columns[i]);
             columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
         } else {
-            newCols.emplace_back(cursor.first->getFields()[i].first);
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, "null"));
         }
     }
@@ -78,7 +75,13 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     try {
-        cursor.second->Insert(newCols, values);
+        std::vector<std::string> newCols;
+        std::vector<std::string> newVals;
+        for (auto &colVal : columnsValues) {
+            newCols.emplace_back(colVal.first);
+            newVals.emplace_back(colVal.second);
+        }
+        cursor.second->Insert(newCols, newVals);
     } catch (std::exception &exception) {
         return Message(ErrorConstants::ERR_STO);
     }
