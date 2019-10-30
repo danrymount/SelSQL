@@ -62,7 +62,7 @@ class SelectVisitor : public TreeVisitor {
         node->getSource()->accept(this);
         if (!curValue.empty()) {
             auto tableName = std::move(curValue);
-            std::string alias = "";
+            std::string alias = tableName;
             if (node->getAlias() != nullptr) {
                 node->getAlias()->accept(this);
                 alias = std::move(curValue);
@@ -70,6 +70,7 @@ class SelectVisitor : public TreeVisitor {
             auto cursor = engine.GetCursor(tableName);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+                return;
             } else {
                 std::vector<std::pair<std::string, std::string>> columnValues;
 
@@ -77,24 +78,22 @@ class SelectVisitor : public TreeVisitor {
                     columnValues.emplace_back(std::make_pair(col.second, ""));
                 }
                 message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
-
-                if (firstRecords.empty()) {
-                    firstRecords = addRecord(alias, cursor.second);
-
-                } else {
-                    secondRecords = addRecord(alias, cursor.second);
+                if (message.getErrorCode()) {
+                    return;
                 }
-            }
-        } else {
-            node->getAlias()->accept(this);
-            auto alias = std::move(curValue);
-            if (firstRecordAndAlias.empty()) {
-                firstRecordAndAlias = records;
-                std::cout << alias << std::endl;
-            } else {
-                secondRecordAndAlias = records;
+                allrecords.emplace_back(addRecord(alias, cursor.second));
             }
         }
+        //        else {
+        //            node->getAlias()->accept(this);
+        //            auto alias = std::move(curValue);
+        //            if (firstRecordAndAlias.empty()) {
+        //                firstRecordAndAlias = records;
+        //                std::cout << alias << std::endl;
+        //            } else {
+        //                secondRecordAndAlias = records;
+        //            }
+        //        }
     }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
@@ -117,14 +116,19 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(JoinNode* node) override {
         node->getFirstSource()->accept(this);
-        node->getSecondSource()->accept(this);
-        if (!secondRecordAndAlias.empty()) {
-            firstRecords = firstRecordAndAlias;
-            secondRecords = secondRecordAndAlias;
-            firstRecordAndAlias.clear();
-            secondRecordAndAlias.clear();
+        if (message.getErrorCode()) {
+            return;
         }
+        node->getSecondSource()->accept(this);
+        if (message.getErrorCode()) {
+            return;
+        }
+        secondRecords = allrecords.back();
+        allrecords.pop_back();
+        firstRecords = allrecords.back();
+        allrecords.pop_back();
         doubleCycleJoin(node);
+        allrecords.emplace_back(records);
         firstRecords.clear();
         secondRecords.clear();
     }
@@ -256,7 +260,7 @@ class SelectVisitor : public TreeVisitor {
     void visit(IndentExprNode* node) override {
         int flag = 0;
         for (auto& val : firstValues) {
-            if (node->getAliasname() == val.first.first) {
+            if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
                 if (node->getBaseValue() == val.first.second) {
                     curValue = val.second;
                     flag = 1;
@@ -266,7 +270,7 @@ class SelectVisitor : public TreeVisitor {
         }
         if (!flag) {
             for (auto& val : secondValues) {
-                if (node->getAliasname() == val.first.first) {
+                if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
                     if (node->getBaseValue() == val.first.second) {
                         curValue = val.second;
                         flag = 1;
@@ -278,6 +282,7 @@ class SelectVisitor : public TreeVisitor {
         if (!flag) {
             result = false;
             message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+            return;
         }
     }
 
@@ -294,7 +299,7 @@ class SelectVisitor : public TreeVisitor {
     BaseExprNode* getExpr() { return expr; }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> getRecords() {
-        return records;
+        return allrecords[0];
     }
 
     void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
@@ -311,12 +316,12 @@ class SelectVisitor : public TreeVisitor {
     MainEngine engine;
     std::string curValue;
     std::string tableName;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> firstRecords;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> secondRecords;
+    typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
+    JoinRecord firstRecords;
+    JoinRecord secondRecords;
 
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> firstRecordAndAlias;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> secondRecordAndAlias;
+    JoinRecord records;
+    std::vector<JoinRecord> allrecords;
 
     std::vector<std::pair<std::string, std::string>> columns;
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
