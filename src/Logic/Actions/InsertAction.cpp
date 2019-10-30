@@ -55,8 +55,10 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             continue;
         }
         if (i < values.size()) {
+            newCols.emplace_back(columns[i]);
             columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
         } else {
+            newCols.emplace_back(cursor.first->getFields()[i].first);
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, "null"));
         }
     }

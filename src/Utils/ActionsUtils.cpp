@@ -114,9 +114,6 @@ Message ActionsUtils::checkConstraintFroUpdate(const ActionsUtils::Record& updat
                 } else {
                     colName = colValue.first;
                 }
-                // не сработает в случае, если update t set id = 1 where id = 1; гдк t = create table t(id INT UNIQUE,
-                // age INT); ,
-                //могу быть записи (1, 0), а обновить на (1, 2) update t set id = 1, age = 2 where id = 1;
 
                 for (auto& field : table->getFields()) {
                     if (field.first != colName) {
