@@ -52,7 +52,7 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(ColumnNode* node) override {
         if (node->getAlias() == nullptr) {
-            columns.emplace_back(std::make_pair("*", node->getColumn()->getBaseValue()));
+            columns.emplace_back(std::make_pair("", node->getColumn()->getBaseValue()));
         } else {
             columns.emplace_back(std::make_pair(node->getAlias()->getBaseValue(), node->getColumn()->getBaseValue()));
         }
