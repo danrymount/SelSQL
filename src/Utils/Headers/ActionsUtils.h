@@ -38,6 +38,8 @@ class ActionsUtils {
 
     Message checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
                             const std::vector<ActionsUtils::Record>& records, bool isUpdate = false);
+    static std::string
+    getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values);
 
     static std::string checkSelectColumns(std::vector<Record> values, const std::vector<std::string>& selectCols);
     static std::string getSelectMessage(std::vector<Record> values);

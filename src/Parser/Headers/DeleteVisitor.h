@@ -26,7 +26,11 @@
 #include "TreeVisitor.h"
 class DeleteVisitor : public TreeVisitor {
    public:
-    void visit(DeleteNode* node) override { expr = static_cast<BaseExprNode*>(node->getChild()); }
+    void visit(DeleteNode* node) override {
+        node->getSource()->accept(this);
+        tableName = std::move(curValue);
+        expr = static_cast<BaseExprNode*>(node->getChild());
+    }
 
     void visit(ExprNode* node) override {
         if (node->getChild()) {
@@ -159,6 +163,8 @@ class DeleteVisitor : public TreeVisitor {
 
     Message getMessage() { return error; }
 
+    std::string getTableName() { return tableName; }
+
     BaseExprNode* getExpr() { return expr; }
 
     void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = _values; }
@@ -166,6 +172,7 @@ class DeleteVisitor : public TreeVisitor {
    private:
     std::vector<std::pair<std::string, std::string>> values;
     std::string curValue;
+    std::string tableName;
     Message error;
     BaseExprNode* expr;
     bool result = true;

@@ -8,7 +8,7 @@
 #include "BaseActionNode.h"
 class ShowCreateNode : public BaseActionNode {
    public:
-    explicit ShowCreateNode(std::string _name) : BaseActionNode(Action::SHOW_CREATE, std::move(_name)) {}
+    explicit ShowCreateNode(BaseNode* _source) : BaseActionNode(Action::SHOW_CREATE, _source) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

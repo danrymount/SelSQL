@@ -195,7 +195,9 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table, cons
     return Message();
 }
 
-std::string ActionsUtils::checkSelectColumns(std::vector<Record> values, const std::vector<std::string>& selectCols) {
+
+std::string
+ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values) {
     if (values.empty()) {
         return "";
     }
@@ -229,11 +231,16 @@ std::string ActionsUtils::getSelectMessage(std::vector<Record> values) {
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
+    stringstream << "\n";
     int n = values.size();
     int strSize = values[0].size();
     len.reserve(strSize);
     for (int i = 0; i < strSize; i++) {
-        len.push_back(values[0][i].first.length());
+        if (values[0][i].first.first.size() > 0) {
+            len.push_back(values[0][i].first.first.length() + 1 + values[0][i].first.second.length());
+        } else {
+            len.push_back(values[0][i].first.second.length());
+        }
     }
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < strSize; j++) {
@@ -242,8 +249,14 @@ std::string ActionsUtils::getSelectMessage(std::vector<Record> values) {
         }
     }
     for (int i = 0; i < strSize; i++) {
-        stringstream << values[0][i].first;
-        int lenStr = values[0][i].first.length();
+        int lenStr = 0;
+        if (values[0][i].first.first.size() > 0) {
+            stringstream << values[0][i].first.first << "." << values[0][i].first.second;
+            lenStr = values[0][i].first.first.length() + 1 + values[0][i].first.second.length();
+        } else {
+            stringstream << values[0][i].first.second;
+            lenStr = values[0][i].first.second.length();
+        }
         for (int j = lenStr; j < len[i]; j++) {
             stringstream << "\40";
         }

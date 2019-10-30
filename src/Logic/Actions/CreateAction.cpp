@@ -16,9 +16,8 @@
 //}
 
 Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
-    v->setTableName(root->getTableName());
     auto t = v->getTable();
     auto error = v->getError();
     if (error.getErrorCode()) {

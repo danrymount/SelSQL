@@ -12,7 +12,7 @@
 #include "BaseActionNode.h"
 class DropNode : public BaseActionNode {
    public:
-    explicit DropNode(std::string _name) : BaseActionNode(Action::DROP, std::move(_name)) {}
+    explicit DropNode(BaseNode* _source) : BaseActionNode(Action::DROP, _source) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

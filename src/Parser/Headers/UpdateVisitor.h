@@ -4,6 +4,7 @@
 
 #ifndef SELSQL_UPDATEVISITOR_H
 #define SELSQL_UPDATEVISITOR_H
+#include "../Nodes/ActionNodes/UpdateNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/AddNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/ArithmeticNode.h"
 #include "../Nodes/ExpressionsNodes/ArithmeticNodes/DivNode.h"
@@ -29,6 +30,12 @@
 #include "TreeVisitor.h"
 class UpdateVisitor : public TreeVisitor {
    public:
+    void visit(UpdateNode* node) override {
+        node->getSource()->accept(this);
+        tableName = std::move(curValue);
+        node->getChild()->accept(this);
+    }
+
     void visit(UpdatesAndExprNode* node) override {
         node->getUpdates()->accept(this);
         expr = node->getExpr();
@@ -186,6 +193,8 @@ class UpdateVisitor : public TreeVisitor {
 
     void setValues(std::vector<std::pair<std::string, std::string>> _values) { values = std::move(_values); }
 
+    std::string getTableName() { return tableName; }
+
    private:
     std::vector<std::pair<std::string, std::string>> values;
     std::vector<std::pair<std::string, std::string>> updateValues;
@@ -193,6 +202,7 @@ class UpdateVisitor : public TreeVisitor {
     std::string curValue;
     Message error;
     BaseExprNode* expr;
+    std::string tableName;
     bool result = true;
 };
 #endif  // SELSQL_UPDATEVISITOR_H

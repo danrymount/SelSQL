@@ -11,6 +11,9 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/BaseExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/ExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/CompareNodes/CmpNode.h"
+    #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
 
     #include "parser.h"
     #include <memory>

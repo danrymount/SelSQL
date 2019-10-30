@@ -7,9 +7,7 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class DeleteNode : public BaseActionNode {
    public:
-    explicit DeleteNode(std::string _name, BaseNode* _child)
-    : BaseActionNode(Action::DELETE_ACT,
-                                                                                                        std::move(_name), _child){}
+    explicit DeleteNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::DELETE_ACT, _source, _child) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 

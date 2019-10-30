@@ -13,8 +13,10 @@
 #include "../Logic/Actions/Headers/UpdateAction.h"
 #include "Headers/CreateVisitor.h"
 #include "Headers/DeleteVisitor.h"
+#include "Headers/DropVisitor.h"
 #include "Headers/InsertVisitor.h"
 #include "Headers/SelectVisitor.h"
+#include "Headers/ShowCreateVisitor.h"
 #include "Headers/UpdateVisitor.h"
 #include "Nodes/ActionNodes/CreateNode.h"
 #include "Nodes/ActionNodes/DeleteNode.h"
@@ -56,21 +58,20 @@ void TreeVisitor::visit(RootNode* node) {
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    auto action = std::make_shared<CreateNode>(*node);
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    auto action = std::make_shared<CreateNode>(*node);
     message = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    print(node->getTableName());
+    auto visitor = std::make_shared<DropVisitor>(DropVisitor());
     auto action = std::make_shared<DropNode>(*node);
-    auto visitor = std::make_shared<TreeVisitor>(*this);
     message = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
+    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor());
     auto action = std::make_shared<ShowCreateNode>(*node);
-    auto visitor = std::make_shared<TreeVisitor>(*this);
     message = ShowCreateAction(visitor).execute(action);
 }
 
@@ -128,3 +129,6 @@ void TreeVisitor::visit(UpdatesAndExprNode* node) {}
 void TreeVisitor::visit(IndentExprNode* node) {}
 void TreeVisitor::visit(ValueExprNode* node) {}
 void TreeVisitor::visit(AssignUpdateNode* node) {}
+void TreeVisitor::visit(SourceJoinNode* node) {}
+void TreeVisitor::visit(JoinNode* node) {}
+void TreeVisitor::visit(TableNode* node) {}

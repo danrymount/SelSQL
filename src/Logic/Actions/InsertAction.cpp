@@ -6,7 +6,7 @@
 #include "../../Parser/Headers/InsertVisitor.h"
 
 Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<InsertVisitor*>(getTreeVisitor().get());
     auto columns = v->getColumns();
     auto values = v->getValues();
@@ -26,7 +26,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
     }
 
-    cursor = getEngine().GetCursor(root->getTableName());
+    cursor = getEngine().GetCursor(v->getTableName());
 
     auto table = cursor.first;
     if (table->name.empty()) {

@@ -7,10 +7,7 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class SelectNode : public BaseActionNode {
    public:
-    SelectNode(std::string _name, BaseNode* _child)
-                                                                                                        : BaseActionNode(Action::SELECT,
-                                                                                                                         std::move(_name),
-                                                                                                                         _child){}
+    SelectNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::SELECT, _source, _child){}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

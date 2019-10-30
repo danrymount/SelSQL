@@ -6,49 +6,60 @@
 #include "../../Parser/Headers/SelectVisitor.h"
 
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
-    cursor = getEngine().GetCursor(root->getTableName());
-    auto table = cursor.first;
-    root->getChild()->accept(getTreeVisitor().get());
+    root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
-    auto columns = v->getColumns();
+    // auto columns = v->getColumns();
     auto expr = v->getExpr();
-    std::vector<std::pair<std::string, std::string>> columnValues;
-    columnValues.reserve(columns.size());
-    for (auto &col : columns) {
-        columnValues.emplace_back(std::make_pair(col, ""));
-    }
-
-    if (table->name.empty()) {
-        return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-    }
-
-    message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+    auto source = v->getSource();
+    source->accept(getTreeVisitor().get());
+    auto message = v->getMessage();
     if (message.getErrorCode()) {
         return message;
     }
+    auto tableName = v->getTableName();
+    if (tableName.empty()) {
+        records = v->getRecords();
+    } else {
+        cursor = getEngine().GetCursor(tableName);
+        auto table = cursor.first;
+        auto columns = v->getColumns();
+        std::vector<std::pair<std::string, std::string>> columnValues;
 
-    if (cursor.first->record_amount == 0) {
-        return Message(ActionsUtils::getTableInfo(table, 0));
-    }
-
-    cursor.second->Reset();
-    do {
-        auto _record = cursor.second->Fetch();
-        if (_record.empty()) {
-            continue;
+        for (auto &col : columns) {
+            columnValues.emplace_back(std::make_pair(col.second, ""));
         }
-        v->setValues(_record);
-        try {
+
+        if (table->name.empty()) {
+            return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
+        }
+
+        message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+        if (message.getErrorCode()) {
+            return message;
+        }
+
+        if (cursor.first->record_amount == 0) {
+            //        cursor.second.reset();
+            return Message(ActionsUtils::getTableInfo(table, 0));
+        }
+
+
+        cursor.second->Reset();
+        do {
+            auto _record = cursor.second->Fetch();
+            if (_record.empty()) {
+                continue;
+            }
+            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+            for (auto &col : _record) {
+                _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+            }
+            v->setFirstValues(_newRecord);
             expr->accept(v);
-        } catch (std::exception &exception) {
-            std::string exc = exception.what();
-            return Message(ErrorConstants::ERR_TYPE_MISMATCH);
-        }
-
-        if (v->getResult()) {
-            records.push_back(_record);
-        }
-    } while (!cursor.second->Next());
-
-    return Message(ActionsUtils::getTableInfo(table, 0) + ActionsUtils::checkSelectColumns(records, columns));
+            if (v->getResult()) {
+                records.push_back(_newRecord);
+            }
+        } while (!cursor.second->Next());
+    }
+    return Message(ActionsUtils::getSelectMessage(records));
 };

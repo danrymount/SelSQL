@@ -17,7 +17,7 @@ class SelectAction : public BaseAction {
 
    private:
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-    std::vector<std::vector<std::pair<std::string, std::string>>> records;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
 };
 
 #endif  // SELSQL_SELECTACTION_H
