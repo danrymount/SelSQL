@@ -458,6 +458,13 @@ TEST(SERVER_TEST_INSERT, TEST10) {
                               {"select * from qh;", "\nid |name |\n666|'sfd'|\n"}});
 }
 
+TEST(SERVER_TEST_INSERT, TEST11) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE);", "Success"},
+                              {"insert into qh values (-5);", "Success"},
+                              {"select * from qh;", "\nid|\n-5|\n"}});
+}
+
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
