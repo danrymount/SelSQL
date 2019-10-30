@@ -7,6 +7,9 @@
 #include "string"
 class Constants {
    public:
+    inline static const std::string VERSION = "v.";
+    inline static const std::string META_FILE_TYPE = ".METAselDB";
+    inline static const std::string DATA_FILE_TYPE = ".DATAselDB";
     inline static const std::string FILE_TYPE = ".selDB";
     static const int MD_TABLE_NAME_SIZE = 256;
     static const int MD_TABLE_COLUMN_AMOUNT_SIZE = sizeof(int);
@@ -18,6 +21,7 @@ class Constants {
     static const int MD_COLUMN_CONSTR_AMOUNT_SIZE = sizeof(int);
     static const int MD_COLUMN_CONSTR_AMOUNT_MAX = 10;
 
+    static const int MD_HASH_SUM = sizeof(double);
     static const int DATA_BLOCK_START_POS = MD_TABLE_NAME_SIZE + MD_TABLE_COLUMN_AMOUNT_SIZE +
                                             MD_TABLE_COLUMN_AMOUNT_MAX * (MD_COLUMN_NAME_SIZE + MD_COLUMN_TYPE_SIZE +
                                                                           MD_COLUMN_TYPE_SIZE_2 +

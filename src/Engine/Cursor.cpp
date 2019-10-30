@@ -26,6 +26,8 @@ void convert(unsigned char *dist, std::string val, Type type) {
         case TYPE_CHAR: {
             if (!val.empty()) {
                 val.reserve(Constants::TYPE_SIZE[type]);
+                if (val.size() > Constants::TYPE_SIZE[type]) {
+                }
                 if (val.find('\'') == std::string::npos) {
                     if (val.size() + 2 > Constants::TYPE_SIZE[type]) {
                         throw std::exception();

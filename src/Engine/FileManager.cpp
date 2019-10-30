@@ -3,36 +3,43 @@
 #include "../Utils/Structures/Data/DataBlock.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
-    auto new_file = files_[table->name];
-    new_file->seekp(0, std::ios::beg);
+    std::string new_file_name = table->name + '/' + Constants::VERSION +
+                                std::to_string(++files_[table->name]->version) + '_' + table->name +
+                                Constants::META_FILE_TYPE;
+    std::shared_ptr<std::fstream> meta_file = std::make_shared<std::fstream>(new_file_name,
+                                                                             std::ios::binary | std::ios::out | std::ios::trunc);
+    meta_file->seekp(0, std::ios::beg);
     std::string name;
     name.reserve(Constants::MD_COLUMN_NAME_SIZE);
     name = table->name;
-    new_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-    WriteIntToFile(new_file, table->getFields().size());
+    meta_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+    WriteIntToFile(meta_file, table->getFields().size());
     for (auto& field : table->getFields()) {
         name.clear();
         name = field.first;
-        new_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-        WriteIntToFile(new_file, Type(field.second.type));
-        WriteIntToFile(new_file, field.second.size);
-        WriteIntToFile(new_file, field.second.getConstraints().size());
+        meta_file->write(name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
+        WriteIntToFile(meta_file, Type(field.second.type));
+        WriteIntToFile(meta_file, field.second.size);
+        WriteIntToFile(meta_file, field.second.getConstraints().size());
         for (auto constr : field.second.getConstraints()) {
-            WriteIntToFile(new_file, Constraint(constr));
+            WriteIntToFile(meta_file, Constraint(constr));
         }
     }
 
     //    std::cerr << Constants::DATA_BLOCK_START_POS - 4 << std::endl;
-    new_file->seekp(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
-    WriteIntToFile(new_file, table->record_amount);
+    WriteIntToFile(meta_file, table->record_amount);
+    double hash_sum = 50323;
+    meta_file->write(reinterpret_cast<char*>(&hash_sum), sizeof(double));
+    meta_file->close();
 }
 
 void FileManager::ReadTableMetaData(const std::string& table_name) {
     auto table = std::make_shared<Table>();
+    auto meta_file = files_[table_name]->meta_file;
     char name[Constants::MD_TABLE_NAME_SIZE];
     int column_size;
-    files_[table_name]->read(name, Constants::MD_TABLE_NAME_SIZE);
-    column_size = ReadIntoFromFile(files_[table_name]);
+    meta_file->read(name, Constants::MD_TABLE_NAME_SIZE);
+    column_size = ReadIntoFromFile(meta_file);
     for (int i = 0; i < column_size; ++i) {
         Variable var;
         char var_name[Constants::MD_COLUMN_NAME_SIZE];
@@ -40,59 +47,74 @@ void FileManager::ReadTableMetaData(const std::string& table_name) {
         int type_size = 0;
         int constr_size = 0;
         std::vector<Constraint> constraints;
-        files_[table_name]->read(var_name, Constants::MD_COLUMN_NAME_SIZE);
-        type = ReadIntoFromFile(files_[table_name]);
-        type_size = ReadIntoFromFile(files_[table_name]);
-        constr_size = ReadIntoFromFile(files_[table_name]);
+        meta_file->read(var_name, Constants::MD_COLUMN_NAME_SIZE);
+        type = ReadIntoFromFile(meta_file);
+        type_size = ReadIntoFromFile(meta_file);
+        constr_size = ReadIntoFromFile(meta_file);
         var.type = Type(type);
         var.size = type_size;
         for (int j = 0; j < constr_size; ++j) {
             int constr_type = 0;
-            constr_type = ReadIntoFromFile(files_[table_name]);
+            constr_type = ReadIntoFromFile(meta_file);
             constraints.emplace_back(Constraint(constr_type));
         }
         var.setConstraints(constraints);
         table->addField(std::string(var_name), var);
     }
     table->name = std::string(name);
-    files_[table_name]->seekg(Constants::DATA_BLOCK_START_POS - 4, std::ios::beg);
-    table->record_amount = ReadIntoFromFile(files_[table_name]);
+    table->record_amount = ReadIntoFromFile(meta_file);
     table->calcRecordSize();
     table_data[table_name] = table;
 }
 int FileManager::OpenFile(const std::string& table_name) {
-    files_[table_name] = std::make_shared<std::fstream>(table_name + Constants::FILE_TYPE,
-                                                        std::ios::binary | std::ios::out | std::ios::in);
-    if (!files_[table_name]->is_open()) {
-        files_.erase(table_name);
+    const std::string& directory = table_name;
+    std::string file_name = table_name;
+    if (!fs::exists(directory)) {
         return 1;
     }
+    std::shared_ptr<DB_FILE> dbFile = FindLastVersion(table_name);
+
+    if (!dbFile->isOpen()) {
+        dbFile->close();
+        return 1;
+    }
+    //    std::cout<<dbFile->meta_file->is_open();
+    //    std::cout<<dbFile->data_file->is_open();
+    files_[table_name] = dbFile;
     ReadTableMetaData(table_name);
+    CheckFileHashSum(dbFile);
     return 0;
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     this->CloseAllFiles();
-
-    std::ifstream file;
-    file.open(table->name + Constants::FILE_TYPE);
-    if (file.is_open()) {
-        file.close();
+    int def_version = 1;
+    if (!fs::create_directory(table->name)) {
+        for (const auto& file : fs::directory_iterator(table->name)) {
+            std::string name = file.path();
+            name.erase(name.begin(), name.begin() + table->name.size() + 1);
+            int version = std::stoi(name.substr(name.find(Constants::VERSION) + Constants::VERSION.size(),
+                                                name.find('_')));
+        }
         return 1;
     }
-    std::cout << table->name + Constants::FILE_TYPE << std::endl;
-    files_[table->name] = std::make_shared<std::fstream>(table->name + Constants::FILE_TYPE,
-                                                         std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc);
+    std::string file_name = table->name + '/' + Constants::VERSION + std::to_string(def_version) + "_" + table->name;
+
+    files_[table->name] = std::make_shared<DB_FILE>(std::make_shared<std::fstream>(file_name + Constants::DATA_FILE_TYPE,
+                                                                                   std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc),
+                                                    std::make_shared<std::fstream>(file_name + Constants::DATA_FILE_TYPE,
+                                                                                   std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc),
+                                                    0);
 
     WriteTableMetaData(table);
-    this->CloseAllFiles();
 
+    CloseAllFiles();
     return 0;
 }
 std::shared_ptr<Table> FileManager::GetTable(const std::string& table_name) { return table_data[table_name]; }
 
 int FileManager::DeleteFile(const std::string& table_name) {
     this->CloseAllFiles();
-    return std::remove((table_name + Constants::FILE_TYPE).c_str());
+    return !fs::remove_all(table_name);
 }
 
 int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<std::shared_ptr<DataBlock>>& data) {
@@ -102,14 +124,15 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
     }
 
     this->WriteDataBlocks(std::string(table->name), data);
+    CloseAllFiles();
     return 0;
 }
 
 std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::string& table_name) {
     std::vector<std::shared_ptr<DataBlock>> data;
     int readed_data = 0;
-    int offset = Constants::DATA_BLOCK_START_POS;
-    auto infile = files_[table_name];
+    int offset = 0;
+    auto data_file = files_[table_name]->data_file;
     auto table = table_data[table_name];
     if (table->record_amount == 0) {
         auto dataBlock = std::make_shared<DataBlock>();
@@ -123,22 +146,22 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         //        std::cerr<<offset<<std::endl;
         auto new_data = new char[Constants::DATA_SIZE];
         auto dataBlock = std::make_shared<DataBlock>();
-        infile->seekg(offset, std::ios::beg);
+        data_file->seekg(offset, std::ios::beg);
         dataBlock->record_size = table->record_size;
-        dataBlock->record_amount = ReadIntoFromFile(infile);
+        dataBlock->record_amount = ReadIntoFromFile(data_file);
         readed_data += dataBlock->record_amount;
-        dataBlock->last_record_pos = ReadIntoFromFile(infile);
-        dataBlock->deleted = ReadIntoFromFile(infile);
+        dataBlock->last_record_pos = ReadIntoFromFile(data_file);
+        dataBlock->deleted = ReadIntoFromFile(data_file);
         dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
         char* deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
-        infile->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));
+        data_file->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));
         dataBlock->setDeletedPos(deleted);
         offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   dataBlock->max_deleted_amount * sizeof(short int);
         //        std::cerr<<offset<<std::endl;
-        infile->seekg(offset, std::ios::beg);
-        infile->read(new_data, Constants::DATA_SIZE);
+        data_file->seekg(offset, std::ios::beg);
+        data_file->read(new_data, Constants::DATA_SIZE);
         offset += Constants::DATA_SIZE;
         dataBlock->setData(new_data);
         data.emplace_back(dataBlock);
@@ -147,38 +170,91 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
     return data;
 }
 void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
-    auto outfile = files_[table_name];
-    int offset = Constants::DATA_BLOCK_START_POS;
+    std::string new_file_name = table_name + '/' + Constants::VERSION + std::to_string(files_[table_name]->version) +
+                                '_' + table_name + Constants::DATA_FILE_TYPE;
+    auto data_file = std::make_shared<std::fstream>(new_file_name, std::ios::binary | std::ios::out | std::ios::trunc);
+
+    int offset = 0;
     for (const auto& block : data) {
         if (block->record_amount == 0) {
             continue;
         }
         //        std::cerr << offset << std::endl;
-        outfile->seekp(offset, std::ios::beg);
-        WriteIntToFile(outfile, block->record_amount);
-        WriteIntToFile(outfile, block->last_record_pos);
-        WriteIntToFile(outfile, block->deleted);
-        outfile->write(block->getDeletedPos(), block->max_deleted_amount * sizeof(short int));
+        data_file->seekp(offset, std::ios::beg);
+        WriteIntToFile(data_file, block->record_amount);
+        WriteIntToFile(data_file, block->last_record_pos);
+        WriteIntToFile(data_file, block->deleted);
+        data_file->write(block->getDeletedPos(), block->max_deleted_amount * sizeof(short int));
         offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   block->max_deleted_amount * sizeof(short int);
         //        std::cerr<<offset<<std::endl;
-        outfile->seekp(offset, std::ios::beg);
-        outfile->write(block->data_, Constants::DATA_SIZE);
+        data_file->seekp(offset, std::ios::beg);
+        data_file->write(block->data_, Constants::DATA_SIZE);
         //        char new_d[Constants::DATA_SIZE];
-        //        outfile->seekg(offset,std::ios::beg);
-        //        outfile->read(new_d,Constants::DATA_SIZE);
+        //        data_file->seekg(offset,std::ios::beg);
+        //        data_file->read(new_d,Constants::DATA_SIZE);
         offset += Constants::DATA_SIZE;
     }
-    outfile->seekp(offset, std::ios::beg);
-    WriteIntToFile(outfile, 0);
+    data_file->close();
 }
 
 void FileManager::CloseAllFiles() {
     for (const auto& file : files_) {
-        file.second->close();
+        file.second->meta_file->close();
+        file.second->data_file->close();
     }
     files_.clear();
+}
+std::shared_ptr<DB_FILE> FileManager::FindLastVersion(const std::string& table_name) {
+    std::map<std::string, int> version_files = {};
+    for (const auto& m_file : fs::directory_iterator(table_name)) {
+        std::string name_without_type;
+        std::string name = m_file.path();
+        std::string type = name.substr(name.size() - Constants::DATA_FILE_TYPE.size(), name.size() - 1);
+        if (type != Constants::META_FILE_TYPE) {
+            continue;
+        }
+        name_without_type = name;
+        name_without_type.erase(name_without_type.end() - Constants::DATA_FILE_TYPE.size(), name_without_type.end());
+        name_without_type.erase(name_without_type.begin(), name_without_type.begin() + name_without_type.find('/') + 1);
+        //        std::cerr << name_without_type << std::endl;
+        version_files[name_without_type] = 0;
+    }
+    for (const auto& d_file : fs::directory_iterator(table_name)) {
+        std::string name_without_type;
+        std::string name = d_file.path();
+        std::string type = name.substr(name.size() - Constants::DATA_FILE_TYPE.size(), name.size() - 1);
+        if (type != Constants::DATA_FILE_TYPE) {
+            continue;
+        }
+        name_without_type = name;
+        name_without_type.erase(name_without_type.end() - Constants::DATA_FILE_TYPE.size(), name_without_type.end());
+        name_without_type.erase(name_without_type.begin(), name_without_type.begin() + name_without_type.find('/') + 1);
+        //        std::cerr << name_without_type << std::endl;
+        if (version_files.find(name_without_type) != version_files.end()) {
+            version_files[name_without_type] = 1;
+        }
+    }
+
+    std::string last_ver_file;
+    int last_ver = 0;
+    for (const auto& i : version_files) {
+        if (i.second) {
+            if (last_ver < GetVersion(i.first)) {
+                last_ver = GetVersion(i.first);
+                last_ver_file = i.first;
+            }
+        }
+    }
+
+    std::string meta_file = table_name + '/' + last_ver_file + Constants::META_FILE_TYPE;
+    std::string data_file = table_name + '/' + last_ver_file + Constants::DATA_FILE_TYPE;
+    return std::make_shared<DB_FILE>(std::make_shared<std::fstream>(meta_file,
+                                                                    std::ios::binary | std::ios::out | std::ios::in),
+                                     std::make_shared<std::fstream>(data_file,
+                                                                    std::ios::binary | std::ios::out | std::ios::in),
+                                     last_ver);
 }
 
 void WriteIntToFile(const std::shared_ptr<std::fstream>& file, int value) {
@@ -188,4 +264,15 @@ int ReadIntoFromFile(const std::shared_ptr<std::fstream>& file) {
     int res;
     file->read(reinterpret_cast<char*>(&res), sizeof(int));
     return res;
+}
+int GetVersion(const std::string& file_name) {
+    return std::stoi(file_name.substr(Constants::VERSION.size(), file_name.find('_')));
+}
+
+double CheckFileHashSum(const std::shared_ptr<DB_FILE>& file) {
+    double saved_hash_sum = 0;
+    file->meta_file->seekp(-Constants::MD_HASH_SUM, std::ios::end);
+    file->meta_file->read(reinterpret_cast<char*>(&saved_hash_sum), Constants::MD_HASH_SUM);
+    std::cout << saved_hash_sum << std::endl;
+    return 1;
 }
