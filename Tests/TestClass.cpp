@@ -805,7 +805,7 @@ TEST(SERVER_TEST_WHERE, TEST5) {
 
 TEST(SERVER_TEST_JOIN, TEST1) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name varchar(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
@@ -819,7 +819,7 @@ TEST(SERVER_TEST_JOIN, TEST1) {
 
 TEST(SERVER_TEST_JOIN, TEST2) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name varchar(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
@@ -840,10 +840,10 @@ TEST(SERVER_TEST_JOIN, TEST2) {
 
 TEST(SERVER_TEST_JOIN, TEST3) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name varchar(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
-                              {"CREATE TABLE jk(id INT NOT NULL , some float, name varchar(150));", "Success"},
+                              {"CREATE TABLE jk(id INT NOT NULL , some float, name CHAR(150));", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
                               {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
@@ -868,7 +868,7 @@ TEST(SERVER_TEST_WHERE, TEST6) {
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-                              {"SELECT * from fn where id = name;", "Table fn:\n"}});
+                              {"SELECT * from fn where id = name;", "Success"}});
 }
 
 TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
