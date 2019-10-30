@@ -195,39 +195,42 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table, cons
     return Message();
 }
 
+std::string
+ActionsUtils::checkSelectColumns(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values,
+                                 const std::vector<std::pair<std::string, std::string>>& selectCols) {
+    {
+        if (values.empty()) {
+            return "";
+        }
+        std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> printVal;
+        std::map<std::pair<std::string, std::string>, int> colsIndex;
+        int strSize = values[0].size();
+        int count = 0;
+        for (auto& val : values[0]) {
+            colsIndex.insert(std::make_pair(val.first, count));
+            count++;
+        }
+        count = 0;
+        for (auto& str : values) {
+            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> colVals;
+            for (auto& col : selectCols) {
+                if (col.second != "*") {
+                    colVals.push_back(str[colsIndex[col]]);
+                } else {
+                    for (auto& val : values[count]) {
+                        colVals.push_back(val);
+                    }
+                }
+            }
+            printVal.push_back(colVals);
+            count++;
+        }
+        return ActionsUtils::getSelectMessage(printVal);
+    }
+}
 
 std::string
 ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values) {
-    if (values.empty()) {
-        return "";
-    }
-    std::vector<std::vector<std::pair<std::string, std::string>>> printVal;
-    std::map<std::string, int> colsIndex;
-    int strSize = values[0].size();
-    int count = 0;
-    for (auto& val : values[0]) {
-        colsIndex.insert(std::make_pair(val.first, count));
-        count++;
-    }
-    count = 0;
-    for (auto& str : values) {
-        std::vector<std::pair<std::string, std::string>> colVals;
-        for (auto& col : selectCols) {
-            if (col != "*") {
-                colVals.push_back(str[colsIndex[col]]);
-            } else {
-                for (auto& val : values[count]) {
-                    colVals.push_back(val);
-                }
-            }
-        }
-        printVal.push_back(colVals);
-        count++;
-    }
-    return ActionsUtils::getSelectMessage(printVal);
-}
-
-std::string ActionsUtils::getSelectMessage(std::vector<Record> values) {
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;

@@ -38,11 +38,12 @@ class ActionsUtils {
 
     Message checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
                             const std::vector<ActionsUtils::Record>& records, bool isUpdate = false);
+
+    static std::string
+    checkSelectColumns(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values,
+                       const std::vector<std::pair<std::string, std::string>>& selectCols);
     static std::string
     getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values);
-
-    static std::string checkSelectColumns(std::vector<Record> values, const std::vector<std::string>& selectCols);
-    static std::string getSelectMessage(std::vector<Record> values);
     static std::string getTableInfo(const std::shared_ptr<Table>& table, int includeCols);
     static std::vector<Record> getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor);
 
