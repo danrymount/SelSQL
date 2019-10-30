@@ -1,5 +1,6 @@
 #include "Headers/FileManager.h"
 #include <memory>
+
 #include "../Utils/Structures/Data/DataBlock.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
@@ -8,6 +9,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
                                 Constants::META_FILE_TYPE;
     std::shared_ptr<std::fstream> meta_file = std::make_shared<std::fstream>(new_file_name,
                                                                              std::ios::binary | std::ios::out | std::ios::trunc);
+    files_[table->name]->meta_file = meta_file;
     meta_file->seekp(0, std::ios::beg);
     std::string name;
     name.reserve(Constants::MD_COLUMN_NAME_SIZE);
@@ -26,11 +28,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         }
     }
 
-    //    std::cerr << Constants::DATA_BLOCK_START_POS - 4 << std::endl;
     WriteIntToFile(meta_file, table->record_amount);
-    double hash_sum = 50323;
-    meta_file->write(reinterpret_cast<char*>(&hash_sum), sizeof(double));
-    meta_file->close();
 }
 
 void FileManager::ReadTableMetaData(const std::string& table_name) {
@@ -72,7 +70,7 @@ int FileManager::OpenFile(const std::string& table_name) {
     if (!fs::exists(directory)) {
         return 1;
     }
-    std::shared_ptr<DB_FILE> dbFile = FindLastVersion(table_name);
+    std::shared_ptr<DB_FILE> dbFile = FindLastVersion(table_name, 100);
 
     if (!dbFile->isOpen()) {
         dbFile->close();
@@ -82,7 +80,13 @@ int FileManager::OpenFile(const std::string& table_name) {
     //    std::cout<<dbFile->data_file->is_open();
     files_[table_name] = dbFile;
     ReadTableMetaData(table_name);
-    CheckFileHashSum(dbFile);
+    if (!CheckFileHashSum(dbFile)) {
+        std::cout << "ОТКАТ" << std::endl;
+        dbFile = FindLastVersion(table_name, dbFile->version - 1);
+        files_[table_name] = dbFile;
+        ReadTableMetaData(table_name);
+    }
+
     return 0;
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
@@ -104,8 +108,9 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
                                                     std::make_shared<std::fstream>(file_name + Constants::DATA_FILE_TYPE,
                                                                                    std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc),
                                                     0);
-
     WriteTableMetaData(table);
+    double hash_sum = 0;
+    files_[table->name]->meta_file->write(reinterpret_cast<char*>(&hash_sum), Constants::MD_HASH_SUM);
 
     CloseAllFiles();
     return 0;
@@ -133,6 +138,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
     int readed_data = 0;
     int offset = 0;
     auto data_file = files_[table_name]->data_file;
+    data_file->seekg(std::ios::beg);
     auto table = table_data[table_name];
     if (table->record_amount == 0) {
         auto dataBlock = std::make_shared<DataBlock>();
@@ -142,7 +148,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         data.emplace_back(dataBlock);
         return data;
     }
-    while (readed_data != table->record_amount) {
+    while (readed_data < table->record_amount) {
         //        std::cerr<<offset<<std::endl;
         auto new_data = new char[Constants::DATA_SIZE];
         auto dataBlock = std::make_shared<DataBlock>();
@@ -172,14 +178,15 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
 void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
     std::string new_file_name = table_name + '/' + Constants::VERSION + std::to_string(files_[table_name]->version) +
                                 '_' + table_name + Constants::DATA_FILE_TYPE;
-    auto data_file = std::make_shared<std::fstream>(new_file_name, std::ios::binary | std::ios::out | std::ios::trunc);
+    auto data_file = std::make_shared<std::fstream>(new_file_name,
+                                                    std::ios::binary | std::ios::out | std::ios::in | std::ios::trunc);
 
     int offset = 0;
     for (const auto& block : data) {
         if (block->record_amount == 0) {
             continue;
         }
-        //        std::cerr << offset << std::endl;
+        //                std::cerr << offset << std::endl;
         data_file->seekp(offset, std::ios::beg);
         WriteIntToFile(data_file, block->record_amount);
         WriteIntToFile(data_file, block->last_record_pos);
@@ -188,14 +195,16 @@ void FileManager::WriteDataBlocks(const std::string& table_name, const std::vect
         offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
                   Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
                   block->max_deleted_amount * sizeof(short int);
-        //        std::cerr<<offset<<std::endl;
+        //                std::cerr<<offset<<std::endl;
         data_file->seekp(offset, std::ios::beg);
         data_file->write(block->data_, Constants::DATA_SIZE);
-        //        char new_d[Constants::DATA_SIZE];
-        //        data_file->seekg(offset,std::ios::beg);
-        //        data_file->read(new_d,Constants::DATA_SIZE);
+
         offset += Constants::DATA_SIZE;
     }
+
+    //    std::cout<<offset<<std::endl;
+    double hash_sum = CalcHashSum(data_file);
+    files_[table_name]->meta_file->write(reinterpret_cast<char*>(&hash_sum), Constants::MD_HASH_SUM);
     data_file->close();
 }
 
@@ -206,7 +215,8 @@ void FileManager::CloseAllFiles() {
     }
     files_.clear();
 }
-std::shared_ptr<DB_FILE> FileManager::FindLastVersion(const std::string& table_name) {
+std::shared_ptr<DB_FILE> FileManager::FindLastVersion(const std::string& table_name, int max_v) {
+    int max_ver = max_v;
     std::map<std::string, int> version_files = {};
     for (const auto& m_file : fs::directory_iterator(table_name)) {
         std::string name_without_type;
@@ -215,9 +225,13 @@ std::shared_ptr<DB_FILE> FileManager::FindLastVersion(const std::string& table_n
         if (type != Constants::META_FILE_TYPE) {
             continue;
         }
+
         name_without_type = name;
         name_without_type.erase(name_without_type.end() - Constants::DATA_FILE_TYPE.size(), name_without_type.end());
         name_without_type.erase(name_without_type.begin(), name_without_type.begin() + name_without_type.find('/') + 1);
+        if (GetVersion(name_without_type) > max_ver) {
+            fs::remove_all(m_file.path());
+        }
         //        std::cerr << name_without_type << std::endl;
         version_files[name_without_type] = 0;
     }
@@ -231,6 +245,9 @@ std::shared_ptr<DB_FILE> FileManager::FindLastVersion(const std::string& table_n
         name_without_type = name;
         name_without_type.erase(name_without_type.end() - Constants::DATA_FILE_TYPE.size(), name_without_type.end());
         name_without_type.erase(name_without_type.begin(), name_without_type.begin() + name_without_type.find('/') + 1);
+        if (GetVersion(name_without_type) > max_ver) {
+            fs::remove_all(d_file.path());
+        }
         //        std::cerr << name_without_type << std::endl;
         if (version_files.find(name_without_type) != version_files.end()) {
             version_files[name_without_type] = 1;
@@ -269,10 +286,22 @@ int GetVersion(const std::string& file_name) {
     return std::stoi(file_name.substr(Constants::VERSION.size(), file_name.find('_')));
 }
 
-double CheckFileHashSum(const std::shared_ptr<DB_FILE>& file) {
+int CheckFileHashSum(const std::shared_ptr<DB_FILE>& file) {
     double saved_hash_sum = 0;
     file->meta_file->seekp(-Constants::MD_HASH_SUM, std::ios::end);
     file->meta_file->read(reinterpret_cast<char*>(&saved_hash_sum), Constants::MD_HASH_SUM);
-    std::cout << saved_hash_sum << std::endl;
-    return 1;
+    if (saved_hash_sum == CalcHashSum(file->data_file)) {
+        return 1;
+    }
+    return 0;
+}
+double CalcHashSum(const std::shared_ptr<std::fstream>& file) {
+    double res = 0;
+    char c;
+    file->seekg(std::ios::beg);
+    while (file->get(c)) {
+        res += (std::fmod(pow(res, 3), (double)7.0) + 131 * c) / 3;
+    }
+    file->clear();
+    return res;
 }

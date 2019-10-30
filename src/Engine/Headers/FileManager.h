@@ -32,9 +32,10 @@ struct DB_FILE {
     };
     int isOpen() { return meta_file->is_open() and data_file->is_open(); }
 };
-double CheckFileHashSum(const std::shared_ptr<DB_FILE>& file);
+int CheckFileHashSum(const std::shared_ptr<DB_FILE>& file);
 void WriteIntToFile(const std::shared_ptr<std::fstream>& file, int value);
 int ReadIntoFromFile(const std::shared_ptr<std::fstream>& file);
+double CalcHashSum(const std::shared_ptr<std::fstream>& file);
 
 int GetVersion(const std::string& file_name);
 
@@ -45,7 +46,7 @@ class FileManager {
     void ReadTableMetaData(const std::string& table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
     void WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data);
-    std::shared_ptr<DB_FILE> FindLastVersion(const std::string& table_name);
+    std::shared_ptr<DB_FILE> FindLastVersion(const std::string& table_name, int max_v);
 
    public:
     explicit FileManager() = default;
