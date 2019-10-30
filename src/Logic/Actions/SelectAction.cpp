@@ -55,7 +55,12 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
             v->setFirstValues(_newRecord);
-            expr->accept(v);
+            try {
+                expr->accept(v);
+            } catch (std::exception &exception) {
+                std::string exc = exception.what();
+                return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+            }
             if (v->getResult()) {
                 records.push_back(_newRecord);
             }
