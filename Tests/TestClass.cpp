@@ -559,16 +559,16 @@
 TEST(SERVER_TEST_SELECT, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
-                   {"INSERT INTO t values(0);", "Success"},
-                   {"INSERT INTO t values(1);", "Success"},
+                              {"INSERT INTO t values(0);", "Success"},
+                              {"INSERT INTO t values(1);", "Success"},
                               {"SELECT * from t;", "\nid|\n0 |\n1 |\n"}});
 }
 
 TEST(SERVER_TEST_SELECT, TEST2) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE b(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
-                   {"INSERT INTO b values(0, 10);", "Success"},
-                   {"INSERT INTO b values(1, 20);", "Success"},
+                              {"INSERT INTO b values(0, 10);", "Success"},
+                              {"INSERT INTO b values(1, 20);", "Success"},
                               {"SELECT * from b;", "\nid|age|\n0 |10 |\n1 |20 |\n"}});
 }
 
@@ -602,9 +602,9 @@ TEST(SERVER_TEST_SELECT, TEST5) {
 TEST(SERVER_TEST_CREATE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
-                    "char(50));",
-                    "Success"},
-                   {"INSERT INTO bb values(1, 10.5, 'Vasya');", "Success"},
+                               "char(50));",
+                               "Success"},
+                              {"INSERT INTO bb values(1, 10.5, 'Vasya');", "Success"},
                               {"SHOW CREATE TABLE bb;",
                                "CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age FLOAT NOT NULL UNIQUE, name "
                                "CHAR(50));"},
@@ -613,9 +613,10 @@ TEST(SERVER_TEST_CREATE, TEST1) {
 
 TEST(SERVER_TEST_CREATE, TEST2) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE bbb(id INT PRIMARY KEY, age float NOT NULL, name char(50) UNIQUE);", "Success"},
-                   {"INSERT INTO bbb values(0, 10.5, 'Vasya');", "Success"},
-                   {"SHOW CREATE TABLE bbb;",
+    TestUtils::checkRequests({{"CREATE TABLE bbb(id INT PRIMARY KEY, age float NOT NULL, name char(50) UNIQUE);",
+                               "Success"},
+                              {"INSERT INTO bbb values(0, 10.5, 'Vasya');", "Success"},
+                              {"SHOW CREATE TABLE bbb;",
                                "CREATE TABLE bbb(id INT PRIMARY KEY, age FLOAT NOT NULL, name CHAR(50) UNIQUE);"},
                               {"SELECT * from bbb;", "\nid|age      |name   |\n0 |10.500000|'Vasya'|\n"}});
 }
@@ -631,24 +632,24 @@ TEST(SERVER_TEST_CREATE, TEST3) {
 TEST(SERVER_TEST_UPDATE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE c(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
-                   {"INSERT INTO c values(1, 20);", "Success"},
-                   {"UPDATE c SET id = 8;", "Success"},
+                              {"INSERT INTO c values(1, 20);", "Success"},
+                              {"UPDATE c SET id = 8;", "Success"},
                               {"SELECT * from c;", "\nid|age|\n8 |20 |\n"}});
 }
 
 TEST(SERVER_TEST_UPDATE, TEST2) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE d(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
-                   {"INSERT INTO d values(10, 20);", "Success"},
-                   {"UPDATE d SET id = 15, age = 9;", "Success"},
+                              {"INSERT INTO d values(10, 20);", "Success"},
+                              {"UPDATE d SET id = 15, age = 9;", "Success"},
                               {"SELECT * from d;", "\nid|age|\n15|9  |\n"}});
 }
 
 TEST(SERVER_TEST_UPDATE, TEST3) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE dd(age float PRIMARY KEY, name char(100));", "Success"},
-                   {"INSERT INTO dd values(1.5, 'Petya');", "Success"},
-                   {"UPDATE dd SET age = 5.5, name = 'Vasya';", "Success"},
+                              {"INSERT INTO dd values(1.5, 'Petya');", "Success"},
+                              {"UPDATE dd SET age = 5.5, name = 'Vasya';", "Success"},
                               {"SELECT * from dd;", "\nage     |name   |\n5.500000|'Vasya'|\n"}});
 }
 
@@ -673,34 +674,34 @@ TEST(SERVER_TEST_UPDATE, TEST5) {
 TEST(SERVER_TEST_DELETE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
-                   {"DELETE FROM e;", "Success"},
+                              {"DELETE FROM e;", "Success"},
                               {"SELECT * from e;", "Success"}});
 }
 
 TEST(SERVER_TEST_DELETE, TEST2) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE f(id INT , age int NOT NULL);", "Success"},
-                   {"INSERT INTO f values(10, 20);", "Success"},
-                   {"INSERT INTO f values(1, 2);", "Success"},
-                   {"DELETE FROM f;", "Success"},
+                              {"INSERT INTO f values(10, 20);", "Success"},
+                              {"INSERT INTO f values(1, 2);", "Success"},
+                              {"DELETE FROM f;", "Success"},
                               {"SELECT * from f;", "Success"}});
 }
 
 TEST(SERVER_TEST_DELETE, TEST3) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ff(id INT , age float NOT NULL, name char(75));", "Success"},
-                   {"INSERT INTO ff values(10, 2.0, 'Vvv');", "Success"},
-                   {"INSERT INTO ff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
-                   {"DELETE FROM ff;", "Success"},
+                              {"INSERT INTO ff values(10, 2.0, 'Vvv');", "Success"},
+                              {"INSERT INTO ff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
+                              {"DELETE FROM ff;", "Success"},
                               {"SELECT * from ff;", "Success"}});
 }
 
 TEST(SERVER_TEST_DELETE, TEST4) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fff(id INT , age float NOT NULL, name char(75));", "Success"},
-                   {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
-                   {"INSERT INTO fff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
-                   {"DELETE FROM fff where id = 1;", "Success"},
+                              {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
+                              {"INSERT INTO fff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
+                              {"DELETE FROM fff where id = 1;", "Success"},
                               {"SELECT * from fff;", "\nid|age     |name |\n10|2.000000|'Vvv'|\n"},
                               {"DELETE FROM fff where name = 'Vvv';", "Success"},
                               {"SELECT * from fff;", "Success"}});
@@ -709,8 +710,8 @@ TEST(SERVER_TEST_DELETE, TEST4) {
 TEST(SERVER_TEST_ALL, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fe(id INT , age int NOT NULL);", "Success"},
-                   {"INSERT INTO fe values(10, 20);", "Success"},
-                   {"INSERT INTO fe values(1, 2);", "Success"},
+                              {"INSERT INTO fe values(10, 20);", "Success"},
+                              {"INSERT INTO fe values(1, 2);", "Success"},
                               {"SELECT * from fe;", "\nid|age|\n10|20 |\n1 |2  |\n"},
                               {"UPDATE fe SET id = 5;", "Success"},
                               {"SELECT * from fe;", "\nid|age|\n5 |20 |\n5 |2  |\n"}});
@@ -719,8 +720,8 @@ TEST(SERVER_TEST_ALL, TEST1) {
 TEST(SERVER_TEST_WHERE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fr(id INT , age int NOT NULL);", "Success"},
-                   {"INSERT INTO fr values(10, 20);", "Success"},
-                   {"INSERT INTO fr values(1, 2);", "Success"},
+                              {"INSERT INTO fr values(10, 20);", "Success"},
+                              {"INSERT INTO fr values(1, 2);", "Success"},
                               {"SELECT * from fr where id = 2;", "Success"},
                               {"SELECT * from fr where id = 1;", "\nid|age|\n1 |2  |\n"},
                               {"UPDATE fr SET id = 5 where id = 4;", "Success"},
@@ -734,8 +735,8 @@ TEST(SERVER_TEST_WHERE, TEST1) {
 TEST(SERVER_TEST_WHERE, TEST2) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ft(id INT , age int NOT NULL);", "Success"},
-                   {"INSERT INTO ft values(10, 20);", "Success"},
-                   {"INSERT INTO ft values(1, 2);", "Success"},
+                              {"INSERT INTO ft values(10, 20);", "Success"},
+                              {"INSERT INTO ft values(1, 2);", "Success"},
                               {"SELECT * from ft where id = 4*(7-2) - 10;", "\nid|age|\n10|20 |\n"},
                               {"SELECT * from ft where id = 1 or id = 2;", "\nid|age|\n1 |2  |\n"},
                               {"UPDATE ft SET id = 5 where id = 2 and id = 1;", "Success"},
@@ -747,9 +748,9 @@ TEST(SERVER_TEST_WHERE, TEST2) {
 TEST(SERVER_TEST_WHERE, TEST3) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fy(id INT NOT NULL , age float, name char(150));", "Success"},
-                   {"INSERT INTO fy values(1, 2.9, 'sfsf');", "Success"},
-                   {"INSERT INTO fy values(2, 3.789, 'qwerty');", "Success"},
-                   {"INSERT INTO fy values(3, 0.789, 'hgfdsa');", "Success"},
+                              {"INSERT INTO fy values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fy values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO fy values(3, 0.789, 'hgfdsa');", "Success"},
                               {"SELECT * from fy where id + 1 = id + 1;",
                                "\nid|age     |name    |\n1 |2.900000|'sfsf'  |\n2 |3.789000|'qwerty'|\n3 "
                                "|0.789000|'hgfdsa'|\n"},
@@ -766,9 +767,9 @@ TEST(SERVER_TEST_WHERE, TEST3) {
 TEST(SERVER_TEST_WHERE, TEST4) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fo(id INT NOT NULL , age float, name char(150));", "Success"},
-                   {"INSERT INTO fo values(1, 2.9, 'sfsf');", "Success"},
-                   {"INSERT INTO fo values(2, 3.789, 'qwerty');", "Success"},
-                   {"INSERT INTO fo values(3, 0.789, 'hgfdsa');", "Success"},
+                              {"INSERT INTO fo values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fo values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO fo values(3, 0.789, 'hgfdsa');", "Success"},
                               {"SELECT * from fo where id + 5 = id + 1;", "Success"},
                               {"SELECT * from fo where not(id = (1+7)*2 - 13 or id = 2 and age = 3.789) and name = "
                                "'sfsf';",
@@ -785,9 +786,9 @@ TEST(SERVER_TEST_WHERE, TEST4) {
 TEST(SERVER_TEST_WHERE, TEST5) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fp(id INT NOT NULL , age float, name char(150));", "Success"},
-                   {"INSERT INTO fp values(1, 2.9, 'sfsf');", "Success"},
-                   {"INSERT INTO fp values(2, 3.789, 'qwerty');", "Success"},
-                   {"INSERT INTO fp values(3, 0.789, 'hgfdsa');", "Success"},
+                              {"INSERT INTO fp values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fp values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO fp values(3, 0.789, 'hgfdsa');", "Success"},
                               {"SELECT * from fp where id + 5 > id + 1;",
                                "\nid|age     |name    |\n1 |2.900000|'sfsf'  |\n2 |3.789000|'qwerty'|\n3 "
                                "|0.789000|'hgfdsa'|\n"},
@@ -914,7 +915,7 @@ TEST(SERVER_TEST_INSERT, TEST4) {
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
-                   {"CREATE TABLE i(id INT);", "Table already exists ERROR: 1"}});
+                              {"CREATE TABLE i(id INT);", "Table already exists ERROR: 1"}});
     TestUtils::clear();
 }
 
@@ -928,7 +929,7 @@ TEST(SERVER_TEST_ERROR, TEST2) {
 TEST(SERVER_TEST_ERROR, TEST3) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE k(id INT UNIQUE);", "Success"},
-                   {"insert into k values(1);", "Success"},
+                              {"insert into k values(1);", "Success"},
                               {"insert into k values(2);", "Success"},
                               {"insert into k values(1);", "Value already exists, use UNIQUE value ERROR: 9"}});
     TestUtils::clear();
@@ -937,7 +938,7 @@ TEST(SERVER_TEST_ERROR, TEST3) {
 TEST(SERVER_TEST_ERROR, TEST4) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
-                   {"insert into m values(1, 2);", "Success"},
+                              {"insert into m values(1, 2);", "Success"},
                               {"insert into m values(null, null);", "Null values unavailable ERROR: 8"}});
     TestUtils::clear();
 }
@@ -977,7 +978,7 @@ TEST(SERVER_TEST_ERROR, TEST9) {
 TEST(SERVER_TEST_ERROR, TEST10) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT NOT NULL);", "Success"},
-                   {"insert into asas(id) values(1);", "Null values unavailable ERROR: 8"}});
+                              {"insert into asas(id) values(1);", "Null values unavailable ERROR: 8"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST11) {
@@ -989,7 +990,7 @@ TEST(SERVER_TEST_ERROR, TEST11) {
 TEST(SERVER_TEST_ERROR, TEST12) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);", "Success"},
-                   {"DROP TABLE asas;", "Success"},
+                              {"DROP TABLE asas;", "Success"},
                               {"insert into asas values (1, 5.5);", "Table doesn`t exist ERROR: 2"}});
 }
 
