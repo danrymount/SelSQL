@@ -10,552 +10,6 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
-//// TEST(CREATE_TEST, TEST2) {
-////    std::string str = "CREATE TABLE name1(ID INT);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ("name1", res.ddlData.table.name);
-////    auto field = *(res.ddlData.table.getFields().begin());
-////    EXPECT_EQ("ID", field.first);
-////    EXPECT_EQ(0, field.second.type);
-////}
-//// TEST(CREATE_TEST, TEST3) {
-////    std::string str = "CREATE TABLE name2(col1 FLOAT NOT NULL);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ("name2", res.ddlData.table.name);
-////    auto field = *(res.ddlData.table.getFields().begin());
-////    EXPECT_EQ("col1", field.first);
-////    EXPECT_EQ(1, field.second.type);
-////    EXPECT_EQ(0, field.second.getConstraints()[0]);
-////}
-////// TEST(CREATE_TEST, TEST4) {
-//////    std::string str = "CREATE TABLE name3(col1 BOOLEAN UNIQUE, col2 INT PRIMARY KEY);";
-//////    res = parse_request(str.c_str());
-//////    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-//////                                                             Variable(BOOLEAN, std::vector<Constraint>{UNIQUE})},
-//////                                                            {"col2",
-//////                                                             Variable(INT,
-/// std::vector<Constraint>{PRIMARY_KEY})}};
-//////    Error err;
-//////    BigResponse obj(CREATE, "name3", DDLdata(Table(string("name"), fields), ""), DMLdata(), DQLdata(), err);
-//////    TestUtils::compareTables(obj, res);
-//////}
-////
-//// TEST(CREATE_TEST, TEST5) {
-////    std::string str = "CREATE TABLE name4(col1 INT UNIQUE NOT NULL, col2 CHAR, col3 FLOAT NOT NULL);";
-////    res = parse_request(str.c_str());
-////    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-////                                                             Variable(TYPE_INT,
-////                                                                      std::vector<Constraint>{UNIQUE, NOT_NULL})},
-////                                                            {"col2", Variable(TYPE_CHAR,
-/// std::vector<Constraint>{})}, /                                                            {"col3", /
-/// Variable(TYPE_FLOAT, / std::vector<Constraint>{NOT_NULL})}}; /    Error err; /    BigResponse obj(CREATE, "name4",
-/// DDLdata(Table("name4", fields), ""), DMLdata(), DQLdata(), err); /    TestUtils::compareTables(obj, res);
-////}
-////// TEST(CREATE_TEST, TEST6) {
-//////    std::string str = "CREATE TABLE name5(col1 FLOAT UNIQUE PRIMARY KEY, col2 CHAR NOT NULL PRIMARY KEY UNIQUE,
-/// col3
-/////" /                      "BOOLEAN);"; /    res = parse_request(str.c_str()); / std::vector<std::pair<std::string,
-///// Variable>> fields = {{"col1", /                                                             Variable(FLOAT, /
-///// std::vector<Constraint>{UNIQUE, PRIMARY_KEY})}, / {"col2", Variable(CHAR, std::vector<Constraint>{NOT_NULL, /
-///// PRIMARY_KEY, / UNIQUE})}, / {"col3", Variable(BOOLEAN, std::vector<Constraint>{})}}; /    Error err; / BigResponse
-///// obj(CREATE, "name5", DDLdata(Table("name5", fields),
-/////""), DMLdata(), DQLdata(), err); /    TestUtils::compareTables(obj, res);
-//////}
-////// TEST(CREATE_TEST, TEST7) {
-//////    std::string str = "CREATE TABLE name6(col1 BOOLEAN , col2 CHAR , col3 INT);";
-//////    res = parse_request(str.c_str());
-//////    std::vector<std::pair<std::string, Variable>> fields = {{"col1", Variable(BOOLEAN,
-/// std::vector<Constraint>{})},
-//////                                                            {"col2", Variable(CHAR, std::vector<Constraint>{})},
-//////                                                            {"col3", Variable(INT, std::vector<Constraint>{})}};
-//////    Error err;
-//////    BigResponse obj(CREATE, "name6", DDLdata(Table("name6", fields), ""), DMLdata(), DQLdata(), err);
-//////    TestUtils::compareTables(obj, res);
-//////}
-//// TEST(CREATE_TEST, TEST8) {
-////    std::string str = "CREATE TABLE name7(col1 CHAR UNIQUE, col2 INT NOT NULL, col3 CHAR PRIMARY KEY); ";
-////    res = parse_request(str.c_str());
-////    std::vector<std::pair<std::string, Variable>> fields = {{"col1",
-////                                                             Variable(FLOAT,
-////                                                                      std::vector<Constraint>{UNIQUE,
-/// PRIMARY_KEY})}, /                                                            {"col2", Variable(CHAR,
-/// std::vector<Constraint>{NOT_NULL, / PRIMARY_KEY, / UNIQUE})}, / {"col3", Variable(BOOLEAN,
-/// std::vector<Constraint>{})}}; /    Error err; /    BigResponse obj(CREATE, "name5", DDLdata(Table("name5", fields),
-///""), DMLdata(), DQLdata(), err); /    TestUtils::compareTables(obj, res);
-////}
-//// TEST(CREATE_TEST, TEST7) {
-////    std::string str = "CREATE TABLE name6(col1 BOOLEAN , col2 CHAR , col3 INT);";
-////    res = parse_request(str.c_str());
-////    std::vector<std::pair<std::string, Variable>> fields = {{"col1", Variable(BOOLEAN, std::vector<Constraint>{})},
-////                                                            {"col2", Variable(CHAR, std::vector<Constraint>{})},
-////                                                            {"col3", Variable(INT, std::vector<Constraint>{})}};
-////    Error err;
-////    BigResponse obj(CREATE, "name6", DDLdata(Table("name6", fields), ""), DMLdata(), DQLdata(), err);
-////    TestUtils::compareTables(obj, res);
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST1) {
-////    std::string str = "";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected $end (Str num 1, sym num 0): ", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST2) {
-////    std::string str = "c";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 1): c", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST3) {
-////    std::string str = "CREAT TABLE name1(ID INT);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): CREAT", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST4) {
-////    std::string str = "CREATE TABLE name1(1565 INT);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 21): 1565",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST5) {
-////    std::string str = "CREATE TABLE name1(ID IN);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting TYPE (Str num 1, sym num 21): IN",
-/// res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST6) {
-////    std::string str = "CREATE TABLE name1(ID INT NOT NU);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or BRACKET or CONSTRAINT (Str num 1, sym num 25):
-////    NOT",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST7) {
-////    std::string str = "CREATE TABLE name1( );";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected BRACKET, expecting STRING (Str num 1, sym num 18): )",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST8) {
-////    std::string str = "inser into y values ('s');";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): inser", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST9) {
-////    std::string str = "insert ino y values('s');";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 6): insert", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST10) {
-////    std::string str = "insert into t vles('asas');";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting BRACKET or VALUES (Str num 1, sym num 16): vles",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST11) {
-////    std::string str = "insert into t ('asas');";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 14): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST12) {
-////    std::string str = "insert into t values(asas);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 23): asas",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST13) {
-////    std::string str = "insert into values(asas);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected VALUES, expecting STRING (Str num 1, sym num 17): values",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST14) {
-////    std::string str = "insert into kkkk values ('asas', 3.14)";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 34): ",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST15) {
-////    std::string str = "insert into kkkk values ('asas', 3.14) whre a = 'd';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 38): whre",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST16) {
-////    std::string str = "insert into kkkk values ('asas', 3.14) where 'a' = 'd';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 40): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST17) {
-////    std::string str = "insert into kkkk values ('asas', 3.14) where a ? 'd';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected OTHER, expecting EQUALLY or SIGN (Str num 1, sym num 41): ?",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST18) {
-////    std::string str = "delte from a;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): delte", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST19) {
-////    std::string str = "delete fro a;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 6): delete", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST20) {
-////    std::string str = "delete from 'asdas';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 12): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST21) {
-////    std::string str = "delete from 1;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 12): 1",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST22) {
-////    std::string str = "delete from t (where a = b);";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected BRACKET, expecting SEMICOLON (Str num 1, sym num 13): (",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST23) {
-////    std::string str = "upate t set a = '5';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): upate", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST24) {
-////    std::string str = "update 't' set a = '5';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 7): '",
-/// res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST25) {
-////    std::string str = "update t se a = '5';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting SET (Str num 1, sym num 9): se", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST26) {
-////    std::string str = "update t set 'a' = 's';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 11): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST27) {
-////    std::string str = "update t set 5 = 's';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 11): 5",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST28) {
-////    std::string str = "update t set a 's';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting EQUALLY (Str num 1, sym num 12): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST29) {
-////    std::string str = "update t set a = ;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected SEMICOLON, expecting NUMBER or STROKE or VALNULL or FLOATNUM (Str num 1, sym
-///" /              "num 13): ;", /              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST30) {
-////    std::string str = "update t set a = 5 whee a = b;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 17): whee",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST31) {
-////    std::string str = "update t set a = 5 where a  b;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting EQUALLY or SIGN (Str num 1, sym num 20): b",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST32) {
-////    std::string str = "selec * from t;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 5): selec", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST33) {
-////    std::string str = "select ** from t;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected OTHER, expecting STRING or ALL (Str num 1, sym num 8): **",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST34) {
-////    std::string str = "select 'sdf' from t;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING or ALL (Str num 1, sym num 7): '",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST35) {
-////    std::string str = "select sdf fsdd from t;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or FROM (Str num 1, sym num 13): fsdd",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST36) {
-////    std::string str = "select sdf frm t;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting COMMA or FROM (Str num 1, sym num 12): frm",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST37) {
-////    std::string str = "select * from 't';";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 12): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST38) {
-////    std::string str = "select * from 5;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 12): 5",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST39) {
-////    std::string str = "select * from ttt whre a = 5;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting SEMICOLON (Str num 1, sym num 18): whre",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST40) {
-////    std::string str = "select * from ttt where 'a' = 5;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STROKE, expecting STRING (Str num 1, sym num 20): '",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST41) {
-////    std::string str = "select * from ttt where a  5;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting EQUALLY or SIGN (Str num 1, sym num 21): 5",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST42) {
-////    std::string str = "dro table ddd;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 3): dro", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST43) {
-////    std::string str = "drop tale ddd;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting TABLE (Str num 1, sym num 8): tale",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST44) {
-////    std::string str = "drop table 15;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 11): 15",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST45) {
-////    std::string str = "drop table asd, asd;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 13): ,",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST46) {
-////    std::string str = "sho create table h;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 3): sho", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST47) {
-////    std::string str = "show crate table h;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING (Str num 1, sym num 4): show", res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST48) {
-////    std::string str = "show create tale h;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected STRING, expecting TABLE (Str num 1, sym num 15): tale",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST49) {
-////    std::string str = "show create table 5;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected NUMBER, expecting STRING (Str num 1, sym num 17): 5",
-////    res.error.getErrorMsg());
-////}
-////
-//// TEST(SYNTAX_ERROR_TEST, TEST50) {
-////    std::string str = "show create table aa, df;";
-////    res = parse_request(str.c_str());
-////    EXPECT_EQ(1, res.error.getErrorCode());
-////    EXPECT_EQ("syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 19): ,",
-////              res.error.getErrorMsg());
-////}
-////
-//// TEST(ERROR_TEST, TEST1) {
-////    str = "CREATE TABLE name1(ID INT);";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    str = "CREATE TABLE name1(ID INT);";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(ErrorConstants::ERR_TABLE_EXISTS, res.error.getErrorCode());
-////    EXPECT_EQ(ErrorConstants::ERR_TABLE_EXISTS_str, res.error.getErrorMsg());
-////    str = "DROP TABLE name1;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(ERROR_TEST, TEST2) {
-////    str = "CREATE TABLE a(id INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "insert into a(id, id, id) values (1, 2, 3);";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(7, res.error.getErrorCode());
-////    // EXPECT_EQ(ErrorConstants::ERR_SAME_COLUMN, res.error.getErrorMsg());
-////    str = "DROP TABLE a;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SHOW_CREATE, TEST1) {
-////    std::string str = "CREATE TABLE name2(ID INT);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SHOW CREATE TABLE name2;";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    EXPECT_EQ("CREATE TABLE name2(ID INT );", res.ddlData.returnMsg);
-////    str = "DROP TABLE name2;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-////
-//// TEST(SHOW_CREATE, TEST111) {
-////    std::string str = "CREATE TABLE name2(ID INT );";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    auto show_str = "SHOW CREATE TABLE name2;";
-////    res = parse_request(show_str);
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    EXPECT_EQ(str, res.ddlData.returnMsg);
-////    str = "DROP TABLE name2;";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////}
-//
-//// TEST(SHOW_CREATE, TEST2) {
-////    str = "CREATE TABLE name3(ID INT PRIMARY KEY);";
-////    res = parse_request(str.c_str());
-////    MainLogic::executeRequest(res);
-////    str = "SHOW CREATE TABLE name3;";
-////    res = parse_request(str.c_str());
-////    res = MainLogic::executeRequest(res);
-////    EXPECT_EQ(0, res.error.getErrorCode());
-////    str = "DROP TABLE name3;";
-////    BigResponse result = parse_request(str.c_str());
-////    result = MainLogic::executeRequest(result);
-////    EXPECT_EQ(0, result.error.getErrorCode());
-////    result = parse_request(res.ddlData.returnMsg.c_str());
-////    result = MainLogic::executeRequest(result);
-////    EXPECT_EQ(0, result.error.getErrorCode());
-////    // EXPECT_EQ(res.ddlData.table.name, result.ddlData.table.name);
-////}
-
 TEST(SERVER_TEST_SELECT, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
@@ -669,6 +123,30 @@ TEST(SERVER_TEST_UPDATE, TEST5) {
                               {"update qg set id = 3 where id = 2;", "Success"},
                               {"select * from qg;", "\nid|\n1 |\n3 |\n"}});
 }
+
+TEST(SERVER_TEST_UPDATE, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"update qg set id = 1;", "Success"},
+                              {"select * from qg;", "\nid|\n1 |\n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST7) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"update qg set id = 2+2*2;", "Success"},
+                              {"select * from qg;", "\nid|\n6 |\n"}});
+}
+
+// TEST(SERVER_TEST_UPDATE, TEST8) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+//                              {"insert into qg values (1);", "Success"},
+//                              {"update qg set id = -3*(2+2*2)+6*2.5*id;", "Success"},
+//                              {"select * from qg;", "\nid|\n-3|\n"}});
+//}
 
 TEST(SERVER_TEST_DELETE, TEST1) {
     TestUtils::clear();
@@ -803,9 +281,17 @@ TEST(SERVER_TEST_WHERE, TEST5) {
                                "\nid|age     |name    |\n3 |0.789000|'hgfdsa'|\n"}});
 }
 
+TEST(SERVER_TEST_WHERE, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn where id = name;", "Success"}});
+}
+
 TEST(SERVER_TEST_JOIN, TEST1) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
@@ -813,13 +299,16 @@ TEST(SERVER_TEST_JOIN, TEST1) {
                               {"INSERT INTO jg values(1, 3.5);", "Success"},
                               {"INSERT INTO jg values(2, 3.7);", "Success"},
                               {"INSERT INTO jg values(3, 2.9);", "Success"},
-                              {"SELECT * from jj join jg on jj.id = jg.id;", ""},
-                              {"SELECT j1.id, j2.name from jj as j1 join jj as j2 on j1.id = j2.id;", ""}});
+                              {"SELECT * from jj join jg on jj.id = jg.id;",
+                               "\njj.id|jj.age  |jj.name |jg.id|jg.age  |\n1    |2.900000|'sfsf'  |1    |3.500000|\n2  "
+                               "  |3.789000|'qwerty'|2    |3.700000|\n"},
+                              {"SELECT j1.id, j2.name from jj as j1 join jj as j2 on j1.id = j2.id;",
+                               "\nj1.id|j2.name  |\n1    |'sfsf'   |\n2    |'qwerty' |\n5    |'qwesdfy'|\n"}});
 }
 
 TEST(SERVER_TEST_JOIN, TEST2) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
@@ -832,18 +321,21 @@ TEST(SERVER_TEST_JOIN, TEST2) {
                               {"INSERT INTO jh values(1, 3.7);", "Success"},
                               {"INSERT INTO jh values(2, 3.789);", "Success"},
                               {"SELECT * from (jj as j1 join jg as j2 on j1.id = j2.id) join jh on j1.age = jh.some;",
-                               ""},
+                               "\nj1.id|j1.age  |j1.name |j2.id|j2.age  |jh.id|jh.some |\n2    |3.789000|'qwerty'|2    "
+                               "|3.700000|2    |3.789000|\n"},
                               {"SELECT * from jh as j3 join (jj as j1 join jg as j2 on j1.age = j2.age) on j3.id = "
                                "j2.id;",
-                               ""}});
+                               "\nj3.id|j3.some |j1.id|j1.age  |j1.name  |j2.id|j2.age  |\n3    |9.500000|1    "
+                               "|2.900000|'sfsf'   |3    |2.900000|\n2    |3.789000|5    |3.700000|'qwesdfy'|2    "
+                               "|3.700000|\n"}});
 }
 
 TEST(SERVER_TEST_JOIN, TEST3) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name CHAR(150));", "Success"},
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
                               {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
-                              {"CREATE TABLE jk(id INT NOT NULL , some float, name CHAR(150));", "Success"},
+                              {"CREATE TABLE jk(id INT NOT NULL , some float, name char(150));", "Success"},
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
                               {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
@@ -856,19 +348,32 @@ TEST(SERVER_TEST_JOIN, TEST3) {
                               {"INSERT INTO jk values(1, 3, 'sfsf');", "Success"},
                               {"SELECT * from (jj as j1 join jg as j2 on j1.age = j2.age) join (jk join jh on jk.id = "
                                "jh.id) on j1.name = jk.name;",
-                               ""},
+                               "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jk.id|jk.some |jk.name|jh.id|jh.some |\n1    "
+                               "|2.900000|'sfsf' |3    |2.900000|1    |3.000000|'sfsf' |1    |3.700000|\n"},
                               {"SELECT * from ((jk join jg on jk.id = jg.id) join (jj as j1 join jg as j2 on j1.id = "
                                "j2.id) on jk.id = jg.id) join (jj as j3 join jg as j4 on j3.age = j4.age) on j1.id = "
                                "j4.id;",
-                               ""}});
+                               "\njk.id|jk.some |jk.name|jg.id|jg.age  |j1.id|j1.age  |j1.name |j2.id|j2.age  "
+                               "|j3.id|j3.age  |j3.name  |j4.id|j4.age  |\n1    |3.000000|'sfsf' |1    |3.500000|2    "
+                               "|3.789000|'qwerty'|2    |3.700000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST6) {
+TEST(SERVER_TEST_JOIN, TEST4) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
-                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-                              {"SELECT * from fn where id = name;", "Success"}});
+    TestUtils::checkRequests({{"CREATE TABLE jl(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE jp(id INT NOT NULL , age float);", "Success"},
+                              {"INSERT INTO jl values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO jl values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO jl values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO jp values(1, 3.5);", "Success"},
+                              {"INSERT INTO jp values(2, 3.7);", "Success"},
+                              {"INSERT INTO jp values(3, 2.9);", "Success"},
+                              {"SELECT * from jl join jp on jl.id = jl.id and jl.age = jp.age;",
+                               "\njl.id|jl.age  |jl.name  |jp.id|jp.age  |\n1    |2.900000|'sfsf'   |3    "
+                               "|2.900000|\n5    |3.700000|'qwesdfy'|2    |3.700000|\n"},
+                              {"SELECT j1.id, j2.age from jl as j1 join jp as j2 on j1.id = j2.id or j1.age = j2.age;",
+                               "\nj1.id|j2.age  |\n1    |3.500000|\n1    |2.900000|\n2    |3.700000|\n5    "
+                               "|3.700000|\n"}});
 }
 
 TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
@@ -887,7 +392,7 @@ TEST(SERVER_TEST_INSERT, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qwe(id CHAR(50));", "Success"},
                               {"insert into qwe values (1);", "Success"},
-                              {"select * from qwe;", "Table qwe:\nid|\n1 |\n"}});
+                              {"select * from qwe;", "\nid |\n'1'|\n"}});
 }
 
 TEST(SERVER_TEST_INSERT, TEST2) {
@@ -901,14 +406,56 @@ TEST(SERVER_TEST_INSERT, TEST3) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(20));", "Success"},
                               {"insert into qh values (2.2);", "Success"},
-                              {"select * from qh;", "\nid      |\n2.200000|\n"}});  // TODO 2.2 или 2.200000?
+                              {"select * from qh;", "\nid        |\n'2.200000'|\n"}});
 }
 
 TEST(SERVER_TEST_INSERT, TEST4) {
     TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id int);", "Success"},
+                              {"insert into qh values (1);", "Success"},
+                              {"select * from qh;", "\nid|\n1 |\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(20));", "Success"},
+                              {"insert into qh values ('dgdf dfg %');", "Success"},
+                              {"select * from qh;", "\nid          |\n'dgdf dfg %'|\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id float);", "Success"},
+                              {"insert into qh values (55.55);", "Success"},
+                              {"select * from qh;", "\nid       |\n55.550000|\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST7) {
+    TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(50));", "Success"},
                               {"insert into qh values ('ssdf 77 & % sdfsdf*/sdf''s');", "Success"},
                               {"select * from qh;", "\nid                         |\n'ssdf 77 & % sdfsdf*/sdf's'|\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST8) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
+                              {"insert into qh(id) values (6663);", "Success"},
+                              {"select * from qh;", "\nid  |name|\n6663|    |\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST9) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
+                              {"insert into qh(name, id) values ('sdf', 6663);", "Success"},
+                              {"select * from qh;", "\nid        |\n'2.200000'|\n"}});  // TODO инсерт в любом порядке
+}
+
+TEST(SERVER_TEST_INSERT, TEST10) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
+                              {"insert into qh values (666, 'sfd');", "Success"},
+                              {"select * from qh;", "\nid |name |\n666|'sfd'|\n"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST1) {
@@ -1017,7 +564,7 @@ TEST(SERVER_TEST_ERROR, TEST16) {
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
                               {"insert into qg values (2);", "Success"},
-                              {"update qg set id = 2;", ""}});  // TODO проверка уникальности при апдейте
+                              {"update qg set id = 2;", "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST17) {
@@ -1025,7 +572,8 @@ TEST(SERVER_TEST_ERROR, TEST17) {
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
                               {"insert into qg values (2);", "Success"},
-                              {"update qg set id = 2 where id = 1;", ""}});  // TODO проверка уникальности при апдейте
+                              {"update qg set id = 2 where id = 1;",
+                               "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST18) {
@@ -1033,7 +581,7 @@ TEST(SERVER_TEST_ERROR, TEST18) {
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
                               {"insert into qg values (2);", "Success"},
-                              {"update qg set id = 3;", ""}});  // TODO проверка уникальности при апдейте
+                              {"update qg set id = 3;", "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST19) {
@@ -1071,6 +619,51 @@ TEST(SERVER_TEST_ERROR, TEST22) {
                               {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
                               {"SELECT * from fn where qqq = poi;",
                                "Table fn:\n"}});  // TODO проверять существование колонки
+}
+
+TEST(SERVER_TEST_ERROR, TEST23) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn join nf on fn.id = nf.id;", "Table doesn`t exist ERROR: 2"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST24) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn as f1 join fn on f1.id = fn.id11;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST25) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn join fn on fn.id = fn.id;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST26) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn join fn on f1.id = fn.id;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST27) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"SELECT dgdfg, id from fn;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST28) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9);", "Invalid count of columns and values ERROR: 5"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST0) {
@@ -1262,3 +855,61 @@ TEST(SERVER_TEST_SYN_ERROR, TEST30) {
     TestUtils::checkRequests({{"insert t values(7);",
                                "syntax error, unexpected IDENT, expecting INTO (Str num 1, sym num 7): t"}});
 }
+
+TEST(SERVER_TEST_SYN_ERROR, TEST31) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t join tt;",
+                               "syntax error, unexpected SEMICOLON, expecting ON (Str num 1, sym num 19): ;"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST32) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t jon tt on t.id = tt.id;",
+                               "syntax error, unexpected IDENT, expecting SEMICOLON (Str num 1, sym num 15): jon"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST33) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t as join tt on t.id = tt.id;",
+                               "syntax error, unexpected JOIN, expecting IDENT (Str num 1, sym num 18): join"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST34) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t a t1 join tt on t.id = tt.id;",
+                               "syntax error, unexpected IDENT, expecting SEMICOLON (Str num 1, sym num 13): a"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST35) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t as t1 join tt t.id = tt.id;",
+                               "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST36) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t();",
+                               "syntax error, unexpected RBRACKET, expecting IDENT (Str num 1, sym num 14): )"}});
+}
+
+// TEST(SERVER_TEST_SYN_STRESS, TEST1) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
+//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
+//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
+//                              //funChangeFile()
+//                              {"select * from jj;", "Success"}});
+//}
+//
+// TEST(SERVER_TEST_SYN_STRESS, TEST2) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
+//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
+//                              //funChangeFile()
+//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
+//                              //funChangeFile()
+//                              //funChangeFile()
+//                              {"select * from jj;", "Success"}});
+//}
