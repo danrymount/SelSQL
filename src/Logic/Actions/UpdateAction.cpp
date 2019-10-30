@@ -72,6 +72,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     std::vector<ActionsUtils::Record> records;
+    std::vector<ActionsUtils::Record> allrecords;
     // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
     if (cursor.first->record_amount) {
@@ -90,64 +91,38 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (v->getResult()) {
                 records.emplace_back(record);
             }
+            allrecords.emplace_back(record);
         } while (!cursor.second->Next());
-    }
-    cursor.second->Reset();
+        cursor.second->Reset();
 
-    do {
-        auto _record = cursor.second->Fetch();
-        for (auto &record : records) {
-            if (_record != record) {
-                continue;
-            }
-            message = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
-            if (message.getErrorCode()) {
-                return message;
-            }
-            // TODO сменить входные параметры
-            std::vector<std::string> columns;
-            std::vector<std::string> values;
-            for (auto &colValue : updateColumns) {
-                columns.emplace_back(colValue.first);
-                values.emplace_back(colValue.second);
-            }
-            try {
-                cursor.second->Update(columns, values);
-            } catch (std::exception &exception) {
-                return Message(ErrorConstants::ERR_STO);
-            }
+        // TODO сменить входные параметры
+        std::vector<std::string> columns;
+        std::vector<std::string> values;
+        for (auto &colValue : updateColumns) {
+            columns.emplace_back(colValue.first);
+            values.emplace_back(colValue.second);
         }
 
-    } while (!cursor.second->Next());
+        message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
+        if (message.getErrorCode()) {
+            return message;
+        }
+        do {
+            auto _record = cursor.second->Fetch();
+            for (auto &record : records) {
+                if (_record != record) {
+                    continue;
+                }
 
-    cursor.second->Reset();
+                try {
+                    cursor.second->Update(columns, values);
+                } catch (std::exception &exception) {
+                    return Message(ErrorConstants::ERR_STO);
+                }
+            }
 
-    //    do {
-    //        auto record = cursor.second->Fetch();
-    //
-    //        if (record.empty()) {
-    //            continue;
-    //        }
-    //
-    //        v->setValues(record);
-    //        expr->accept(getTreeVisitor().get());
-    //        if (v->getResult()) {
-    //            error = actionsUtils.checkConstraint(updateColumns, cursor.first, records, true);
-    //            if (error.getErrorCode()) {
-    //                return error;
-    //            }
-    //            // TODO сменить входные параметры
-    //            std::vector<std::string> columns;
-    //            std::vector<std::string> values;
-    //            for (auto &colValue : updateColumns) {
-    //                columns.emplace_back(colValue.first);
-    //                values.emplace_back(colValue.second);
-    //            }
-    //            cursor.second->Update(columns, values);
-    //        }
-    //
-    //    } while (!cursor.second->Next());
-
+        } while (!cursor.second->Next());
+    }
     cursor.second->Reset();
 
     return message;
