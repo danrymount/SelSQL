@@ -572,6 +572,34 @@ TEST(SERVER_TEST_SELECT, TEST2) {
                               {"SELECT * from b;", "Table b:\nid|age|\n0 |10 |\n1 |20 |\n"}});
 }
 
+TEST(SERVER_TEST_SELECT, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bz(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
+                              {"INSERT INTO bz values(0, 10);", "Success"},
+                              {"INSERT INTO bz values(1, 20);", "Success"},
+                              {"SELECT id from bz;", "Table bz:\nid|\n0 |\n1 |\n"}});
+}
+
+TEST(SERVER_TEST_SELECT, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bx(id INT PRIMARY KEY, age int NOT NULL, name CHAR(50));", "Success"},
+                              {"INSERT INTO bx values(0, 10, 'sdf');", "Success"},
+                              {"INSERT INTO bx values(1, 20, 'tyty');", "Success"},
+                              {"SELECT id, age, name from bx;",
+                               "Table bx:\nid|age|name  |\n0 |10 |'sdf' |\n1 |20 |'tyty'|\n"}});
+}
+
+TEST(SERVER_TEST_SELECT, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bc(id INT PRIMARY KEY, age int NOT NULL, name CHAR(50));", "Success"},
+                              {"INSERT INTO bc values(0, 10, 'sdf');", "Success"},
+                              {"INSERT INTO bc values(1, 20, 'tyty');", "Success"},
+                              {"SELECT *, id, age, name, * from bc;",
+                               "Table bc:\nid|age|name  |id|age|name  |id|age|name "
+                               " |\n0 |10 |'sdf' |0 |10 |'sdf' |0 |10 |'sdf' |\n1 |20 |'tyty'|1 |20 |'tyty'|1 |20 "
+                               "|'tyty'|\n"}});
+}
+
 TEST(SERVER_TEST_CREATE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
@@ -591,6 +619,14 @@ TEST(SERVER_TEST_CREATE, TEST2) {
                    {"SHOW CREATE TABLE bbb;",
                                "CREATE TABLE bbb(id INT PRIMARY KEY, age FLOAT NOT NULL, name CHAR(50) UNIQUE);"},
                               {"SELECT * from bbb;", "Table bbb:\nid|age      |name   |\n0 |10.500000|'Vasya'|\n"}});
+}
+
+TEST(SERVER_TEST_CREATE, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE bbbb(id INT, age float, name char(30));", "Success"},
+                              {"INSERT INTO bbbb values(0, 10.5, 'Vasya');", "Success"},
+                              {"SHOW CREATE TABLE bbbb;", "CREATE TABLE bbbb(id INT, age FLOAT, name CHAR(30));"},
+                              {"SELECT * from bbbb;", "Table bbbb:\nid|age      |name   |\n0 |10.500000|'Vasya'|\n"}});
 }
 
 TEST(SERVER_TEST_UPDATE, TEST1) {
@@ -615,6 +651,24 @@ TEST(SERVER_TEST_UPDATE, TEST3) {
                    {"INSERT INTO dd values(1.5, 'Petya');", "Success"},
                    {"UPDATE dd SET age = 5.5, name = 'Vasya';", "Success"},
                               {"SELECT * from dd;", "Table dd:\nage     |name   |\n5.500000|'Vasya'|\n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"insert into qg values (2);", "Success"},
+                              {"update qg set id = 2 where id = 2;", "Success"},
+                              {"select * from qg;", "Table qg:\nid|\n1 |\n2 |\n"}});
+}
+
+TEST(SERVER_TEST_UPDATE, TEST5) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"insert into qg values (2);", "Success"},
+                              {"update qg set id = 3 where id = 2;", "Success"},
+                              {"select * from qg;", "Table qg:\nid|\n1 |\n3 |\n"}});
 }
 
 TEST(SERVER_TEST_DELETE, TEST1) {
@@ -750,6 +804,14 @@ TEST(SERVER_TEST_WHERE, TEST5) {
                                "Table fp:\nid|age     |name    |\n3 |0.789000|'hgfdsa'|\n"}});
 }
 
+TEST(SERVER_TEST_WHERE, TEST6) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
+                              {"SELECT * from fn where id = name;", "Table fn:\n"}});
+}
+
 TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE g(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
@@ -762,6 +824,35 @@ TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
                               {"SHOW CREATE TABLE h;", "CREATE TABLE h(id INT);"}});
 }
 
+TEST(SERVER_TEST_INSERT, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qwe(id CHAR(50));", "Success"},
+                              {"insert into qwe values (1);", "Success"},
+                              {"select * from qwe;", "Table qwe:\nid|\n1 |\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qd(id int);", "Success"},
+                              {"insert into qd values (22.22);", "Success"},
+                              {"select * from qd;", "Table qd:\nid|\n22|\n"}});
+}
+
+TEST(SERVER_TEST_INSERT, TEST3) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(20));", "Success"},
+                              {"insert into qh values (2.2);", "Success"},
+                              {"select * from qh;", "Table qh:\nid      |\n2.200000|\n"}});  // TODO 2.2 или 2.200000?
+}
+
+TEST(SERVER_TEST_INSERT, TEST4) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(50));", "Success"},
+                              {"insert into qh values ('ssdf 77 & % sdfsdf*/sdf''s');", "Success"},
+                              {"select * from qh;",
+                               "Table qh:\nid                         |\n'ssdf 77 & % sdfsdf*/sdf's'|\n"}});
+}
+
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
@@ -769,11 +860,12 @@ TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
 }
 
-// TEST(SERVER_TEST_ERROR, TEST2) {
-//    TestUtils::clear();
-//   TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
-//                              {"insert into j values('sdfsdf');", ""}});
-//}
+TEST(SERVER_TEST_ERROR, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
+                              {"insert into j values('sdfsdf');",
+                               "Value is out of range OR is not a number ERROR: 12"}});
+}
 
 TEST(SERVER_TEST_ERROR, TEST3) {
     TestUtils::clear();
@@ -848,6 +940,70 @@ TEST(SERVER_TEST_ERROR, TEST13) {
     TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
                               {"insert into j values(159753159753);",
                                "Int oversize (Str num 1, sym num 30): 159753159753"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST14) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qw(id INT UNIQUE, id1 FLOAT);", "Success"},
+                              {"insert into qw(id, id) values (1, 3);", "Same column in request ERROR: 7"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST15) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qe(id CHAR(10));", "Success"},
+                              {"insert into qe values ('qwertyuiopqwertyuio');", ""}});  // TODO слишком длинный чар
+}
+
+TEST(SERVER_TEST_ERROR, TEST16) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"insert into qg values (2);", "Success"},
+                              {"update qg set id = 2;", ""}});  // TODO проверка уникальности при апдейте
+}
+
+TEST(SERVER_TEST_ERROR, TEST17) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"insert into qg values (2);", "Success"},
+                              {"update qg set id = 2 where id = 1;", ""}});  // TODO проверка уникальности при апдейте
+}
+
+TEST(SERVER_TEST_ERROR, TEST21) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
+                              {"insert into qg values (1);", "Success"},
+                              {"insert into qg values (2);", "Success"},
+                              {"update qg set id = 3;", ""}});  // TODO проверка уникальности при апдейте
+}
+
+TEST(SERVER_TEST_ERROR, TEST18) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique, name char(50));", "Success"},
+                              {"insert into qg values (1, 'qwe');", "Success"},
+                              {"insert into qg values (2, 'ewq');", "Success"},
+                              {"select * from qg where id = name + 1;", "Types mismatch ERROR: 11"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST19) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(256));", "Success"},
+                              {"insert into qh values ('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "q"
+                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "q"
+                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');",
+                               ""}});  // TODO слишком длинный чар
+}
+
+TEST(SERVER_TEST_ERROR, TEST20) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(1));", "Success"},
+                              {"insert into qh values ('');", "Success"},
+                              {"insert into qh values ('a');", "Success"},
+                              {"insert into qh values ('aa');", ""}});  // TODO слишком длинный чар
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST0) {

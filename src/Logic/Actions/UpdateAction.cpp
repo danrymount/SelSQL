@@ -81,7 +81,12 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 continue;
             }
             v->setValues(record);
-            expr->accept(getTreeVisitor().get());
+            try {
+                expr->accept(getTreeVisitor().get());
+            } catch (std::exception &exception) {
+                std::string exc = exception.what();
+                return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+            }
             if (v->getResult()) {
                 records.emplace_back(record);
             }
@@ -106,7 +111,11 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 columns.emplace_back(colValue.first);
                 values.emplace_back(colValue.second);
             }
-            cursor.second->Update(columns, values);
+            try {
+                cursor.second->Update(columns, values);
+            } catch (std::exception &exception) {
+                return Message(ErrorConstants::ERR_STO);
+            }
         }
 
     } while (!cursor.second->Next());

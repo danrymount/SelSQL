@@ -7,7 +7,7 @@
 
 Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
-    auto v = static_cast<DeleteVisitor*>(getTreeVisitor().get());
+    auto v = static_cast<DeleteVisitor *>(getTreeVisitor().get());
     auto expr = v->getExpr();
 
     cursor = getEngine().GetCursor(v->getTableName());
@@ -23,14 +23,19 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     do {
-        //TODO Получает пустые записи
+        // TODO Получает пустые записи
         auto record = cursor.second->Fetch();
         if (record.empty()) {
             continue;
         }
 
         v->setValues(record);
-        expr->accept(getTreeVisitor().get());
+        try {
+            expr->accept(v);
+        } catch (std::exception &exception) {
+            std::string exc = exception.what();
+            return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+        }
         if (v->getResult()) {
             //            delete_count++;
             cursor.second->Delete();

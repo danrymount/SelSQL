@@ -43,6 +43,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return Message(ActionsUtils::getTableInfo(table, 0));
         }
 
+
         cursor.second->Reset();
         do {
             auto _record = cursor.second->Fetch();

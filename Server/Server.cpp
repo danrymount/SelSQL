@@ -8,7 +8,7 @@
 
 std::mutex m;
 
-std::string ExecuteRequest(std::string request) {
+std::string ExecuteRequest(const std::string &request) {
     std::lock_guard<std::mutex> guard(m);
     auto parser_msg = new std::string();
     auto visitor = new TreeVisitor();

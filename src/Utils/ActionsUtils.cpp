@@ -6,7 +6,7 @@
 #include <queue>
 #include <utility>
 
-std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> table) {
+std::string ActionsUtils::makeRequestCreateFromTable(const std::shared_ptr<Table>& table) {
     const char space = ' ';
     const char semicolon = ';';
     const char comma = ',';
@@ -41,7 +41,7 @@ std::string ActionsUtils::makeRequestCreateFromTable(std::shared_ptr<Table> tabl
     return str;
 }
 
-int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec, std::shared_ptr<Table> table) {
+int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec, const std::shared_ptr<Table>& table) {
     for (int i = 0; i < oldRec.size(); ++i) {
         auto tableCol = table->getFields()[i];
         if (tableCol.first == oldRec[i].first) {
@@ -65,9 +65,8 @@ int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec,
     return 0;
 }
 
-Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::string>> updateColumns,
-                                      std::shared_ptr<Table> table, std::vector<ActionsUtils::Record> records,
-                                      bool isUpdate) {
+Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
+                                      const std::vector<ActionsUtils::Record>& records, bool isUpdate) {
     Message error;
     std::string colName;
     int countSameVal = 0;
@@ -142,8 +141,8 @@ Message ActionsUtils::checkConstraint(std::vector<std::pair<std::string, std::st
     return error;
 }
 
-Message ActionsUtils::checkNotNull(std::string newVal, std::string oldVal) {
-    std::string temp = newVal;
+Message ActionsUtils::checkNotNull(std::string newVal, const std::string& oldVal) {
+    std::string temp = std::move(newVal);
     std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
     if (temp == "null") {
         return Message(ErrorConstants::ERR_NOT_NULL);
@@ -151,7 +150,7 @@ Message ActionsUtils::checkNotNull(std::string newVal, std::string oldVal) {
     return Message();
 }
 
-Message ActionsUtils::checkUnique(std::string newVal, std::string oldVal) {
+Message ActionsUtils::checkUnique(std::string newVal, const std::string& oldVal) {
     std::string val;
     if (newVal[0] == '\'') {
         val = newVal.substr(1, newVal.length() - 1);
@@ -164,7 +163,7 @@ Message ActionsUtils::checkUnique(std::string newVal, std::string oldVal) {
     return Message();
 }
 
-Message ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
+Message ActionsUtils::checkPrimaryKey(const std::string& newVal, const std::string& oldVal) {
     Message err = checkNotNull(newVal, oldVal);
     if (err.getErrorCode()) {
         return err;
@@ -176,8 +175,7 @@ Message ActionsUtils::checkPrimaryKey(std::string newVal, std::string oldVal) {
     return Message();
 }
 
-Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
-                                       const std::vector<std::pair<std::string, std::string>>& updateColumns) {
+Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table, const Record& updateColumns) {
     std::vector<int> existCols;
     for (auto& col : updateColumns) {
         //проверить для insert и update
@@ -197,17 +195,46 @@ Message ActionsUtils::checkFieldsExist(const std::shared_ptr<Table>& table,
     return Message();
 }
 
+
 std::string
 ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values) {
     if (values.empty()) {
         return "";
     }
+    std::vector<std::vector<std::pair<std::string, std::string>>> printVal;
+    std::map<std::string, int> colsIndex;
+    int strSize = values[0].size();
+    int count = 0;
+    for (auto& val : values[0]) {
+        colsIndex.insert(std::make_pair(val.first, count));
+        count++;
+    }
+    count = 0;
+    for (auto& str : values) {
+        std::vector<std::pair<std::string, std::string>> colVals;
+        for (auto& col : selectCols) {
+            if (col != "*") {
+                colVals.push_back(str[colsIndex[col]]);
+            } else {
+                for (auto& val : values[count]) {
+                    colVals.push_back(val);
+                }
+            }
+        }
+        printVal.push_back(colVals);
+        count++;
+    }
+    return ActionsUtils::getSelectMessage(printVal);
+}
+
+std::string ActionsUtils::getSelectMessage(std::vector<Record> values) {
     std::string str;
     std::vector<int> len;
     std::stringstream stringstream;
     stringstream << "\n";
     int n = values.size();
     int strSize = values[0].size();
+    len.reserve(strSize);
     for (int i = 0; i < strSize; i++) {
         if (values[0][i].first.first.size() > 0) {
             len.push_back(values[0][i].first.first.length() + 1 + values[0][i].first.second.length());
@@ -236,13 +263,6 @@ ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::
         stringstream << "|";
     }
     stringstream << std::endl;
-    //    for (int i = 0; i < strSize; i++) {
-    //        for (int j = 0; j < len[i]; j++) {
-    //            stringstream << "_";
-    //        }
-    //        stringstream << "|";
-    //    }
-    //    stringstream << std::endl;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < strSize; j++) {
             stringstream << values[i][j].second;
@@ -256,6 +276,7 @@ ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::
     }
     return stringstream.str();
 }
+
 std::string ActionsUtils::getTableInfo(const std::shared_ptr<Table>& table, int includeCols) {
     std::stringstream stringstream;
     stringstream << "Table " << table->name << ":" << std::endl;
@@ -267,4 +288,74 @@ std::string ActionsUtils::getTableInfo(const std::shared_ptr<Table>& table, int 
     }
 
     return stringstream.str();
+}
+int ActionsUtils::isNumbers(const std::string& a, const std::string& b) {
+    if (std::isdigit(*a.c_str()) && std::isdigit(*b.c_str()))
+        return 1;
+    return 0;
+}
+int ActionsUtils::isChars(const std::string& a, const std::string& b) {
+    if (std::isalpha(*a.c_str()) && std::isalpha(*b.c_str()))
+        return 1;
+    return 0;
+}
+int ActionsUtils::compareEquals(const std::string& a, const std::string& b) {
+    if (!isNumbers(a, b)) {
+        // auto c = a.substr(1, a.length() - 2);
+        // if (isChars(c, b)) {
+        return a == b;
+        //}
+    }
+    return std::stod(a) == std::stod(b);
+}
+int ActionsUtils::compareMore(const std::string& a, const std::string& b) {
+    if (!isNumbers(a, b)) {
+        // auto c = a.substr(1, a.length() - 2);
+        // if (isChars(c, b)) {
+        return a > b;
+        //}
+    }
+    return std::stod(a) > std::stod(b);
+}
+int ActionsUtils::compareMoreEq(const std::string& a, const std::string& b) {
+    if (!isNumbers(a, b)) {
+        // auto c = a.substr(1, a.length() - 2);
+        // if (isChars(c, b)) {
+        return a >= b;
+        //}
+    }
+    return std::stod(a) >= std::stod(b);
+}
+int ActionsUtils::compareLess(const std::string& a, const std::string& b) {
+    if (!isNumbers(a, b)) {
+        // auto c = a.substr(1, a.length() - 2);
+        // if (isChars(c, b)) {
+        return a < b;
+        //}
+    }
+    return std::stod(a) < std::stod(b);
+}
+int ActionsUtils::compareLessEq(const std::string& a, const std::string& b) {
+    if (!isNumbers(a, b)) {
+        // auto c = a.substr(1, a.length() - 2);
+        // if (isChars(c, b)) {
+        return a <= b;
+        //}
+    }
+    return std::stod(a) <= std::stod(b);
+}
+std::vector<ActionsUtils::Record>
+ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor) {
+    std::vector<Record> records;
+
+    cursor.second->Reset();
+    do {
+        auto record = cursor.second->Fetch();
+        if (!record.empty()) {
+            records.emplace_back(record);
+        }
+
+    } while (!cursor.second->Next());
+    cursor.second->Reset();
+    return records;
 }
