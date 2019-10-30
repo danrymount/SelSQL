@@ -268,7 +268,7 @@ col_select:
 
 alias:
     AS IDENT {
-	$$ = new IdentNode(std::string($2))
+	$$ = new IdentNode(std::string($2));
     }|
     /*empty*/ {
 	$$ = nullptr;
