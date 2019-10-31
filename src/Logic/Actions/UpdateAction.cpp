@@ -58,17 +58,12 @@
 Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto v = static_cast<UpdateVisitor *>(getTreeVisitor().get());
-    auto updateColumns = v->getUpdates();
+    auto updateExpr = v->getUpdateExpr();
     auto expr = v->getExpr();
     cursor = getEngine().GetCursor(v->getTableName());
     auto table = cursor.first;
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
-    }
-
-    message = ActionsUtils::checkFieldsExist(table, updateColumns);
-    if (message.getErrorCode()) {
-        return message;
     }
 
     std::vector<ActionsUtils::Record> records;
@@ -84,6 +79,12 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             v->setValues(record);
             try {
                 expr->accept(getTreeVisitor().get());
+                updateExpr->accept(getTreeVisitor().get());
+                auto updateColumns = v->getUpdates();
+                message = ActionsUtils::checkFieldsExist(table, updateColumns);
+                if (message.getErrorCode()) {
+                    return message;
+                }
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
