@@ -33,7 +33,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
-    if (columns[0] == "*" and (values.size() != cursor.first->getFields().size())) {
+    if (!columns.empty() && columns[0] == "*" && (values.size() != cursor.first->getFields().size())) {
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
@@ -47,14 +47,38 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     std::vector<std::pair<std::string, std::string>> columnsValues;
 
+    std::vector<int> checkExists;
+    if (!columns.empty() && columns[0] != "*") {
+        for (auto &field : table->getFields()) {
+            for (auto &col : columns) {
+                if (field.first == col) {
+                    checkExists.emplace_back(1);
+                }
+            }
+        }
+
+        if (checkExists.size() != columns.size()) {
+            return Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+        }
+    }
+
     for (int i = 0; i < table->getFields().size(); i++) {
         std::pair<std::string, std::string> curColValue;
-        if (columns[0] == "*") {
-            columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
-            continue;
+        auto tableFiels = cursor.first->getFields()[i];
+        if (!columns.empty()) {
+            if (columns[0] == "*") {
+                if (!tableFiels.second.size || tableFiels.second.size >= values[i].length()) {
+                    columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
+                    continue;
+                }
+            }
         }
-        if (i < values.size()) {
-            columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
+        auto it = std::find(columns.begin(), columns.end(), tableFiels.first);
+        if (it != columns.end()) {
+            auto index = std::distance(columns.begin(), it);
+            if (!tableFiels.second.size || tableFiels.second.size >= values[index].length()) {
+                columnsValues.emplace_back(std::make_pair(columns[index], values[index]));
+            }
         } else {
             columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, ""));
         }
