@@ -23,11 +23,11 @@ FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
 link_libraries(stdc++fs)
 if (UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-    add_executable(Server main.cpp Linux/LinuxServer.h Linux/LinuxServer.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h)
+    add_executable(Server main.cpp Linux/LinuxServer.h Linux/LinuxServer.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h ../src/Engine/Headers/EngineUtils.h ../src/Engine/EngineUtils.cpp)
 
 endif ()
 
 if (WIN32)
-    add_executable(Server main.cpp Win/WinServer.cpp Win/WinServer.h ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h)
+    add_executable(Server main.cpp Win/WinServer.cpp Win/WinServer.h ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h ../src/Engine/Headers/EngineUtils.h ../src/Engine/EngineUtils.cpp)
     target_link_libraries(Server ws2_32)
 endif ()
