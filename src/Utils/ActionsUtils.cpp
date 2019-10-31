@@ -91,7 +91,7 @@ Message ActionsUtils::checkConstraintFroUpdate(const ActionsUtils::Record& updat
                     std::transform(curVal.begin(), curVal.end(), curVal.begin(),
                                    [](unsigned char c) { return std::tolower(c); });
                     if (constraint == NOT_NULL || constraint == PRIMARY_KEY) {
-                        if (curVal == "null") {
+                        if (curVal == "null" || curVal == "") {
                             return Message(ErrorConstants::ERR_NOT_NULL);
                         }
                     }
@@ -229,7 +229,7 @@ Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::sh
 Message ActionsUtils::checkNotNull(std::string newVal, const std::string& oldVal) {
     std::string temp = std::move(newVal);
     std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (temp == "null") {
+    if (temp == "null" || temp == "") {
         return Message(ErrorConstants::ERR_NOT_NULL);
     }
     return Message();

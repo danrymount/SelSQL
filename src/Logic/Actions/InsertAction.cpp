@@ -56,7 +56,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         if (i < values.size()) {
             columnsValues.emplace_back(std::make_pair(columns[i], values[i]));
         } else {
-            columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, "null"));
+            columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, ""));
         }
     }
     std::vector<ActionsUtils::Record> records;
