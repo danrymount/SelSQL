@@ -18,6 +18,7 @@ class ErrorConstants {
     inline static const std::string ERR_NOT_NULL_str = "Null values unavailable";
     inline static const std::string ERR_UNIQUE_str = "Value already exists, use UNIQUE value";
     inline static const std::string ERR_TABLE_FULL_str = "TABLE IS FULL";
+    inline static const std::string ERR_BIG_CHAR_str = "CHAR IS VERY BIG";
 
     inline static const int ERR_TABLE_EXISTS = 1;
     inline static const int ERR_TABLE_NOT_EXISTS = 2;
@@ -31,6 +32,8 @@ class ErrorConstants {
     inline static const int ERR_TABLE_FULL = 10;
     inline static const int ERR_TYPE_MISMATCH = 11;
     inline static const int ERR_STO = 12;
+    inline static const int ERR_BIG_CHAR = 13;
+
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
                                                             {ERR_SAME_CONSTRAINT, ERR_SAME_CONSTRAINT_str},
@@ -42,7 +45,8 @@ class ErrorConstants {
                                                             {ERR_UNIQUE, ERR_UNIQUE_str},
                                                             {ERR_TABLE_FULL, ERR_TABLE_FULL_str},
                                                             {ERR_TYPE_MISMATCH, "Types mismatch"},
-                                                            {ERR_STO, "Value is out of range OR is not a number"}};
+                                                            {ERR_STO, "Value is out of range OR is not a number"},
+                                                            {ERR_BIG_CHAR, ERR_BIG_CHAR_str}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H
