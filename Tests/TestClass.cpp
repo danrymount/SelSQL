@@ -448,7 +448,7 @@ TEST(SERVER_TEST_INSERT, TEST9) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
                               {"insert into qh(name, id) values ('sdf', 6663);", "Success"},
-                              {"select * from qh;", "\nid        |\n'2.200000'|\n"}});  // TODO инсерт в любом порядке
+                              {"select * from qh;", "\nid  |name |\n6663|'sdf'|\n"}});
 }
 
 TEST(SERVER_TEST_INSERT, TEST10) {
