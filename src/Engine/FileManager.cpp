@@ -137,6 +137,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
     std::vector<std::shared_ptr<DataBlock>> data;
     int readed_data = 0;
     int offset = 0;
+    // assert opened
     auto data_file = files_[table_name]->data_file;
     data_file->seekg(std::ios::beg);
     auto table = table_data[table_name];
@@ -149,7 +150,6 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         return data;
     }
     while (readed_data < table->record_amount) {
-        //        std::cerr<<offset<<std::endl;
         auto new_data = new char[Constants::DATA_SIZE];
         auto dataBlock = std::make_shared<DataBlock>();
         data_file->seekg(offset, std::ios::beg);
@@ -186,7 +186,6 @@ void FileManager::WriteDataBlocks(const std::string& table_name, const std::vect
         if (block->record_amount == 0) {
             continue;
         }
-        //                std::cerr << offset << std::endl;
         data_file->seekp(offset, std::ios::beg);
         WriteIntToFile(data_file, block->record_amount);
         WriteIntToFile(data_file, block->last_record_pos);
