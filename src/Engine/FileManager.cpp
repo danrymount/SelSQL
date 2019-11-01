@@ -94,7 +94,7 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     int def_version = 1;
     if (!fs::create_directory(table->name)) {
         for (const auto& file : fs::directory_iterator(table->name)) {
-            std::string name = file.path();
+            std::string name = file.path().string();
             name.erase(name.begin(), name.begin() + table->name.size() + 1);
             int version = std::stoi(name.substr(name.find(Constants::VERSION) + Constants::VERSION.size(),
                                                 name.find('_')));

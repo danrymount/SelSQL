@@ -4,10 +4,17 @@
 
 #ifndef SELSQL_ENGINEUTILS_H
 #define SELSQL_ENGINEUTILS_H
+
 #include <filesystem>
 #include <fstream>
 #include <memory>
 #include "../../Utils/Headers/Constants.h"
+
+#ifdef __WIN32
+#define DIR_SEPARATOR '\\'
+#elif __linux
+#define DIR_SEPARATOR  '/'
+#endif
 
 namespace fs = std::filesystem;
 struct DB_FILE {
