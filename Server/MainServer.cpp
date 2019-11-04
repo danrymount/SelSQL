@@ -23,6 +23,7 @@ std::string ExecuteRequest(const std::string &request) {
         if (!visitor->getMessage().getMsg().empty()) {
             res = visitor->getMessage().getMsg();
         }
+        delete visitor;
         return res;
     }
 }

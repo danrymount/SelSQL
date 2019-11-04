@@ -2,6 +2,8 @@
 // Created by quiks on 13.10.2019.
 //
 #include "Client.h"
+
+#include <cstring>
 #include <iostream>
 Client::Client() {
 #ifdef __WIN32

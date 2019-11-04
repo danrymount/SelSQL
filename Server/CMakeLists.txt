@@ -22,7 +22,7 @@ FILE(GLOB Utils ${SOURCE_DIR}/Utils/*.cpp ${SOURCE_DIR}/Utils/Headers/*.h)
 FILE(GLOB Parser ${SOURCE_DIR}/Parser/*.cpp ${SOURCE_DIR}/Parser/Headers/**.h)
 if (UNIX)
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-    add_executable(Server main.cpp Linux/LinuxServer.h Linux/LinuxServer.cpp ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h)
+    add_executable(Server main.cpp Server.cpp Server.h ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} MainServer.cpp MainServer.h)
 
 endif ()
 

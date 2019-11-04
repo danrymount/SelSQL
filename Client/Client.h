@@ -8,6 +8,7 @@
 #ifdef __WIN32
 #include <winsock2.h>
 #elif __linux
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #endif

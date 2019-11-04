@@ -3,6 +3,7 @@
 //
 
 #include "Server.h"
+#include <cstring>
 #include <iostream>
 
 Server::Server(int max_connection) {
@@ -62,5 +63,5 @@ int Server::AcceptSocket(int id) {
 #ifdef __WIN32
 Server::~Server() { WSACleanup(); }
 #elif __linux
-Server::~Server() { shutdown(server_socket_, SHUT_RDWR); }
+Server::~Server() { shutdown(server_socket, SHUT_RDWR); }
 #endif

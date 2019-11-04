@@ -4,7 +4,7 @@ project(Client)
 set(CMAKE_CXX_STANDARD 17)
 
 if (UNIX)
-    add_executable(Client main.cpp Linux/LinuxClient.cpp Linux/LinuxClient.h main.cpp Exception.h)
+    add_executable(Client main.cpp Client.cpp Client.h)
 endif ()
 
 if (WIN32)
