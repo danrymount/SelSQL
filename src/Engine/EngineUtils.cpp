@@ -45,7 +45,6 @@ buffer_data GetTableBuffer(Table *table) {
     value = table->record_amount;
     std::memcpy(&data[offset], &value, sizeof(value));
     offset += sizeof(value);
-    offset = Constants::MD_SIZE;
     return buffer_data(data, offset);
 }
 std::shared_ptr<Table> ReadTableFromBuffer(char* data) {

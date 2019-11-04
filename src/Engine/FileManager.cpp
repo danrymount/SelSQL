@@ -13,10 +13,13 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
 }
 
 void FileManager::ReadTableMetaData(const std::string& table_name) {
-
     auto meta_file = files_[table_name].meta_file;
-    char buffer[Constants::MD_SIZE];
-    meta_file->read(buffer,Constants::MD_SIZE);
+    meta_file->seekg(0,std::ios::end);
+    int size = meta_file->tellg();
+    meta_file->clear();
+    meta_file->seekg(std::ios::beg);
+    char buffer[size];
+    meta_file->read(buffer, size);
     table_data[table_name] = ReadTableFromBuffer(buffer);
 }
 int FileManager::OpenFile(const std::string& table_name) {
