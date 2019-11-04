@@ -1,12 +1,8 @@
 //
 // Created by quiks on 13.10.2019.
 //
-#ifdef __WIN32
-#include "Win/WinClient.h"
-#elif __linux
-#include "Linux/LinuxClient.h"
-#endif
 #include <iostream>
+#include "Client.h"
 #include "Exception.h"
 int main() {
     std::string message;

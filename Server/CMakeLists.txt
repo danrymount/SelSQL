@@ -27,6 +27,6 @@ if (UNIX)
 endif ()
 
 if (WIN32)
-    add_executable(Server main.cpp Win/WinServer.cpp Win/WinServer.h ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} Server.cpp Server.h)
+    add_executable(Server main.cpp Server.cpp Server.h ${FLEX_Lexer_OUTPUTS} ${Engine} ${Logic} ${Utils} ${Parser} MainServer.cpp MainServer.h)
     target_link_libraries(Server ws2_32)
 endif ()

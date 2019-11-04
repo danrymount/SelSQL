@@ -8,7 +8,7 @@ if (UNIX)
 endif ()
 
 if (WIN32)
-    add_executable(Client main.cpp Win/WinClient.cpp Win/WinClient.h Win/WinClient.cpp Win/WinClient.h)
+    add_executable(Client main.cpp Client.cpp Client.h)
     target_link_libraries(Client ws2_32)
 endif ()
 

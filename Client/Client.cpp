@@ -1,12 +1,14 @@
 //
 // Created by quiks on 13.10.2019.
 //
-#include "WinClient.h"
+#include "Client.h"
 #include <iostream>
 Client::Client() {
+#ifdef __WIN32
     WORD wV = MAKEWORD(2, 2);
     WSADATA d;
     WSAStartup(wV, &d);
+#endif
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (client_socket < 0) {
@@ -24,38 +26,33 @@ Client::Client() {
         throw ClientException();
     }
 }
-int Client::sendMessage(std::string message) {
+void Client::sendMessage(std::string message) {
     message.resize(MESSAGE_SIZE);
-    char m[MESSAGE_SIZE];
-    memcpy(m,message.c_str(),MESSAGE_SIZE);
-    server_connection = send(client_socket, m, MESSAGE_SIZE, 0);
+    server_connection = send(client_socket, message.c_str(), MESSAGE_SIZE, 0);
     if (server_connection <= 0) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
     /* закрываем соединения для посылки данных */
+#ifdef __WIN32
     closesocket(server_connection);
-    return 0;
+#elif __linux
+    shutdown(server_connection, SHUT_RD);
+#endif
 }
-int Client::getMessage() {
+void Client::getMessage() {
     char rec_message[MESSAGE_SIZE];
     fd_set readmask;
     fd_set allreads;
     FD_ZERO(&allreads);
     FD_SET(0, &allreads);
     FD_SET(client_socket, &allreads);
-    for (;;) {
+    while (true) {
         readmask = allreads;
-        if (select(client_socket, &readmask, NULL, NULL, NULL) <= 0) {
-            //            throw ClientException();
-        }
         if (FD_ISSET(client_socket, &readmask)) {
             memset(rec_message, 0, sizeof(rec_message));
             int result = recv(client_socket, rec_message, MESSAGE_SIZE, 0);
-            if (result < 0) {
-                throw ClientException();
-            }
-            if (result == 0) {
+            if (result <= 0) {
                 std::cerr << "Server disconnected" << std::endl;
                 throw ClientException();
             }
@@ -67,20 +64,21 @@ int Client::getMessage() {
             throw ClientException();
         }
     }
-    response = rec_message;
-    return 0;
+    response = std::string(rec_message);
 }
 
-int Client::execRequest(std::string request) {
+void Client::execRequest(std::string request) {
     sendMessage(request);
     getMessage();
-    return 0;
 }
 
 Client::~Client() {
+#ifdef __WIN32
     closesocket(server_connection);
     closesocket(client_socket);
     WSACleanup();
+#elif __linux
+    shutdown(client_socket, SHUT_RDWR);
+    shutdown(server_connection, SHUT_RDWR);
+#endif
 }
-
-#include "WinClient.h"

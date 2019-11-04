@@ -1,26 +1,36 @@
 //
-// Created by quiks on 23.10.2019.
+// Created by quiks on 13.10.2019.
 //
 
-#ifndef SELSQL_SERVER_H
-#define SELSQL_SERVER_H
+#ifndef SERVER_WINSERVER_H
+#define SERVER_WINSERVER_H
 
 #ifdef __WIN32
-#include "Win/WinServer.h"
+#include <winsock2.h>
 #elif __linux
-#include "Linux/LinuxServer.h"
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #endif
-#include <iostream>
-#include <mutex>
-#include <sstream>
-#include <thread>
+#include <memory>
+#include <string>
+#include <vector>
 #include "Exception.h"
 
-#define MAX_CONN 1
-#define DEBUG 1
+static const int MESSAGE_SIZE = 1024;
 
-void RunServer();
-int ListenClient(int id, Server* server);
-std::string ExecuteRequest(const std::string& request);
+class Server {
+    int server_socket;
+    std::vector<int> communication_socket;
+    sockaddr_in addr;
 
-#endif  // SELSQL_SERVER_H
+   public:
+    char recieved_message[MESSAGE_SIZE];
+    explicit Server(int max_connection);
+    int ListenSocket(int id);
+    void SendMessage(std::string response, int id);
+    int AcceptSocket(int id);
+    ~Server();
+};
+
+#endif  // SERVER_WINSERVER_H

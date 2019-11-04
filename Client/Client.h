@@ -5,23 +5,34 @@
 #ifndef CLIENT_WINCLIENT_H
 #define CLIENT_WINCLIENT_H
 
-#include <sys/types.h>
+#ifdef __WIN32
 #include <winsock2.h>
+#elif __linux
+#include <netinet/in.h>
+#include <sys/socket.h>
+#endif
+#include <sys/types.h>
 #include <memory>
 
-#include "../Exception.h"
+#include "Exception.h"
 
 static const int MESSAGE_SIZE = 1024;
 class Client {
+#ifdef __WIN32
     SOCKET client_socket;
     sockaddr_in peer;
     SOCKET server_connection;
-    int sendMessage(std::string message);
-    int getMessage();
+#elif __linux
+    int client_socket;
+    sockaddr_in peer;
+    int server_connection;
+#endif
+    void sendMessage(std::string message);
+    void getMessage();
 
    public:
     std::string response;
-    int execRequest(std::string request);
+    void execRequest(std::string request);
     explicit Client();
     ~Client();
 };
