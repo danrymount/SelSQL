@@ -40,4 +40,6 @@ std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 //std::shared_ptr<DB_FILE> FindLastVersion(const std::string& table_name, int max_v);
 //int GetVersion(const std::string& file_name);
 
+
+class FileNotOpened{};
 #endif  // SELSQL_ENGINEUTILS_H
