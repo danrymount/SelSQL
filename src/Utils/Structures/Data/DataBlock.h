@@ -17,7 +17,10 @@ class DataBlock {
     size_t max_deleted_amount = 0;
     void setDeletedPos(char* pos) { deleted_pos_ = reinterpret_cast<short*>(pos); }
     char* getDeletedPos() { return reinterpret_cast<char*>(deleted_pos_); }
-    void setData(char* pos) { data_ = pos; };
+    void setData(char* pos) {
+      delete[] data_;
+    data_ = pos;
+    };
     DataBlock() { data_ = new char[Constants::DATA_SIZE]; };
 
     ~DataBlock() {

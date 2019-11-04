@@ -47,7 +47,6 @@ void convert(unsigned char *dist, std::string val, Type type) {
 
 void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int start_pos) {
     unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
-    auto temp_val = new unsigned char[Constants::TYPE_SIZE[type]];
     convert(temp_field, std::move(val), type);
     std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
 }

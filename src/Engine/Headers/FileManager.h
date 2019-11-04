@@ -17,7 +17,7 @@
 #include "EngineUtils.h"
 
 class FileManager {
-    std::map<std::string, std::shared_ptr<DB_FILE>> files_;
+    std::map<std::string, DB_FILE> files_;
     std::map<std::string, std::shared_ptr<Table>> table_data;
 
     void ReadTableMetaData(const std::string& table_name);
