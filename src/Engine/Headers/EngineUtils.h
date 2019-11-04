@@ -31,8 +31,8 @@ struct DB_FILE {
 };
 //int CheckFileHashSum(const std::shared_ptr<DB_FILE>& file);
 void WriteIntToFile(std::fstream* file, int value);
-int ReadIntoFromFile(std::fstream* file);
-
+int ReadIntFromFile(std::fstream* file);
+int GetFileSize(std::fstream* file);
 buffer_data GetTableBuffer(Table* table);
 std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 

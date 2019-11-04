@@ -14,10 +14,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
 
 void FileManager::ReadTableMetaData(const std::string& table_name) {
     auto meta_file = files_[table_name].meta_file;
-    meta_file->seekg(0,std::ios::end);
-    int size = meta_file->tellg();
-    meta_file->clear();
-    meta_file->seekg(std::ios::beg);
+    int size = GetFileSize(meta_file);
     char buffer[size];
     meta_file->read(buffer, size);
     table_data[table_name] = ReadTableFromBuffer(buffer);
@@ -113,10 +110,10 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         auto dataBlock = std::make_shared<DataBlock>();
         data_file->seekg(offset, std::ios::beg);
         dataBlock->record_size = table->record_size;
-        dataBlock->record_amount = ReadIntoFromFile(data_file);
+        dataBlock->record_amount = ReadIntFromFile(data_file);
         readed_data += dataBlock->record_amount;
-        dataBlock->last_record_pos = ReadIntoFromFile(data_file);
-        dataBlock->deleted = ReadIntoFromFile(data_file);
+        dataBlock->last_record_pos = ReadIntFromFile(data_file);
+        dataBlock->deleted = ReadIntFromFile(data_file);
         dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
         char* deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
         data_file->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));

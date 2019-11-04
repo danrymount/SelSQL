@@ -6,7 +6,7 @@
 
 void WriteIntToFile(std::fstream *file, int value) { file->write(reinterpret_cast<char *>(&value), sizeof(int)); }
 
-int ReadIntoFromFile(std::fstream *file) {
+int ReadIntFromFile(std::fstream *file) {
     int res;
     file->read(reinterpret_cast<char *>(&res), sizeof(int));
     return res;
@@ -88,6 +88,16 @@ std::shared_ptr<Table> ReadTableFromBuffer(char* data) {
     offset+= sizeof(int);
     table->calcRecordSize();
     return table;
+}
+int GetFileSize(std::fstream *file) {
+    if (!file->is_open()){
+        return -1;
+    }
+    file->seekg(0,std::ios::end);
+    int size = file->tellg();
+    file->clear();
+    file->seekg(std::ios::beg);
+    return size;
 }
 //
 // int GetVersion(const std::string &file_name) {
