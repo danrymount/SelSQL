@@ -330,6 +330,7 @@ ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::
             len.push_back(values[0][i].first.second.length());
         }
     }
+    //Антон Пидор!!!
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < strSize; j++) {
             int maxLen = len[j];
@@ -389,46 +390,31 @@ int ActionsUtils::isChars(const std::string& a, const std::string& b) {
 }
 int ActionsUtils::compareEquals(const std::string& a, const std::string& b) {
     if (!isNumbers(a, b)) {
-        // auto c = a.substr(1, a.length() - 2);
-        // if (isChars(c, b)) {
         return a == b;
-        //}
     }
     return std::stod(a) == std::stod(b);
 }
 int ActionsUtils::compareMore(const std::string& a, const std::string& b) {
     if (!isNumbers(a, b)) {
-        // auto c = a.substr(1, a.length() - 2);
-        // if (isChars(c, b)) {
         return a > b;
-        //}
     }
     return std::stod(a) > std::stod(b);
 }
 int ActionsUtils::compareMoreEq(const std::string& a, const std::string& b) {
     if (!isNumbers(a, b)) {
-        // auto c = a.substr(1, a.length() - 2);
-        // if (isChars(c, b)) {
         return a >= b;
-        //}
     }
     return std::stod(a) >= std::stod(b);
 }
 int ActionsUtils::compareLess(const std::string& a, const std::string& b) {
     if (!isNumbers(a, b)) {
-        // auto c = a.substr(1, a.length() - 2);
-        // if (isChars(c, b)) {
         return a < b;
-        //}
     }
     return std::stod(a) < std::stod(b);
 }
 int ActionsUtils::compareLessEq(const std::string& a, const std::string& b) {
     if (!isNumbers(a, b)) {
-        // auto c = a.substr(1, a.length() - 2);
-        // if (isChars(c, b)) {
         return a <= b;
-        //}
     }
     return std::stod(a) <= std::stod(b);
 }

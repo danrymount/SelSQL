@@ -57,16 +57,15 @@ class TreeVisitor : public Visitor {
     void visit(JoinNode* node) override;
     void visit(TableNode* node) override;
 
-    Message getMessage() { return message; }
-
-   private:
-   public:
     void visit(UpdateExprNode* node) override;
     void visit(ValueExprNode* node) override;
     void visit(UpdatesAndExprNode* node) override;
     void visit(AssignUpdateNode* node) override;
 
-   protected:
+    Message getMessage() { return message; }
+
+
+protected:
     Message message;
 };
 

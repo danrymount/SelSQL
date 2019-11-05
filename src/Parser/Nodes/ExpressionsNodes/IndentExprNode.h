@@ -15,8 +15,6 @@ class IndentExprNode : public BaseExprNode {
                                                                                                           name(std::move(_name)) {
     }
 
-    std::string getValue() { return name; }
-
     std::string getBaseValue() override { return name; }
 
     std::string getAliasname() { return aliasName; }

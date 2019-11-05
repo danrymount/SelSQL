@@ -50,6 +50,8 @@ class SelectVisitor : public TreeVisitor {
         tableName = std::move(curValue);
     }
 
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
+
     void visit(ColumnNode* node) override {
         if (node->getAlias() == nullptr) {
             columns.emplace_back(std::make_pair("", node->getColumn()->getBaseValue()));
@@ -136,12 +138,12 @@ class SelectVisitor : public TreeVisitor {
     void doubleCycleJoin(JoinNode* node) {
         records.clear();
         for (auto& first : firstRecords) {
-            setFirstValues(first);
+            expressionVisitor->setFirstValues(first);
             for (auto& second : secondRecords) {
                 auto f = first;
-                setSecondValues(second);
-                node->getExpr()->accept(this);
-                if (getResult()) {
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getResult()) {
                     f.insert(f.end(), second.begin(), second.end());
                     records.emplace_back(f);
                 }
@@ -149,150 +151,8 @@ class SelectVisitor : public TreeVisitor {
         }
     }
 
-    void visit(ExprNode* node) override {
-        if (node->getChild()) {
-            node->getChild()->accept(this);
-            result = node->getChild()->getResult();
-        }
-    }
-
-    void visit(AndLogicNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
-        node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a and b);
-    }
-
-    void visit(OrLogicNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
-        node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a or b);
-    }
-
-    void visit(NotLogicNode* node) override {
-        node->getChild()->accept(this);
-        auto a = node->getChild()->getResult();
-        node->setResult(not a);
-    }
-
-    void visit(AddNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[0](std::stod(a), std::stod(b)));
-    }
-
-    void visit(DivNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[3](std::stod(a), std::stod(b)));
-    }
-
-    void visit(SubNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[1](std::stod(a), std::stod(b)));
-    }
-
-    void visit(MultNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[2](std::stod(a), std::stod(b)));
-    }
-
-    void visit(MoreNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATER](left, right));
-    }
-
-    void visit(EqualsNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::EQUALS](left, right));
-    }
-    void visit(NoEqualsNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::NOEQUALS](left, right));
-    }
-
-    void visit(MoreEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATEREQUALS](left, right));
-    }
-
-    void visit(LessEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWEREQUALS](left, right));
-    }
-
-    void visit(LessNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWER](left, right));
-    }
-
-    void visit(IndentExprNode* node) override {
-        int flag = 0;
-        for (auto& val : firstValues) {
-            if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
-                if (node->getBaseValue() == val.first.second) {
-                    curValue = val.second;
-                    flag = 1;
-                    break;
-                }
-            }
-        }
-        if (!flag) {
-            for (auto& val : secondValues) {
-                if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
-                    if (node->getBaseValue() == val.first.second) {
-                        curValue = val.second;
-                        flag = 1;
-                        break;
-                    }
-                }
-            }
-        }
-        if (!flag) {
-            result = false;
-            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
-            return;
-        }
-    }
-
-    void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
-
-    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
-
     std::vector<std::pair<std::string, std::string>> getColumns() { return columns; }
 
-    bool getResult() { return result; }
 
     BaseNode* getSource() { return source; }
 
@@ -302,13 +162,7 @@ class SelectVisitor : public TreeVisitor {
         return allrecords[0];
     }
 
-    void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        firstValues = std::move(_values);
-    }
-
-    void setSecondValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        secondValues = std::move(_values);
-    }
+    void setExpressionVisitor(ExpressionVisitor* visitor) { expressionVisitor = visitor; }
 
     std::string getTableName() { return tableName; }
 
@@ -324,11 +178,9 @@ class SelectVisitor : public TreeVisitor {
     std::vector<JoinRecord> allrecords;
 
     std::vector<std::pair<std::string, std::string>> columns;
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
     BaseExprNode* expr;
     BaseNode* source;
-    bool result = true;
+    ExpressionVisitor* expressionVisitor;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H
