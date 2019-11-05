@@ -17,20 +17,6 @@ class DeleteVisitor : public TreeVisitor {
 
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
-    //    void visit(IndentExprNode* node) override {
-    //        int flag = 0;
-    //        for (auto& val : values) {
-    //            if (node->getBaseValue() == val.first) {
-    //                curValue = val.second;
-    //                flag = 1;
-    //                break;
-    //            }
-    //        }
-    //        if (!flag) {
-    //            result = false;
-    //            error = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
-    //        }
-    //    }
 
     std::string getTableName() { return tableName; }
 

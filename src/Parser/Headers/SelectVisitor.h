@@ -143,6 +143,10 @@ class SelectVisitor : public TreeVisitor {
                 auto f = first;
                 expressionVisitor->setSecondValues(second);
                 node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
                 if (expressionVisitor->getResult()) {
                     f.insert(f.end(), second.begin(), second.end());
                     records.emplace_back(f);
@@ -152,7 +156,6 @@ class SelectVisitor : public TreeVisitor {
     }
 
     std::vector<std::pair<std::string, std::string>> getColumns() { return columns; }
-
 
     BaseNode* getSource() { return source; }
 

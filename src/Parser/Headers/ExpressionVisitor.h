@@ -139,31 +139,22 @@ class ExpressionVisitor : public TreeVisitor {
 
     void visit(IndentExprNode* node) override {
         int flag = 0;
-        for (auto& val : firstValues) {
-            if (node->getAliasname() == val.first.first || node->getAliasname().empty()) {
-                if (node->getBaseValue() == val.first.second) {
-                    curValue = val.second;
-                    flag = 1;
-                    break;
-                }
-            }
-        }
-        if (!flag) {
-            for (auto& val : secondValues) {
-                if (node->getAliasname() == val.first.first || node->getAliasname().empty()) {
-                    if (node->getBaseValue() == val.first.second) {
-                        curValue = val.second;
-                        flag = 1;
-                        break;
-                    }
-                }
-            }
-        }
-        if (!flag) {
+        std::vector<std::pair<std::pair<std::string, std::string>, std::string>> values;
+        values.reserve(firstValues.size() + secondValues.size());
+        values.insert(values.end(), firstValues.begin(), firstValues.end());
+        values.insert(values.end(), secondValues.begin(), secondValues.end());
+        auto value = node->getBaseValue();
+        auto res = std::find_if(values.begin(), values.end(),
+                                [value, node](const std::pair<std::pair<std::string, std::string>, std::string>& val) {
+                                    return value == val.first.second &&
+                                           (node->getAliasname() == val.first.first || node->getAliasname().empty());
+                                });
+        if (res == values.end()) {
             result = false;
             message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
             return;
         }
+        curValue = res->second;
     }
 
     void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
