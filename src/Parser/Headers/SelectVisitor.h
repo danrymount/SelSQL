@@ -31,6 +31,7 @@
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
+typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
     void visit(SelectNode* node) override {
@@ -175,6 +176,32 @@ class SelectVisitor : public TreeVisitor {
         return false;
     }
 
+    void
+    addRec(JoinRecord small, JoinRecord large,
+           std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
+                                                                                                               vals) {
+        for (auto& rec : small) {
+            auto ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+            auto record = vals.find(ident->second);
+            if (record != vals.end()) {
+                if (record->second == rec) {
+                    for (auto& newrecord : large) {
+                        auto joinRecords = rec;
+                        joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                        records.emplace_back(joinRecords);
+                    }
+                } else {
+                    auto joinRecords = rec;
+                    joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
+                    records.emplace_back(joinRecords);
+                }
+            }
+        }
+        if (id >= 0) {
+            curExpr.erase(curExpr.begin() + id);
+        }
+    }
+
     void hashJoin(JoinNode* node) {
         std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> vals;
 
@@ -217,48 +244,10 @@ class SelectVisitor : public TreeVisitor {
                     message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
                     return;
                 } else {
-                    for (auto& rec : small) {
-                        ident = std::find_if(rec.begin(), rec.end(), compareForHash);
-                        auto record = vals.find(ident->second);
-                        if (record != vals.end()) {
-                            if (record->second == rec) {
-                                for (auto& newrecord : large) {
-                                    auto joinRecords = rec;
-                                    joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
-                                    records.emplace_back(joinRecords);
-                                }
-                            } else {
-                                auto joinRecords = rec;
-                                joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
-                                records.emplace_back(joinRecords);
-                            }
-                        }
-                    }
-                    if (id >= 0) {
-                        curExpr.erase(curExpr.begin() + id);
-                    }
+                    addRec(small, large, vals);
                 }
             } else {
-                for (auto& rec : large) {
-                    ident = std::find_if(rec.begin(), rec.end(), compareForHash);
-                    auto record = vals.find(ident->second);
-                    if (record != vals.end()) {
-                        if (record->second == rec) {
-                            for (auto& newrecord : small) {
-                                auto joinRecords = rec;
-                                joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
-                                records.emplace_back(joinRecords);
-                            }
-                        } else {
-                            auto joinRecords = rec;
-                            joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
-                            records.emplace_back(joinRecords);
-                        }
-                    }
-                }
-                if (id >= 0) {
-                    curExpr.erase(curExpr.begin() + id);
-                }
+                addRec(large, small, vals);
             }
         }
     }
@@ -301,7 +290,6 @@ class SelectVisitor : public TreeVisitor {
     MainEngine engine;
     std::string curValue;
     std::string tableName;
-    typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
     JoinRecord firstRecords;
     JoinRecord secondRecords;
 
