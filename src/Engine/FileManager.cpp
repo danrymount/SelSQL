@@ -70,13 +70,13 @@ int FileManager::DeleteFile(const std::string& table_name) {
     return !fs::remove_all(table_name);
 }
 
-int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<std::shared_ptr<DataBlock>>& data) {
+int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<DataBlock*>& data) {
     if (files_.find(table->name) == files_.end() or !files_[table->name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
 
-    this->WriteTableMetaData(table);
+//    this->WriteTableMetaData(table);
     if (data.empty()) {
         return 0;
     }
@@ -86,12 +86,12 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
     return 0;
 }
 
-std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::string& table_name) {
+std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_name) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
-    std::vector<std::shared_ptr<DataBlock>> data;
+    std::vector<DataBlock*> data;
     int readed_data = 0;
     int offset = 0;
     auto data_file = files_[table_name].data_file;
@@ -106,7 +106,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
     table->record_amount = v;
     std::cerr << table->record_amount << std::endl;
     if (table->record_amount == 0) {
-        auto dataBlock = std::make_shared<DataBlock>();
+        auto dataBlock = new DataBlock;
         dataBlock->record_size = table->record_size;
         dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
         dataBlock->setDeletedPos(new char[dataBlock->max_deleted_amount * sizeof(short int)]);
@@ -124,7 +124,7 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
 
     return data;
 }
-void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<std::shared_ptr<DataBlock>>& data) {
+void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<DataBlock*>& data) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
@@ -133,15 +133,18 @@ void FileManager::WriteDataBlocks(const std::string& table_name, const std::vect
     int offset = 0;
     data_file->seekp(offset, std::ios::beg);
     WriteIntToFile(data_file, table_data[table_name]->record_amount);
-    offset += sizeof(int);
+
     for (const auto& block : data) {
         if (block->record_amount == 0) {
             continue;
         }
-        buffer_data buffer = GetDataBlockBuffer(block.get());
+        buffer_data buffer = GetDataBlockBuffer(block);
         data_file->write(buffer.first, buffer.second);
-        offset += buffer.second;
+
         delete[] buffer.first;
+    }
+    for (const auto& block : data) {
+        delete block;
     }
 
     data_file->close();

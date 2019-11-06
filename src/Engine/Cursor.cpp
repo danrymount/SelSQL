@@ -53,7 +53,7 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     size_t pos_in_block = 0;
-    std::shared_ptr<DataBlock> block;
+    DataBlock* block;
     int no_place = 1;
     for (const auto &i : data_blocks_) {
         if (i->deleted) {
@@ -69,7 +69,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     if (no_place) {
-        block = std::make_shared<DataBlock>();
+        block = new DataBlock;
         pos_in_block = block->last_record_pos++;
         block->record_size = table_->record_size;
         block->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;

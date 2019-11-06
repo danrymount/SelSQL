@@ -8,9 +8,9 @@
 class Cursor {
     std::shared_ptr<Table> table_;
     std::shared_ptr<FileManager> file_manager_;
-    std::vector<std::shared_ptr<DataBlock>> data_blocks_;
+    std::vector<DataBlock*> data_blocks_;
     std::vector<std::pair<std::string, std::string>> values_;
-    std::map<std::shared_ptr<DataBlock>, int> deleted_ = {};
+    std::map<DataBlock*, int> deleted_ = {};
 
     int current_block_ = 0;
     int current_pos = 0;

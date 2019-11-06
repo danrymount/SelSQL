@@ -38,7 +38,7 @@ int CalcDataBlockSize(DataBlock* data_block);
 int CalcDataBlockSize(int record_size);
 buffer_data GetTableBuffer(Table* table);
 buffer_data GetDataBlockBuffer(DataBlock* data_block);
-std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data,int record_amount);
+DataBlock* ReadDataBlockFromBuffer(char* data,int record_amount);
 std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 
 
