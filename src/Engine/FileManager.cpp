@@ -8,8 +8,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
-
-    std::cerr << table->record_amount << std::endl;
+    
     auto meta_file = files_[table->name].meta_file;
     meta_file->seekp(0, std::ios::beg);
     buffer_data buffer = GetTableBuffer(table.get());
@@ -113,7 +112,6 @@ DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_i
     data_file->seekg(offset + CalcDataBlockSize(table->record_size) * block_id, std::ios::beg);
     char data_buffer[CalcDataBlockSize(table->record_size)];
     data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
-    std::cerr<<"READED BLOCK "<<block_id<<std::endl;
     return ReadDataBlockFromBuffer(data_buffer, table->record_size);
 
 }
@@ -131,7 +129,6 @@ void FileManager::WriteDataBlock(const std::string& table_name, DataBlock* data,
     if (data->record_amount != 0) {
         buffer_data buffer = GetDataBlockBuffer(data);
         data_file->write(buffer.first, buffer.second);
-        std::cerr<<"WRITEN BLOCK "<<block_id<<std::endl;
         delete[] buffer.first;
     }
 

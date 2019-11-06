@@ -50,7 +50,7 @@
 //
 //    } while (!cursor.second->NextRecord());
 //
-//    cursor.second->Commit();
+//    cursor.second->UpdateDataBlock();
 //
 //    return response;
 //}

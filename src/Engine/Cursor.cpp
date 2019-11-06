@@ -53,7 +53,6 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int 
 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
     size_t pos_in_block = 0;
-   
     int no_place = 1;
     do {
         if (data_block_->deleted) {
@@ -69,10 +68,10 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
 
     if (no_place) {
         block_id++;
-        std::cerr << "ALLOCATE NEW BLOCK " << block_id << std::endl;
         Allocate();
     }
 
+    data_block_->was_changed = 1;
     int count = 0;
     for (auto &i : values_) {
         if (cols.empty()) {
@@ -104,11 +103,15 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     return 0;
 }
 
-int Cursor::Commit() {
-    if (data_block_ != nullptr) {
-        table_->record_amount -= current_session_deleted_;
-        data_block_->record_amount -= current_session_deleted_;
-        file_manager_->UpdateBlock(table_, data_block_, block_id);
+int Cursor::UpdateDataBlock() {
+    if (data_block_ != nullptr ) {
+        if (data_block_->was_changed){
+            table_->record_amount -= current_session_deleted_;
+            data_block_->record_amount -= current_session_deleted_;
+            file_manager_->UpdateBlock(table_, data_block_, block_id);
+        }else{
+            delete data_block_;
+        }
     }
     return 0;
 }
@@ -174,18 +177,18 @@ int Cursor::NextRecord() {
 }
 
 int Cursor::Delete() {
-    auto block = data_block_;
-    std::memset(&block->data_[current_pos * table_->record_size], '0', table_->record_size);
-    block->deleted_pos_[block->deleted++] = current_pos;
-    block->last_record_pos++;
+    std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
+    data_block_->deleted_pos_[data_block_->deleted++] = current_pos;
+    data_block_->last_record_pos++;
     current_session_deleted_++;
+    data_block_->was_changed = 1;
+
     return 0;
 }
 
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
-    auto block = data_block_;
     unsigned char record[table_->record_size];
-    std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
+    std::memcpy(record, &data_block_->data_[current_pos * table_->record_size], table_->record_size);
     auto fields = table_->getFields();
     int next_pos = 0;
     for (size_t i = 0; i < values_.size(); ++i) {
@@ -199,8 +202,8 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
 
-    std::memcpy(&block->data_[current_pos * table_->record_size], record, table_->record_size);
-
+    std::memcpy(&data_block_->data_[current_pos * table_->record_size], record, table_->record_size);
+    data_block_->was_changed = 1;
     return 0;
 }
 
@@ -214,10 +217,7 @@ int Cursor::Reset() {
 
 Cursor::~Cursor() {
     if (!table_->name.empty()) {
-        //        if (data_block_ != nullptr){
-        Commit();
-        //        }
-
+        UpdateDataBlock();
         file_manager_->CloseAllFiles();
     }
 }
@@ -246,11 +246,9 @@ void Cursor::Allocate() {
     current_session_deleted_ = 0;
 }
 int Cursor::NextDataBlock() {
-    Commit();
-    std::cerr << "NEXT BLOCK " << std::endl;
+    UpdateDataBlock();
     data_block_ = file_manager_->ReadDataBlock(table_->name, ++block_id);
     if (data_block_ == nullptr) {
-        std::cerr << "NEXT BLOCK IS NULL" << std::endl;
         block_id--;
         return 1;
     }

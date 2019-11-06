@@ -24,7 +24,7 @@ class Cursor {
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager);
     Cursor();
     int Insert(std::vector<std::string> cols, std::vector<std::string> new_data);
-    int Commit();
+    int UpdateDataBlock();
     int NextRecord();
     int NextDataBlock();
     int Delete();
