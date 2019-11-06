@@ -36,8 +36,13 @@ class ActionsUtils {
 
     static std::string makeRequestCreateFromTable(const std::shared_ptr<Table>& table);
 
+    Message
+    checkConstraintFroUpdate(const Record& updateColumns, const std::shared_ptr<Table>& table,
+                             const std::vector<ActionsUtils::Record>& records,
+                             const std::vector<ActionsUtils::Record>& allrecords = std::vector<ActionsUtils::Record>());
+
     Message checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
-                            const std::vector<ActionsUtils::Record>& records, bool isUpdate = false);
+                            const std::vector<ActionsUtils::Record>& records);
 
     static std::string
     checkSelectColumns(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values,
@@ -76,6 +81,9 @@ class ActionsUtils {
     static Message checkNotNull(std::string newVal, const std::string& oldVal = "");
     static Message checkUnique(std::string newVal, const std::string& oldVal);
     static Message checkPrimaryKey(const std::string& newVal, const std::string& oldVal);
+
+    Message checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
+                                 const std::vector<ActionsUtils::Record>& records);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H

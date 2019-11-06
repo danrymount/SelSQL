@@ -65,30 +65,77 @@ int ActionsUtils::checkSameForUpdate(const Record& oldRec, const Record& newRec,
     return 0;
 }
 
-Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
-                                      const std::vector<ActionsUtils::Record>& records, bool isUpdate) {
+Message ActionsUtils::checkConstraintFroUpdate(const ActionsUtils::Record& updateColumns,
+                                               const std::shared_ptr<Table>& table,
+                                               const std::vector<ActionsUtils::Record>& records,
+                                               const std::vector<ActionsUtils::Record>& allrecords) {
     Message error;
     std::string colName;
-    int countSameVal = 0;
     if (records.empty()) {
-        int i = 0;
-        for (auto& colValue : updateColumns) {
-            auto value = colValue.second;
-            if (colValue.first == "*") {
-                colName = table->getFields()[i++].first;
-            } else {
-                colName = colValue.first;
-            }
+        error = checkFirstConstraint(updateColumns, table, records);
+        if (error.getErrorCode()) {
+            return error;
+        }
+    }
+
+    int flag = 0;
+    if (records.size() == allrecords.size() && records.size() > 1) {
+        for (auto& elem : updateColumns) {
             for (auto& field : table->getFields()) {
-                if (field.first != colName) {
+                if (field.first != elem.first) {
                     continue;
                 }
 
                 for (auto& constraint : field.second.getConstraints()) {
-                    if (constraint == Constraint::NOT_NULL || constraint == Constraint::PRIMARY_KEY) {
-                        error = checkNotNull(value);
-                        if (error.getErrorCode()) {
-                            return error;
+                    auto curVal = elem.second;
+                    std::transform(curVal.begin(), curVal.end(), curVal.begin(),
+                                   [](unsigned char c) { return std::tolower(c); });
+                    if (constraint == NOT_NULL || constraint == PRIMARY_KEY) {
+                        if (curVal == "null" || curVal == "") {
+                            return Message(ErrorConstants::ERR_NOT_NULL);
+                        }
+                    }
+                    if (constraint == UNIQUE || constraint == PRIMARY_KEY) {
+                        return Message(ErrorConstants::ERR_UNIQUE);
+                    }
+                }
+            }
+        }
+    }
+
+    for (auto& newRec : records) {
+        flag = checkSameForUpdate(newRec, updateColumns, table);
+        for (auto& oldRecord : allrecords) {
+            int i = 0;
+            for (auto& colValue : updateColumns) {
+                auto value = colValue.second;
+                if (colValue.first == "*") {
+                    colName = table->getFields()[i++].first;
+                } else {
+                    colName = colValue.first;
+                }
+
+                for (auto& field : table->getFields()) {
+                    if (field.first != colName) {
+                        continue;
+                    }
+
+                    for (auto& constraint : field.second.getConstraints()) {
+                        for (auto& elem : oldRecord) {
+                            if (elem.first != colName) {
+                                continue;
+                            }
+                            auto curVal = elem.second;
+                            std::transform(curVal.begin(), curVal.end(), curVal.begin(),
+                                           [](unsigned char c) { return std::tolower(c); });
+                            error = constraintsCheckers[constraint](value, curVal);
+                            if (flag && (error.getErrorCode() == ErrorConstants::ERR_UNIQUE)) {
+                                continue;
+                            }
+                            if (error.getErrorCode()) {
+                                // std::cout << records.size() << std::endl;
+                                return error;
+                            }
                         }
                     }
                 }
@@ -96,9 +143,52 @@ Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::sh
         }
     }
 
+    return Message();
+}
+
+Message ActionsUtils::checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
+                                           const std::vector<ActionsUtils::Record>& records) {
+    int i = 0;
+    Message error;
+    std::string colName;
+    for (auto& colValue : updateColumns) {
+        auto value = colValue.second;
+        if (colValue.first == "*") {
+            colName = table->getFields()[i++].first;
+        } else {
+            colName = colValue.first;
+        }
+        for (auto& field : table->getFields()) {
+            if (field.first != colName) {
+                continue;
+            }
+
+            for (auto& constraint : field.second.getConstraints()) {
+                if (constraint == Constraint::NOT_NULL || constraint == Constraint::PRIMARY_KEY) {
+                    error = checkNotNull(value);
+                    if (error.getErrorCode()) {
+                        return error;
+                    }
+                }
+            }
+        }
+    }
+    return Message();
+}
+
+Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
+                                      const std::vector<ActionsUtils::Record>& records) {
+    Message error;
+    std::string colName;
+    if (records.empty()) {
+        error = checkFirstConstraint(updateColumns, table, records);
+        if (error.getErrorCode()) {
+            return error;
+        }
+    }
+
     for (auto& record : records) {
         int i = 0;
-        countSameVal += checkSameForUpdate(record, updateColumns, table);
         for (auto& colValue : updateColumns) {
             auto value = colValue.second;
             if (colValue.first == "*") {
@@ -124,13 +214,8 @@ Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::sh
                         std::transform(curVal.begin(), curVal.end(), curVal.begin(),
                                        [](unsigned char c) { return std::tolower(c); });
                         error = constraintsCheckers[constraint](value, curVal);
-                        if ((error.getErrorCode() == ErrorConstants::ERR_UNIQUE) && isUpdate) {
-                            if (countSameVal > 1) {
-                                return error;
-                            }
-                            error = Message();
-                        } else if (error.getErrorCode()) {
-                            std::cout << records.size() << std::endl;
+                        if (error.getErrorCode()) {
+                            // std::cout << records.size() << std::endl;
                             return error;
                         }
                     }
@@ -144,7 +229,7 @@ Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::sh
 Message ActionsUtils::checkNotNull(std::string newVal, const std::string& oldVal) {
     std::string temp = std::move(newVal);
     std::transform(temp.begin(), temp.end(), temp.begin(), [](unsigned char c) { return std::tolower(c); });
-    if (temp == "null") {
+    if (temp == "null" || temp == "") {
         return Message(ErrorConstants::ERR_NOT_NULL);
     }
     return Message();

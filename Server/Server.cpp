@@ -1,80 +1,67 @@
 //
-// Created by quiks on 23.10.2019.
+// Created by quiks on 13.10.2019.
 //
 
 #include "Server.h"
-#include "../src/Parser/Headers/TreeVisitor.h"
-#include "parser.cpp"
+#include <cstring>
+#include <iostream>
 
-std::mutex m;
+Server::Server(int max_connection) {
+#ifdef __WIN32
+    WSACleanup();
+    WORD wV = MAKEWORD(2, 2);
+    WSADATA d;
+    WSAStartup(wV, &d);
+#endif
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_socket < 0) {
+        std::cerr << "Unable to create server socket" << std::endl;
+        throw ServerException();
+    }
 
-std::string ExecuteRequest(const std::string &request) {
-    std::lock_guard<std::mutex> guard(m);
-    std::string parser_msg;
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(18666);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    if (bind(server_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        std::cerr << "Unable to bind server socket" << std::endl;
+        throw ServerException();
+    }
 
-    RootNode *tree = parse_request(request.c_str(), &parser_msg);
-    if (tree == nullptr) {
-        return parser_msg;
+    if (listen(server_socket, 5)) {
+        std::cerr << "Unable to listen" << std::endl;
+        throw ServerException();
+    }
+    communication_socket.resize(max_connection, 0);
+}
+int Server::ListenSocket(int id) {
+    memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
+    /*следует помнить, что данные поступают неравномерно*/
+    int rc = recv(communication_socket[id], recieved_message, MESSAGE_SIZE, 0);
+    if (rc == MESSAGE_SIZE) {
+        return 0;
     } else {
-        auto visitor = new TreeVisitor();
-        tree->accept(visitor);
-        auto message = visitor->getMessage();
-        std::string res = "Success";
-        if (!visitor->getMessage().getMsg().empty()) {
-            res = visitor->getMessage().getMsg();
-        }
-        delete visitor;
-        return res;
+        return 1;
+    }
+}
+void Server::SendMessage(std::string response, int id) {
+    if (sendto(communication_socket[id], response.c_str(), response.size(), 0, (struct sockaddr *)&addr, sizeof(addr)) <
+        0) {
+        std::cerr << "Send error" << std::endl;
+        throw ServerException();
     }
 }
 
-int ListenClient(int id, Server *server) {
-    server->AcceptSocket(id);
-    if (DEBUG) {
-        std::cout << "Client " << id + 1 << " connected" << std::endl;
+int Server::AcceptSocket(int id) {
+    communication_socket[id] = accept(server_socket, NULL, NULL);
+    if (communication_socket[id] < 0) {
+        std::cerr << "Unable to create communication socket" << std::endl;
+        throw ServerException();
     }
-    while (true) {
-        std::string message;
-        int err = server->ListenSocket(id);
-        if (err == 1) {
-            if (DEBUG) {
-                std::cout << "Client " << id + 1 << " disconnected" << std::endl;
-            }
-
-            server->AcceptSocket(id);
-            if (DEBUG) {
-                std::cout << "Client " << id + 1 << " connected" << std::endl;
-            }
-            continue;
-        }
-        if (DEBUG) {
-            std::cout << "Got message from Client " << id + 1 << " :" << std::endl;
-            std::cout << "\t" << server->recieved_message << std::endl;
-        }
-
-        message = ExecuteRequest(std::string(server->recieved_message));
-        if (DEBUG) {
-            std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
-            std::cout << "\t" << message << std::endl;
-        }
-
-        server->SendMessage(message, id);
-    }
+    return 0;
 }
 
-void RunServer() {
-    std::vector<std::thread> threads;
-
-    try {
-        Server server(MAX_CONN);
-
-        for (size_t i = 0; i < MAX_CONN; ++i) {
-            threads.emplace_back(std::thread(ListenClient, i, &server));
-        }
-        for (size_t i = 0; i < MAX_CONN; ++i) {
-            threads[i].join();
-        }
-    } catch (ServerException) {
-        std::cerr << "Message" << std::endl;
-    }
-};
+#ifdef __WIN32
+Server::~Server() { WSACleanup(); }
+#elif __linux
+Server::~Server() { shutdown(server_socket, SHUT_RDWR); }
+#endif

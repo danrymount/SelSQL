@@ -18,7 +18,7 @@
 //#define DEBUG 0
 // std::mutex m;
 
-#include "Server.h"
+#include "MainServer.h"
 int main() {
     RunServer();
     return 0;
