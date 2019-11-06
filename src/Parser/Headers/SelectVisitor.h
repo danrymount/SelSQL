@@ -135,7 +135,7 @@ class SelectVisitor : public TreeVisitor {
         if (countEq == 2) {
             hashJoin(node);
             countEq = 0;
-            curName.clear();
+            // curName.clear();
             curExpr.clear();
         } else {
             nestedLoopsJoin(node);
@@ -149,11 +149,11 @@ class SelectVisitor : public TreeVisitor {
     void visit(ExprNode* node) override { node->getChild()->accept(this); }
 
     void visit(IndentExprNode* node) override {
-        if (curName.empty() || curName == node->getBaseValue()) {
-            countEq++;
-            curName = node->getBaseValue();
-            curExpr.emplace_back(node->getAliasname(), node->getBaseValue());
-        }
+        // if (curName.empty() || curName == node->getBaseValue()) {
+        countEq++;
+        // curName = node->getBaseValue();
+        curExpr.emplace_back(node->getAliasname(), node->getBaseValue());
+        //}
     }
 
     void visit(EqualsNode* node) override {
@@ -162,14 +162,21 @@ class SelectVisitor : public TreeVisitor {
     }
 
     static bool compareForHash(std::pair<std::pair<std::string, std::string>, std::string>& val) {
-        if (curName != val.first.second) {
+        auto curName = std::find_if(curExpr.begin(), curExpr.end(),
+                                    [val](const std::pair<std::string, std::string>& value) {
+                                        return value.second == val.first.second;
+                                    });
+        if (curName == curExpr.end()) {
             return false;
         }
+
         for (int i = 0; i < curExpr.size(); i++) {
             auto exp = curExpr[i];
             if (exp.first == val.first.first || exp.first.empty()) {
-                id = i;
-                return true;
+                if (val.first.second == exp.second) {
+                    id = i;
+                    return true;
+                }
             }
         }
 
@@ -302,7 +309,7 @@ class SelectVisitor : public TreeVisitor {
     ExpressionVisitor* expressionVisitor;
     int countEq = 0;
     inline static int id = -1;
-    inline static std::string curName;
+    // inline static std::string curName;
     inline static std::vector<std::pair<std::string, std::string>> curExpr;  // table as allias
 };
 

@@ -525,8 +525,8 @@ TEST(SERVER_TEST_JOIN, TEST2) {
                               {"INSERT INTO jh values(1, 3.7);", "Success"},
                               {"INSERT INTO jh values(2, 3.789);", "Success"},
                               {"SELECT * from (jj as j1 join jg as j2 on j1.id = j2.id) join jh on j1.age = jh.some;",
-                               "\nj1.id|j1.age  |j1.name |j2.id|j2.age  |jh.id|jh.some |\n"
-                               "2    |3.789000|'qwerty'|2    |3.700000|2    |3.789000|\n"},
+                               "\njh.id|jh.some |j1.id|j1.age  |j1.name |j2.id|j2.age  |\n"
+                               "2    |3.789000|2    |3.789000|'qwerty'|2    |3.700000|\n"},
                               {"SELECT * from jh as j3 join (jj as j1 join jg as j2 on j1.age = j2.age) on j3.id = "
                                "j2.id;",
                                "\nj3.id|j3.some |j1.id|j1.age  |j1.name  |j2.id|j2.age  |\n"
