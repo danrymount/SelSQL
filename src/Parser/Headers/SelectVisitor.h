@@ -221,9 +221,15 @@ class SelectVisitor : public TreeVisitor {
                         ident = std::find_if(rec.begin(), rec.end(), compareForHash);
                         auto record = vals.find(ident->second);
                         if (record != vals.end()) {
-                            for (auto& newrecord : large) {
+                            if (record->second == rec) {
+                                for (auto& newrecord : large) {
+                                    auto joinRecords = rec;
+                                    joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                                    records.emplace_back(joinRecords);
+                                }
+                            } else {
                                 auto joinRecords = rec;
-                                joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                                joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
                                 records.emplace_back(joinRecords);
                             }
                         }
@@ -237,9 +243,17 @@ class SelectVisitor : public TreeVisitor {
                     ident = std::find_if(rec.begin(), rec.end(), compareForHash);
                     auto record = vals.find(ident->second);
                     if (record != vals.end()) {
-                        auto joinRecords = rec;
-                        joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
-                        records.emplace_back(joinRecords);
+                        if (record->second == rec) {
+                            for (auto& newrecord : small) {
+                                auto joinRecords = rec;
+                                joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                                records.emplace_back(joinRecords);
+                            }
+                        } else {
+                            auto joinRecords = rec;
+                            joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
+                            records.emplace_back(joinRecords);
+                        }
                     }
                 }
                 if (id >= 0) {
