@@ -8,17 +8,18 @@
 class Cursor {
     std::shared_ptr<Table> table_;
     std::shared_ptr<FileManager> file_manager_;
-    std::vector<DataBlock*> data_blocks_;
+    DataBlock* data_block_;
     std::vector<std::pair<std::string, std::string>> values_;
-    std::map<DataBlock*, int> deleted_ = {};
 
-    int current_block_ = 0;
+
+    int block_id = 0;
     int current_pos = 0;
     int readed_data = 0;
+    int current_session_deleted_ = 0;
 
     static void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
-
+    void Allocate();
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager);
     Cursor();

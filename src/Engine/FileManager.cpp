@@ -70,84 +70,75 @@ int FileManager::DeleteFile(const std::string& table_name) {
     return !fs::remove_all(table_name);
 }
 
-int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vector<DataBlock*>& data) {
+int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* data, int block_id) {
     if (files_.find(table->name) == files_.end() or !files_[table->name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
 
-//    this->WriteTableMetaData(table);
-    if (data.empty()) {
-        return 0;
+    if (data != nullptr) {
+        this->WriteDataBlock(std::string(table->name), data,block_id);
     }
-
-    this->WriteDataBlocks(std::string(table->name), data);
-    CloseAllFiles();
+    
     return 0;
 }
 
-std::vector<DataBlock*> FileManager::ReadDataBlocks(const std::string& table_name) {
+DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
-    std::vector<DataBlock*> data;
+
     int readed_data = 0;
     int offset = 0;
     auto data_file = files_[table_name].data_file;
+    auto table = table_data[table_name];
 
     if (!GetFileSize(data_file)) {
-        return data;
+        return nullptr;
     }
-    data_file->seekg(std::ios::beg);
+    if (GetFileSize(data_file) <= 4 + CalcDataBlockSize(table->record_size) * block_id) {
+        return nullptr;
+    }
+    data_file->seekg(0, std::ios::beg);
     int v = ReadIntFromFile(data_file);
     offset += 4;
-    auto table = table_data[table_name];
+
     table->record_amount = v;
-    std::cerr << table->record_amount << std::endl;
     if (table->record_amount == 0) {
-        auto dataBlock = new DataBlock;
-        dataBlock->record_size = table->record_size;
-        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
-        dataBlock->setDeletedPos(new char[dataBlock->max_deleted_amount * sizeof(short int)]);
-        data.emplace_back(dataBlock);
-        return data;
-    }
-    while (readed_data < table->record_amount) {
-        data_file->seekg(offset, std::ios::beg);
-        char data_buffer[CalcDataBlockSize(table->record_size)];
-        data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
-        data.emplace_back(ReadDataBlockFromBuffer(data_buffer, table->record_size));
-        readed_data += data[data.size() - 1]->record_amount;
-        offset += CalcDataBlockSize(table->record_size);
+        return nullptr;
     }
 
-    return data;
+    data_file->seekg(offset + CalcDataBlockSize(table->record_size) * block_id, std::ios::beg);
+    std::cerr<<data_file->tellg()<<std::endl;
+    char data_buffer[CalcDataBlockSize(table->record_size)];
+    data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
+    std::cerr<<"READED "<<CalcDataBlockSize(table->record_size)<<std::endl;
+    return ReadDataBlockFromBuffer(data_buffer, table->record_size);
+
 }
-void FileManager::WriteDataBlocks(const std::string& table_name, const std::vector<DataBlock*>& data) {
+void FileManager::WriteDataBlock(const std::string& table_name, DataBlock* data, int block_id) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
     auto data_file = files_[table_name].data_file;
-    int offset = 0;
-    data_file->seekp(offset, std::ios::beg);
+    int offset = 4;
+    data_file->seekp(std::ios::beg);
     WriteIntToFile(data_file, table_data[table_name]->record_amount);
 
-    for (const auto& block : data) {
-        if (block->record_amount == 0) {
-            continue;
-        }
-        buffer_data buffer = GetDataBlockBuffer(block);
+    data_file->seekp(offset + CalcDataBlockSize(data) * block_id, std::ios::beg);
+    std::cerr<<data_file->tellp()<<std::endl;
+    if (data->record_amount != 0) {
+        buffer_data buffer = GetDataBlockBuffer(data);
         data_file->write(buffer.first, buffer.second);
-
+        std::cerr<<"WRITEN "<<buffer.second<<std::endl;
         delete[] buffer.first;
     }
-    for (const auto& block : data) {
-        delete block;
-    }
 
-    data_file->close();
+    delete data;
+
+    data_file->flush();
 }
 
 void FileManager::CloseAllFiles() {
