@@ -44,7 +44,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     if (file_manager_->OpenFile(tableName)) {
         return std::make_pair(table, cursor);
     }
-    table = std::make_shared<Table>(*file_manager_->GetTable(tableName));
+    table = file_manager_->GetTable(tableName);
     cursor = std::make_shared<Cursor>(table, file_manager_);
     return std::make_pair(table, cursor);
 }

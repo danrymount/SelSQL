@@ -9,6 +9,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         throw FileNotOpened();
     }
 
+    std::cerr << table->record_amount << std::endl;
     auto meta_file = files_[table->name].meta_file;
     meta_file->seekp(0, std::ios::beg);
     buffer_data buffer = GetTableBuffer(table.get());
@@ -74,6 +75,7 @@ int FileManager::UpdateFile(const std::shared_ptr<Table>& table, const std::vect
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
+
     this->WriteTableMetaData(table);
     if (data.empty()) {
         return 0;
@@ -92,10 +94,17 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
     std::vector<std::shared_ptr<DataBlock>> data;
     int readed_data = 0;
     int offset = 0;
-    // assert opened
     auto data_file = files_[table_name].data_file;
+
+    if (!GetFileSize(data_file)) {
+        return data;
+    }
     data_file->seekg(std::ios::beg);
+    int v = ReadIntFromFile(data_file);
+    offset += 4;
     auto table = table_data[table_name];
+    table->record_amount = v;
+    std::cerr << table->record_amount << std::endl;
     if (table->record_amount == 0) {
         auto dataBlock = std::make_shared<DataBlock>();
         dataBlock->record_size = table->record_size;
@@ -105,27 +114,12 @@ std::vector<std::shared_ptr<DataBlock>> FileManager::ReadDataBlocks(const std::s
         return data;
     }
     while (readed_data < table->record_amount) {
-        auto new_data = new char[Constants::DATA_SIZE];
-        auto dataBlock = std::make_shared<DataBlock>();
         data_file->seekg(offset, std::ios::beg);
-        dataBlock->record_size = table->record_size;
-        dataBlock->record_amount = ReadIntFromFile(data_file);
-        readed_data += dataBlock->record_amount;
-        dataBlock->last_record_pos = ReadIntFromFile(data_file);
-        dataBlock->deleted = ReadIntFromFile(data_file);
-        dataBlock->max_deleted_amount = Constants::DATA_SIZE / table->record_size;
-        char* deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
-        data_file->read(deleted, dataBlock->max_deleted_amount * sizeof(short int));
-        dataBlock->setDeletedPos(deleted);
-        offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
-                  Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
-                  dataBlock->max_deleted_amount * sizeof(short int);
-
-        data_file->seekg(offset, std::ios::beg);
-        data_file->read(new_data, Constants::DATA_SIZE);
-        offset += Constants::DATA_SIZE;
-        dataBlock->setData(new_data);
-        data.emplace_back(dataBlock);
+        char data_buffer[CalcDataBlockSize(table->record_size)];
+        data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
+        data.emplace_back(ReadDataBlockFromBuffer(data_buffer, table->record_size));
+        readed_data += data[data.size() - 1]->record_amount;
+        offset += CalcDataBlockSize(table->record_size);
     }
 
     return data;
@@ -136,25 +130,18 @@ void FileManager::WriteDataBlocks(const std::string& table_name, const std::vect
         throw FileNotOpened();
     }
     auto data_file = files_[table_name].data_file;
-
     int offset = 0;
+    data_file->seekp(offset, std::ios::beg);
+    WriteIntToFile(data_file, table_data[table_name]->record_amount);
+    offset += sizeof(int);
     for (const auto& block : data) {
         if (block->record_amount == 0) {
             continue;
         }
-        data_file->seekp(offset, std::ios::beg);
-        WriteIntToFile(data_file, block->record_amount);
-        WriteIntToFile(data_file, block->last_record_pos);
-        WriteIntToFile(data_file, block->deleted);
-        data_file->write(block->getDeletedPos(), block->max_deleted_amount * sizeof(short int));
-        offset += Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_DELETED_AMOUNT +
-                  Constants::DATA_BLOCK_RECORD_AMOUNT + Constants::DATA_BLOCK_RECORD_LAST_POS +
-                  block->max_deleted_amount * sizeof(short int);
-        //                std::cerr<<offset<<std::endl;
-        data_file->seekp(offset, std::ios::beg);
-        data_file->write(block->data_, Constants::DATA_SIZE);
-
-        offset += Constants::DATA_SIZE;
+        buffer_data buffer = GetDataBlockBuffer(block.get());
+        data_file->write(buffer.first, buffer.second);
+        offset += buffer.second;
+        delete[] buffer.first;
     }
 
     data_file->close();
