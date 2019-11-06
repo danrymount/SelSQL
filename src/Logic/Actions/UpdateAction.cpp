@@ -42,7 +42,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 records.emplace_back(record);
             }
             allrecords.emplace_back(record);
-        } while (!cursor.second->Next());
+        } while (!cursor.second->NextRecord());
         cursor.second->Reset();
 
         // TODO сменить входные параметры
@@ -72,7 +72,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 }
             }
 
-        } while (!cursor.second->Next());
+        } while (!cursor.second->NextRecord());
     }
     cursor.second->Reset();
 
