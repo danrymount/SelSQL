@@ -129,18 +129,132 @@ class SelectVisitor : public TreeVisitor {
         allrecords.pop_back();
         firstRecords = allrecords.back();
         allrecords.pop_back();
-        doubleCycleJoin(node);
+
+        node->getExpr()->accept(this);
+        if (countEq == 2) {
+            hashJoin(node);
+            countEq = 0;
+            curName.clear();
+            curExpr.clear();
+        } else {
+            nestedLoopsJoin(node);
+        }
         allrecords.emplace_back(records);
+        records.clear();
         firstRecords.clear();
         secondRecords.clear();
     }
 
-    void doubleCycleJoin(JoinNode* node) {
+    void visit(ExprNode* node) override { node->getChild()->accept(this); }
+
+    void visit(IndentExprNode* node) override {
+        if (curName.empty() || curName == node->getBaseValue()) {
+            countEq++;
+            curName = node->getBaseValue();
+            curExpr.emplace_back(node->getAliasname(), node->getBaseValue());
+        }
+    }
+
+    void visit(EqualsNode* node) override {
+        node->getLeft()->accept(this);
+        node->getRight()->accept(this);
+    }
+
+    static bool compareForHash(std::pair<std::pair<std::string, std::string>, std::string>& val) {
+        if (curName != val.first.second) {
+            return false;
+        }
+        for (int i = 0; i < curExpr.size(); i++) {
+            auto exp = curExpr[i];
+            if (exp.first == val.first.first || exp.first.empty()) {
+                id = i;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    void hashJoin(JoinNode* node) {
+        std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> vals;
+
+        auto large = firstRecords;
+        auto small = secondRecords;
+        if (firstRecords.size() < secondRecords.size()) {
+            large = secondRecords;
+            small = firstRecords;
+        }
+        if (!small.empty() && !large.empty()) {
+            auto ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
+            if (ident == small[0].end()) {
+                ident = std::find_if(large[0].begin(), large[0].end(), compareForHash);
+                if (ident == large[0].end()) {
+                    message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+                    return;
+                } else {
+                    for (auto& rec : large) {
+                        ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                        vals.emplace(std::make_pair(ident->second, rec));
+                    }
+                    if (id >= 0) {
+                        curExpr.erase(curExpr.begin() + id);
+                    }
+                }
+            } else {
+                for (auto& rec : small) {
+                    ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                    vals.emplace(std::make_pair(ident->second, rec));
+                }
+                if (id >= 0) {
+                    curExpr.erase(curExpr.begin() + id);
+                }
+            }
+
+            ident = std::find_if(large[0].begin(), large[0].end(), compareForHash);
+            if (ident == large[0].end()) {
+                ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
+                if (ident == small[0].end()) {
+                    message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+                    return;
+                } else {
+                    for (auto& rec : small) {
+                        ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                        auto record = vals.find(ident->second);
+                        if (record != vals.end()) {
+                            for (auto& newrecord : large) {
+                                auto joinRecords = rec;
+                                joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                                records.emplace_back(joinRecords);
+                            }
+                        }
+                    }
+                    if (id >= 0) {
+                        curExpr.erase(curExpr.begin() + id);
+                    }
+                }
+            } else {
+                for (auto& rec : large) {
+                    ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                    auto record = vals.find(ident->second);
+                    if (record != vals.end()) {
+                        auto joinRecords = rec;
+                        joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
+                        records.emplace_back(joinRecords);
+                    }
+                }
+                if (id >= 0) {
+                    curExpr.erase(curExpr.begin() + id);
+                }
+            }
+        }
+    }
+
+    void nestedLoopsJoin(JoinNode* node) {
         records.clear();
         for (auto& first : firstRecords) {
             expressionVisitor->setFirstValues(first);
             for (auto& second : secondRecords) {
-                auto f = first;
+                auto joinRecords = first;
                 expressionVisitor->setSecondValues(second);
                 node->getExpr()->accept(expressionVisitor);
                 if (expressionVisitor->getMessage().getErrorCode()) {
@@ -148,8 +262,8 @@ class SelectVisitor : public TreeVisitor {
                     return;
                 }
                 if (expressionVisitor->getResult()) {
-                    f.insert(f.end(), second.begin(), second.end());
-                    records.emplace_back(f);
+                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                    records.emplace_back(joinRecords);
                 }
             }
         }
@@ -184,6 +298,10 @@ class SelectVisitor : public TreeVisitor {
     BaseExprNode* expr;
     BaseNode* source;
     ExpressionVisitor* expressionVisitor;
+    int countEq = 0;
+    inline static int id = -1;
+    inline static std::string curName;
+    inline static std::vector<std::pair<std::string, std::string>> curExpr;  // table as allias
 };
 
 #endif  // SELSQL_SELECTVISITOR_H

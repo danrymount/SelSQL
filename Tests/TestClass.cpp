@@ -552,14 +552,14 @@ TEST(SERVER_TEST_JOIN, TEST3) {
                               {"INSERT INTO jk values(1, 3, 'sfsf');", "Success"},
                               {"SELECT * from (jj as j1 join jg as j2 on j1.age = j2.age) join (jk join jh on jk.id = "
                                "jh.id) on j1.name = jk.name;",
-                               "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jk.id|jk.some |jk.name|jh.id|jh.some |\n"
-                               "1    |2.900000|'sfsf' |3    |2.900000|1    |3.000000|'sfsf' |1    |3.700000|\n"},
+                               "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jh.id|jh.some |jk.id|jk.some |jk.name|\n"
+                               "1    |2.900000|'sfsf' |3    |2.900000|1    |3.700000|1    |3.000000|'sfsf' |\n"},
                               {"SELECT * from ((jk join jg on jk.id = jg.id) join (jj as j1 join jg as j2 on j1.id = "
                                "j2.id) on jk.id = jg.id) join (jj as j3 join jg as j4 on j3.age = j4.age) on j1.id = "
                                "j4.id;",
-                               "\njk.id|jk.some |jk.name|jg.id|jg.age  |j1.id|j1.age  |j1.name |j2.id|j2.age  "
+                               "\njg.id|jg.age  |jk.id|jk.some |jk.name|j1.id|j1.age  |j1.name |j2.id|j2.age  "
                                "|j3.id|j3.age  |j3.name  |j4.id|j4.age  |\n"
-                               "1    |3.000000|'sfsf' |1    |3.500000|2    |3.789000|'qwerty'|2    |3.700000|5    "
+                               "1    |3.500000|1    |3.000000|'sfsf' |2    |3.789000|'qwerty'|2    |3.700000|5    "
                                "|3.700000|'qwesdfy'|2    |3.700000|\n"}});
 }
 
