@@ -79,7 +79,7 @@ int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* dat
     if (data != nullptr) {
         this->WriteDataBlock(std::string(table->name), data,block_id);
     }
-    
+
     return 0;
 }
 
@@ -100,6 +100,7 @@ DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_i
     if (GetFileSize(data_file) <= 4 + CalcDataBlockSize(table->record_size) * block_id) {
         return nullptr;
     }
+
     data_file->seekg(0, std::ios::beg);
     int v = ReadIntFromFile(data_file);
     offset += 4;
@@ -110,10 +111,9 @@ DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_i
     }
 
     data_file->seekg(offset + CalcDataBlockSize(table->record_size) * block_id, std::ios::beg);
-    std::cerr<<data_file->tellg()<<std::endl;
     char data_buffer[CalcDataBlockSize(table->record_size)];
     data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
-    std::cerr<<"READED "<<CalcDataBlockSize(table->record_size)<<std::endl;
+    std::cerr<<"READED BLOCK "<<block_id<<std::endl;
     return ReadDataBlockFromBuffer(data_buffer, table->record_size);
 
 }
@@ -128,11 +128,10 @@ void FileManager::WriteDataBlock(const std::string& table_name, DataBlock* data,
     WriteIntToFile(data_file, table_data[table_name]->record_amount);
 
     data_file->seekp(offset + CalcDataBlockSize(data) * block_id, std::ios::beg);
-    std::cerr<<data_file->tellp()<<std::endl;
     if (data->record_amount != 0) {
         buffer_data buffer = GetDataBlockBuffer(data);
         data_file->write(buffer.first, buffer.second);
-        std::cerr<<"WRITEN "<<buffer.second<<std::endl;
+        std::cerr<<"WRITEN BLOCK "<<block_id<<std::endl;
         delete[] buffer.first;
     }
 

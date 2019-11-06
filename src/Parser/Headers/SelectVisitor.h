@@ -110,7 +110,7 @@ class SelectVisitor : public TreeVisitor {
                 _newRecord.emplace_back(std::make_pair(std::make_pair(aliasName, col.first), col.second));
             }
             records.emplace_back(_newRecord);
-        } while (!cursor->Next());
+        } while (!cursor->NextRecord());
         return records;
     }
 

@@ -48,7 +48,7 @@
 //        //        }
 //        //        cursor.second->Reset();
 //
-//    } while (!cursor.second->Next());
+//    } while (!cursor.second->NextRecord());
 //
 //    cursor.second->Commit();
 //
@@ -90,7 +90,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (v->getResult()) {
                 records.emplace_back(record);
             }
-        } while (!cursor.second->Next());
+        } while (!cursor.second->NextRecord());
     }
     cursor.second->Reset();
 
@@ -118,7 +118,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             }
         }
 
-    } while (!cursor.second->Next());
+    } while (!cursor.second->NextRecord());
 
     cursor.second->Reset();
 
@@ -146,7 +146,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     //            cursor.second->Update(columns, values);
     //        }
     //
-    //    } while (!cursor.second->Next());
+    //    } while (!cursor.second->NextRecord());
 
     cursor.second->Reset();
 

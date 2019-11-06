@@ -43,9 +43,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return Message();
         }
 
-        cursor.second.reset();
-        cursor.first.reset();
-        cursor = getEngine().GetCursor(tableName);
+        cursor.second->Reset();
 
         do {
             auto _record = cursor.second->Fetch();
@@ -66,7 +64,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (v->getResult()) {
                 records.push_back(_newRecord);
             }
-        } while (!cursor.second->Next());
+        } while (!cursor.second->NextRecord());
     }
     return Message(ActionsUtils::checkSelectColumns(records, v->getColumns()));
 };

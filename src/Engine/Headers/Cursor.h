@@ -25,7 +25,8 @@ class Cursor {
     Cursor();
     int Insert(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Commit();
-    int Next();
+    int NextRecord();
+    int NextDataBlock();
     int Delete();
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Reset();

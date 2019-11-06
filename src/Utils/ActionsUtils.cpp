@@ -358,7 +358,7 @@ ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_
             records.emplace_back(record);
         }
 
-    } while (!cursor.second->Next());
+    } while (!cursor.second->NextRecord());
     cursor.second->Reset();
     return records;
 }
