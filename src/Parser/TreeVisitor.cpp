@@ -134,3 +134,4 @@ void TreeVisitor::visit(JoinNode* node) {}
 void TreeVisitor::visit(TableNode* node) {}
 void TreeVisitor::visit(LeftJoinNode* node) {}
 void TreeVisitor::visit(RightJoinNode* node) {}
+void TreeVisitor::visit(FullJoinNode* node) {}

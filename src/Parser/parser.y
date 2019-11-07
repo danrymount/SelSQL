@@ -64,6 +64,7 @@
     #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/LeftJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/RightJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/FullJoinNode.h"
     #include "../../src/Parser/Nodes/TableNode.h"
 
     extern int yylineno;
@@ -304,7 +305,7 @@ join_type:
 	$$ = new RightJoinNode();
     }|
     FULL JOIN {
-
+	$$ = new FullJoinNode();
     }
 
 union_intercest:

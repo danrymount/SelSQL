@@ -27,6 +27,7 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
+#include "../Nodes/JoinNodes/FullJoinNode.h"
 #include "../Nodes/JoinNodes/JoinNode.h"
 #include "../Nodes/JoinNodes/LeftJoinNode.h"
 #include "../Nodes/JoinNodes/RightJoinNode.h"
@@ -66,7 +67,7 @@ class SelectVisitor : public TreeVisitor {
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
         if (!curValue.empty()) {
-            auto tableName = std::move(curValue);
+            tableName = std::move(curValue);
             std::string alias = tableName;
             if (node->getAlias() != nullptr) {
                 node->getAlias()->accept(this);
@@ -197,19 +198,68 @@ class SelectVisitor : public TreeVisitor {
         endExecuteJoin();
     }
 
+    void visit(FullJoinNode* node) override {
+        startExecuteJoin(node);
+        records.clear();
+        for (auto& first : firstRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : secondRecords) {
+                auto joinRecords = first;
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
+                if (expressionVisitor->getResult()) {
+                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                    records.emplace_back(joinRecords);
+                    flag = 1;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = first;
+                for (auto& rec : secondRecords[0]) {
+                    auto tempRec = rec;
+                    tempRec.second.clear();
+                    joinRecords.emplace_back(tempRec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+        for (auto& first : secondRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : firstRecords) {
+                auto joinRecords = second;
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
+                if (expressionVisitor->getResult()) {
+                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
+                    records.emplace_back(joinRecords);
+                    flag = 1;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = firstRecords[0];
+                for (auto& joinRec : joinRecords) {
+                    joinRec.second.clear();
+                }
+                for (auto& rec : first) {
+                    joinRecords.emplace_back(rec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+        endExecuteJoin();
+    }
+
     void visit(JoinNode* node) override {
-        //        node->getFirstSource()->accept(this);
-        //        if (message.getErrorCode()) {
-        //            return;
-        //        }
-        //        node->getSecondSource()->accept(this);
-        //        if (message.getErrorCode()) {
-        //            return;
-        //        }
-        //        secondRecords = allrecords.back();
-        //        allrecords.pop_back();
-        //        firstRecords = allrecords.back();
-        //        allrecords.pop_back();
         startExecuteJoin(node);
         node->getExpr()->accept(this);
         if (countEq == 2) {
