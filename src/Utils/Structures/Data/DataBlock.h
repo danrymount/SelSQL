@@ -8,7 +8,7 @@
 #include "../../Headers/Constants.h"
 class DataBlock {
    public:
-    int was_changed = 0;
+    int was_changed = 1;
     char* data_;
     short int* deleted_pos_;
     size_t record_amount = 0;

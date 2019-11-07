@@ -8,7 +8,7 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
-    
+
     auto meta_file = files_[table->name].meta_file;
     meta_file->seekp(0, std::ios::beg);
     buffer_data buffer = GetTableBuffer(table.get());
@@ -76,7 +76,7 @@ int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* dat
     }
 
     if (data != nullptr) {
-        this->WriteDataBlock(std::string(table->name), data,block_id);
+        this->WriteDataBlockToTemp(std::string(table->name), data, block_id);
     }
 
     return 0;
@@ -113,14 +113,14 @@ DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_i
     char data_buffer[CalcDataBlockSize(table->record_size)];
     data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
     return ReadDataBlockFromBuffer(data_buffer, table->record_size);
-
 }
-void FileManager::WriteDataBlock(const std::string& table_name, DataBlock* data, int block_id) {
+void FileManager::WriteDataBlockToTemp(const std::string& table_name, DataBlock* data, int block_id) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
     }
-    auto data_file = files_[table_name].data_file;
+
+    auto data_file = temp;
     int offset = 4;
     data_file->seekp(std::ios::beg);
     WriteIntToFile(data_file, table_data[table_name]->record_amount);
@@ -142,4 +142,48 @@ void FileManager::CloseAllFiles() {
         file.second.close();
     }
     files_.clear();
+}
+
+int FileManager::UpdateFile(std::string table_name) {
+    auto flag = new std::ofstream("flag.flag");
+    if (!flag->is_open()) {
+        delete flag;
+        flag = new std::ofstream("flag.flag", std::ios::trunc);
+    }
+    if (table_name == "") {
+        auto res = std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE, std::ios::binary|std::ios::in);
+        if (res.is_open()){
+            int size = GetFileSize(temp);
+            char* guf = new char[size];
+            temp->read(guf, size);
+            res.seekp(std::ios::beg);
+            res.write(guf, size);
+            res.close();
+            flag->close();
+            std::remove("flag.flag");
+            delete[] guf;
+
+        }
+    }
+    else{
+        *flag << table_name;
+        int size = GetFileSize(temp);
+        char* guf = new char[size];
+        temp->read(guf, size);
+        auto res = files_[table_name].data_file;
+        res->seekp(std::ios::beg);
+        res->write(guf, size);
+        res->close();
+        flag->close();
+        std::remove("flag.flag");
+        delete[] guf;
+//        delete res;
+    }
+    delete flag;
+
+}
+
+FileManager::FileManager() {
+    temp = new std::fstream("TEMP", std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
+    UpdateFile("");
 }

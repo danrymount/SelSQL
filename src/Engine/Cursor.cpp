@@ -219,6 +219,7 @@ int Cursor::Reset() {
 Cursor::~Cursor() {
     if (!table_->name.empty()) {
         UpdateDataBlock();
+        file_manager_->UpdateFile(table_->name);
         file_manager_->CloseAllFiles();
     }
 }
