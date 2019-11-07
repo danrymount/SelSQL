@@ -62,6 +62,9 @@ class TreeVisitor : public Visitor {
     void visit(UpdatesAndExprNode* node) override;
     void visit(AssignUpdateNode* node) override;
 
+    void visit(LeftJoinNode* node) override;
+    void visit(RightJoinNode* node) override;
+
     Message getMessage() { return message; }
 
 

@@ -28,6 +28,8 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
 #include "../Nodes/JoinNodes/JoinNode.h"
+#include "../Nodes/JoinNodes/LeftJoinNode.h"
+#include "../Nodes/JoinNodes/RightJoinNode.h"
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
@@ -106,7 +108,7 @@ class SelectVisitor : public TreeVisitor {
         return records;
     }
 
-    void visit(JoinNode* node) override {
+    void startExecuteJoin(BaseJoinNode* node) {
         node->getFirstSource()->accept(this);
         if (message.getErrorCode()) {
             return;
@@ -119,7 +121,96 @@ class SelectVisitor : public TreeVisitor {
         allrecords.pop_back();
         firstRecords = allrecords.back();
         allrecords.pop_back();
+    }
 
+    void endExecuteJoin() {
+        allrecords.emplace_back(records);
+        records.clear();
+        firstRecords.clear();
+        secondRecords.clear();
+    }
+
+    void visit(LeftJoinNode* node) override {
+        startExecuteJoin(node);
+        records.clear();
+        for (auto& first : firstRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : secondRecords) {
+                auto joinRecords = first;
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
+                if (expressionVisitor->getResult()) {
+                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                    records.emplace_back(joinRecords);
+                    flag = 1;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = first;
+                for (auto& rec : secondRecords[0]) {
+                    auto tempRec = rec;
+                    tempRec.second.clear();
+                    joinRecords.emplace_back(tempRec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+        endExecuteJoin();
+    }
+
+    void visit(RightJoinNode* node) override {
+        startExecuteJoin(node);
+        records.clear();
+        for (auto& first : secondRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : firstRecords) {
+                auto joinRecords = second;
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
+                if (expressionVisitor->getResult()) {
+                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
+                    records.emplace_back(joinRecords);
+                    flag = 1;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = firstRecords[0];
+                for (auto& joinRec : joinRecords) {
+                    joinRec.second.clear();
+                }
+                for (auto& rec : first) {
+                    joinRecords.emplace_back(rec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+        endExecuteJoin();
+    }
+
+    void visit(JoinNode* node) override {
+        //        node->getFirstSource()->accept(this);
+        //        if (message.getErrorCode()) {
+        //            return;
+        //        }
+        //        node->getSecondSource()->accept(this);
+        //        if (message.getErrorCode()) {
+        //            return;
+        //        }
+        //        secondRecords = allrecords.back();
+        //        allrecords.pop_back();
+        //        firstRecords = allrecords.back();
+        //        allrecords.pop_back();
+        startExecuteJoin(node);
         node->getExpr()->accept(this);
         if (countEq == 2) {
             hashJoin(node);
@@ -128,10 +219,7 @@ class SelectVisitor : public TreeVisitor {
         } else {
             nestedLoopsJoin(node);
         }
-        allrecords.emplace_back(records);
-        records.clear();
-        firstRecords.clear();
-        secondRecords.clear();
+        endExecuteJoin();
     }
 
     void visit(ExprNode* node) override { node->getChild()->accept(this); }
