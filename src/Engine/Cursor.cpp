@@ -211,6 +211,7 @@ int Cursor::Reset() {
     current_pos = 0;
     readed_data = 0;
     block_id = 0;
+    delete data_block_;
     data_block_ = file_manager_->ReadDataBlock(table_->name, block_id);
     return 0;
 }
