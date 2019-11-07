@@ -42,6 +42,7 @@ TEST(SERVER_TEST_CREATE, TEST3) {
 }
 
 TEST(SERVER_TEST_SELECT, TEST1) {
+//    TestUtils::StartServer();
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
                               {"INSERT INTO t values(0);", "Success"},
