@@ -137,24 +137,29 @@ class ExpressionVisitor : public TreeVisitor {
         node->setResult(ActionsUtils::checkSign[Cmp::LOWER](left, right));
     }
 
-    void visit(IndentExprNode* node) override {
-        int flag = 0;
-        std::vector<std::pair<std::pair<std::string, std::string>, std::string>> values;
-        values.reserve(firstValues.size() + secondValues.size());
-        values.insert(values.end(), firstValues.begin(), firstValues.end());
-        values.insert(values.end(), secondValues.begin(), secondValues.end());
-        auto value = node->getBaseValue();
+    static std::string findValue(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> values,
+                                 const std::string& value, const std::string& alias) {
         auto res = std::find_if(values.begin(), values.end(),
-                                [value, node](const std::pair<std::pair<std::string, std::string>, std::string>& val) {
-                                    return value == val.first.second &&
-                                           (node->getAliasname() == val.first.first || node->getAliasname().empty());
+                                [value, alias](const std::pair<std::pair<std::string, std::string>, std::string>& val) {
+                                    return value == val.first.second && (alias == val.first.first || alias.empty());
                                 });
-        if (res == values.end()) {
-            result = false;
-            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
-            return;
+        if (res != values.end()) {
+            return res->second;
         }
-        curValue = res->second;
+        return std::string();
+    }
+
+    void visit(IndentExprNode* node) override {
+        auto res = findValue(firstValues, node->getBaseValue(), node->getAliasname());
+        if (res.empty()) {
+            res = findValue(secondValues, node->getBaseValue(), node->getAliasname());
+            if (res.empty()) {
+                result = false;
+                message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+                return;
+            }
+        }
+        curValue = res;
     }
 
     void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
