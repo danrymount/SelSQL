@@ -16,16 +16,22 @@
 #include "TreeVisitor.h"
 class InsertVisitor : public TreeVisitor {
    public:
-    void visit(InsertNode* node) override {
+    Message visitTemplate(InsertNode* node) override {
         node->getSource()->accept(this);
         node->getChild()->accept(this);
+        return Message();
     }
+
+    //    void visit(InsertNode* node) override {
+    //        node->getSource()->accept(this);
+    //        node->getChild()->accept(this);
+    //    }
 
     void visit(ColumnsAndValuesNode* node) override {
         for (auto& col : node->getColumns()) {
             col->accept(this);
         }
-        for (auto& val: node->getValues()) {
+        for (auto& val : node->getValues()) {
             val->accept(this);
         }
     }
@@ -34,21 +40,13 @@ class InsertVisitor : public TreeVisitor {
 
     void visit(ColumnNode* node) override { columns.emplace_back(node->getColumn()->getBaseValue()); }
 
-    void visit(IntValueNode* node) override {
-        values.emplace_back(std::to_string(node->getValue()));
-    }
+    void visit(IntValueNode* node) override { values.emplace_back(std::to_string(node->getValue())); }
 
-    void visit(CharValueNode* node) override {
-        values.emplace_back(node->getValue());
-    }
+    void visit(CharValueNode* node) override { values.emplace_back(node->getValue()); }
 
-    void visit(FloatValueNode* node) override {
-        values.emplace_back(std::to_string(node->getValue()));
-    }
+    void visit(FloatValueNode* node) override { values.emplace_back(std::to_string(node->getValue())); }
 
-    void visit(NullValueNode* node) override {
-        values.emplace_back("null");
-    }
+    void visit(NullValueNode* node) override { values.emplace_back("null"); }
 
     std::vector<std::string> getValues() { return values; }
 

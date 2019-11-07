@@ -37,10 +37,16 @@
 typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
-    void visit(SelectNode* node) override {
+    Message visitTemplate(SelectNode* node) override {
         node->getChild()->accept(this);
         source = node->getSource();
+        return Message();
     }
+
+    //    void visit(SelectNode* node) override {
+    //        node->getChild()->accept(this);
+    //        source = node->getSource();
+    //    }
 
     void visit(ColumnsAndExprNode* node) override {
         for (auto& col : node->getColumns()) {

@@ -54,13 +54,69 @@ void TreeVisitor::visit(RootNode* node) {
     for (auto& child : node->getChildren()) {
         // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
         child->accept(this);
+        message = child->getMessage();
+        if (message.getErrorCode()) {
+            return;
+        }
     }
+}
+
+Message TreeVisitor::visitTemplate(DeleteNode* node) {
+    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
+    auto action = std::make_shared<DeleteNode>(*node);
+    return DeleteAction(visitor).execute(action);
+}
+
+Message TreeVisitor::visitTemplate(RootNode* node) {
+    //    for (auto& child : node->getChildren()) {
+    //        // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
+    //        child->accept(this);
+    //        auto t = child->getMessage();
+    //        if (t.getErrorCode()) {
+    //            return t;
+    //        }
+    //    }
+}
+
+Message TreeVisitor::visitTemplate(CreateNode* node) {
+    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    auto action = std::make_shared<CreateNode>(*node);
+    return CreateAction(visitor).execute(action);
+}
+
+Message TreeVisitor::visitTemplate(DropNode* node) {
+    auto visitor = std::make_shared<DropVisitor>(DropVisitor());
+    auto action = std::make_shared<DropNode>(*node);
+    return DropAction(visitor).execute(action);
+}
+
+Message TreeVisitor::visitTemplate(ShowCreateNode* node) {
+    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor());
+    auto action = std::make_shared<ShowCreateNode>(*node);
+    return ShowCreateAction(visitor).execute(action);
+}
+
+Message TreeVisitor::visitTemplate(InsertNode* node) {
+    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
+    auto action = std::make_shared<InsertNode>(*node);
+    return InsertAction(visitor).execute(action);
+}
+
+Message TreeVisitor::visitTemplate(SelectNode* node) {
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
+    auto action = std::make_shared<SelectNode>(*node);
+    return SelectAction(visitor).execute(action);
+}
+Message TreeVisitor::visitTemplate(UpdateNode* node) {
+    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
+    auto action = std::make_shared<UpdateNode>(*node);
+    message = UpdateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(CreateNode* node) {
     auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
     auto action = std::make_shared<CreateNode>(*node);
-    message = CreateAction(visitor).execute(action);
+    CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
@@ -135,3 +191,4 @@ void TreeVisitor::visit(TableNode* node) {}
 void TreeVisitor::visit(LeftJoinNode* node) {}
 void TreeVisitor::visit(RightJoinNode* node) {}
 void TreeVisitor::visit(FullJoinNode* node) {}
+std::pair<std::string, Variable> TreeVisitor::visitTemplate(VariableNode* node) {}

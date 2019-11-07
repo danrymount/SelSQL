@@ -7,9 +7,9 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class SelectNode : public BaseActionNode {
    public:
-    SelectNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::SELECT, _source, _child){}
+    SelectNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(_source, _child) {}
 
-    void accept(TreeVisitor* v) override { v->visit(this); }
+    void accept(TreeVisitor* v) override { setMessage(v->visitTemplate(this)); }
 };
 
 #endif  // SELSQL_SELECTNODE_H

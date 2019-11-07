@@ -23,7 +23,7 @@ class VariableNode : public BaseNode {
 
     std::vector<ConstraintNode *> getConstraints() { return constraints; }
 
-    void accept(TreeVisitor *v) override { v->visit(this); }
+    void accept(TreeVisitor *v) override { addVariable(v->visitTemplate(this)); }
 
     void setSize(int _size) { size = _size; }
 
@@ -32,10 +32,15 @@ class VariableNode : public BaseNode {
     std::string getVarName() { return name; }
     Type getVarType() { return type; }
 
+    std::pair<std::string, Variable> getVariable() { return variable; }
+
+    void addVariable(std::pair<std::string, Variable> var) { variable = std::move(var); }
+
    private:
     std::string name;
     Type type;
     std::vector<ConstraintNode *> constraints;
+    std::pair<std::string, Variable> variable;
     int size = 0;
 };
 

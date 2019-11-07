@@ -12,9 +12,9 @@
 #include "BaseActionNode.h"
 class DropNode : public BaseActionNode {
    public:
-    explicit DropNode(BaseNode* _source) : BaseActionNode(Action::DROP, _source) {}
+    explicit DropNode(BaseNode* _source) : BaseActionNode(_source) {}
 
-    void accept(TreeVisitor* v) override { v->visit(this); }
+    void accept(TreeVisitor* v) override { setMessage(v->visitTemplate(this)); }
 };
 
 #endif  // SELSQL_DROPNODE_H

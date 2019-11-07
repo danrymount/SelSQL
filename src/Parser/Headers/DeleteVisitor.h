@@ -9,24 +9,29 @@
 #include "TreeVisitor.h"
 class DeleteVisitor : public TreeVisitor {
    public:
-    void visit(DeleteNode* node) override {
+    Message visitTemplate(DeleteNode* node) override {
         node->getSource()->accept(this);
         tableName = std::move(curValue);
         expr = static_cast<BaseExprNode*>(node->getChild());
+        return Message();
     }
 
-    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
+    //    void visit(DeleteNode* node) override {
+    //        node->getSource()->accept(this);
+    //        tableName = std::move(curValue);
+    //        expr = static_cast<BaseExprNode*>(node->getChild());
+    //    }
 
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
     std::string getTableName() { return tableName; }
 
     BaseExprNode* getExpr() { return expr; }
 
-
    private:
     std::string curValue;
     std::string tableName;
-    Message error;
+    // Message error;
     BaseExprNode* expr;
 };
 #endif  // SELSQL_DELETEVISITOR_H

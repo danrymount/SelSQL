@@ -30,11 +30,18 @@
 #include "TreeVisitor.h"
 class UpdateVisitor : public TreeVisitor {
    public:
-    void visit(UpdateNode* node) override {
+    Message visitTemplate(UpdateNode* node) override {
         node->getSource()->accept(this);
         tableName = std::move(curValue);
         node->getChild()->accept(this);
+        return Message();
     }
+
+    //    void visit(UpdateNode* node) override {
+    //        node->getSource()->accept(this);
+    //        tableName = std::move(curValue);
+    //        node->getChild()->accept(this);
+    //    }
 
     void visit(UpdatesAndExprNode* node) override {
         node->getUpdates()->accept(this);
@@ -58,7 +65,6 @@ class UpdateVisitor : public TreeVisitor {
     BaseExprNode* getExpr() { return expr; }
 
     std::vector<std::pair<std::string, std::string>> getUpdates() { return updateValues; }
-
 
     std::string getTableName() { return tableName; }
 

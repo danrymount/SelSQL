@@ -9,7 +9,12 @@
 #include "TreeVisitor.h"
 class DropVisitor : public TreeVisitor {
    public:
-    void visit(DropNode* node) override { node->getSource()->accept(this); }
+    Message visitTemplate(DropNode* node) override {
+        node->getSource()->accept(this);
+        return Message();
+    }
+
+    // void visit(DropNode* node) override { node->getSource()->accept(this); }
 
     void visit(IdentNode* node) override { tableName = node->getBaseValue(); }
 

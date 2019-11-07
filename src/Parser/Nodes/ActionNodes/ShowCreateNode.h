@@ -8,8 +8,8 @@
 #include "BaseActionNode.h"
 class ShowCreateNode : public BaseActionNode {
    public:
-    explicit ShowCreateNode(BaseNode* _source) : BaseActionNode(Action::SHOW_CREATE, _source) {}
+    explicit ShowCreateNode(BaseNode* _source) : BaseActionNode(_source) {}
 
-    void accept(TreeVisitor* v) override { v->visit(this); }
+    void accept(TreeVisitor* v) override { setMessage(v->visitTemplate(this)); }
 };
 #endif  // SELSQL_SHOWCREATENODE_H

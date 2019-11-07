@@ -6,6 +6,7 @@
 #define SELSQL_TREEVISITOR_H
 
 #include <memory>
+#include "../../Utils/Structures/Data/Variable.h"
 #include "../../Utils/Structures/Message.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
@@ -68,8 +69,19 @@ class TreeVisitor : public Visitor {
 
     Message getMessage() { return message; }
 
+    // TEMPLATES
 
-protected:
+    virtual Message visitTemplate(RootNode* node);
+    virtual Message visitTemplate(CreateNode* node);
+    virtual Message visitTemplate(DropNode* node);
+    virtual Message visitTemplate(ShowCreateNode* node);
+    virtual Message visitTemplate(InsertNode* node);
+    virtual Message visitTemplate(SelectNode* node);
+    virtual Message visitTemplate(UpdateNode* node);
+    virtual Message visitTemplate(DeleteNode* node);
+    virtual std::pair<std::string, Variable> visitTemplate(VariableNode* node);
+
+   protected:
     Message message;
 };
 

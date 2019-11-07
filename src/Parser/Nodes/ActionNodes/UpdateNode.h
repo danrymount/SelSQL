@@ -7,9 +7,9 @@
 #include "../ExpressionsNodes/BaseExprNode.h"
 class UpdateNode : public BaseActionNode {
    public:
-    explicit UpdateNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(Action::UPDATE, _source, _child) {}
+    explicit UpdateNode(BaseNode* _source, BaseNode* _child) : BaseActionNode(_source, _child) {}
 
-    void accept(TreeVisitor* v) override { v->visit(this); }
+    void accept(TreeVisitor* v) override { setMessage(v->visitTemplate(this)); }
 };
 
 #endif  // SELSQL_UPDATENODE_H

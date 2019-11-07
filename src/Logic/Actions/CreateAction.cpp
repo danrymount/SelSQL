@@ -6,9 +6,10 @@
 #include "../../Parser/Headers/CreateVisitor.h"
 Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
+    auto error = root->getMessage();
     auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
     auto t = v->getTable();
-    auto error = v->getError();
+    // auto error = v->getError();
     if (error.getErrorCode()) {
         return error;
     }

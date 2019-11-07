@@ -5,6 +5,8 @@
 #ifndef SELSQL_CONSTRAINTNODE_H
 #define SELSQL_CONSTRAINTNODE_H
 
+#include <utility>
+
 #include "../../Utils/Headers/CommonUtils.h"
 #include "BaseNode.h"
 class ConstraintNode : public BaseNode {

@@ -11,31 +11,26 @@
 #include "../VariableNode.h"
 class BaseActionNode : public BaseNode {
    public:
-    BaseActionNode(Action _action, BaseNode* _source, BaseNode* _child)
-                                                                                                        : action(_action),
-                                                                                                          source(_source),
-                                                                                                          child(_child) {
-    }
+    BaseActionNode(BaseNode* _source, BaseNode* _child) : source(_source), child(_child) {}
 
-    BaseActionNode(Action _action, BaseNode* _source) : action(_action), source(_source) {}
+    explicit BaseActionNode(BaseNode* _source) : source(_source) {}
 
     ~BaseActionNode() override {
-        if (child != nullptr) {
-            delete child;
-        }
+        delete child;
         delete source;
     }
 
     void setChildren(BaseNode* _child) { child = _child; }
+    void setMessage(Message _message) { message = std::move(_message); }
+
     BaseNode* getChild() { return child; }
     BaseNode* getSource() { return source; }
-    // std::string getTableName() { return tableName; }
-    Action getAction() { return action; }
+    Message getMessage() { return message; }
 
    private:
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
-    Action action;
+    Message message;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

@@ -5,6 +5,8 @@
 #ifndef SELSQL_VARIABLE_H
 #define SELSQL_VARIABLE_H
 
+#include <utility>
+
 #include "../../Headers/CommonUtils.h"
 
 class Variable {
@@ -13,9 +15,12 @@ class Variable {
 
     Variable() = default;
 
-    Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(_constraints){};
+    Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(std::move(_constraints)){};
     explicit Variable(Type type_) : type(type_) {}
-    Variable(Type _type, int _size): type(_type), size(_size){};
+    Variable(Type _type, int _size, ConstraintsVector _constraints)
+                                                                                                        : type(_type),
+                                                                                                          size(_size),
+                                                                                                          constraints(std::move(_constraints)){};
 
     int addConstraint(Constraint constraint) {
         for (auto &constraint_ : constraints) {
@@ -27,8 +32,6 @@ class Variable {
     }
 
     ConstraintsVector getConstraints() { return constraints; }
-
-    ConstraintsVector getConstraints() const { return constraints; }
 
     void setConstraints(ConstraintsVector &constraints_) { this->constraints = constraints_; }
 
