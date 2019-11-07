@@ -87,22 +87,11 @@ class SelectVisitor : public TreeVisitor {
                 allrecords.emplace_back(addRecord(alias, cursor.second));
             }
         }
-        //        else {
-        //            node->getAlias()->accept(this);
-        //            auto alias = std::move(curValue);
-        //            if (firstRecordAndAlias.empty()) {
-        //                firstRecordAndAlias = records;
-        //                std::cout << alias << std::endl;
-        //            } else {
-        //                secondRecordAndAlias = records;
-        //            }
-        //        }
     }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
     addRecord(std::string aliasName, std::shared_ptr<Cursor> cursor) {
         std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
-        // cursor->Reset();
         do {
             auto _record = cursor->Fetch();
             if (_record.empty()) {
@@ -135,7 +124,6 @@ class SelectVisitor : public TreeVisitor {
         if (countEq == 2) {
             hashJoin(node);
             countEq = 0;
-            // curName.clear();
             curExpr.clear();
         } else {
             nestedLoopsJoin(node);
@@ -149,11 +137,8 @@ class SelectVisitor : public TreeVisitor {
     void visit(ExprNode* node) override { node->getChild()->accept(this); }
 
     void visit(IndentExprNode* node) override {
-        // if (curName.empty() || curName == node->getBaseValue()) {
         countEq++;
-        // curName = node->getBaseValue();
         curExpr.emplace_back(node->getAliasname(), node->getBaseValue());
-        //}
     }
 
     void visit(EqualsNode* node) override {
@@ -218,6 +203,7 @@ class SelectVisitor : public TreeVisitor {
             large = secondRecords;
             small = firstRecords;
         }
+
         if (!small.empty() && !large.empty()) {
             auto ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
             if (ident == small[0].end()) {
@@ -309,8 +295,7 @@ class SelectVisitor : public TreeVisitor {
     ExpressionVisitor* expressionVisitor;
     int countEq = 0;
     inline static int id = -1;
-    // inline static std::string curName;
-    inline static std::vector<std::pair<std::string, std::string>> curExpr;  // table as allias
+    inline static std::vector<std::pair<std::string, std::string>> curExpr;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H
