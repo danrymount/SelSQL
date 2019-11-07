@@ -36,27 +36,25 @@ class ExpressionVisitor : public TreeVisitor {
 
     void visit(NullValueNode* node) override { curValue = "null"; }
 
-    void visit(AndLogicNode* node) override {
+    int executeLeftOperation(BaseExprNode* node) {
         node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
+        return node->getLeft()->getResult();
+    }
+
+    int executeRightOperation(BaseExprNode* node) {
         node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a and b);
+        return node->getRight()->getResult();
+    }
+
+    void visit(AndLogicNode* node) override {
+        node->setResult(executeLeftOperation(node) and executeRightOperation(node));
     }
 
     void visit(OrLogicNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
-        node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a or b);
+        node->setResult(executeLeftOperation(node) or executeRightOperation(node));
     }
 
-    void visit(NotLogicNode* node) override {
-        node->getChild()->accept(this);
-        auto a = node->getChild()->getResult();
-        node->setResult(not a);
-    }
+    void visit(NotLogicNode* node) override { node->setResult(not executeLeftOperation(node)); }
 
     void visit(AddNode* node) override {
         node->getLeft()->accept(this);

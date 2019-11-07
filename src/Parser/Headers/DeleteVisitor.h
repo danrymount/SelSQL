@@ -17,11 +17,9 @@ class DeleteVisitor : public TreeVisitor {
 
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
-
     std::string getTableName() { return tableName; }
 
     BaseExprNode* getExpr() { return expr; }
-
 
    private:
     std::string curValue;
