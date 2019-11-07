@@ -35,7 +35,6 @@ void Client::sendMessage(std::string message) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-    /* закрываем соединения для посылки данных */
 #ifdef __WIN32
     closesocket(server_connection);
 #elif __linux

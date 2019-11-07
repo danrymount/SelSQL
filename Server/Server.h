@@ -17,7 +17,7 @@
 #include <vector>
 #include "Exception.h"
 
-static const int MESSAGE_SIZE = 1024;
+static const int MESSAGE_SIZE = 90000;
 
 class Server {
     int server_socket;
