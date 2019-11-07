@@ -23,20 +23,23 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     do {
-        // TODO Получает пустые записи
         auto record = cursor.second->Fetch();
         if (record.empty()) {
             continue;
         }
 
-        v->setValues(record);
+        std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+        for (auto &col : record) {
+            _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+        }
+        exprVisitor->setFirstValues(_newRecord);
         try {
-            expr->accept(v);
+            expr->accept(exprVisitor);
         } catch (std::exception &exception) {
             std::string exc = exception.what();
             return Message(ErrorConstants::ERR_TYPE_MISMATCH);
         }
-        if (v->getResult()) {
+        if (exprVisitor->getResult()) {
             //            delete_count++;
             cursor.second->Delete();
         }

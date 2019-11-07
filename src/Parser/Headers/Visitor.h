@@ -46,6 +46,9 @@ class AssignUpdateNode;
 class JoinNode;
 class SourceJoinNode;
 class TableNode;
+class LeftJoinNode;
+class RightJoinNode;
+class FullJoinNode;
 
 class Visitor {
    public:
@@ -58,6 +61,8 @@ class Visitor {
     virtual void visit(SelectNode* node) = 0;
     virtual void visit(UpdateNode* node) = 0;
     virtual void visit(DeleteNode* node) = 0;
+
+    virtual void visit(TableNode* node) = 0;
 
     virtual void visit(ConstraintNode* node) = 0;
     virtual void visit(VariableNode* node) = 0;
@@ -102,6 +107,8 @@ class Visitor {
 
     virtual void visit(SourceJoinNode* node) = 0;
     virtual void visit(JoinNode* node) = 0;
-    virtual void visit(TableNode* node) = 0;
+    virtual void visit(LeftJoinNode* node) = 0;
+    virtual void visit(RightJoinNode* node) = 0;
+    virtual void visit(FullJoinNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

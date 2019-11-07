@@ -5,14 +5,20 @@
 #ifndef SELSQL_UPDATEACTION_H
 #define SELSQL_UPDATEACTION_H
 
+#include "../../../Parser/Headers/ExpressionVisitor.h"
 #include "BaseAction.h"
 class UpdateAction : public BaseAction {
    public:
-    explicit UpdateAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
+    explicit UpdateAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {
+        exprVisitor = new ExpressionVisitor();
+    }
+
+    ~UpdateAction() { delete exprVisitor; }
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
 
    private:
+    ExpressionVisitor* exprVisitor;
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
 };
 

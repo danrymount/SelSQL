@@ -10,6 +10,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
     // auto columns = v->getColumns();
     auto expr = v->getExpr();
+    v->setExpressionVisitor(exprVisitor);
     auto source = v->getSource();
     source->accept(getTreeVisitor().get());
     auto message = v->getMessage();
@@ -33,7 +34,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         }
 
-        message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+        message = ActionsUtils::checkFieldsExist(table, columnValues);
         if (message.getErrorCode()) {
             return message;
         }
@@ -54,14 +55,14 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             for (auto &col : _record) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
-            v->setFirstValues(_newRecord);
+            exprVisitor->setFirstValues(_newRecord);
             try {
-                expr->accept(v);
+                expr->accept(exprVisitor);
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
-            if (v->getResult()) {
+            if (exprVisitor->getResult()) {
                 records.push_back(_newRecord);
             }
         } while (!cursor.second->Next());
