@@ -144,46 +144,29 @@ void FileManager::CloseAllFiles() {
     files_.clear();
 }
 
-int FileManager::UpdateFile(std::string table_name) {
+int FileManager::UpdateFile(const std::string& table_name) {
     auto flag = new std::ofstream("flag.flag");
     if (!flag->is_open()) {
         delete flag;
         flag = new std::ofstream("flag.flag", std::ios::trunc);
     }
     if (table_name == "") {
-        auto res = std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE, std::ios::binary|std::ios::in);
-        if (res.is_open()){
-            int size = GetFileSize(temp);
-            char* guf = new char[size];
-            temp->read(guf, size);
-            res.seekp(std::ios::beg);
-            res.write(guf, size);
-            res.close();
-            flag->close();
-            std::remove("flag.flag");
-            delete[] guf;
-
+        auto res = std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
+                                std::ios::binary | std::ios::in);
+        if (res.is_open()) {
+            RestoreFromTemp(temp, &res, flag);
         }
-    }
-    else{
+    } else {
         *flag << table_name;
-        int size = GetFileSize(temp);
-        char* guf = new char[size];
-        temp->read(guf, size);
         auto res = files_[table_name].data_file;
-        res->seekp(std::ios::beg);
-        res->write(guf, size);
-        res->close();
-        flag->close();
-        std::remove("flag.flag");
-        delete[] guf;
-//        delete res;
+        RestoreFromTemp(temp, res, flag);
     }
-    delete flag;
 
+    delete flag;
 }
 
 FileManager::FileManager() {
     temp = new std::fstream("TEMP", std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     UpdateFile("");
 }
+FileManager::~FileManager() { delete temp; }

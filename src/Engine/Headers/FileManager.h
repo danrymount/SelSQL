@@ -24,9 +24,10 @@ class FileManager {
     void ReadTableMetaData(const std::string& table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
     void WriteDataBlockToTemp(const std::string& table_name, DataBlock* data, int block_id);
-
+    
    public:
     explicit FileManager();
+    ~FileManager();
     int OpenFile(const std::string& table_name);
     int CreateFile(const std::shared_ptr<Table>& table);
     void CloseAllFiles();
@@ -34,7 +35,7 @@ class FileManager {
     std::shared_ptr<Table> GetTable(const std::string& table_name);
     DataBlock* ReadDataBlock(const std::string& table_name, int block_id);
     int UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* data, int block_id);
-    int UpdateFile(std::string table_name);
+    int UpdateFile(const std::string& table_name);
 };
 
 #endif  // SELSQL_FILEMANAGER_H

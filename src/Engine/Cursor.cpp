@@ -60,7 +60,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
             no_place = 0;
             break;
         } else if (data_block_->last_record_pos <= Constants::DATA_SIZE / table_->record_size - 1) {
-            pos_in_block = data_block_->last_record_pos++ * table_->record_size;
+            pos_in_block = data_block_->last_record_pos * table_->record_size;
             no_place = 0;
             break;
         }
@@ -98,6 +98,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
 
     table_->record_amount++;
     data_block_->record_amount++;
+    data_block_->last_record_pos++;
     std::memcpy(&data_block_->data_[pos_in_block], record, table_->record_size);
 
     return 0;
@@ -112,6 +113,7 @@ int Cursor::UpdateDataBlock() {
         }else{
             delete data_block_;
         }
+        
     }
     return 0;
 }
@@ -170,6 +172,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 int Cursor::NextRecord() {
     if (data_block_->record_amount > readed_data) {
         current_pos++;
+        std::cerr<<current_pos<<std::endl;
         return 0;
     } else {
         return NextDataBlock();
@@ -252,8 +255,11 @@ int Cursor::NextDataBlock() {
     data_block_ = file_manager_->ReadDataBlock(table_->name, ++block_id);
     if (data_block_ == nullptr) {
         block_id--;
+        std::cerr<<"FILE ENDS AT BLOCK "<<block_id<<std::endl;
+        
         return 1;
     }
+    std::cerr<<"NEXT BLOCK READED "<<block_id<<std::endl;
     readed_data = 0;
     current_pos = 0;
     return 0;
