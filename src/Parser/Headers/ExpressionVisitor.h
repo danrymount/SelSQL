@@ -24,6 +24,7 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
+#include "../Nodes/ValuesNodes/NullValueNode.h"
 #include "TreeVisitor.h"
 class ExpressionVisitor : public TreeVisitor {
    public:
@@ -34,105 +35,75 @@ class ExpressionVisitor : public TreeVisitor {
         }
     }
 
-    void visit(NullValueNode* node) override { curValue = "null"; }
+    void visit(NullValueNode* node) override { node->setValue("null"); }
 
-    int executeLeftOperation(BaseExprNode* node) {
+    int executeLeftLogic(BaseExprNode* node) {
         node->getLeft()->accept(this);
         return node->getLeft()->getResult();
     }
 
-    int executeRightOperation(BaseExprNode* node) {
+    int executeRightLogic(BaseExprNode* node) {
         node->getRight()->accept(this);
         return node->getRight()->getResult();
     }
 
-    void visit(AndLogicNode* node) override {
-        node->setResult(executeLeftOperation(node) and executeRightOperation(node));
+    std::string executeLeftArith(BaseExprNode* node) {
+        node->getLeft()->accept(this);
+        return node->getLeft()->getBaseValue();
     }
 
-    void visit(OrLogicNode* node) override {
-        node->setResult(executeLeftOperation(node) or executeRightOperation(node));
+    std::string executeRightArith(BaseExprNode* node) {
+        node->getRight()->accept(this);
+        return node->getRight()->getBaseValue();
     }
 
-    void visit(NotLogicNode* node) override { node->setResult(not executeLeftOperation(node)); }
+    void visit(AndLogicNode* node) override { node->setResult(executeLeftLogic(node) and executeRightLogic(node)); }
+
+    void visit(OrLogicNode* node) override { node->setResult(executeLeftLogic(node) or executeRightLogic(node)); }
+
+    void visit(NotLogicNode* node) override { node->setResult(not executeLeftLogic(node)); }
 
     void visit(AddNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[0](std::stod(a), std::stod(b)));
+        node->setValue(std::to_string(ActionsUtils::calculate[0](std::stod(executeLeftArith(node)),
+                                                                 std::stod(executeRightArith(node)))));
     }
 
     void visit(DivNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[3](std::stod(a), std::stod(b)));
+        node->setValue(std::to_string(ActionsUtils::calculate[3](std::stod(executeLeftArith(node)),
+                                                                 std::stod(executeRightArith(node)))));
     }
 
     void visit(SubNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[1](std::stod(a), std::stod(b)));
+        node->setValue(std::to_string(ActionsUtils::calculate[1](std::stod(executeLeftArith(node)),
+                                                                 std::stod(executeRightArith(node)))));
     }
 
     void visit(MultNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[2](std::stod(a), std::stod(b)));
+        node->setValue(std::to_string(ActionsUtils::calculate[2](std::stod(executeLeftArith(node)),
+                                                                 std::stod(executeRightArith(node)))));
     }
 
     void visit(MoreNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATER](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::GREATER](executeLeftArith(node), executeRightArith(node)));
     }
 
     void visit(EqualsNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::EQUALS](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::EQUALS](executeLeftArith(node), executeRightArith(node)));
     }
     void visit(NoEqualsNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::NOEQUALS](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::NOEQUALS](executeLeftArith(node), executeRightArith(node)));
     }
 
     void visit(MoreEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATEREQUALS](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::GREATEREQUALS](executeLeftArith(node), executeRightArith(node)));
     }
 
     void visit(LessEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWEREQUALS](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::LOWEREQUALS](executeLeftArith(node), executeRightArith(node)));
     }
 
     void visit(LessNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWER](left, right));
+        node->setResult(ActionsUtils::checkSign[Cmp::LOWER](executeLeftArith(node), executeRightArith(node)));
     }
 
     static std::string findValue(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> values,
@@ -148,21 +119,22 @@ class ExpressionVisitor : public TreeVisitor {
     }
 
     void visit(IndentExprNode* node) override {
-        auto res = findValue(firstValues, node->getBaseValue(), node->getAliasname());
+        auto res = findValue(firstValues, node->getName(), node->getAliasName());
         if (res.empty()) {
-            res = findValue(secondValues, node->getBaseValue(), node->getAliasname());
+            res = findValue(secondValues, node->getName(), node->getAliasName());
             if (res.empty()) {
                 result = false;
                 message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
                 return;
             }
         }
-        curValue = res;
+        node->setValue(res);
+        // curValue = res;
     }
 
-    void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
+    void visit(ValueExprNode* node) override {}
 
-    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
+    void visit(IdentNode* node) override {}
 
     void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
         firstValues = std::move(_values);
@@ -174,12 +146,12 @@ class ExpressionVisitor : public TreeVisitor {
 
     bool getResult() { return result; }
 
-    std::string getCurValue() { return curValue; }
+    // std::string getCurValue() { return curValue; }
 
    private:
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
-    std::string curValue;
+    // std::string curValue;
     bool result = true;
 };
 

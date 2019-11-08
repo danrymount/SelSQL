@@ -52,13 +52,12 @@ class UpdateVisitor : public TreeVisitor {
     void visit(AssignUpdateNode* node) override {
         curUpdateValue.first = node->getBaseValue();
         node->getExpr()->accept(expressionVisitor);
-        curUpdateValue.second = std::move(expressionVisitor->getCurValue());
+        curUpdateValue.second = std::move(node->getExpr()->getBaseValue());
     }
 
     BaseExprNode* getExpr() { return expr; }
 
     std::vector<std::pair<std::string, std::string>> getUpdates() { return updateValues; }
-
 
     std::string getTableName() { return tableName; }
 

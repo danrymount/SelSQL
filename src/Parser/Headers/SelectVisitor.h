@@ -276,7 +276,7 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(IndentExprNode* node) override {
         countEq++;
-        curExpr.emplace_back(node->getAliasname(), node->getBaseValue());
+        curExpr.emplace_back(node->getAliasName(), node->getName());
     }
 
     void visit(EqualsNode* node) override {
