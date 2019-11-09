@@ -586,6 +586,125 @@ TEST(SERVER_TEST_JOIN, TEST4) {
                                "5    |3.700000|\n"}});
 }
 
+TEST(SERVER_TEST_LEFT_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+                              {"SELECT * from table1 left join table2 on table1.id = table2.id;",
+                               "\ntable1.id|table1.age|table1.name|table2.id|table2.age|\n"
+                               "1        |2.900000  |'sfsf'     |1        |3.500000  |\n"
+                               "2        |3.789000  |'qwerty'   |2        |3.700000  |\n"
+                               "5        |3.700000  |'qwesdfy'  |         |          |\n"},
+                              {"SELECT * from (table1 as t1 left join table2 as t2 on t1.id = t2.id) left join table3"
+                               " on t1.age = table3.some;",
+                               "\nt1.id|t1.age  |t1.name  |t2.id|t2.age  |table3.id|table3.some|\n"
+                               "1    |2.900000|'sfsf'   |1    |3.500000|         |           |\n"
+                               "2    |3.789000|'qwerty' |2    |3.700000|2        |3.789000   |\n"
+                               "5    |3.700000|'qwesdfy'|     |        |1        |3.700000   |\n"},
+                              {"SELECT t1.id, t2.age from table1 as t1 left join table2 as t2 on t1.id = t2.id or "
+                               "t1.age = t2.age;",
+                               "\nt1.id|t2.age  |\n"
+                               "1    |3.500000|\n"
+                               "1    |2.900000|\n"
+                               "2    |3.700000|\n"
+                               "5    |3.700000|\n"}});
+}
+
+TEST(SERVER_TEST_RIGHT_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+                              {"SELECT t1.id, t2.id, t1.name, t2.age from table1 as t1 right join table2 as t2 on "
+                               "t1.id = t2.id;",
+                               ""},  // TODO error
+                              {"SELECT * from table3 as t3 right join (table1 as t1 right join table2 as t2 on "
+                               "t1.age = t2.age) on t3.id = t2.id;",
+                               "\nt3.id|t3.some |t1.id|t1.age  |t1.name  |t2.id|t2.age  |\n"
+                               "1    |3.700000|     |        |         |1    |3.500000|\n"
+                               "2    |3.789000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"
+                               "3    |9.500000|1    |2.900000|'sfsf'   |3    |2.900000|\n"},
+                              {"SELECT table1.id, table2.age from table1 right join table2 on table1.id = table1.id "
+                               "and table1.age = table2.age;",
+                               "\ntable1.id|table2.age|\n"
+                               "         |3.500000  |\n"
+                               "5        |3.700000  |\n"
+                               "1        |2.900000  |\n"}});
+}
+
+TEST(SERVER_TEST_LEFT_RIGHT_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+                              {"CREATE TABLE table4(id INT NOT NULL , some float, name char(150));", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+                              {"INSERT INTO table4 values(1, 3, 'sfsf');", "Success"},
+                              {"SELECT t1.age, table4.id, table4.name, t2.age from (table1 as t1 right join table2 as "
+                               "t2 "
+                               "on t1.age = t2.age) left join (table4 right join table3 on table4.id = table3.id) on "
+                               "t1.name = table4.name;",
+                               ""},  // TODO error
+                              {"SELECT * from ((table4 left join table2 on table4.id = table2.id) right join (table1 "
+                               "as "
+                               "t1 right join table2 as t2 on t1.id = t2.id) on table4.id = table2.id) left join "
+                               "(table1"
+                               " as t3 right join table2 as t4 on t3.age = t4.age) on t1.id = t4.id;",
+                               ""}});  // TODO error
+}
+
+TEST(SERVER_TEST_FULL_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"SELECT * from table1 full join table2 on table1.id = table2.id;",
+                               "\ntable1.id|table1.age|table1.name|table2.id|table2.age|\n"
+                               "1        |2.900000  |'sfsf'     |1        |3.500000  |\n"
+                               "2        |3.789000  |'qwerty'   |2        |3.700000  |\n"
+                               "5        |3.700000  |'qwesdfy'  |         |          |\n"
+                               "         |          |           |3        |2.900000  |\n"},  // TODO duplicate entries
+                              {"SELECT t1.id, t2.age from table1 as t1 full join table2 as t2 on t1.id = t2.id or "
+                               "t1.age = t2.age;",
+                               "\nt1.id|t2.age  |\n"
+                               "1    |3.500000|\n"
+                               "1    |2.900000|\n"
+                               "2    |3.700000|\n"
+                               "5    |3.700000|\n"}});  // TODO duplicate entriesвт
+}
+
 TEST(SERVER_TEST_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
