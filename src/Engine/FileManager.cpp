@@ -69,7 +69,7 @@ int FileManager::DeleteFile(const std::string& table_name) {
     return !fs::remove_all(table_name);
 }
 
-int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* data, int block_id) {
+int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id) {
     if (files_.find(table->name) == files_.end() or !files_[table->name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
@@ -82,7 +82,7 @@ int FileManager::UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* dat
     return 0;
 }
 
-DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
+std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
@@ -114,7 +114,7 @@ DataBlock* FileManager::ReadDataBlock(const std::string& table_name, int block_i
     data_file->read(data_buffer, CalcDataBlockSize(table->record_size));
     return ReadDataBlockFromBuffer(data_buffer, table->record_size);
 }
-void FileManager::WriteDataBlockToTemp(const std::string& table_name, DataBlock* data, int block_id) {
+void FileManager::WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id) {
     if (files_.find(table_name) == files_.end() or !files_[table_name].isOpen()) {
         std::cerr << __func__ << "\t File isn't opened" << std::endl;
         throw FileNotOpened();
@@ -125,14 +125,13 @@ void FileManager::WriteDataBlockToTemp(const std::string& table_name, DataBlock*
     data_file->seekp(std::ios::beg);
     WriteIntToFile(data_file, table_data[table_name]->record_amount);
 
-    data_file->seekp(offset + CalcDataBlockSize(data) * block_id, std::ios::beg);
+    data_file->seekp(offset + CalcDataBlockSize(data.get()) * block_id, std::ios::beg);
     if (data->record_amount != 0) {
-        buffer_data buffer = GetDataBlockBuffer(data);
+        buffer_data buffer = GetDataBlockBuffer(data.get());
         data_file->write(buffer.first, buffer.second);
         delete[] buffer.first;
     }
-
-    delete data;
+    
 
     data_file->flush();
 }

@@ -23,7 +23,7 @@ class FileManager {
 
     void ReadTableMetaData(const std::string& table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
-    void WriteDataBlockToTemp(const std::string& table_name, DataBlock* data, int block_id);
+    void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id);
     
    public:
     explicit FileManager();
@@ -33,8 +33,8 @@ class FileManager {
     void CloseAllFiles();
     int DeleteFile(const std::string& table_name);
     std::shared_ptr<Table> GetTable(const std::string& table_name);
-    DataBlock* ReadDataBlock(const std::string& table_name, int block_id);
-    int UpdateBlock(const std::shared_ptr<Table>& table, DataBlock* data, int block_id);
+    std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id);
+    int UpdateBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id);
     int UpdateFile(const std::string& table_name);
 };
 

@@ -4,6 +4,8 @@
 
 #include "Headers/EngineUtils.h"
 
+#include <memory>
+
 void WriteIntToFile(std::fstream *file, int value) { file->write(reinterpret_cast<char *>(&value), sizeof(int)); }
 
 int ReadIntFromFile(std::fstream *file) {
@@ -113,9 +115,9 @@ buffer_data GetDataBlockBuffer(DataBlock *data_block) {
     offset += Constants::DATA_SIZE;
     return buffer_data(data, offset);
 }
-DataBlock* ReadDataBlockFromBuffer(char *data, int record_size) {
+std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) {
     int offset = 0;
-    auto dataBlock = new DataBlock;
+    auto dataBlock = std::make_shared<DataBlock>();
     dataBlock->record_size = record_size;
     std::memcpy(&dataBlock->record_amount, &data[offset], sizeof(int));
     offset += sizeof(int);

@@ -111,7 +111,6 @@ int Cursor::UpdateDataBlock() {
             data_block_->record_amount -= current_session_deleted_;
             file_manager_->UpdateBlock(table_, data_block_, block_id);
         }else{
-            delete data_block_;
         }
         
     }
@@ -214,7 +213,6 @@ int Cursor::Reset() {
     current_pos = 0;
     readed_data = 0;
     block_id = 0;
-    delete data_block_;
     data_block_ = file_manager_->ReadDataBlock(table_->name, block_id);
     return 0;
 }
@@ -241,7 +239,7 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileMa
     }
 }
 void Cursor::Allocate() {
-    data_block_ = new DataBlock;
+    data_block_ = std::make_shared<DataBlock>();
     data_block_->record_size = table_->record_size;
     data_block_->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;
     data_block_->setDeletedPos(new char[data_block_->max_deleted_amount * sizeof(short int)]);
@@ -255,11 +253,11 @@ int Cursor::NextDataBlock() {
     data_block_ = file_manager_->ReadDataBlock(table_->name, ++block_id);
     if (data_block_ == nullptr) {
         block_id--;
-        std::cerr<<"FILE ENDS AT BLOCK "<<block_id<<std::endl;
+//        std::cerr<<"FILE ENDS AT BLOCK "<<block_id<<std::endl;
         
         return 1;
     }
-    std::cerr<<"NEXT BLOCK READED "<<block_id<<std::endl;
+//    std::cerr<<"NEXT BLOCK READED "<<block_id<<std::endl;
     readed_data = 0;
     current_pos = 0;
     return 0;

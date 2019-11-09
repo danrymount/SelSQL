@@ -8,7 +8,7 @@
 class Cursor {
     std::shared_ptr<Table> table_;
     std::shared_ptr<FileManager> file_manager_;
-    DataBlock* data_block_;
+    std::shared_ptr<DataBlock> data_block_;
     std::vector<std::pair<std::string, std::string>> values_;
 
 
