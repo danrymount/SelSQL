@@ -1,16 +1,21 @@
 //
 // Created by quiks on 13.10.2019.
 //
+
 #include "Client.h"
+#ifdef __WIN32
+#include "ClientUtils/Win/ClientUtilsWin.h"
+#define platform(lin, win) win
+#elif __linux
+#include "ClientUtils/Win/ClientUtilsLin.h"
+#define platform(lin, win) lin
+#endif
 
 #include <cstring>
 #include <iostream>
 Client::Client() {
-#ifdef __WIN32
-    WORD wV = MAKEWORD(2, 2);
-    WSADATA d;
-    WSAStartup(wV, &d);
-#endif
+    platform(ClientUtilsLin::startClient();, ClientUtilsWin::startClient(););
+
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
     if (client_socket < 0) {
@@ -35,11 +40,7 @@ void Client::sendMessage(std::string message) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-#ifdef __WIN32
-    closesocket(server_connection);
-#elif __linux
-    shutdown(server_connection, SHUT_RD);
-#endif
+    platform(ClientUtilsLin::close(server_connection);, ClientUtilsWin::close(server_connection);)
 }
 void Client::getMessage() {
     char rec_message[MESSAGE_SIZE];
@@ -74,12 +75,6 @@ void Client::execRequest(std::string request) {
 }
 
 Client::~Client() {
-#ifdef __WIN32
-    closesocket(server_connection);
-    closesocket(client_socket);
-    WSACleanup();
-#elif __linux
-    shutdown(client_socket, SHUT_RDWR);
-    shutdown(server_connection, SHUT_RDWR);
-#endif
+    platform(ClientUtilsLin::clientClose(server_connection, client_socket);
+             , ClientUtilsWin::clientClose(server_connection, client_socket);)
 }

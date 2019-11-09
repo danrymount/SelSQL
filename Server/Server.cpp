@@ -3,17 +3,19 @@
 //
 
 #include "Server.h"
+#ifdef __WIN32
+#include "ServerUtils/Win/ServerUtilsWin.h"
+#define platform(lin, win) win
+#elif __linux
+#include "ServerUtils/Lin/ServerUtilsLin.h"
+#define platform(lin, win) lin
+#endif
 #include <cstring>
 #include <iostream>
 
 Server::Server(int max_connection) {
-#ifdef __WIN32
-    WSACleanup();
-    WORD wV = MAKEWORD(2, 2);
-    WSADATA d;
-    WSAStartup(wV, &d);
-#endif
-    server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    platform(ServerUtilsLin::startServer();
+             , ServerUtilsWin::startServer();) server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         std::cerr << "Unable to create server socket" << std::endl;
         throw ServerException();
@@ -60,8 +62,4 @@ int Server::AcceptSocket(int id) {
     return 0;
 }
 
-#ifdef __WIN32
-Server::~Server() { WSACleanup(); }
-#elif __linux
-Server::~Server() { shutdown(server_socket, SHUT_RDWR); }
-#endif
+Server::~Server() { platform(ServerUtilsLin::closeServer(server_socket);, ServerUtilsWin::closeServer(server_socket);) }

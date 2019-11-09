@@ -17,17 +17,11 @@
 
 #include "Exception.h"
 
-static const int MESSAGE_SIZE = 90000;
+static const int MESSAGE_SIZE = 9000;
 class Client {
-#ifdef __WIN32
-    SOCKET client_socket;
-    sockaddr_in peer;
-    SOCKET server_connection;
-#elif __linux
     int client_socket;
     sockaddr_in peer;
     int server_connection;
-#endif
 
    public:
     std::string response;
