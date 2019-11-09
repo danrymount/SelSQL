@@ -7,16 +7,8 @@
 #include "../BaseExprNode.h"
 class OrLogicNode : public BaseExprNode {
    public:
-    OrLogicNode(BaseExprNode* _left, BaseExprNode* _right) : left(_left), right(_right) {}
+    OrLogicNode(BaseExprNode* _left, BaseExprNode* _right) : BaseExprNode(_left, _right) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
-
-    BaseExprNode* getLeft() { return left; }
-
-    BaseExprNode* getRight() { return right; }
-
-   private:
-    BaseExprNode* left;
-    BaseExprNode* right;
 };
 #endif  // SELSQL_ORLOGICNODE_H
