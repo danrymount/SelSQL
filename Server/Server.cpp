@@ -13,6 +13,7 @@
 
 Server::Server(int max_connection) {
     ServerUtils::startServer();
+    server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         std::cerr << "Unable to create server socket" << std::endl;
         throw ServerException();
