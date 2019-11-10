@@ -5,7 +5,7 @@
 #ifndef SELSQL_SERVERUTILSLIN_H
 #define SELSQL_SERVERUTILSLIN_H
 
-class ServerUtilsLin {
+class ServerUtils {
    public:
     static void startServer();
     static void closeServer(int);

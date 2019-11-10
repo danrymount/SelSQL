@@ -5,16 +5,14 @@
 #include "Client.h"
 #ifdef __WIN32
 #include "ClientUtils/Win/ClientUtilsWin.h"
-#define platform(lin, win) win
 #elif __linux
 #include "ClientUtils/Win/ClientUtilsLin.h"
-#define platform(lin, win) lin
 #endif
 
 #include <cstring>
 #include <iostream>
 Client::Client() {
-    platform(ClientUtilsLin::startClient();, ClientUtilsWin::startClient(););
+    ClientUtils::startClient();
 
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -40,7 +38,7 @@ void Client::sendMessage(std::string message) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
     }
-    platform(ClientUtilsLin::close(server_connection);, ClientUtilsWin::close(server_connection);)
+    ClientUtils::close(server_connection);
 }
 void Client::getMessage() {
     char rec_message[MESSAGE_SIZE];
@@ -74,7 +72,4 @@ void Client::execRequest(std::string request) {
     getMessage();
 }
 
-Client::~Client() {
-    platform(ClientUtilsLin::clientClose(server_connection, client_socket);
-             , ClientUtilsWin::clientClose(server_connection, client_socket);)
-}
+Client::~Client() { ClientUtils::clientClose(server_connection, client_socket); }

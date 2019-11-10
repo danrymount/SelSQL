@@ -4,7 +4,7 @@
 
 #pragma once
 
-class ClientUtilsLin {
+class ClientUtils {
    public:
     static void startClient();
     static void close(int);

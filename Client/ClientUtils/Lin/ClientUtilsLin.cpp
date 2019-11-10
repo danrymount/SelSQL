@@ -7,11 +7,11 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-void ClientUtilsLin::startClient() {}
+void ClientUtils::startClient() {}
 
-void ClientUtilsLin::close(int server_connection) { shutdown(server_connection, SHUT_RD); }
+void ClientUtils::close(int server_connection) { shutdown(server_connection, SHUT_RD); }
 
-void ClientUtilsLin::clientClose(int server_connection, int client_socket) {
+void ClientUtils::clientClose(int server_connection, int client_socket) {
     shutdown(client_socket, SHUT_RDWR);
     shutdown(server_connection, SHUT_RDWR);
 }

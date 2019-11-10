@@ -3,11 +3,11 @@
 //
 #include "ServerUtilsWin.h"
 #include <winsock2.h>
-void ServerUtilsWin::startServer() {
+void ServerUtils::startServer() {
     WSACleanup();
     WORD wV = MAKEWORD(2, 2);
     WSADATA d;
     WSAStartup(wV, &d);
 }
 
-void ServerUtilsWin::closeServer(int server_socket) { WSACleanup(); }
+void ServerUtils::closeServer(int server_socket) { WSACleanup(); }

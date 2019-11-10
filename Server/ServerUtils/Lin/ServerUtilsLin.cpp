@@ -7,6 +7,6 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-void ServerUtilsLin::startServer() {}
+void ServerUtils::startServer() {}
 
-void ServerUtilsLin::closeServer(int server_socket) { shutdown(server_socket, SHUT_RDWR); }
+void ServerUtils::closeServer(int server_socket) { shutdown(server_socket, SHUT_RDWR); }

@@ -5,17 +5,14 @@
 #include "Server.h"
 #ifdef __WIN32
 #include "ServerUtils/Win/ServerUtilsWin.h"
-#define platform(lin, win) win
 #elif __linux
 #include "ServerUtils/Lin/ServerUtilsLin.h"
-#define platform(lin, win) lin
 #endif
 #include <cstring>
 #include <iostream>
 
 Server::Server(int max_connection) {
-    platform(ServerUtilsLin::startServer();
-             , ServerUtilsWin::startServer();) server_socket = socket(AF_INET, SOCK_STREAM, 0);
+    ServerUtils::startServer();
     if (server_socket < 0) {
         std::cerr << "Unable to create server socket" << std::endl;
         throw ServerException();
@@ -62,4 +59,4 @@ int Server::AcceptSocket(int id) {
     return 0;
 }
 
-Server::~Server() { platform(ServerUtilsLin::closeServer(server_socket);, ServerUtilsWin::closeServer(server_socket);) }
+Server::~Server() { ServerUtils::closeServer(server_socket); }
