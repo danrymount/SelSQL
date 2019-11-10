@@ -81,7 +81,9 @@ class SelectVisitor : public TreeVisitor {
                 std::vector<std::pair<std::string, std::string>> columnValues;
 
                 for (auto& col : columns) {
-                    columnValues.emplace_back(std::make_pair(col.second, ""));
+                    if (col.first == alias) {
+                        columnValues.emplace_back(std::make_pair(col.second, ""));
+                    }
                 }
                 message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
                 if (message.getErrorCode()) {
@@ -93,7 +95,7 @@ class SelectVisitor : public TreeVisitor {
     }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
-    addRecord(std::string aliasName, std::shared_ptr<Cursor> cursor) {
+    addRecord(const std::string& aliasName, std::shared_ptr<Cursor> cursor) {
         std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
         do {
             auto _record = cursor->Fetch();
@@ -155,7 +157,7 @@ class SelectVisitor : public TreeVisitor {
                 auto joinRecords = first;
                 for (auto& rec : secondRecords[0]) {
                     auto tempRec = rec;
-                    tempRec.second.clear();
+                    tempRec.second = "null";
                     joinRecords.emplace_back(tempRec);
                 }
                 records.emplace_back(joinRecords);
@@ -187,7 +189,7 @@ class SelectVisitor : public TreeVisitor {
             if (!flag) {
                 auto joinRecords = firstRecords[0];
                 for (auto& joinRec : joinRecords) {
-                    joinRec.second.clear();
+                    joinRec.second = "null";
                 }
                 for (auto& rec : first) {
                     joinRecords.emplace_back(rec);
