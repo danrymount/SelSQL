@@ -133,25 +133,49 @@ class SelectVisitor : public TreeVisitor {
         secondRecords.clear();
     }
 
+    int sideJoin(const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstRec,
+                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& secondRec,
+                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstJoinRec,
+                 BaseJoinNode* node) {
+        auto flag = 0;
+        auto joinRecords = firstRec;
+        expressionVisitor->setSecondValues(secondRec);
+        node->getExpr()->accept(expressionVisitor);
+        if (expressionVisitor->getMessage().getErrorCode()) {
+            message = expressionVisitor->getMessage();
+            return -1;
+        }
+        if (expressionVisitor->getResult()) {
+            joinRecords.insert(joinRecords.end(), firstJoinRec.begin(), firstJoinRec.end());
+            records.emplace_back(joinRecords);
+            flag = 1;
+        }
+        return flag;
+    }
+
     void visit(LeftJoinNode* node) override {
         startExecuteJoin(node);
-        records.clear();
+        // records.clear();
         for (auto& first : firstRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : secondRecords) {
-                auto joinRecords = first;
-                expressionVisitor->setSecondValues(second);
-                node->getExpr()->accept(expressionVisitor);
-                if (expressionVisitor->getMessage().getErrorCode()) {
-                    message = expressionVisitor->getMessage();
+                flag = sideJoin(first, second, second, node);
+                if (flag == -1) {
                     return;
                 }
-                if (expressionVisitor->getResult()) {
-                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
-                    records.emplace_back(joinRecords);
-                    flag = 1;
-                }
+                //                auto joinRecords = first;
+                //                expressionVisitor->setSecondValues(second);
+                //                node->getExpr()->accept(expressionVisitor);
+                //                if (expressionVisitor->getMessage().getErrorCode()) {
+                //                    message = expressionVisitor->getMessage();
+                //                    return;
+                //                }
+                //                if (expressionVisitor->getResult()) {
+                //                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                //                    records.emplace_back(joinRecords);
+                //                    flag = 1;
+                //                }
             }
             if (!flag) {
                 auto joinRecords = first;
@@ -163,28 +187,43 @@ class SelectVisitor : public TreeVisitor {
                 records.emplace_back(joinRecords);
             }
         }
+
+        for (auto i = 0; i < records.size(); i++) {
+            for (auto j = 0; j < records.size(); ++j) {
+                if (i == j) {
+                    continue;
+                }
+                if (records[i] == records[j]) {
+                    records.erase(records.begin() + j);
+                }
+            }
+        }
         endExecuteJoin();
     }
 
     void visit(RightJoinNode* node) override {
         startExecuteJoin(node);
-        records.clear();
+        // records.clear();
         for (auto& first : secondRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : firstRecords) {
-                auto joinRecords = second;
-                expressionVisitor->setSecondValues(second);
-                node->getExpr()->accept(expressionVisitor);
-                if (expressionVisitor->getMessage().getErrorCode()) {
-                    message = expressionVisitor->getMessage();
+                flag = sideJoin(second, second, first, node);
+                if (flag == -1) {
                     return;
                 }
-                if (expressionVisitor->getResult()) {
-                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
-                    records.emplace_back(joinRecords);
-                    flag = 1;
-                }
+                //                auto joinRecords = second;
+                //                expressionVisitor->setSecondValues(second);
+                //                node->getExpr()->accept(expressionVisitor);
+                //                if (expressionVisitor->getMessage().getErrorCode()) {
+                //                    message = expressionVisitor->getMessage();
+                //                    return;
+                //                }
+                //                if (expressionVisitor->getResult()) {
+                //                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
+                //                    records.emplace_back(joinRecords);
+                //                    flag = 1;
+                //                }
             }
             if (!flag) {
                 auto joinRecords = firstRecords[0];
@@ -202,29 +241,33 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(FullJoinNode* node) override {
         startExecuteJoin(node);
-        records.clear();
+        // records.clear();
         for (auto& first : firstRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : secondRecords) {
-                auto joinRecords = first;
-                expressionVisitor->setSecondValues(second);
-                node->getExpr()->accept(expressionVisitor);
-                if (expressionVisitor->getMessage().getErrorCode()) {
-                    message = expressionVisitor->getMessage();
+                flag = sideJoin(first, second, second, node);
+                if (flag == -1) {
                     return;
                 }
-                if (expressionVisitor->getResult()) {
-                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
-                    records.emplace_back(joinRecords);
-                    flag = 1;
-                }
+                //                auto joinRecords = first;
+                //                expressionVisitor->setSecondValues(second);
+                //                node->getExpr()->accept(expressionVisitor);
+                //                if (expressionVisitor->getMessage().getErrorCode()) {
+                //                    message = expressionVisitor->getMessage();
+                //                    return;
+                //                }
+                //                if (expressionVisitor->getResult()) {
+                //                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                //                    records.emplace_back(joinRecords);
+                //                    flag = 1;
+                //                }
             }
             if (!flag) {
                 auto joinRecords = first;
                 for (auto& rec : secondRecords[0]) {
                     auto tempRec = rec;
-                    tempRec.second.clear();
+                    tempRec.second = "null";
                     joinRecords.emplace_back(tempRec);
                 }
                 records.emplace_back(joinRecords);
@@ -234,23 +277,27 @@ class SelectVisitor : public TreeVisitor {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : firstRecords) {
-                auto joinRecords = second;
-                expressionVisitor->setSecondValues(second);
-                node->getExpr()->accept(expressionVisitor);
-                if (expressionVisitor->getMessage().getErrorCode()) {
-                    message = expressionVisitor->getMessage();
+                flag = sideJoin(first, second, second, node);
+                if (flag == -1) {
                     return;
                 }
-                if (expressionVisitor->getResult()) {
-                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
-                    records.emplace_back(joinRecords);
-                    flag = 1;
-                }
+                //                auto joinRecords = second;
+                //                expressionVisitor->setSecondValues(second);
+                //                node->getExpr()->accept(expressionVisitor);
+                //                if (expressionVisitor->getMessage().getErrorCode()) {
+                //                    message = expressionVisitor->getMessage();
+                //                    return;
+                //                }
+                //                if (expressionVisitor->getResult()) {
+                //                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
+                //                    records.emplace_back(joinRecords);
+                //                    flag = 1;
+                //                }
             }
             if (!flag) {
                 auto joinRecords = firstRecords[0];
                 for (auto& joinRec : joinRecords) {
-                    joinRec.second.clear();
+                    joinRec.second = "null";
                 }
                 for (auto& rec : first) {
                     joinRecords.emplace_back(rec);
