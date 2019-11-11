@@ -167,18 +167,6 @@ class SelectVisitor : public TreeVisitor {
                 if (temp) {
                     flag = temp;
                 }
-                //                auto joinRecords = first;
-                //                expressionVisitor->setSecondValues(second);
-                //                node->getExpr()->accept(expressionVisitor);
-                //                if (expressionVisitor->getMessage().getErrorCode()) {
-                //                    message = expressionVisitor->getMessage();
-                //                    return;
-                //                }
-                //                if (expressionVisitor->getResult()) {
-                //                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
-                //                    records.emplace_back(joinRecords);
-                //                    flag = 1;
-                //                }
             }
             if (!flag) {
                 auto joinRecords = first;
@@ -191,16 +179,6 @@ class SelectVisitor : public TreeVisitor {
             }
         }
 
-        for (auto i = 0; i < records.size(); i++) {
-            for (auto j = 0; j < records.size(); ++j) {
-                if (i == j) {
-                    continue;
-                }
-                if (records[i] == records[j]) {
-                    records.erase(records.begin() + j);
-                }
-            }
-        }
         endExecuteJoin();
     }
 
@@ -218,18 +196,6 @@ class SelectVisitor : public TreeVisitor {
                 if (temp) {
                     flag = temp;
                 }
-                //                auto joinRecords = second;
-                //                expressionVisitor->setSecondValues(second);
-                //                node->getExpr()->accept(expressionVisitor);
-                //                if (expressionVisitor->getMessage().getErrorCode()) {
-                //                    message = expressionVisitor->getMessage();
-                //                    return;
-                //                }
-                //                if (expressionVisitor->getResult()) {
-                //                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
-                //                    records.emplace_back(joinRecords);
-                //                    flag = 1;
-                //                }
             }
             if (!flag) {
                 auto joinRecords = firstRecords[0];
@@ -259,18 +225,6 @@ class SelectVisitor : public TreeVisitor {
                 if (temp) {
                     flag = temp;
                 }
-                //                auto joinRecords = first;
-                //                expressionVisitor->setSecondValues(second);
-                //                node->getExpr()->accept(expressionVisitor);
-                //                if (expressionVisitor->getMessage().getErrorCode()) {
-                //                    message = expressionVisitor->getMessage();
-                //                    return;
-                //                }
-                //                if (expressionVisitor->getResult()) {
-                //                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
-                //                    records.emplace_back(joinRecords);
-                //                    flag = 1;
-                //                }
             }
             if (!flag) {
                 auto joinRecords = first;
@@ -282,29 +236,18 @@ class SelectVisitor : public TreeVisitor {
                 records.emplace_back(joinRecords);
             }
         }
+
         for (auto& first : secondRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : firstRecords) {
-                auto temp = sideJoin(first, second, second, node);
+                auto temp = sideJoin(second, second, first, node);
                 if (temp == -1) {
                     return;
                 }
                 if (temp) {
                     flag = temp;
                 }
-                //                auto joinRecords = second;
-                //                expressionVisitor->setSecondValues(second);
-                //                node->getExpr()->accept(expressionVisitor);
-                //                if (expressionVisitor->getMessage().getErrorCode()) {
-                //                    message = expressionVisitor->getMessage();
-                //                    return;
-                //                }
-                //                if (expressionVisitor->getResult()) {
-                //                    joinRecords.insert(joinRecords.end(), first.begin(), first.end());
-                //                    records.emplace_back(joinRecords);
-                //                    flag = 1;
-                //                }
             }
             if (!flag) {
                 auto joinRecords = firstRecords[0];
@@ -315,6 +258,17 @@ class SelectVisitor : public TreeVisitor {
                     joinRecords.emplace_back(rec);
                 }
                 records.emplace_back(joinRecords);
+            }
+        }
+
+        for (auto i = 0; i < records.size(); i++) {
+            for (auto j = 0; j < records.size(); ++j) {
+                if (i == j) {
+                    continue;
+                }
+                if (records[i] == records[j]) {
+                    records.erase(records.begin() + j);
+                }
             }
         }
         endExecuteJoin();

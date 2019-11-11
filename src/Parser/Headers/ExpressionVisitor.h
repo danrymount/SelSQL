@@ -31,7 +31,8 @@ class ExpressionVisitor : public TreeVisitor {
     void visit(ExprNode* node) override {
         if (node->getChild()) {
             node->getChild()->accept(this);
-            result = node->getChild()->getResult();
+            result = node->getChild()->getResult() && !isNull;
+            isNull = false;
         }
     }
 
@@ -147,7 +148,7 @@ class ExpressionVisitor : public TreeVisitor {
         secondValues = std::move(_values);
     }
 
-    bool getResult() { return result && !isNull; }
+    bool getResult() { return result; }
 
     // std::string getCurValue() { return curValue; }
 
