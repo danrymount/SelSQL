@@ -160,9 +160,12 @@ class SelectVisitor : public TreeVisitor {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : secondRecords) {
-                flag = sideJoin(first, second, second, node);
-                if (flag == -1) {
+                auto temp = sideJoin(first, second, second, node);
+                if (temp == -1) {
                     return;
+                }
+                if (temp) {
+                    flag = temp;
                 }
                 //                auto joinRecords = first;
                 //                expressionVisitor->setSecondValues(second);
@@ -208,9 +211,12 @@ class SelectVisitor : public TreeVisitor {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : firstRecords) {
-                flag = sideJoin(second, second, first, node);
-                if (flag == -1) {
+                auto temp = sideJoin(second, second, first, node);
+                if (temp == -1) {
                     return;
+                }
+                if (temp) {
+                    flag = temp;
                 }
                 //                auto joinRecords = second;
                 //                expressionVisitor->setSecondValues(second);
@@ -246,9 +252,12 @@ class SelectVisitor : public TreeVisitor {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : secondRecords) {
-                flag = sideJoin(first, second, second, node);
-                if (flag == -1) {
+                auto temp = sideJoin(first, second, second, node);
+                if (temp == -1) {
                     return;
+                }
+                if (temp) {
+                    flag = temp;
                 }
                 //                auto joinRecords = first;
                 //                expressionVisitor->setSecondValues(second);
@@ -277,9 +286,12 @@ class SelectVisitor : public TreeVisitor {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
             for (auto& second : firstRecords) {
-                flag = sideJoin(first, second, second, node);
-                if (flag == -1) {
+                auto temp = sideJoin(first, second, second, node);
+                if (temp == -1) {
                     return;
+                }
+                if (temp) {
+                    flag = temp;
                 }
                 //                auto joinRecords = second;
                 //                expressionVisitor->setSecondValues(second);

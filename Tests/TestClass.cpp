@@ -673,8 +673,7 @@ TEST(SERVER_TEST_LEFT_RIGHT_JOIN, TEST1) {
                               {"INSERT INTO table4 values(1, 3, 'sfsf');", "Success"},
                               {"SELECT t1.age, table4.id, table4.name, t2.age from (table1 as t1 right join table2 as "
                                "t2 on t1.age = t2.age) left join (table4 right join table3 on table4.id = table3.id) "
-                               "on "
-                               "t1.name = table4.name;",
+                               "on t1.name = table4.name;",
                                "\nt1.age  |table4.id|table4.name|t2.age  |\n"
                                "null    |null     |null       |3.500000|\n"
                                "3.700000|null     |null       |3.700000|\n"

@@ -128,6 +128,9 @@ class ExpressionVisitor : public TreeVisitor {
                 return;
             }
         }
+        if (res == "null") {
+            isNull = true;
+        }
         node->setValue(res);
         // curValue = res;
     }
@@ -144,7 +147,7 @@ class ExpressionVisitor : public TreeVisitor {
         secondValues = std::move(_values);
     }
 
-    bool getResult() { return result; }
+    bool getResult() { return result && !isNull; }
 
     // std::string getCurValue() { return curValue; }
 
@@ -152,6 +155,7 @@ class ExpressionVisitor : public TreeVisitor {
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
     std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
     // std::string curValue;
+    bool isNull = false;
     bool result = true;
 };
 
