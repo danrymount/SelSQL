@@ -14,6 +14,8 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/SelectNode.h"
 
     #include "parser.h"
     #include <memory>

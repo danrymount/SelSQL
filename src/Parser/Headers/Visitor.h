@@ -49,6 +49,8 @@ class TableNode;
 class LeftJoinNode;
 class RightJoinNode;
 class FullJoinNode;
+class UnionJoinNode;
+class IntersectJoinNode;
 
 class Visitor {
    public:
@@ -110,5 +112,8 @@ class Visitor {
     virtual void visit(LeftJoinNode* node) = 0;
     virtual void visit(RightJoinNode* node) = 0;
     virtual void visit(FullJoinNode* node) = 0;
+
+    virtual void visit(UnionJoinNode* node) = 0;
+    virtual void visit(IntersectJoinNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

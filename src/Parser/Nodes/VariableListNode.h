@@ -11,6 +11,12 @@ class VariableListNode : public BaseNode {
    public:
     explicit VariableListNode(std::vector<VariableNode*> _variables) : variables(std::move(_variables)) {}
 
+    ~VariableListNode() override {
+        for (auto& var : variables) {
+            delete var;
+        }
+    }
+
     std::vector<VariableNode*> getVariables() { return variables; }
 
     void accept(TreeVisitor* v) override { v->visit(this); }

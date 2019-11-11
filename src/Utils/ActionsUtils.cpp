@@ -324,7 +324,7 @@ ActionsUtils::getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::
     int strSize = values[0].size();
     len.reserve(strSize);
     for (int i = 0; i < strSize; i++) {
-        if (values[0][i].first.first.size() > 0) {
+        if (!values[0][i].first.first.empty()) {
             len.push_back(values[0][i].first.first.length() + 1 + values[0][i].first.second.length());
         } else {
             len.push_back(values[0][i].first.second.length());

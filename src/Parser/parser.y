@@ -65,6 +65,9 @@
     #include "../../src/Parser/Nodes/JoinNodes/LeftJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/RightJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/FullJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/IntersectJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
     #include "../../src/Parser/Nodes/TableNode.h"
 
     extern int yylineno;
@@ -102,6 +105,8 @@
 %type<Cmp> equal_sign
 %type<Idt> alias
 %type<BaseJoin> join join_type join_expr
+%type<UINode> union_intercest
+%type<SNode> select
 
 //%type<string> id
 //%type<string> request
@@ -118,7 +123,8 @@
     CmpNode* Cmp;
     IdentNode* Idt;
     BaseJoinNode* BaseJoin;
-
+    UnionIntersectNode* UINode;
+    SelectNode* SNode;
 
     Type t;
     int charLen;
@@ -150,7 +156,16 @@ request:
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(new IdentNode(std::string($3)), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
-    select union_intercest|
+    select union_intercest SEMICOLON{
+    	if($2 != nullptr){
+    	    $2->addChild($1);
+    	    children.emplace_back($2);
+    	}
+    }|
+    select SEMICOLON {
+        children.emplace_back($1);
+    }
+    |
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(new IdentNode(std::string($2)), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
@@ -159,11 +174,13 @@ request:
     }
 
 select:
-    SELECT_ACTION cols_select FROM IDENT empty where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
+    SELECT_ACTION cols_select FROM IDENT empty where_exprs {
+	$$ = new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6)));
+	columnsList.clear();
     }|
-    SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5))));
+    SELECT_ACTION cols_select FROM join where_exprs {
+	$$ = new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5)));
+	columnsList.clear();
     }
 
 empty:
@@ -224,8 +241,8 @@ constraint:
 colnames:
     LBRACKET colname RBRACKET{
 	columnsList.emplace_back($2);
-    }|
-    {
+    }
+    /*empty*/ |{
     	columnsList.emplace_back(new ColumnNode(new IdentNode("*")));
     }
 
@@ -309,8 +326,18 @@ join_type:
     }
 
 union_intercest:
-    UNION select|
-    INTERSECT select|
+    UNION select{
+	$$ = new UnionJoinNode();
+	$$->addChild($2);
+    }|
+    INTERSECT select{
+	$$ = new IntersectJoinNode();
+	$$->addChild($2);
+     }
+//    }|
+//    /*empty*/ {
+//    	$$ = nullptr;
+//    }
 
 update_list:
     update_elem {

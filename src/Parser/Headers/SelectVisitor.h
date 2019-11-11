@@ -38,6 +38,8 @@ typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, s
 class SelectVisitor : public TreeVisitor {
    public:
     void visit(SelectNode* node) override {
+        allrecords.clear();
+        columns.clear();
         node->getChild()->accept(this);
         source = node->getSource();
     }
@@ -423,6 +425,8 @@ class SelectVisitor : public TreeVisitor {
     BaseNode* getSource() { return source; }
 
     BaseExprNode* getExpr() { return expr; }
+
+    void setRecords(JoinRecord _records) { allrecords.emplace_back(_records); }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> getRecords() {
         return allrecords[0];

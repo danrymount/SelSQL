@@ -66,6 +66,9 @@ class TreeVisitor : public Visitor {
     void visit(RightJoinNode* node) override;
     void visit(FullJoinNode* node) override;
 
+    void visit(UnionJoinNode* node) override;
+    void visit(IntersectJoinNode* node) override;
+
     Message getMessage() { return message; }
 
 

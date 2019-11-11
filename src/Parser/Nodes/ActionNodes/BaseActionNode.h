@@ -18,6 +18,7 @@ class BaseActionNode : public BaseNode {
     }
 
     BaseActionNode(Action _action, BaseNode* _source) : action(_action), source(_source) {}
+    BaseActionNode() = default;
 
     ~BaseActionNode() override {
         if (child != nullptr) {
