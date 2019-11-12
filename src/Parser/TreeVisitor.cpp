@@ -115,6 +115,14 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
         }
         auto tempCols = visitor->getColumns();
         auto tempSize = colExist.size();
+        auto records = visitor->getRecords();
+
+        if (tempCols[0].second == "*") {
+            tempCols.clear();
+            for (auto& col : records[0]) {
+                tempCols.emplace_back(col.first);
+            }
+        }
         for (auto& col : tempCols) {
             col.first.erase();
             if (colExist.find(col.second) != colExist.end()) {
@@ -128,11 +136,11 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
                 return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
             }
         }
+
         if (countColumns != colExist.size()) {
             return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
         }
 
-        auto records = visitor->getRecords();
         for (auto& rec : records) {
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> tempRec;
             for (int i = 0; i < rec.size(); i++) {
