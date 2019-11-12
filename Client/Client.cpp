@@ -32,8 +32,9 @@ Client::Client() {
     }
 }
 void Client::sendMessage(std::string message) {
-    message.resize(MESSAGE_SIZE);
-    server_connection = send(client_socket, message.c_str(), MESSAGE_SIZE, 0);
+    if (message == "")
+        message = " ";
+    server_connection = send(client_socket, message.c_str(), size(message), 0);
     if (server_connection <= 0) {
         std::cerr << "Send error" << std::endl;
         throw ClientException();
