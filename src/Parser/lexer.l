@@ -16,6 +16,7 @@
     #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/SelectNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
 
     #include "parser.h"
     #include <memory>

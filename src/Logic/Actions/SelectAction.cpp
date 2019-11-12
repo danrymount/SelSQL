@@ -8,7 +8,6 @@
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
-    // auto columns = v->getColumns();
     auto expr = v->getExpr();
     v->setExpressionVisitor(exprVisitor);
     auto source = v->getSource();
@@ -40,7 +39,6 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         if (cursor.first->record_amount == 0) {
-            //        cursor.second.reset();
             return Message();
         }
 

@@ -69,6 +69,7 @@
     #include "../../src/Parser/Nodes/JoinNodes/IntersectJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
     #include "../../src/Parser/Nodes/TableNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -105,9 +106,9 @@
 %type<Cmp> equal_sign
 %type<Idt> alias
 %type<BaseJoin> join join_type join_expr
-%type<UINode> union_intercest union_intercest_expr
+%type<UINode> union_intercest
 %type<SNode> select
-
+%type<UIList> union_intercest_expr
 //%type<string> id
 //%type<string> request
 
@@ -125,6 +126,7 @@
     BaseJoinNode* BaseJoin;
     UnionIntersectNode* UINode;
     SelectNode* SNode;
+    UnionIntersectListNode *UIList;
 
     Type t;
     int charLen;
@@ -157,10 +159,8 @@ request:
 	children.emplace_back(new InsertNode(new IdentNode(std::string($3)), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
     select union_intercest_expr SEMICOLON{
-    	if($2 != nullptr){
-    	    $2->addChild($1);
-    	    children.emplace_back($2);
-    	}
+        $2->getChilds()[0]->addChild($1);
+    	children.emplace_back($2);
     }|
     select SEMICOLON {
         children.emplace_back($1);
@@ -249,12 +249,10 @@ colnames:
 colname:
     IDENT {
     	$$ = new ColumnNode(new IdentNode($1));
-	//$$ = new ColumnNode(std::string($1));
     }|
     colname COMMA IDENT {
     	columnsList.emplace_back($1);
     	$$ = new ColumnNode(new IdentNode($3));
-	//$$ = new ColumnNode(std::string($3));
     }
 
 insert_values:
@@ -276,11 +274,9 @@ cols_select:
 col_select:
     STAR {
     	$$ = new ColumnNode(new IdentNode("*"));
-	//$$ = new ColumnNode("*");
     }|
     IDENT {
     	$$ = new ColumnNode(new IdentNode($1));
-	//$$ = new ColumnNode(std::string($1));
     }|
     IDENT DOT IDENT {
 	$$ = new ColumnNode(new IdentNode($1), new IdentNode($3));
@@ -327,9 +323,14 @@ join_type:
 
 union_intercest_expr:
     union_intercest {
-    	$$ = $1;
+    	$$ = new UnionIntersectListNode();
+    	$$->addUnionIntersectNode($1);
     }|
-    union_intercest union_intercest
+    union_intercest union_intercest{
+    	$$ = new UnionIntersectListNode();
+	$$->addUnionIntersectNode($1);
+	$$->addUnionIntersectNode($2);
+    }
 
 union_intercest:
     UNION select{
@@ -340,10 +341,6 @@ union_intercest:
 	$$ = new IntersectJoinNode();
 	$$->addChild($2);
      }
-//    }|
-//    /*empty*/ {
-//    	$$ = nullptr;
-//    }
 
 update_list:
     update_elem {

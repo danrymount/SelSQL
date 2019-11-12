@@ -8,7 +8,7 @@
 #include "../ActionNodes/BaseActionNode.h"
 #include "../ActionNodes/SelectNode.h"
 #include "BaseJoinNode.h"
-class UnionIntersectNode : public BaseActionNode {
+class UnionIntersectNode : public BaseNode {
    public:
     ~UnionIntersectNode() override {
         for (auto child : childs) {

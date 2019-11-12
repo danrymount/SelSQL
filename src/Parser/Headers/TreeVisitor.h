@@ -6,6 +6,7 @@
 #define SELSQL_TREEVISITOR_H
 
 #include <memory>
+#include <vector>
 #include "../../Utils/Structures/Message.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
@@ -65,15 +66,18 @@ class TreeVisitor : public Visitor {
     void visit(LeftJoinNode* node) override;
     void visit(RightJoinNode* node) override;
     void visit(FullJoinNode* node) override;
-
+    void visit(UnionIntersectListNode* node) override;
     void visit(UnionJoinNode* node) override;
     void visit(IntersectJoinNode* node) override;
 
     Message getMessage() { return message; }
 
-
-protected:
+   protected:
     Message message;
+
+   private:
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
+    std::vector<std::pair<std::string, std::string>> allCols;
 };
 
 #endif  // SELSQL_TREEVISITOR_H
