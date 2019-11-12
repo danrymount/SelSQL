@@ -153,13 +153,13 @@ void TreeVisitor::visit(UnionJoinNode* node) {
     for (int i = 0; i < tempRecords.size(); i++) {
         for (int j = i + 1; j < tempRecords.size(); j++) {
             if (tempRecords[i] == tempRecords[j]) {
-                allRecords.emplace_back(tempRecords[i]);
+                tempRecords.erase(tempRecords.begin() + j);
                 break;
             }
         }
     }
 
-    message = Message(ActionsUtils::checkSelectColumns(allRecords, cols));
+    message = Message(ActionsUtils::checkSelectColumns(tempRecords, cols));
 }
 
 void TreeVisitor::visit(IntersectJoinNode* node) {
@@ -176,17 +176,10 @@ void TreeVisitor::visit(IntersectJoinNode* node) {
     }
 
     for (int i = 0; i < tempRecords.size(); i++) {
-        auto flag = 0;
-        for (int j = 0; j < tempRecords.size(); j++) {
-            if (i == j) {
-                continue;
-            }
+        for (int j = i + 1; j < tempRecords.size(); j++) {
             if (tempRecords[i] == tempRecords[j]) {
-                flag = 1;
+                allRecords.emplace_back(tempRecords[i]);
             }
-        }
-        if (!flag) {
-            allRecords.emplace_back(tempRecords[i]);
         }
     }
 
