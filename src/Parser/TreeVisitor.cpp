@@ -89,12 +89,12 @@ void TreeVisitor::visit(SelectNode* node) {
     message = SelectAction(visitor).execute(action);
 }
 
-void TreeVisitor::visit(UnionJoinNode* node) {
-    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> tempRecords;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
-    std::map<std::string, int> colExist;
-
+Message countRecordsForUnioinIntersect(UnionIntersectNode* node, const std::shared_ptr<SelectVisitor>& visitor,
+                                       std::map<std::string, int>& colExist,
+                                       std::vector<std::vector<std::pair<std::pair<std::string, std::string>,
+                                                                         std::string>>>& tempRecords,
+                                       std::vector<std::pair<std::string, std::string>>& cols) {
+    Message message;
     for (auto& action : node->getChildren()) {
         int countColumns = 0;
         SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
@@ -109,13 +109,11 @@ void TreeVisitor::visit(UnionJoinNode* node) {
                 colExist.insert(colExist.end(), std::make_pair(col.second, 0));
                 countColumns++;
             } else {
-                message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
-                return;
+                return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
             }
         }
         if (countColumns != colExist.size()) {
-            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
-            return;
+            return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
         }
 
         auto records = visitor->getRecords();
@@ -130,6 +128,26 @@ void TreeVisitor::visit(UnionJoinNode* node) {
             }
             tempRecords.emplace_back(tempRec);
         }
+    }
+
+    for (auto& col : colExist) {
+        cols.emplace_back(std::make_pair("", col.first));
+    }
+
+    return Message();
+}
+
+void TreeVisitor::visit(UnionJoinNode* node) {
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> tempRecords;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
+    std::map<std::string, int> colExist;
+    std::vector<std::pair<std::string, std::string>> cols;
+
+    message = countRecordsForUnioinIntersect(node, visitor, colExist, tempRecords, cols);
+
+    if (message.getErrorCode()) {
+        return;
     }
 
     for (int i = 0; i < tempRecords.size(); i++) {
@@ -141,11 +159,6 @@ void TreeVisitor::visit(UnionJoinNode* node) {
         }
     }
 
-    std::vector<std::pair<std::string, std::string>> cols;
-    for (auto& col : colExist) {
-        cols.emplace_back(std::make_pair("", col.first));
-    }
-
     message = Message(ActionsUtils::checkSelectColumns(allRecords, cols));
 }
 
@@ -154,42 +167,14 @@ void TreeVisitor::visit(IntersectJoinNode* node) {
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> tempRecords;
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
     std::map<std::string, int> colExist;
+    std::vector<std::pair<std::string, std::string>> cols;
 
-    for (auto& action : node->getChildren()) {
-        int countColumns = 0;
-        SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
-        auto tempCols = visitor->getColumns();
-        for (auto& col : tempCols) {
-            col.first.erase();
-            if (colExist.find(col.second) != colExist.end()) {
-                if (!colExist[col.second]) {
-                    countColumns++;
-                }
-            } else if (colExist.empty()) {
-                colExist.insert(colExist.end(), std::make_pair(col.second, 0));
-                countColumns++;
-            } else {
-                message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
-                return;
-            }
-        }
-        if (countColumns != colExist.size()) {
-            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
-            return;
-        }
-        auto records = visitor->getRecords();
-        for (auto& rec : records) {
-            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> tempRec;
-            for (int i = 0; i < rec.size(); i++) {
-                auto col = rec[i];
-                if (colExist.find(col.first.second) != colExist.end()) {
-                    col.first.first.erase();
-                    tempRec.emplace_back(col);
-                }
-            }
-            tempRecords.emplace_back(tempRec);
-        }
+    message = countRecordsForUnioinIntersect(node, visitor, colExist, tempRecords, cols);
+
+    if (message.getErrorCode()) {
+        return;
     }
+
     for (int i = 0; i < tempRecords.size(); i++) {
         auto flag = 0;
         for (int j = 0; j < tempRecords.size(); j++) {
@@ -203,11 +188,6 @@ void TreeVisitor::visit(IntersectJoinNode* node) {
         if (!flag) {
             allRecords.emplace_back(tempRecords[i]);
         }
-    }
-
-    std::vector<std::pair<std::string, std::string>> cols;
-    for (auto& col : colExist) {
-        cols.emplace_back(std::make_pair("", col.first));
     }
 
     message = Message(ActionsUtils::checkSelectColumns(allRecords, cols));
