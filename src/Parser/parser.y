@@ -99,13 +99,13 @@
 %type<Variable> variable
 %type<t> type
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
-%type<Value> values
+%type<Value> value
 %type<Column> colname col_select
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
 %type<Idt> alias
 %type<BaseJoin> join join_type join_expr
-%type<UINode> union_intercest
+%type<UINode> union_intercest union_intercest_expr
 %type<SNode> select
 
 //%type<string> id
@@ -156,7 +156,7 @@ request:
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(new IdentNode(std::string($3)), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
-    select union_intercest SEMICOLON{
+    select union_intercest_expr SEMICOLON{
     	if($2 != nullptr){
     	    $2->addChild($1);
     	    children.emplace_back($2);
@@ -258,10 +258,10 @@ colname:
     }
 
 insert_values:
-    values {
+    value {
 	valuesList.emplace_back($1);
     }|
-    insert_values COMMA values {
+    insert_values COMMA value {
 	valuesList.emplace_back($3);
     }
 
@@ -325,6 +325,12 @@ join_type:
 	$$ = new FullJoinNode();
     }
 
+union_intercest_expr:
+    union_intercest {
+    	$$ = $1;
+    }|
+    union_intercest union_intercest
+
 union_intercest:
     UNION select{
 	$$ = new UnionJoinNode();
@@ -358,7 +364,7 @@ update_elem:
     	$$ = new AssignUpdateNode(std::string($1), new NullValueNode(std::string($1)));
     }
 
-values:
+value:
     STRVAL {
 	$$ = new CharValueNode(std::string($1));
     }|
