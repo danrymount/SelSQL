@@ -100,7 +100,7 @@ int GetFileSize(std::fstream *file) {
     return size;
 }
 buffer_data GetDataBlockBuffer(DataBlock *data_block) {
-    char *data = new char[CalcDataBlockSize(data_block)];
+    char *data = new char[GetDataBlockSize(data_block)];
     int offset = 0;
     std::memcpy(&data[offset], &data_block->record_amount, sizeof(int));
     offset += sizeof(int);
@@ -137,12 +137,12 @@ std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) 
 
     return dataBlock;
 }
-int CalcDataBlockSize(DataBlock *data_block) {
+int GetDataBlockSize(DataBlock *data_block) {
     return Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
            Constants::DATA_BLOCK_RECORD_LAST_POS + data_block->max_deleted_amount * sizeof(short int) +
            Constants::DATA_SIZE;
 }
-int CalcDataBlockSize(int record_size) {
+int GetDataBlockSize(int record_size) {
     return Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
            Constants::DATA_BLOCK_RECORD_LAST_POS + Constants::DATA_SIZE / record_size * sizeof(short int) +
            Constants::DATA_SIZE;

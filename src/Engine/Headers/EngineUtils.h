@@ -34,8 +34,8 @@ struct DB_FILE {
 void WriteIntToFile(std::fstream* file, int value);
 int ReadIntFromFile(std::fstream* file);
 int GetFileSize(std::fstream* file);
-int CalcDataBlockSize(DataBlock* data_block);
-int CalcDataBlockSize(int record_size);
+int GetDataBlockSize(DataBlock* data_block);
+int GetDataBlockSize(int record_size);
 buffer_data GetTableBuffer(Table* table);
 buffer_data GetDataBlockBuffer(DataBlock* data_block);
 std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data,int record_amount);
