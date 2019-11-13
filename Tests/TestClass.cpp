@@ -1020,34 +1020,18 @@ TEST(SERVER_TEST_SYN_ERROR, TEST36) {
                                "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
 }
 
-#ifdef KILL
 TEST(SERVER_TEST_SYN_STRESS, TEST1) {
     TestUtils::clear();
     TestUtils::run();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
                                "int);",
-                               "Success"},
-                              {"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"},
-                              {"INSERT INTO jj values(2, 3.789, 'qwerty', 1, 1, 1);", "Success"},
-                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy', 1, 1, 1);", "Success"}});
-    std::string answerFirst = "\nid|age     |name     |col1|col2|col3|\n"
-                              "1 |2.900000|'sfsf'   |1   |1   |1   |\n"
-                              "2 |3.789000|'qwerty' |1   |1   |1   |\n"
-                              "5 |3.700000|'qwesdfy'|1   |1   |1   |\n";
-    std::string answerSecond = "\nid|age     |name    |col1|col2|col3|\n"
-                               "8 |3.780000|'sdfsdf'|5   |9   |6   |\n"
-                               "8 |3.780000|'sdfsdf'|5   |9   |6   |\n"
-                               "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
-    for (int i = 0; i < 30; i++) {
-        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"},
-                                  {"INSERT INTO jj values(2, 3.789, 'qwerty', 1, 1, 1);", "Success"},
-                                  {"INSERT INTO jj values(5, 3.7, 'qwesdfy', 1, 1, 1);", "Success"}});
-        answerFirst += "1 |2.900000|'sfsf'   |1   |1   |1   |\n"
-                       "2 |3.789000|'qwerty' |1   |1   |1   |\n"
-                       "5 |3.700000|'qwesdfy'|1   |1   |1   |\n";
-        answerSecond += "8 |3.780000|'sdfsdf'|5   |9   |6   |\n"
-                        "8 |3.780000|'sdfsdf'|5   |9   |6   |\n"
-                        "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    std::string answerSecond = "\nid|age     |name    |col1|col2|col3|\n";
+    for (int i = 0; i < 71; i++) {
+        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
+        answerSecond += "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
     };
     TestUtils::checkDrop({{"UPDATE jj SET id = (8+3-3)*2/2, age = 3.78, name = 'sdfsdf', col1 = 5, "
                            "col2 = 9, col3 = 6 where id = 5 or not(id = 7 or id = 9);",
@@ -1060,21 +1044,11 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
     TestUtils::run();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
                                "int);",
-                               "Success"},
-                              {"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"},
-                              {"INSERT INTO jj values(2, 3.789, 'qwerty', 2, 2, 2);", "Success"},
-                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy', 1, 1, 1);", "Success"}});
-    std::string answerFirst = "\nid|age     |name     |col1|col2|col3|\n"
-                              "1 |2.900000|'sfsf'   |1   |1   |1   |\n"
-                              "2 |3.789000|'qwerty' |2   |2   |2   |\n"
-                              "5 |3.700000|'qwesdfy'|1   |1   |1   |\n";
-    for (int i = 0; i < 300; i++) {
-        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"},
-                                  {"INSERT INTO jj values(2, 3.789, 'qwerty', 1, 1, 1);", "Success"},
-                                  {"INSERT INTO jj values(5, 3.7, 'qwesdfy', 1, 1, 1);", "Success"}});
-        answerFirst += "1 |2.900000|'sfsf'   |1   |1   |1   |\n"
-                       "2 |3.789000|'qwerty' |1   |1   |1   |\n"
-                       "5 |3.700000|'qwesdfy'|1   |1   |1   |\n";
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    for (int i = 0; i < 2700; i++) {
+        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
     };
     TestUtils::checkDrop({{"delete from jj where (id = 5 or not(id = 7-7*1 or id = 9) or "
                            "(id = 2+3*(id-75+63)+47 and age >= 5.15) or name = 'sdfsdfsdfsdf' or "
@@ -1087,11 +1061,11 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
 TEST(SERVER_TEST_SYN_STRESS, TEST3) {
     TestUtils::clear();
     TestUtils::run();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL UNIQUE , age float, name char(300), "
-                               "col1 int NOT NULL UNIQUE, col2 int NOT NULL UNIQUE, col3 int NOT NULL UNIQUE, "
-                               "col4 int NOT NULL UNIQUE, col5 int NOT NULL UNIQUE, col6 int NOT NULL UNIQUE, "
-                               "col7 int NOT NULL UNIQUE, col8 int NOT NULL UNIQUE, col9 int NOT NULL UNIQUE, "
-                               "col10 int NOT NULL UNIQUE, col11 int NOT NULL UNIQUE, col12 int NOT NULL UNIQUE);",
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(300), "
+                               "col1 int NOT NULL, col2 int NOT NULL, col3 int NOT NULL, "
+                               "col4 int NOT NULL, col5 int NOT NULL, col6 int NOT NULL, "
+                               "col7 int NOT NULL, col8 int NOT NULL, col9 int NOT NULL, "
+                               "col10 int NOT NULL, col11 int NOT NULL, col12 int NOT NULL);",
                                "Success"}});
     std::string answerFirst = "\nid |age     |name  |col1|col2|col3|col4|col5|col6|col7|col8|col9|col10|col11|col12|\n";
     for (int i = 1; i < 999; i++) {
@@ -1138,4 +1112,3 @@ TEST(SERVER_TEST_SYN_STRESS, TEST4) {
     request += ");";
     TestUtils::checkDrop({{request, "SHOW CREATE TABLE g;"}, {"Table doesn`t exist ERROR: 2", request}});
 }
-#endif
