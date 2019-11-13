@@ -728,11 +728,17 @@ TEST(SERVER_TEST_UNION, TEST1) {
                               {"INSERT INTO table2 values(3, 2.9);", "Success"},
                               {"SELECT age from table1 UNION SELECT age from table2;",
                                "\nage     |\n"
+                               "3.500000|\n"
                                "3.789000|\n"
                                "2.900000|\n"
-                               "3.500000|\n"
                                "3.700000|\n"},
-                              {"SELECT id, age from table1 UNION SELECT id, age from table2;", ""}});
+                              {"SELECT id, age from table1 UNION SELECT id, age from table2;",
+                               "\nid|age     |\n"
+                               "1 |3.500000|\n"
+                               "2 |3.789000|\n"
+                               "3 |2.900000|\n"
+                               "1 |2.900000|\n"
+                               "5 |3.700000|\n"}});
 }
 
 TEST(SERVER_TEST_UNION, TEST2) {
@@ -749,10 +755,22 @@ TEST(SERVER_TEST_UNION, TEST2) {
                               {"INSERT INTO table3 values(3, 9.5, 'qwesdfy');", "Success"},
                               {"INSERT INTO table3 values(1, 3.7, 'sfsf');", "Success"},
                               {"INSERT INTO table3 values(2, 3.789, 'sfsf');", "Success"},
-                              {"SELECT * from table1 UNION SELECT * from table2;", ""},
+                              {"SELECT * from table1 UNION SELECT * from table2;",
+                               "\nid|age     |name     |\n"
+                               "1 |3.500000|'qwerty' |\n"
+                               "2 |3.789000|'qwerty' |\n"
+                               "3 |2.900000|'sfsf'   |\n"
+                               "1 |2.900000|'sfsf'   |\n"
+                               "5 |3.700000|'qwesdfy'|\n"},
                               {"SELECT id, age from table1 where id = 1 UNION SELECT id, age from table2 UNION "
                                "SELECT id, age from table3;",
-                               ""}});
+                               "\nid|age     |\n"
+                               "3 |9.500000|\n"
+                               "1 |3.700000|\n"
+                               "2 |3.789000|\n"
+                               "1 |3.500000|\n"
+                               "3 |2.900000|\n"
+                               "1 |2.900000|\n"}});
 }
 
 TEST(SERVER_TEST_INTERSECT, TEST1) {
@@ -769,7 +787,9 @@ TEST(SERVER_TEST_INTERSECT, TEST1) {
                                "\nage     |\n"
                                "3.789000|\n"
                                "2.900000|\n"},
-                              {"SELECT id, age from table1 INTERSECT SELECT id, age from table2;", ""}});
+                              {"SELECT id, age from table1 INTERSECT SELECT id, age from table2;",
+                               "\nid|age     |\n"
+                               "2 |3.789000|\n"}});
 }
 
 TEST(SERVER_TEST_INTERSECT, TEST2) {
@@ -786,10 +806,12 @@ TEST(SERVER_TEST_INTERSECT, TEST2) {
                               {"INSERT INTO table3 values(3, 9.5, 'qwesdfy');", "Success"},
                               {"INSERT INTO table3 values(1, 3.7, 'sfsf');", "Success"},
                               {"INSERT INTO table3 values(2, 3.789, 'sfsf');", "Success"},
-                              {"SELECT * from table1 INTERSECT SELECT * from table2;", ""},
+                              {"SELECT * from table1 INTERSECT SELECT * from table2;",
+                               "\nid|age     |name    |\n"
+                               "2 |3.789000|'qwerty'|\n"},
                               {"SELECT id, age from table1 where id = 1 INTERSECT SELECT id, age from table2 INTERSECT "
                                "SELECT id, age from table3;",
-                               ""}});
+                               "Success"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST1) {
@@ -1006,6 +1028,33 @@ TEST(SERVER_TEST_ERROR, TEST29) {
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
                               {"SELECT dgdfg, id from fn;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST30) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT age from table1 UNION SELECT id from table2;", ""}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST31) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT age from table1 INTERSECT SELECT id from table2;", ""}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST32) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT * from table1 UNION SELECT * from table2;", ""}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST1) {
@@ -1236,6 +1285,26 @@ TEST(SERVER_TEST_SYN_ERROR, TEST36) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t as t1 join tt t.id = tt.id;",
                                "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST37) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t unon select * from t1;", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST38) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t interect select * from t1;", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST39) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t union;", ""}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST40) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t intersect insert into t values(1);", ""}});
 }
 
 // TEST(SERVER_TEST_SYN_STRESS, TEST1) {
