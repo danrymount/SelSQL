@@ -143,23 +143,8 @@ query:
     	children.clear();
     	updateList.clear();
 
-    }|
-    transaction {
-
     }
 
-transaction:
-    BEGIN_ BEGIN_ SEMICOLON transaction_request COMMIT SEMICOLON {
-
-    }
-
-transaction_request:
-    request {
-
-    }|
-    transaction_request request {
-
-    }
 request:
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
@@ -186,6 +171,12 @@ request:
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
 	children.emplace_back(new DeleteNode(new IdentNode(std::string($3)), new ExprNode($4)));
+    }|
+    BEGIN_ BEGIN_ SEMICOLON {
+
+    }|
+    COMMIT SEMICOLON {
+
     }
 
 select:
