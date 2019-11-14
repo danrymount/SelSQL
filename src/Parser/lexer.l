@@ -83,6 +83,8 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "ON"                    {ch += yyleng; return ON;}
 "UNION"                 {ch += yyleng; return UNION;}
 "INTERSECT"             {ch += yyleng; return INTERSECT;}
+"BEGIN"                 {ch += yyleng; return BEGIN_;}
+"COMMIT"                {ch += yyleng; return COMMIT;}
 
 {CHAR_TYPE}             {ch += yyleng;
                         charLen = "";

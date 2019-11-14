@@ -89,7 +89,7 @@
 %}
 
 %token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
-%token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT
+%token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT BEGIN_ COMMIT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT_TYPE FLOAT_TYPE CHAR_TYPE
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
@@ -143,8 +143,23 @@ query:
     	children.clear();
     	updateList.clear();
 
+    }|
+    transaction {
+
     }
 
+transaction:
+    BEGIN_ BEGIN_ SEMICOLON transaction_request COMMIT SEMICOLON {
+
+    }
+
+transaction_request:
+    request {
+
+    }|
+    transaction_request request {
+
+    }
 request:
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
