@@ -145,21 +145,23 @@ query:
 
     }|
     transaction {
+	tree = new RootNode(children);
 
+	variablesList.clear();
+	columnsList.clear();
+	valuesList.clear();
+	children.clear();
+	updateList.clear();
     }
 
 transaction:
-    BEGIN_ BEGIN_ SEMICOLON transaction_request COMMIT SEMICOLON {
-
-    }
+    BEGIN_ BEGIN_ SEMICOLON transaction_request COMMIT SEMICOLON {}
 
 transaction_request:
-    request {
+    request {}
+    |
+    transaction_request request {}
 
-    }|
-    transaction_request request {
-
-    }
 request:
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
