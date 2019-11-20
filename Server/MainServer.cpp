@@ -58,7 +58,6 @@ int ListenClient(int id, Server *server) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
             std::cout << "\t" << message << std::endl;
         }
-
         server->SendMessage(message, id);
     }
 }

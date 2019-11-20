@@ -6,6 +6,8 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
+#define KILL 0
+
 TEST(SERVER_TEST_CREATE, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
@@ -43,7 +45,6 @@ TEST(SERVER_TEST_CREATE, TEST3) {
 }
 
 TEST(SERVER_TEST_SELECT, TEST1) {
-    //    TestUtils::StartServer();
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
                               {"INSERT INTO t values(0);", "Success"},
@@ -1316,6 +1317,99 @@ TEST(SERVER_TEST_SYN_ERROR, TEST40) {
     TestUtils::checkRequests({{"select * from t intersect insert into t values(1);",
                                "syntax error, unexpected INSERT_ACTION, expecting SELECT_ACTION (Str num 1, sym num "
                                "27): insert"}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST1) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
+                               "int);",
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    std::string answerSecond = "\nid|age     |name    |col1|col2|col3|\n";
+    for (int i = 0; i < 71; i++) {
+        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
+        answerSecond += "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
+    };
+    TestUtils::checkDrop({{"UPDATE jj SET id = (8+3-3)*2/2, age = 3.78, name = 'sdfsdf', col1 = 5, "
+                           "col2 = 9, col3 = 6 where id = 5 or not(id = 7 or id = 9);",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, answerSecond}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST2) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
+                               "int);",
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    for (int i = 0; i < 2700; i++) {
+        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
+    };
+    TestUtils::checkDrop({{"delete from jj where (id = 5 or not(id = 7-7*1 or id = 9) or "
+                           "(id = 2+3*(id-75+63)+47 and age >= 5.15) or name = 'sdfsdfsdfsdf' or "
+                           "not age = id + age - 5*8 or name >= 'aaaaadddd') and id = 8 or id = 1 or age = 3.7 or "
+                           "col1 = 1 or col2 = 1 or col3 = 1 or name = 'qwerty';",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, "Success"}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST3) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(300), "
+                               "col1 int NOT NULL, col2 int NOT NULL, col3 int NOT NULL, "
+                               "col4 int NOT NULL, col5 int NOT NULL, col6 int NOT NULL, "
+                               "col7 int NOT NULL, col8 int NOT NULL, col9 int NOT NULL, "
+                               "col10 int NOT NULL, col11 int NOT NULL, col12 int NOT NULL);",
+                               "Success"}});
+    std::string answerFirst = "\nid |age     |name  |col1|col2|col3|col4|col5|col6|col7|col8|col9|col10|col11|col12|\n";
+    for (int i = 1; i < 999; i++) {
+        std::string requests = "INSERT INTO jj values(" + std::to_string(i) + ", 2.9, 'sfsf', ";
+        answerFirst += std::to_string(i);
+        for (int j = std::to_string(i).length(); j < 3; j++) {
+            answerFirst += " ";
+        }
+        answerFirst += "|2.900000|'sfsf'|";
+        for (int j = 0; j < 12; j++) {
+            requests += std::to_string(i);
+            if (j != 11)
+                requests += ", ";
+            answerFirst += std::to_string(i);
+            for (int k = std::to_string(i).length(); k < 4; k++) {
+                answerFirst += " ";
+            }
+            if (j > 8)
+                answerFirst += " ";
+            answerFirst += "|";
+        }
+        answerFirst += "\n";
+        requests += ");";
+        TestUtils::checkRequests({{requests, "Success"}});
+    };
+    std::string answerSecond = answerFirst +
+                               "999|7.500000|'dfdf'|999 |999 |999 |999 |999 |999 |999 |999 |999 |999  |999  |999  |\n";
+    TestUtils::checkDrop({{"insert into jj values(999, 7.5, 'dfdf', 999, 999, 999, 999, 999, 999, "
+                           "999, 999, 999, 999, 999, 999);",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, answerSecond}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST4) {
+    TestUtils::clear();
+    TestUtils::run();
+    std::string request = "CREATE TABLE g(";
+    for (int i = 1; i < 100; i++) {
+        request += "name" + std::to_string(i) + " CHAR(300)";
+        if (i != 99) {
+            request += ", ";
+        }
+    };
+    request += ");";
+    TestUtils::checkDrop({{request, "SHOW CREATE TABLE g;"}, {"Table doesn`t exist ERROR: 2", request}});
 }
 
 TEST(SERVER_TEST_THREAD, TEST1) {
