@@ -78,6 +78,7 @@
     int yylex();
     int yyerror(const char *s);
 
+    int isTransaction = 0;
     RootNode *tree;
 
     std::vector<ConstraintNode*> constraintsList;
@@ -135,34 +136,27 @@
 %%
 query:
     request {
-    	tree = new RootNode(children);
+    	std::cout << isTransaction << std::endl;
+    	tree = nullptr;
 
     	variablesList.clear();
     	columnsList.clear();
     	valuesList.clear();
-    	children.clear();
     	updateList.clear();
 
-    }|
-    transaction {
-	tree = new RootNode(children);
-
-	variablesList.clear();
-	columnsList.clear();
-	valuesList.clear();
-	children.clear();
-	updateList.clear();
+    	if(!isTransaction){
+    	    tree = new RootNode(children);
+            children.clear();
+    	}
     }
 
-transaction:
-    BEGIN_ BEGIN_ SEMICOLON transaction_request COMMIT SEMICOLON {}
-
-transaction_request:
-    request {}
-    |
-    transaction_request request {}
-
 request:
+    BEGIN_ SEMICOLON{
+    	isTransaction = 1;
+    }|
+    COMMIT SEMICOLON{
+    	isTransaction = 0;
+    }|
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
     }|
@@ -181,8 +175,7 @@ request:
     }|
     select SEMICOLON {
         children.emplace_back($1);
-    }
-    |
+    }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(new IdentNode(std::string($2)), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
