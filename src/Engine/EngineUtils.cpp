@@ -147,16 +147,38 @@ int GetDataBlockSize(int record_size) {
            Constants::DATA_BLOCK_RECORD_LAST_POS + Constants::DATA_SIZE / record_size * sizeof(short int) +
            Constants::DATA_SIZE;
 }
-void RestoreFromTemp(std::fstream *src,std::fstream *dist, std::ofstream* flag) {
+void RestoreFromTemp(std::fstream *src, std::fstream *dist, std::ofstream *flag, int record_size) {
+    src->flush();
+
+    int rec_amount = 0;
+    int offset = 0;
     int size = GetFileSize(src);
-    char* guf = new char[size];
-    src->read(guf, size);
+    char *buf = new char[size];
+    src->seekg(std::ios::beg);
+    src->read(buf, size);
+    dist->clear();
     dist->seekp(std::ios::beg);
-    dist->write(guf, size);
-    dist->close();
-    flag->close();
-    std::remove(Constants::FLAG_FILE.c_str());
-    delete[] guf;
+    dist->write(buf, Constants::DATA_BLOCK_RECORD_AMOUNT);
+    memcpy(&rec_amount,buf,sizeof(int));
+
+    offset += 4;
+
+    while (offset < size) {
+        int block_id = 0;
+        memcpy(&block_id, &buf[offset], sizeof(int));
+        offset += 4;
+        dist->seekp(4 + block_id * GetDataBlockSize(record_size));
+        dist->write(&buf[offset], GetDataBlockSize(record_size));
+        offset += GetDataBlockSize(record_size);
+    }
+    if (rec_amount == 0) {
+        char *empty = new char[GetFileSize(dist)];
+        memset(empty,0,GetFileSize(dist));
+        dist->write(empty,GetFileSize(dist));
+        delete[] empty;
+    }
+    dist->flush();
+    delete[] buf;
 }
 
 void DB_FILE::close() {

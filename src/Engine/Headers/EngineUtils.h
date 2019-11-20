@@ -40,7 +40,7 @@ buffer_data GetTableBuffer(Table* table);
 buffer_data GetDataBlockBuffer(DataBlock* data_block);
 std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data,int record_amount);
 std::shared_ptr<Table> ReadTableFromBuffer(char* data);
-void RestoreFromTemp(std::fstream* src,std::fstream* dist, std::ofstream* flag);
+void RestoreFromTemp(std::fstream *src, std::fstream *dist, std::ofstream *flag, int record_size);
 
 class FileNotOpened{};
 #endif  // SELSQL_ENGINEUTILS_H

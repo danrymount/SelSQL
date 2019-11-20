@@ -12,7 +12,8 @@ class Cursor {
     std::vector<std::pair<std::string, std::string>> values_;
 
 
-    int block_id = 0;
+    int read_block_id = 0;
+    int write_block_id = 0;
     int current_pos = 0;
     int readed_data = 0;
     int current_session_deleted_ = 0;

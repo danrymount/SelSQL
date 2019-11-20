@@ -67,7 +67,8 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     } while (!NextDataBlock());
 
     if (no_place) {
-        block_id++;
+        read_block_id++;
+        write_block_id++;
         Allocate();
     }
 
@@ -105,14 +106,16 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
 }
 
 int Cursor::UpdateDataBlock() {
-    if (data_block_ != nullptr ) {
-        if (data_block_->was_changed){
+    if (data_block_ != nullptr) {
+//        if (data_block_->record_amount == 0) {
+//            --write_block_id;
+//            return 0;
+//        }
+        if (data_block_->was_changed) {
             table_->record_amount -= current_session_deleted_;
             data_block_->record_amount -= current_session_deleted_;
-            file_manager_->UpdateBlock(table_, data_block_, block_id);
-        }else{
+            file_manager_->UpdateBlock(table_, data_block_, write_block_id);
         }
-        
     }
     return 0;
 }
@@ -171,7 +174,6 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 int Cursor::NextRecord() {
     if (data_block_->record_amount > readed_data) {
         current_pos++;
-        std::cerr<<current_pos<<std::endl;
         return 0;
     } else {
         return NextDataBlock();
@@ -212,8 +214,9 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 int Cursor::Reset() {
     current_pos = 0;
     readed_data = 0;
-    block_id = 0;
-    data_block_ = file_manager_->ReadDataBlock(table_->name, block_id);
+    read_block_id = 0;
+    write_block_id = 0;
+    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
     return 0;
 }
 
@@ -250,14 +253,16 @@ void Cursor::Allocate() {
 }
 int Cursor::NextDataBlock() {
     UpdateDataBlock();
-    data_block_ = file_manager_->ReadDataBlock(table_->name, ++block_id);
+    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id);
+    ++write_block_id;
+
     if (data_block_ == nullptr) {
-        block_id--;
-//        std::cerr<<"FILE ENDS AT BLOCK "<<block_id<<std::endl;
-        
+        --read_block_id;
+        --write_block_id;
+
         return 1;
     }
-//    std::cerr<<"NEXT BLOCK READED "<<block_id<<std::endl;
+    //    std::cerr<<"NEXT BLOCK READED "<<read_block_id<<std::endl;
     readed_data = 0;
     current_pos = 0;
     return 0;

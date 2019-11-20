@@ -42,7 +42,7 @@ TEST(SERVER_TEST_CREATE, TEST3) {
 }
 
 TEST(SERVER_TEST_SELECT, TEST1) {
-//    TestUtils::StartServer();
+    //    TestUtils::StartServer();
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
                               {"INSERT INTO t values(0);", "Success"},
@@ -331,6 +331,7 @@ TEST(SERVER_TEST_DELETE, TEST4) {
                               {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
                               {"INSERT INTO fff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
                               {"DELETE FROM fff where id = 1;", "Success"},
+
                               {"SELECT * from fff;",
                                "\nid|age     |name |\n"
                                "10|2.000000|'Vvv'|\n"},
@@ -1018,6 +1019,16 @@ TEST(SERVER_TEST_SYN_ERROR, TEST36) {
     TestUtils::checkRequests({{"select * from t as t1 join tt t.id = tt.id;",
                                "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
 }
+
+//TEST(SERVER_TEST_ALLOCATION, TEST1) {
+////    TestUtils::clear();
+////    TestUtils::checkRequests({{"create table t(id int);","Success"}});
+////    for (int i = 0; i < 1000; ++i){
+////        std::string req = "insert into t values("+std::to_string(i)+");";
+////        TestUtils::checkRequests({{req,"Success"}});
+////    }
+////    TestUtils::checkRequests({{"select * from t;",""}});
+//}
 
 // TEST(SERVER_TEST_SYN_STRESS, TEST1) {
 //    TestUtils::clear();

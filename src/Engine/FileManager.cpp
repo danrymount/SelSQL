@@ -120,19 +120,20 @@ void FileManager::WriteDataBlockToTemp(const std::string& table_name, std::share
         throw FileNotOpened();
     }
 
-    auto data_file = temp;
-    int offset = 4;
-    data_file->seekp(std::ios::beg);
-    WriteIntToFile(data_file.get(), table_data[table_name]->record_amount);
 
-    data_file->seekp(offset + GetDataBlockSize(data.get()) * block_id, std::ios::beg);
-    if (data->record_amount != 0) {
-        buffer_data buffer = GetDataBlockBuffer(data.get());
-        data_file->write(buffer.first, buffer.second);
-        delete[] buffer.first;
+    int offset = GetFileSize(temp.get());
+    if (offset == 0) {
+        offset = 4;
     }
+    WriteIntToFile(temp.get(), table_data[table_name]->record_amount);
+//    if (data->record_amount != 0) {
+        buffer_data buffer = GetDataBlockBuffer(data.get());
+        temp->seekp(offset);
+        temp->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
+        temp->write(buffer.first, buffer.second);
+        delete[] buffer.first;
+//    }
 
-    data_file->flush();
 }
 
 void FileManager::CloseAllFiles() {
@@ -152,19 +153,25 @@ int FileManager::UpdateFile(const std::string& table_name) {
         auto res = std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
                                 std::ios::binary | std::ios::in);
         if (res.is_open()) {
-            RestoreFromTemp(temp.get(), &res, flag);
+            RestoreFromTemp(temp.get(), &res, flag,table_data[table_name]->record_size);
         }
     } else {
         *flag << table_name;
-        auto res = files_[table_name].data_file;
-        RestoreFromTemp(temp.get(), res, flag);
+        auto data_file = files_[table_name].data_file;
+        RestoreFromTemp(temp.get(), data_file, flag,table_data[table_name]->record_size);
+        flag->close();
+        std::remove(Constants::FLAG_FILE.c_str());
+        temp = std::make_shared<std::fstream>(Constants::TEMP_FILE,
+                                              std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     }
+
 
     delete flag;
 }
 
 FileManager::FileManager() {
-    temp = std::make_shared<std::fstream>(Constants::TEMP_FILE, std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
+    temp = std::make_shared<std::fstream>(Constants::TEMP_FILE,
+                                          std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     UpdateFile("");
 }
 FileManager::~FileManager() {}

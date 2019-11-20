@@ -15,7 +15,6 @@ class MainEngine {
     std::shared_ptr<FileManager> file_manager_;
 
    public:
-
     explicit MainEngine();
     Message CreateTable(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
