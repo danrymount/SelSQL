@@ -147,7 +147,7 @@ int GetDataBlockSize(int record_size) {
            Constants::DATA_BLOCK_RECORD_LAST_POS + Constants::DATA_SIZE / record_size * sizeof(short int) +
            Constants::DATA_SIZE;
 }
-void RestoreFromTemp(std::fstream* src,std::fstream *dist, std::ofstream* flag) {
+void RestoreFromTemp(std::fstream *src,std::fstream *dist, std::ofstream* flag) {
     int size = GetFileSize(src);
     char* guf = new char[size];
     src->read(guf, size);
@@ -155,7 +155,7 @@ void RestoreFromTemp(std::fstream* src,std::fstream *dist, std::ofstream* flag) 
     dist->write(guf, size);
     dist->close();
     flag->close();
-    std::remove("flag.flag");
+    std::remove(Constants::FLAG_FILE.c_str());
     delete[] guf;
 }
 

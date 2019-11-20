@@ -123,7 +123,7 @@ void FileManager::WriteDataBlockToTemp(const std::string& table_name, std::share
     auto data_file = temp;
     int offset = 4;
     data_file->seekp(std::ios::beg);
-    WriteIntToFile(data_file, table_data[table_name]->record_amount);
+    WriteIntToFile(data_file.get(), table_data[table_name]->record_amount);
 
     data_file->seekp(offset + GetDataBlockSize(data.get()) * block_id, std::ios::beg);
     if (data->record_amount != 0) {
@@ -131,7 +131,6 @@ void FileManager::WriteDataBlockToTemp(const std::string& table_name, std::share
         data_file->write(buffer.first, buffer.second);
         delete[] buffer.first;
     }
-
 
     data_file->flush();
 }
@@ -144,28 +143,28 @@ void FileManager::CloseAllFiles() {
 }
 
 int FileManager::UpdateFile(const std::string& table_name) {
-    auto flag = new std::ofstream("flag.flag");
+    auto flag = new std::ofstream(Constants::FLAG_FILE);
     if (!flag->is_open()) {
         delete flag;
-        flag = new std::ofstream("flag.flag", std::ios::trunc);
+        flag = new std::ofstream(Constants::FLAG_FILE, std::ios::trunc);
     }
-    if (table_name == "") {
+    if (table_name.empty()) {
         auto res = std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
                                 std::ios::binary | std::ios::in);
         if (res.is_open()) {
-            RestoreFromTemp(temp, &res, flag);
+            RestoreFromTemp(temp.get(), &res, flag);
         }
     } else {
         *flag << table_name;
         auto res = files_[table_name].data_file;
-        RestoreFromTemp(temp, res, flag);
+        RestoreFromTemp(temp.get(), res, flag);
     }
 
     delete flag;
 }
 
 FileManager::FileManager() {
-    temp = new std::fstream("TEMP", std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
+    temp = std::make_shared<std::fstream>(Constants::TEMP_FILE, std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     UpdateFile("");
 }
-FileManager::~FileManager() { delete temp; }
+FileManager::~FileManager() {}

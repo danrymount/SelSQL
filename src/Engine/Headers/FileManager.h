@@ -18,7 +18,7 @@
 
 class FileManager {
     std::map<std::string, DB_FILE> files_;
-    std::fstream* temp;
+    std::shared_ptr<std::fstream> temp;
     std::map<std::string, std::shared_ptr<Table>> table_data;
 
     void ReadTableMetaData(const std::string& table_name);

@@ -7,7 +7,8 @@
 #include "string"
 class Constants {
    public:
-    inline static const std::string VERSION = "v.";
+    inline static const std::string FLAG_FILE = "FLAG.flag";
+    inline static const std::string TEMP_FILE = "TEMPORARY.file";
     inline static const std::string META_FILE_TYPE = ".METAselDB";
     inline static const std::string DATA_FILE_TYPE = ".DATAselDB";
     inline static const std::string FILE_TYPE = ".selDB";
