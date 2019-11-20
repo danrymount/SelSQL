@@ -1,3 +1,4 @@
+#include <thread>
 
 #include <gtest/gtest.h>
 #include "../Client/Client.h"
@@ -1317,24 +1318,31 @@ TEST(SERVER_TEST_SYN_ERROR, TEST40) {
                                "27): insert"}});
 }
 
-// TEST(SERVER_TEST_SYN_STRESS, TEST1) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
-//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-//                              //funChangeFile()
-//                              {"select * from jj;", "Success"}});
-//}
-//
-// TEST(SERVER_TEST_SYN_STRESS, TEST2) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
-//                              //funChangeFile()
-//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-//                              //funChangeFile()
-//                              //funChangeFile()
-//                              {"select * from jj;", "Success"}});
-//}
+TEST(SERVER_TEST_THREAD, TEST1) {
+    TestUtils::clear();
+    std::vector<std::pair<std::string, std::string>> request1{{"begin;", "Success"},
+                                                              {"create table t(id int, name char(255), city char(255), "
+                                                               "age float",
+                                                               "Success"},
+                                                              {"insert into t values(1, 'Vasya', 'Gorod',  7.5",
+                                                               "Success"},
+                                                              {"insert into t values(1, 'Vasya', 'Gorod',  7.5",
+                                                               "Success"},
+                                                              {"select * from t", "Success"},
+                                                              {"commit;", ""}};
+    std::vector<std::pair<std::string, std::string>> request2{{"begin;", "Success"},
+                                                              {"create table t1(id int, name char(255), city "
+                                                               "char(255), "
+                                                               "age float",
+                                                               "Success"},
+                                                              {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5",
+                                                               "Success"},
+                                                              {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5",
+                                                               "Success"},
+                                                              {"select * from t1", "Success"},
+                                                              {"commit;", ""}};
+    std::thread client1(TestUtils::checkRequests, request1);
+    std::thread client2(TestUtils::checkRequests, request2);
+    client1.join();
+    client2.join();
+}
