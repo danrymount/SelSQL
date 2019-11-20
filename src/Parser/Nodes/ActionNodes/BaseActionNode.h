@@ -33,10 +33,14 @@ class BaseActionNode : public BaseNode {
     // std::string getTableName() { return tableName; }
     Action getAction() { return action; }
 
+    void setId(int _id) { id = _id; }
+    int getId() { return id; }
+
    private:
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
     Action action;
+    int id;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

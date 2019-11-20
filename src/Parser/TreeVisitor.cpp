@@ -54,7 +54,9 @@
 #include "Nodes/VariableNode.h"
 
 void TreeVisitor::visit(RootNode* node) {
+    int id = 1;  // TODO getId from server;
     for (auto& child : node->getChildren()) {
+        child->setId(id);
         // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
         child->accept(this);
     }
