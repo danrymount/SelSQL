@@ -6,7 +6,8 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
-#define KILL 0
+#define KILL
+#define Request std::pair<std::string, std::string>
 
 TEST(SERVER_TEST_CREATE, TEST1) {
     TestUtils::clear();
@@ -1319,6 +1320,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST40) {
                                "27): insert"}});
 }
 
+#ifdef KILL
 TEST(SERVER_TEST_SYN_STRESS, TEST1) {
     TestUtils::clear();
     TestUtils::run();
@@ -1327,11 +1329,13 @@ TEST(SERVER_TEST_SYN_STRESS, TEST1) {
                                "Success"}});
     std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
     std::string answerSecond = "\nid|age     |name    |col1|col2|col3|\n";
+    std::vector<Request> allRequest;
     for (int i = 0; i < 71; i++) {
-        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
         answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
         answerSecond += "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
     };
+    TestUtils::checkRequests(allRequest);
     TestUtils::checkDrop({{"UPDATE jj SET id = (8+3-3)*2/2, age = 3.78, name = 'sdfsdf', col1 = 5, "
                            "col2 = 9, col3 = 6 where id = 5 or not(id = 7 or id = 9);",
                            "SELECT * FROM jj;"},
@@ -1345,10 +1349,12 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
                                "int);",
                                "Success"}});
     std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    std::vector<Request> allRequest;
     for (int i = 0; i < 2700; i++) {
-        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"}});
+        allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
         answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
     };
+    TestUtils::checkRequests(allRequest);
     TestUtils::checkDrop({{"delete from jj where (id = 5 or not(id = 7-7*1 or id = 9) or "
                            "(id = 2+3*(id-75+63)+47 and age >= 5.15) or name = 'sdfsdfsdfsdf' or "
                            "not age = id + age - 5*8 or name >= 'aaaaadddd') and id = 8 or id = 1 or age = 3.7 or "
@@ -1367,17 +1373,18 @@ TEST(SERVER_TEST_SYN_STRESS, TEST3) {
                                "col10 int NOT NULL, col11 int NOT NULL, col12 int NOT NULL);",
                                "Success"}});
     std::string answerFirst = "\nid |age     |name  |col1|col2|col3|col4|col5|col6|col7|col8|col9|col10|col11|col12|\n";
+    std::vector<Request> allRequest;
     for (int i = 1; i < 999; i++) {
-        std::string requests = "INSERT INTO jj values(" + std::to_string(i) + ", 2.9, 'sfsf', ";
+        std::string request = "INSERT INTO jj values(" + std::to_string(i) + ", 2.9, 'sfsf', ";
         answerFirst += std::to_string(i);
         for (int j = std::to_string(i).length(); j < 3; j++) {
             answerFirst += " ";
         }
         answerFirst += "|2.900000|'sfsf'|";
         for (int j = 0; j < 12; j++) {
-            requests += std::to_string(i);
+            request += std::to_string(i);
             if (j != 11)
-                requests += ", ";
+                request += ", ";
             answerFirst += std::to_string(i);
             for (int k = std::to_string(i).length(); k < 4; k++) {
                 answerFirst += " ";
@@ -1387,9 +1394,10 @@ TEST(SERVER_TEST_SYN_STRESS, TEST3) {
             answerFirst += "|";
         }
         answerFirst += "\n";
-        requests += ");";
-        TestUtils::checkRequests({{requests, "Success"}});
+        request += ");";
+        allRequest.emplace_back(std::make_pair(request, "Success"));
     };
+    TestUtils::checkRequests(allRequest);
     std::string answerSecond = answerFirst +
                                "999|7.500000|'dfdf'|999 |999 |999 |999 |999 |999 |999 |999 |999 |999  |999  |999  |\n";
     TestUtils::checkDrop({{"insert into jj values(999, 7.5, 'dfdf', 999, 999, 999, 999, 999, 999, "
@@ -1397,44 +1405,22 @@ TEST(SERVER_TEST_SYN_STRESS, TEST3) {
                            "SELECT * FROM jj;"},
                           {answerFirst, answerSecond}});
 }
-
-TEST(SERVER_TEST_SYN_STRESS, TEST4) {
-    TestUtils::clear();
-    TestUtils::run();
-    std::string request = "CREATE TABLE g(";
-    for (int i = 1; i < 100; i++) {
-        request += "name" + std::to_string(i) + " CHAR(300)";
-        if (i != 99) {
-            request += ", ";
-        }
-    };
-    request += ");";
-    TestUtils::checkDrop({{request, "SHOW CREATE TABLE g;"}, {"Table doesn`t exist ERROR: 2", request}});
-}
+#endif
 
 TEST(SERVER_TEST_THREAD, TEST1) {
     TestUtils::clear();
-    std::vector<std::pair<std::string, std::string>> request1{{"begin;", "Success"},
-                                                              {"create table t(id int, name char(255), city char(255), "
-                                                               "age float",
-                                                               "Success"},
-                                                              {"insert into t values(1, 'Vasya', 'Gorod',  7.5",
-                                                               "Success"},
-                                                              {"insert into t values(1, 'Vasya', 'Gorod',  7.5",
-                                                               "Success"},
-                                                              {"select * from t", "Success"},
-                                                              {"commit;", ""}};
-    std::vector<std::pair<std::string, std::string>> request2{{"begin;", "Success"},
-                                                              {"create table t1(id int, name char(255), city "
-                                                               "char(255), "
-                                                               "age float",
-                                                               "Success"},
-                                                              {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5",
-                                                               "Success"},
-                                                              {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5",
-                                                               "Success"},
-                                                              {"select * from t1", "Success"},
-                                                              {"commit;", ""}};
+    std::vector<Request> request1{{"begin;", "Success"},
+                                  {"create table t(id int, name char(255), city char(255), age float", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"select * from t", "Success"},
+                                  {"commit;", ""}};
+    std::vector<Request> request2{{"begin;", "Success"},
+                                  {"create table t1(id int, name char(255), city char(255), age float", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"select * from t1", "Success"},
+                                  {"commit;", ""}};
     std::thread client1(TestUtils::checkRequests, request1);
     std::thread client2(TestUtils::checkRequests, request2);
     client1.join();
