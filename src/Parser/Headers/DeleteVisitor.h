@@ -9,6 +9,8 @@
 #include "TreeVisitor.h"
 class DeleteVisitor : public TreeVisitor {
    public:
+    explicit DeleteVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(DeleteNode* node) override {
         node->getSource()->accept(this);
         tableName = std::move(curValue);
@@ -25,6 +27,6 @@ class DeleteVisitor : public TreeVisitor {
     std::string curValue;
     std::string tableName;
     Message error;
-    BaseExprNode* expr;
+    BaseExprNode* expr = nullptr;
 };
 #endif  // SELSQL_DELETEVISITOR_H

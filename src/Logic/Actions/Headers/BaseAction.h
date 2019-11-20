@@ -18,8 +18,6 @@ class BaseAction {
 
     virtual Message execute(std::shared_ptr<BaseActionNode>) = 0;
 
-    MainEngine getEngine() { return mainEngine; }
-
     std::shared_ptr<TreeVisitor> getTreeVisitor() { return visitor; }
 
    protected:
@@ -28,7 +26,6 @@ class BaseAction {
 
    private:
     // shared ptr
-    MainEngine mainEngine;
     std::shared_ptr<TreeVisitor> visitor;
 };
 

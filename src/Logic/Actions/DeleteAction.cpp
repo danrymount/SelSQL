@@ -10,7 +10,7 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto v = static_cast<DeleteVisitor *>(getTreeVisitor().get());
     auto expr = v->getExpr();
 
-    cursor = getEngine().GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName());
     if (cursor.first->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }

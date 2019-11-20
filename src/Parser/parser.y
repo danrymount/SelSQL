@@ -136,7 +136,6 @@
 %%
 query:
     request {
-    	std::cout << isTransaction << std::endl;
     	tree = nullptr;
 
     	variablesList.clear();

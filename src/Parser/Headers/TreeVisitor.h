@@ -7,11 +7,13 @@
 
 #include <memory>
 #include <vector>
+#include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Structures/Message.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
    public:
     TreeVisitor() = default;
+    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(std::move(_engine)) {}
 
     void visit(RootNode* node) override;
     void visit(CreateNode* node) override;
@@ -72,10 +74,13 @@ class TreeVisitor : public Visitor {
 
     Message getMessage() { return message; }
 
+    std::shared_ptr<MainEngine> getEngine() { return engine; };
+
    protected:
     Message message;
 
    private:
+    std::shared_ptr<MainEngine> engine;
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
     std::vector<std::pair<std::string, std::string>> allCols;
 };

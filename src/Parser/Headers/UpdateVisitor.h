@@ -30,6 +30,8 @@
 #include "TreeVisitor.h"
 class UpdateVisitor : public TreeVisitor {
    public:
+    explicit UpdateVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(UpdateNode* node) override {
         node->getSource()->accept(this);
         tableName = std::move(curValue);
@@ -68,8 +70,8 @@ class UpdateVisitor : public TreeVisitor {
     std::pair<std::string, std::string> curUpdateValue;
     std::string curValue;
     Message error;
-    BaseExprNode* expr;
+    BaseExprNode* expr = nullptr;
     std::string tableName;
-    ExpressionVisitor* expressionVisitor;
+    ExpressionVisitor* expressionVisitor = nullptr;
 };
 #endif  // SELSQL_UPDATEVISITOR_H

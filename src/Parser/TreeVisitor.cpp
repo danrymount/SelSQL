@@ -63,31 +63,31 @@ void TreeVisitor::visit(RootNode* node) {
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor(getEngine()));
     auto action = std::make_shared<CreateNode>(*node);
     message = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    auto visitor = std::make_shared<DropVisitor>(DropVisitor());
+    auto visitor = std::make_shared<DropVisitor>(DropVisitor(getEngine()));
     auto action = std::make_shared<DropNode>(*node);
     message = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
-    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor());
+    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor(getEngine()));
     auto action = std::make_shared<ShowCreateNode>(*node);
     message = ShowCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(InsertNode* node) {
-    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
+    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor(getEngine()));
     auto action = std::make_shared<InsertNode>(*node);
     message = InsertAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(SelectNode* node) {
-    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
     auto action = std::make_shared<SelectNode>(*node);
     message = SelectAction(visitor).execute(action);
 }
@@ -105,9 +105,7 @@ void TreeVisitor::visit(UnionIntersectListNode* node) {
 }
 
 Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::shared_ptr<SelectVisitor>& visitor,
-                                      std::vector<std::string>& colExist,
-                                      std::vector<std::vector<std::pair<std::pair<std::string, std::string>,
-                                                                        std::string>>>& tempRecords,
+                                      std::vector<std::string>& colExist, std::vector<RecordsFull>& tempRecords,
                                       std::vector<std::pair<std::string, std::string>>& cols) {
     for (auto& action : node->getChildren()) {
         int countColumns = 0;
@@ -162,8 +160,8 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
 }
 
 void TreeVisitor::visit(UnionJoinNode* node) {
-    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> tempRecords;
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
+    std::vector<RecordsFull> tempRecords;
     std::vector<std::string> colExist;
     std::vector<std::pair<std::string, std::string>> cols;
 
@@ -196,9 +194,9 @@ void TreeVisitor::visit(UnionJoinNode* node) {
 }
 
 void TreeVisitor::visit(IntersectJoinNode* node) {
-    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> tempRecords;
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> curRecords;
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
+    std::vector<RecordsFull> tempRecords;
+    std::vector<RecordsFull> curRecords;
     std::vector<std::string> colExist;
     std::vector<std::pair<std::string, std::string>> cols;
 
@@ -230,13 +228,13 @@ void TreeVisitor::visit(IntersectJoinNode* node) {
 }
 
 void TreeVisitor::visit(UpdateNode* node) {
-    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
+    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor(getEngine()));
     auto action = std::make_shared<UpdateNode>(*node);
     message = UpdateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DeleteNode* node) {
-    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
+    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor(getEngine()));
     auto action = std::make_shared<DeleteNode>(*node);
     message = DeleteAction(visitor).execute(action);
 }

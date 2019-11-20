@@ -17,11 +17,6 @@ Constraint ParserUtils::stringToConstraint(std::string name) {
     return mapOfStringToConstraint[name];
 }
 
-Action ParserUtils::stringToAction(std::string name) {
-    std::transform(name.begin(), name.end(), name.begin(), [](unsigned char c) { return std::tolower(c); });
-    return mapOfAction[name];
-}
-
 Cmp ParserUtils::stringToCmp(const std::string& name) { return mapOfCmp[name]; }
 
 std::string ParserUtils::typeToString(Type type) { return mapOfTypeToString[type]; }

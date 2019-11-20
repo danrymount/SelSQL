@@ -11,7 +11,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
     auto expr = v->getExpr();
-    cursor = getEngine().GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName());
     auto table = cursor.first;
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);

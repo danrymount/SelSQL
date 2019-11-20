@@ -19,11 +19,6 @@ class ParserUtils {
                                                                                {"unique", UNIQUE},
                                                                                {"primary", PRIMARY_KEY}};
 
-    inline static std::map<std::string, Action> mapOfAction = {{"create", CREATE},     {"show", SHOW_CREATE},
-                                                               {"drop", DROP},         {"insert", INSERT},
-                                                               {"delete", DELETE_ACT}, {"select", SELECT},
-                                                               {"update", UPDATE}};
-
     inline static std::map<std::string, Cmp> mapOfCmp = {{"=", EQUALS},  {"<", LOWER},          {"<=", LOWEREQUALS},
                                                          {">", GREATER}, {">=", GREATEREQUALS}, {"<>", NOEQUALS}};
 
@@ -40,7 +35,6 @@ class ParserUtils {
     static std::string constraintToString(Constraint constraint);
     static Type stringToType(std::string name);
     static Constraint stringToConstraint(std::string name);
-    static Action stringToAction(std::string name);
     static Cmp stringToCmp(const std::string& name);
 };
 

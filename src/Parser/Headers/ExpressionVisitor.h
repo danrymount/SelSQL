@@ -107,12 +107,10 @@ class ExpressionVisitor : public TreeVisitor {
         node->setResult(ActionsUtils::checkSign[Cmp::LOWER](executeLeftArith(node), executeRightArith(node)));
     }
 
-    static std::string findValue(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> values,
-                                 const std::string& value, const std::string& alias) {
-        auto res = std::find_if(values.begin(), values.end(),
-                                [value, alias](const std::pair<std::pair<std::string, std::string>, std::string>& val) {
-                                    return value == val.first.second && (alias == val.first.first || alias.empty());
-                                });
+    static std::string findValue(RecordsFull values, const std::string& value, const std::string& alias) {
+        auto res = std::find_if(values.begin(), values.end(), [value, alias](const RecordColumn& val) {
+            return value == val.first.second && (alias == val.first.first || alias.empty());
+        });
         if (res != values.end()) {
             return res->second;
         }
@@ -133,29 +131,21 @@ class ExpressionVisitor : public TreeVisitor {
             isNull = true;
         }
         node->setValue(res);
-        // curValue = res;
     }
 
     void visit(ValueExprNode* node) override {}
 
     void visit(IdentNode* node) override {}
 
-    void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        firstValues = std::move(_values);
-    }
+    void setFirstValues(RecordsFull _values) { firstValues = std::move(_values); }
 
-    void setSecondValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        secondValues = std::move(_values);
-    }
+    void setSecondValues(RecordsFull _values) { secondValues = std::move(_values); }
 
     bool getResult() { return result; }
 
-    // std::string getCurValue() { return curValue; }
-
    private:
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
-    // std::string curValue;
+    RecordsFull firstValues;
+    RecordsFull secondValues;
     bool isNull = false;
     bool result = true;
 };

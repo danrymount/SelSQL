@@ -37,6 +37,8 @@
 typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
+    explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(SelectNode* node) override {
         allrecords.clear();
         columns.clear();

@@ -10,11 +10,7 @@
 #include "BaseActionNode.h"
 class InsertNode : public BaseActionNode {
    public:
-    InsertNode(BaseNode* _source, BaseNode* _children)
-                                                                                                        : BaseActionNode(Action::INSERT,
-                                                                                                                         _source,
-                                                                                                                         _children) {
-    }
+    InsertNode(BaseNode* _source, BaseNode* _children) : BaseActionNode(_source, _children) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

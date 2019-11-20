@@ -20,7 +20,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     if (tableName.empty()) {
         records = v->getRecords();
     } else {
-        cursor = getEngine().GetCursor(tableName);
+        cursor = v->getEngine()->GetCursor(tableName);
         auto table = cursor.first;
         auto columns = v->getColumns();
         std::vector<std::pair<std::string, std::string>> columnValues;
