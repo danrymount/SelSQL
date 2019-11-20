@@ -147,7 +147,7 @@ int GetDataBlockSize(int record_size) {
            Constants::DATA_BLOCK_RECORD_LAST_POS + Constants::DATA_SIZE / record_size * sizeof(short int) +
            Constants::DATA_SIZE;
 }
-void RestoreFromTemp(std::fstream *src, std::fstream *dist, std::ofstream *flag, int record_size) {
+void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->flush();
 
     int rec_amount = 0;
