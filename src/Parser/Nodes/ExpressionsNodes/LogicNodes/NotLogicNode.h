@@ -6,9 +6,9 @@
 #define SELSQL_NOTLOGICNODE_H
 
 #include "../ExprNode.h"
-class NotLogicNode : public ExprNode {
+class NotLogicNode : public BaseExprNode {
    public:
-    explicit NotLogicNode(BaseExprNode* _child) : ExprNode(_child) {}
+    explicit NotLogicNode(BaseExprNode* _child) : BaseExprNode(_child) {}
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 };

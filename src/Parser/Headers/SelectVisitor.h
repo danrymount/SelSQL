@@ -27,13 +27,21 @@
 #include "../Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "../Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "../Nodes/ExpressionsNodes/ValueExprNode.h"
+#include "../Nodes/JoinNodes/FullJoinNode.h"
 #include "../Nodes/JoinNodes/JoinNode.h"
+#include "../Nodes/JoinNodes/LeftJoinNode.h"
+#include "../Nodes/JoinNodes/RightJoinNode.h"
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
+typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
+    explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(SelectNode* node) override {
+        allrecords.clear();
+        columns.clear();
         node->getChild()->accept(this);
         source = node->getSource();
     }
@@ -50,6 +58,8 @@ class SelectVisitor : public TreeVisitor {
         tableName = std::move(curValue);
     }
 
+    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
+
     void visit(ColumnNode* node) override {
         if (node->getAlias() == nullptr) {
             columns.emplace_back(std::make_pair("", node->getColumn()->getBaseValue()));
@@ -61,13 +71,13 @@ class SelectVisitor : public TreeVisitor {
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
         if (!curValue.empty()) {
-            auto tableName = std::move(curValue);
-            std::string alias = tableName;
+            auto _tableName = std::move(curValue);
+            std::string alias = _tableName;
             if (node->getAlias() != nullptr) {
                 node->getAlias()->accept(this);
                 alias = std::move(curValue);
             }
-            auto cursor = engine.GetCursor(tableName);
+            auto cursor = engine.GetCursor(_tableName);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
                 return;
@@ -75,7 +85,9 @@ class SelectVisitor : public TreeVisitor {
                 std::vector<std::pair<std::string, std::string>> columnValues;
 
                 for (auto& col : columns) {
-                    columnValues.emplace_back(std::make_pair(col.second, ""));
+                    if (col.first == alias) {
+                        columnValues.emplace_back(std::make_pair(col.second, ""));
+                    }
                 }
                 message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
                 if (message.getErrorCode()) {
@@ -84,22 +96,11 @@ class SelectVisitor : public TreeVisitor {
                 allrecords.emplace_back(addRecord(alias, cursor.second));
             }
         }
-        //        else {
-        //            node->getAlias()->accept(this);
-        //            auto alias = std::move(curValue);
-        //            if (firstRecordAndAlias.empty()) {
-        //                firstRecordAndAlias = records;
-        //                std::cout << alias << std::endl;
-        //            } else {
-        //                secondRecordAndAlias = records;
-        //            }
-        //        }
     }
 
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
-    addRecord(std::string aliasName, std::shared_ptr<Cursor> cursor) {
+    addRecord(const std::string& aliasName, std::shared_ptr<Cursor> cursor) {
         std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
-        // cursor->Reset();
         do {
             auto _record = cursor->Fetch();
             if (_record.empty()) {
@@ -114,7 +115,7 @@ class SelectVisitor : public TreeVisitor {
         return records;
     }
 
-    void visit(JoinNode* node) override {
+    void startExecuteJoin(BaseJoinNode* node) {
         node->getFirstSource()->accept(this);
         if (message.getErrorCode()) {
             return;
@@ -127,188 +128,313 @@ class SelectVisitor : public TreeVisitor {
         allrecords.pop_back();
         firstRecords = allrecords.back();
         allrecords.pop_back();
-        doubleCycleJoin(node);
+    }
+
+    void endExecuteJoin() {
         allrecords.emplace_back(records);
+        records.clear();
         firstRecords.clear();
         secondRecords.clear();
     }
 
-    void doubleCycleJoin(JoinNode* node) {
-        records.clear();
+    int sideJoin(const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstRec,
+                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& secondRec,
+                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstJoinRec,
+                 BaseJoinNode* node) {
+        auto flag = 0;
+        auto joinRecords = firstRec;
+        expressionVisitor->setSecondValues(secondRec);
+        node->getExpr()->accept(expressionVisitor);
+        if (expressionVisitor->getMessage().getErrorCode()) {
+            message = expressionVisitor->getMessage();
+            return -1;
+        }
+        if (expressionVisitor->getResult()) {
+            joinRecords.insert(joinRecords.end(), firstJoinRec.begin(), firstJoinRec.end());
+            records.emplace_back(joinRecords);
+            flag = 1;
+        }
+        return flag;
+    }
+
+    void visit(LeftJoinNode* node) override {
+        startExecuteJoin(node);
+        // records.clear();
         for (auto& first : firstRecords) {
-            setFirstValues(first);
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
             for (auto& second : secondRecords) {
-                auto f = first;
-                setSecondValues(second);
-                node->getExpr()->accept(this);
-                if (getResult()) {
-                    f.insert(f.end(), second.begin(), second.end());
-                    records.emplace_back(f);
+                auto temp = sideJoin(first, second, second, node);
+                if (temp == -1) {
+                    return;
+                }
+                if (temp) {
+                    flag = temp;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = first;
+                for (auto& rec : secondRecords[0]) {
+                    auto tempRec = rec;
+                    tempRec.second = "null";
+                    joinRecords.emplace_back(tempRec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+
+        endExecuteJoin();
+    }
+
+    void visit(RightJoinNode* node) override {
+        startExecuteJoin(node);
+        // records.clear();
+        for (auto& first : secondRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : firstRecords) {
+                auto temp = sideJoin(second, second, first, node);
+                if (temp == -1) {
+                    return;
+                }
+                if (temp) {
+                    flag = temp;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = firstRecords[0];
+                for (auto& joinRec : joinRecords) {
+                    joinRec.second = "null";
+                }
+                for (auto& rec : first) {
+                    joinRecords.emplace_back(rec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+        endExecuteJoin();
+    }
+
+    void visit(FullJoinNode* node) override {
+        startExecuteJoin(node);
+        // records.clear();
+        for (auto& first : firstRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : secondRecords) {
+                auto temp = sideJoin(first, second, second, node);
+                if (temp == -1) {
+                    return;
+                }
+                if (temp) {
+                    flag = temp;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = first;
+                for (auto& rec : secondRecords[0]) {
+                    auto tempRec = rec;
+                    tempRec.second = "null";
+                    joinRecords.emplace_back(tempRec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+
+        for (auto& first : secondRecords) {
+            expressionVisitor->setFirstValues(first);
+            auto flag = 0;
+            for (auto& second : firstRecords) {
+                auto temp = sideJoin(second, second, first, node);
+                if (temp == -1) {
+                    return;
+                }
+                if (temp) {
+                    flag = temp;
+                }
+            }
+            if (!flag) {
+                auto joinRecords = firstRecords[0];
+                for (auto& joinRec : joinRecords) {
+                    joinRec.second = "null";
+                }
+                for (auto& rec : first) {
+                    joinRecords.emplace_back(rec);
+                }
+                records.emplace_back(joinRecords);
+            }
+        }
+
+        for (auto i = 0; i < records.size(); i++) {
+            for (auto j = 0; j < records.size(); ++j) {
+                if (i == j) {
+                    continue;
+                }
+                if (records[i] == records[j]) {
+                    records.erase(records.begin() + j);
                 }
             }
         }
+        endExecuteJoin();
     }
 
-    void visit(ExprNode* node) override {
-        if (node->getChild()) {
-            node->getChild()->accept(this);
-            result = node->getChild()->getResult();
+    void visit(JoinNode* node) override {
+        startExecuteJoin(node);
+        node->getExpr()->accept(this);
+        if (countEq == 2) {
+            hashJoin(node);
+            countEq = 0;
+            curExpr.clear();
+        } else {
+            nestedLoopsJoin(node);
         }
+        endExecuteJoin();
     }
 
-    void visit(AndLogicNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
-        node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a and b);
-    }
+    void visit(ExprNode* node) override { node->getChild()->accept(this); }
 
-    void visit(OrLogicNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = node->getLeft()->getResult();
-        node->getRight()->accept(this);
-        auto b = node->getRight()->getResult();
-        node->setResult(a or b);
-    }
-
-    void visit(NotLogicNode* node) override {
-        node->getChild()->accept(this);
-        auto a = node->getChild()->getResult();
-        node->setResult(not a);
-    }
-
-    void visit(AddNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[0](std::stod(a), std::stod(b)));
-    }
-
-    void visit(DivNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[3](std::stod(a), std::stod(b)));
-    }
-
-    void visit(SubNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[1](std::stod(a), std::stod(b)));
-    }
-
-    void visit(MultNode* node) override {
-        node->getLeft()->accept(this);
-        auto a = std::move(curValue);
-        node->getRight()->accept(this);
-        auto b = std::move(curValue);
-        curValue = std::to_string(ActionsUtils::calculate[2](std::stod(a), std::stod(b)));
-    }
-
-    void visit(MoreNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATER](left, right));
+    void visit(IndentExprNode* node) override {
+        countEq++;
+        curExpr.emplace_back(node->getAliasName(), node->getName());
     }
 
     void visit(EqualsNode* node) override {
         node->getLeft()->accept(this);
-        auto left = std::move(curValue);
         node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::EQUALS](left, right));
-    }
-    void visit(NoEqualsNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::NOEQUALS](left, right));
     }
 
-    void visit(MoreEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::GREATEREQUALS](left, right));
-    }
+    static bool compareForHash(std::pair<std::pair<std::string, std::string>, std::string>& val) {
+        auto curName = std::find_if(curExpr.begin(), curExpr.end(),
+                                    [val](const std::pair<std::string, std::string>& value) {
+                                        return value.second == val.first.second;
+                                    });
+        if (curName == curExpr.end()) {
+            return false;
+        }
 
-    void visit(LessEqNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWEREQUALS](left, right));
-    }
-
-    void visit(LessNode* node) override {
-        node->getLeft()->accept(this);
-        auto left = std::move(curValue);
-        node->getRight()->accept(this);
-        auto right = std::move(curValue);
-        node->setResult(ActionsUtils::checkSign[Cmp::LOWER](left, right));
-    }
-
-    void visit(IndentExprNode* node) override {
-        int flag = 0;
-        for (auto& val : firstValues) {
-            if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
-                if (node->getBaseValue() == val.first.second) {
-                    curValue = val.second;
-                    flag = 1;
-                    break;
+        for (int i = 0; i < curExpr.size(); i++) {
+            auto exp = curExpr[i];
+            if (exp.first == val.first.first || exp.first.empty()) {
+                if (val.first.second == exp.second) {
+                    id = i;
+                    return true;
                 }
             }
         }
-        if (!flag) {
-            for (auto& val : secondValues) {
-                if (node->getAliasname() == val.first.first || node->getAliasname() == "") {
-                    if (node->getBaseValue() == val.first.second) {
-                        curValue = val.second;
-                        flag = 1;
-                        break;
+
+        return false;
+    }
+
+    void
+    addRec(JoinRecord small, JoinRecord large,
+           std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
+                                                                                                               vals) {
+        for (auto& rec : small) {
+            auto ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+            auto record = vals.find(ident->second);
+            if (record != vals.end()) {
+                if (record->second == rec) {
+                    for (auto& newrecord : large) {
+                        auto joinRecords = rec;
+                        joinRecords.insert(joinRecords.end(), newrecord.begin(), newrecord.end());
+                        records.emplace_back(joinRecords);
+                    }
+                } else {
+                    auto joinRecords = rec;
+                    joinRecords.insert(joinRecords.end(), record->second.begin(), record->second.end());
+                    records.emplace_back(joinRecords);
+                }
+            }
+        }
+        if (id >= 0) {
+            curExpr.erase(curExpr.begin() + id);
+        }
+    }
+
+    void hashJoin(JoinNode* node) {
+        std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> vals;
+
+        auto large = firstRecords;
+        auto small = secondRecords;
+        if (firstRecords.size() < secondRecords.size()) {
+            large = secondRecords;
+            small = firstRecords;
+        }
+
+        if (!small.empty() && !large.empty()) {
+            auto ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
+            if (ident == small[0].end()) {
+                ident = std::find_if(large[0].begin(), large[0].end(), compareForHash);
+                if (ident == large[0].end()) {
+                    message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+                    return;
+                } else {
+                    for (auto& rec : large) {
+                        ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                        vals.emplace(std::make_pair(ident->second, rec));
+                    }
+                    if (id >= 0) {
+                        curExpr.erase(curExpr.begin() + id);
                     }
                 }
+            } else {
+                for (auto& rec : small) {
+                    ident = std::find_if(rec.begin(), rec.end(), compareForHash);
+                    vals.emplace(std::make_pair(ident->second, rec));
+                }
+                if (id >= 0) {
+                    curExpr.erase(curExpr.begin() + id);
+                }
             }
-        }
-        if (!flag) {
-            result = false;
-            message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
-            return;
+
+            ident = std::find_if(large[0].begin(), large[0].end(), compareForHash);
+            if (ident == large[0].end()) {
+                ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
+                if (ident == small[0].end()) {
+                    message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
+                    return;
+                } else {
+                    addRec(small, large, vals);
+                }
+            } else {
+                addRec(large, small, vals);
+            }
         }
     }
 
-    void visit(ValueExprNode* node) override { curValue = node->getBaseValue(); }
-
-    void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
+    void nestedLoopsJoin(JoinNode* node) {
+        records.clear();
+        for (auto& first : firstRecords) {
+            expressionVisitor->setFirstValues(first);
+            for (auto& second : secondRecords) {
+                auto joinRecords = first;
+                expressionVisitor->setSecondValues(second);
+                node->getExpr()->accept(expressionVisitor);
+                if (expressionVisitor->getMessage().getErrorCode()) {
+                    message = expressionVisitor->getMessage();
+                    return;
+                }
+                if (expressionVisitor->getResult()) {
+                    joinRecords.insert(joinRecords.end(), second.begin(), second.end());
+                    records.emplace_back(joinRecords);
+                }
+            }
+        }
+    }
 
     std::vector<std::pair<std::string, std::string>> getColumns() { return columns; }
-
-    bool getResult() { return result; }
 
     BaseNode* getSource() { return source; }
 
     BaseExprNode* getExpr() { return expr; }
 
+    void setRecords(JoinRecord _records) { allrecords.emplace_back(_records); }
+
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> getRecords() {
         return allrecords[0];
     }
 
-    void setFirstValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        firstValues = std::move(_values);
-    }
-
-    void setSecondValues(std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _values) {
-        secondValues = std::move(_values);
-    }
+    void setExpressionVisitor(ExpressionVisitor* visitor) { expressionVisitor = visitor; }
 
     std::string getTableName() { return tableName; }
 
@@ -316,7 +442,6 @@ class SelectVisitor : public TreeVisitor {
     MainEngine engine;
     std::string curValue;
     std::string tableName;
-    typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
     JoinRecord firstRecords;
     JoinRecord secondRecords;
 
@@ -324,11 +449,12 @@ class SelectVisitor : public TreeVisitor {
     std::vector<JoinRecord> allrecords;
 
     std::vector<std::pair<std::string, std::string>> columns;
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> firstValues;
-    std::vector<std::pair<std::pair<std::string, std::string>, std::string>> secondValues;
     BaseExprNode* expr;
     BaseNode* source;
-    bool result = true;
+    ExpressionVisitor* expressionVisitor;
+    int countEq = 0;
+    inline static int id = -1;
+    inline static std::vector<std::pair<std::string, std::string>> curExpr;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H

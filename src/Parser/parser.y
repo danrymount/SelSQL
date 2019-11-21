@@ -62,7 +62,14 @@
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/JoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/LeftJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/RightJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/FullJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/IntersectJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
     #include "../../src/Parser/Nodes/TableNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
 
     extern int yylineno;
     extern int ch;
@@ -71,6 +78,7 @@
     int yylex();
     int yyerror(const char *s);
 
+    int isTransaction = 0;
     RootNode *tree;
 
     std::vector<ConstraintNode*> constraintsList;
@@ -82,7 +90,7 @@
 %}
 
 %token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
-%token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT
+%token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT BEGIN_ COMMIT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT_TYPE FLOAT_TYPE CHAR_TYPE
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
@@ -93,13 +101,15 @@
 %type<Variable> variable
 %type<t> type
 %type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
-%type<Value> values
+%type<Value> value
 %type<Column> colname col_select
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
 %type<Idt> alias
 %type<BaseJoin> join join_type join_expr
-
+%type<UINode> union_intercest
+%type<SNode> select
+%type<UIList> union_intercest_expr
 //%type<string> id
 //%type<string> request
 
@@ -115,7 +125,9 @@
     CmpNode* Cmp;
     IdentNode* Idt;
     BaseJoinNode* BaseJoin;
-
+    UnionIntersectNode* UINode;
+    SelectNode* SNode;
+    UnionIntersectListNode *UIList;
 
     Type t;
     int charLen;
@@ -124,17 +136,26 @@
 %%
 query:
     request {
-    	tree = new RootNode(children);
+    	tree = nullptr;
 
     	variablesList.clear();
     	columnsList.clear();
     	valuesList.clear();
-    	children.clear();
     	updateList.clear();
 
+    	if(!isTransaction){
+    	    tree = new RootNode(children);
+            children.clear();
+    	}
     }
 
 request:
+    BEGIN_ SEMICOLON{
+    	isTransaction = 1;
+    }|
+    COMMIT SEMICOLON{
+    	isTransaction = 0;
+    }|
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
     }|
@@ -147,7 +168,13 @@ request:
     INSERT_ACTION INTO IDENT colnames VALUES LBRACKET insert_values RBRACKET SEMICOLON {
 	children.emplace_back(new InsertNode(new IdentNode(std::string($3)), new ColumnsAndValuesNode(columnsList, valuesList)));
     }|
-    select union_intercest|
+    select union_intercest_expr SEMICOLON{
+        $2->getChilds()[0]->addChild($1);
+    	children.emplace_back($2);
+    }|
+    select SEMICOLON {
+        children.emplace_back($1);
+    }|
     UPDATE_ACTION IDENT SET update_list where_exprs SEMICOLON {
         children.emplace_back(new UpdateNode(new IdentNode(std::string($2)), new UpdatesAndExprNode(new UpdateExprNode(updateList), new ExprNode($5))));
     }|
@@ -156,11 +183,13 @@ request:
     }
 
 select:
-    SELECT_ACTION cols_select FROM IDENT empty where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6))));
+    SELECT_ACTION cols_select FROM IDENT empty where_exprs {
+	$$ = new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6)));
+	columnsList.clear();
     }|
-    SELECT_ACTION cols_select FROM join where_exprs SEMICOLON {
-	children.emplace_back(new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5))));
+    SELECT_ACTION cols_select FROM join where_exprs {
+	$$ = new SelectNode($4, new ColumnsAndExprNode(columnsList, new ExprNode($5)));
+	columnsList.clear();
     }
 
 empty:
@@ -221,27 +250,25 @@ constraint:
 colnames:
     LBRACKET colname RBRACKET{
 	columnsList.emplace_back($2);
-    }|
-    {
+    }
+    /*empty*/ |{
     	columnsList.emplace_back(new ColumnNode(new IdentNode("*")));
     }
 
 colname:
     IDENT {
     	$$ = new ColumnNode(new IdentNode($1));
-	//$$ = new ColumnNode(std::string($1));
     }|
     colname COMMA IDENT {
     	columnsList.emplace_back($1);
     	$$ = new ColumnNode(new IdentNode($3));
-	//$$ = new ColumnNode(std::string($3));
     }
 
 insert_values:
-    values {
+    value {
 	valuesList.emplace_back($1);
     }|
-    insert_values COMMA values {
+    insert_values COMMA value {
 	valuesList.emplace_back($3);
     }
 
@@ -256,11 +283,9 @@ cols_select:
 col_select:
     STAR {
     	$$ = new ColumnNode(new IdentNode("*"));
-	//$$ = new ColumnNode("*");
     }|
     IDENT {
     	$$ = new ColumnNode(new IdentNode($1));
-	//$$ = new ColumnNode(std::string($1));
     }|
     IDENT DOT IDENT {
 	$$ = new ColumnNode(new IdentNode($1), new IdentNode($3));
@@ -296,18 +321,35 @@ join_type:
 	$$ = new JoinNode();
     }|
     LEFT JOIN {
-
+	$$ = new LeftJoinNode();
     }|
     RIGHT JOIN {
-
+	$$ = new RightJoinNode();
     }|
     FULL JOIN {
+	$$ = new FullJoinNode();
+    }
 
+union_intercest_expr:
+    union_intercest {
+    	$$ = new UnionIntersectListNode();
+    	$$->addUnionIntersectNode($1);
+    }|
+    union_intercest union_intercest{
+    	$$ = new UnionIntersectListNode();
+	$$->addUnionIntersectNode($1);
+	$$->addUnionIntersectNode($2);
     }
 
 union_intercest:
-    UNION select|
-    INTERSECT select|
+    UNION select{
+	$$ = new UnionJoinNode();
+	$$->addChild($2);
+    }|
+    INTERSECT select{
+	$$ = new IntersectJoinNode();
+	$$->addChild($2);
+     }
 
 update_list:
     update_elem {
@@ -328,7 +370,7 @@ update_elem:
     	$$ = new AssignUpdateNode(std::string($1), new NullValueNode(std::string($1)));
     }
 
-values:
+value:
     STRVAL {
 	$$ = new CharValueNode(std::string($1));
     }|

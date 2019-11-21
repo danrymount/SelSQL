@@ -6,11 +6,14 @@
 #define SELSQL_TREEVISITOR_H
 
 #include <memory>
+#include <vector>
+#include "../../Engine/Headers/MainEngine.h"
 #include "../../Utils/Structures/Message.h"
 #include "Visitor.h"
 class TreeVisitor : public Visitor {
    public:
     TreeVisitor() = default;
+    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(std::move(_engine)) {}
 
     void visit(RootNode* node) override;
     void visit(CreateNode* node) override;
@@ -57,17 +60,29 @@ class TreeVisitor : public Visitor {
     void visit(JoinNode* node) override;
     void visit(TableNode* node) override;
 
-    Message getMessage() { return message; }
-
-   private:
-   public:
     void visit(UpdateExprNode* node) override;
     void visit(ValueExprNode* node) override;
     void visit(UpdatesAndExprNode* node) override;
     void visit(AssignUpdateNode* node) override;
 
+    void visit(LeftJoinNode* node) override;
+    void visit(RightJoinNode* node) override;
+    void visit(FullJoinNode* node) override;
+    void visit(UnionIntersectListNode* node) override;
+    void visit(UnionJoinNode* node) override;
+    void visit(IntersectJoinNode* node) override;
+
+    Message getMessage() { return message; }
+
+    std::shared_ptr<MainEngine> getEngine() { return engine; };
+
    protected:
     Message message;
+
+   private:
+    std::shared_ptr<MainEngine> engine;
+    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> allRecords;
+    std::vector<std::pair<std::string, std::string>> allCols;
 };
 
 #endif  // SELSQL_TREEVISITOR_H

@@ -11,13 +11,10 @@
 #include "../VariableNode.h"
 class BaseActionNode : public BaseNode {
    public:
-    BaseActionNode(Action _action, BaseNode* _source, BaseNode* _child)
-                                                                                                        : action(_action),
-                                                                                                          source(_source),
-                                                                                                          child(_child) {
-    }
+    BaseActionNode(BaseNode* _source, BaseNode* _child) : source(_source), child(_child) {}
 
-    BaseActionNode(Action _action, BaseNode* _source) : action(_action), source(_source) {}
+    explicit BaseActionNode(BaseNode* _source) : source(_source) {}
+    BaseActionNode() = default;
 
     ~BaseActionNode() override {
         if (child != nullptr) {
@@ -30,12 +27,14 @@ class BaseActionNode : public BaseNode {
     BaseNode* getChild() { return child; }
     BaseNode* getSource() { return source; }
     // std::string getTableName() { return tableName; }
-    Action getAction() { return action; }
+
+    void setId(int _id) { id = _id; }
+    int getId() { return id; }
 
    private:
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
-    Action action;
+    int id;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

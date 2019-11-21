@@ -13,8 +13,6 @@ enum Type { TYPE_INT, TYPE_FLOAT, TYPE_CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
 
-enum Action { SHOW_CREATE, DROP, CREATE, SELECT, DELETE_ACT, INSERT, UPDATE };
-
 enum Cmp { GREATEREQUALS, GREATER, NOEQUALS, EQUALS, LOWER, LOWEREQUALS };
 
 struct Condition {
@@ -34,7 +32,7 @@ void print(const T &elem) {
 }
 
 typedef std::vector<std::string> vecString;
-typedef std::vector<std::pair<std::pair<std::string, Cmp>, vecString>> Expr;
-typedef std::vector<std::vector<std::pair<std::string, std::string>>> RecordsData;
+typedef std::vector<std::pair<std::pair<std::string, std::string>, std::string>> RecordsFull;
+typedef std::pair<std::pair<std::string, std::string>, std::string> RecordColumn;
 
 #endif  // SELSQL_COMMONUTILS_H

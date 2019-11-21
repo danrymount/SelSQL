@@ -3,16 +3,16 @@
 //
 
 #include "Server.h"
+#ifdef __WIN32
+#include "ServerUtils/Win/ServerUtilsWin.h"
+#elif __linux
+#include "ServerUtils/Lin/ServerUtilsLin.h"
+#endif
 #include <cstring>
 #include <iostream>
 
 Server::Server(int max_connection) {
-#ifdef __WIN32
-    WSACleanup();
-    WORD wV = MAKEWORD(2, 2);
-    WSADATA d;
-    WSAStartup(wV, &d);
-#endif
+    ServerUtils::startServer();
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
         std::cerr << "Unable to create server socket" << std::endl;
@@ -37,11 +37,10 @@ int Server::ListenSocket(int id) {
     memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
     /*следует помнить, что данные поступают неравномерно*/
     int rc = recv(communication_socket[id], recieved_message, MESSAGE_SIZE, 0);
-    if (rc == MESSAGE_SIZE) {
-        return 0;
-    } else {
+    if (rc <= 0) {
         return 1;
     }
+    return 0;
 }
 void Server::SendMessage(std::string response, int id) {
     if (sendto(communication_socket[id], response.c_str(), response.size(), 0, (struct sockaddr *)&addr, sizeof(addr)) <
@@ -60,8 +59,4 @@ int Server::AcceptSocket(int id) {
     return 0;
 }
 
-#ifdef __WIN32
-Server::~Server() { WSACleanup(); }
-#elif __linux
-Server::~Server() { shutdown(server_socket, SHUT_RDWR); }
-#endif
+Server::~Server() { ServerUtils::closeServer(server_socket); }

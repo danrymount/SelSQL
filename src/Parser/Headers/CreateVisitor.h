@@ -14,6 +14,8 @@
 #include "TreeVisitor.h"
 class CreateVisitor : public TreeVisitor {
    public:
+    explicit CreateVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)) {}
+
     void visit(CreateNode* node) override {
         node->getSource()->accept(this);
         node->getChild()->accept(this);
@@ -39,9 +41,9 @@ class CreateVisitor : public TreeVisitor {
     void visit(VariableNode* node) override {
         if (values.find(node->getVarName()) == values.end()) {
             values.insert(std::make_pair(node->getVarName(), 1));
-            if(node->getVarType() == Type::TYPE_CHAR){
+            if (node->getVarType() == Type::TYPE_CHAR) {
                 table.addFiledWithSize(node->getVarName(), node->getVarType(), node->getSize());
-            }else{
+            } else {
                 table.addField(node->getVarName(), node->getVarType());
             }
             for (auto& child : node->getConstraints()) {

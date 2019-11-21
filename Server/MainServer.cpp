@@ -12,11 +12,12 @@ std::string ExecuteRequest(const std::string &request) {
     std::lock_guard<std::mutex> guard(m);
     std::string parser_msg;
 
+    std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEngine());
     RootNode *tree = parse_request(request.c_str(), &parser_msg);
     if (tree == nullptr) {
         return parser_msg;
     } else {
-        auto visitor = new TreeVisitor();
+        auto visitor = new TreeVisitor(engine);
         tree->accept(visitor);
         auto message = visitor->getMessage();
         std::string res = "Success";
@@ -57,7 +58,6 @@ int ListenClient(int id, Server *server) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
             std::cout << "\t" << message << std::endl;
         }
-
         server->SendMessage(message, id);
     }
 }

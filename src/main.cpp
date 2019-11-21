@@ -1,10 +1,12 @@
 
+#include "Engine/Headers/MainEngine.h"
 #include "Parser/Headers/TreeVisitor.h"
 #include "parser.cpp"
 
 [[noreturn]] int main() {
     std::string request;
-    auto visitor = new TreeVisitor();
+    std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEngine());
+    auto visitor = new TreeVisitor(engine);
     while (true) {
         std::getline(std::cin, request);
         auto parser_msg = new std::string();

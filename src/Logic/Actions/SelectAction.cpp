@@ -8,8 +8,8 @@
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
-    // auto columns = v->getColumns();
     auto expr = v->getExpr();
+    v->setExpressionVisitor(exprVisitor);
     auto source = v->getSource();
     source->accept(getTreeVisitor().get());
     auto message = v->getMessage();
@@ -20,7 +20,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     if (tableName.empty()) {
         records = v->getRecords();
     } else {
-        cursor = getEngine().GetCursor(tableName);
+        cursor = v->getEngine()->GetCursor(tableName);
         auto table = cursor.first;
         auto columns = v->getColumns();
         std::vector<std::pair<std::string, std::string>> columnValues;
@@ -33,13 +33,12 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         }
 
-        message = ActionsUtils::checkFieldsExist(cursor.first, columnValues);
+        message = ActionsUtils::checkFieldsExist(table, columnValues);
         if (message.getErrorCode()) {
             return message;
         }
 
         if (cursor.first->record_amount == 0) {
-            //        cursor.second.reset();
             return Message();
         }
 
@@ -54,17 +53,18 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             for (auto &col : _record) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
-            v->setFirstValues(_newRecord);
+            exprVisitor->setFirstValues(_newRecord);
             try {
-                expr->accept(v);
+                expr->accept(exprVisitor);
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
-            if (v->getResult()) {
+            if (exprVisitor->getResult()) {
                 records.push_back(_newRecord);
             }
         } while (!cursor.second->NextRecord());
     }
+    v->setRecords(records);
     return Message(ActionsUtils::checkSelectColumns(records, v->getColumns()));
 };

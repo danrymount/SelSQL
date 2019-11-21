@@ -17,23 +17,17 @@
 
 #include "Exception.h"
 
-static const int MESSAGE_SIZE = 1024;
+static const int MESSAGE_SIZE = 1024 * 1024;
 class Client {
-#ifdef __WIN32
-    SOCKET client_socket;
-    sockaddr_in peer;
-    SOCKET server_connection;
-#elif __linux
     int client_socket;
     sockaddr_in peer;
     int server_connection;
-#endif
-    void sendMessage(std::string message);
-    void getMessage();
 
    public:
     std::string response;
     void execRequest(std::string request);
+    void sendMessage(std::string message);
+    void getMessage();
     explicit Client();
     ~Client();
 };

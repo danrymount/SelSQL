@@ -41,6 +41,9 @@
 #include "Nodes/ExpressionsNodes/LogicNodes/NotLogicNode.h"
 #include "Nodes/ExpressionsNodes/LogicNodes/OrLogicNode.h"
 #include "Nodes/ExpressionsNodes/UpdateExprNode.h"
+#include "Nodes/JoinNodes/IntersectJoinNode.h"
+#include "Nodes/JoinNodes/UnionIntersectListNode.h"
+#include "Nodes/JoinNodes/UnionJoinNode.h"
 #include "Nodes/RootNode.h"
 #include "Nodes/UpdatesAndExprNode.h"
 #include "Nodes/ValuesNodes/CharValueNode.h"
@@ -51,50 +54,187 @@
 #include "Nodes/VariableNode.h"
 
 void TreeVisitor::visit(RootNode* node) {
+    int id = 1;  // TODO getId from server;
     for (auto& child : node->getChildren()) {
+        child->setId(id);
         // request->clear(); перед заходом в новую функцию, возможно, стоит отчищать
         child->accept(this);
     }
 }
 
 void TreeVisitor::visit(CreateNode* node) {
-    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor());
+    auto visitor = std::make_shared<CreateVisitor>(CreateVisitor(getEngine()));
     auto action = std::make_shared<CreateNode>(*node);
     message = CreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DropNode* node) {
-    auto visitor = std::make_shared<DropVisitor>(DropVisitor());
+    auto visitor = std::make_shared<DropVisitor>(DropVisitor(getEngine()));
     auto action = std::make_shared<DropNode>(*node);
     message = DropAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(ShowCreateNode* node) {
-    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor());
+    auto visitor = std::make_shared<ShowCreateVisitor>(ShowCreateVisitor(getEngine()));
     auto action = std::make_shared<ShowCreateNode>(*node);
     message = ShowCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(InsertNode* node) {
-    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor());
+    auto visitor = std::make_shared<InsertVisitor>(InsertVisitor(getEngine()));
     auto action = std::make_shared<InsertNode>(*node);
     message = InsertAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(SelectNode* node) {
-    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor());
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
     auto action = std::make_shared<SelectNode>(*node);
     message = SelectAction(visitor).execute(action);
 }
 
+void TreeVisitor::visit(UnionIntersectListNode* node) {
+    allCols.clear();
+    allRecords.clear();
+    for (auto& child : node->getChilds()) {
+        child->accept(this);
+    }
+    if (message.getErrorCode()) {
+        return;
+    }
+    message = Message(ActionsUtils::checkSelectColumns(allRecords, allCols));
+}
+
+Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::shared_ptr<SelectVisitor>& visitor,
+                                      std::vector<std::string>& colExist, std::vector<RecordsFull>& tempRecords,
+                                      std::vector<std::pair<std::string, std::string>>& cols) {
+    for (auto& action : node->getChildren()) {
+        int countColumns = 0;
+        auto res = SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
+        if (res.getErrorCode()) {
+            return res;
+        }
+        auto tempCols = visitor->getColumns();
+        auto tempSize = colExist.size();
+        auto records = visitor->getRecords();
+
+        if (tempCols[0].second == "*") {
+            tempCols.clear();
+            for (auto& col : records[0]) {
+                tempCols.emplace_back(col.first);
+            }
+        }
+        for (auto& col : tempCols) {
+            col.first.erase();
+            if (std::find(colExist.begin(), colExist.end(), col.second) != colExist.end()) {
+                countColumns++;
+            } else if (!tempSize) {
+                colExist.emplace_back(col.second);
+                countColumns++;
+            } else {
+                return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
+            }
+        }
+
+        if (countColumns != colExist.size()) {
+            return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
+        }
+
+        for (auto& rec : records) {
+            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> tempRec;
+            for (int i = 0; i < rec.size(); i++) {
+                auto col = rec[i];
+                if (std::find(colExist.begin(), colExist.end(), col.first.second) != colExist.end()) {
+                    col.first.first.erase();
+                    tempRec.emplace_back(col);
+                }
+            }
+            tempRecords.emplace_back(tempRec);
+        }
+    }
+
+    for (auto& col : colExist) {
+        cols.emplace_back(std::make_pair("", col));
+    }
+
+    return Message();
+}
+
+void TreeVisitor::visit(UnionJoinNode* node) {
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
+    std::vector<RecordsFull> tempRecords;
+    std::vector<std::string> colExist;
+    std::vector<std::pair<std::string, std::string>> cols;
+
+    message = countRecordsForUnionIntersect(node, visitor, colExist, tempRecords, cols);
+
+    if (message.getErrorCode()) {
+        return;
+    }
+
+    if (!allRecords.empty()) {
+        for (auto& rec : allRecords) {
+            tempRecords.emplace_back(rec);
+        }
+        allRecords.clear();
+    }
+
+    for (int i = 0; i < tempRecords.size(); i++) {
+        for (int j = i + 1; j < tempRecords.size(); j++) {
+            if (tempRecords[i] == tempRecords[j]) {
+                tempRecords.erase(tempRecords.begin() + j);
+                break;
+            }
+        }
+    }
+
+    allRecords = std::move(tempRecords);
+    allCols = std::move(cols);
+
+    // message = Message(ActionsUtils::checkSelectColumns(tempRecords, cols));
+}
+
+void TreeVisitor::visit(IntersectJoinNode* node) {
+    auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
+    std::vector<RecordsFull> tempRecords;
+    std::vector<RecordsFull> curRecords;
+    std::vector<std::string> colExist;
+    std::vector<std::pair<std::string, std::string>> cols;
+
+    message = countRecordsForUnionIntersect(node, visitor, colExist, tempRecords, cols);
+
+    if (message.getErrorCode()) {
+        return;
+    }
+
+    if (!allRecords.empty()) {
+        for (auto& rec : allRecords) {
+            tempRecords.emplace_back(rec);
+        }
+        allRecords.clear();
+    }
+
+    for (int i = 0; i < tempRecords.size(); i++) {
+        for (int j = i + 1; j < tempRecords.size(); j++) {
+            if (tempRecords[i] == tempRecords[j]) {
+                curRecords.emplace_back(tempRecords[i]);
+            }
+        }
+    }
+
+    allRecords = std::move(curRecords);
+    allCols = std::move(cols);
+
+    // message = Message(ActionsUtils::checkSelectColumns(curRecords, cols));
+}
+
 void TreeVisitor::visit(UpdateNode* node) {
-    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor());
+    auto visitor = std::make_shared<UpdateVisitor>(UpdateVisitor(getEngine()));
     auto action = std::make_shared<UpdateNode>(*node);
     message = UpdateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(DeleteNode* node) {
-    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor());
+    auto visitor = std::make_shared<DeleteVisitor>(DeleteVisitor(getEngine()));
     auto action = std::make_shared<DeleteNode>(*node);
     message = DeleteAction(visitor).execute(action);
 }
@@ -132,3 +272,6 @@ void TreeVisitor::visit(AssignUpdateNode* node) {}
 void TreeVisitor::visit(SourceJoinNode* node) {}
 void TreeVisitor::visit(JoinNode* node) {}
 void TreeVisitor::visit(TableNode* node) {}
+void TreeVisitor::visit(LeftJoinNode* node) {}
+void TreeVisitor::visit(RightJoinNode* node) {}
+void TreeVisitor::visit(FullJoinNode* node) {}

@@ -6,11 +6,12 @@
 #include "../../Parser/Headers/UpdateVisitor.h"
 
 Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
-    root->accept(getTreeVisitor().get());
     auto v = static_cast<UpdateVisitor *>(getTreeVisitor().get());
+    v->setExpressionVisitor(exprVisitor);
+    root->accept(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
     auto expr = v->getExpr();
-    cursor = getEngine().GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName());
     auto table = cursor.first;
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -31,14 +32,18 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (record.empty()) {
                 continue;
             }
-            v->setValues(record);
+            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+            for (auto &col : record) {
+                _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+            }
+            exprVisitor->setFirstValues(_newRecord);
             try {
-                expr->accept(getTreeVisitor().get());
+                expr->accept(exprVisitor);
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
-            if (v->getResult()) {
+            if (exprVisitor->getResult()) {
                 records.emplace_back(record);
             }
             allrecords.emplace_back(record);
@@ -60,16 +65,15 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         do {
             auto _record = cursor.second->Fetch();
             // TODO std::find
-            for (auto &record : records) {
-                if (_record != record) {
-                    continue;
-                }
+            auto rec = std::find(records.begin(), records.end(), _record);
+            if (rec == records.end()) {
+                continue;
+            }
 
-                try {
-                    cursor.second->Update(columns, values);
-                } catch (std::exception &exception) {
-                    return Message(ErrorConstants::ERR_STO);
-                }
+            try {
+                cursor.second->Update(columns, values);
+            } catch (std::exception &exception) {
+                return Message(ErrorConstants::ERR_STO);
             }
 
         } while (!cursor.second->NextRecord());

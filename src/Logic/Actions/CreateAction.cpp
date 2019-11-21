@@ -12,5 +12,5 @@ Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     if (error.getErrorCode()) {
         return error;
     }
-    return getEngine().CreateTable(std::make_shared<Table>(v->getTable()));
+    return v->getEngine()->CreateTable(std::make_shared<Table>(v->getTable()));
 }

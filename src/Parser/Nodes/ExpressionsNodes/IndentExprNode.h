@@ -15,16 +15,14 @@ class IndentExprNode : public BaseExprNode {
                                                                                                           name(std::move(_name)) {
     }
 
-    std::string getValue() { return name; }
-
-    std::string getBaseValue() override { return name; }
-
-    std::string getAliasname() { return aliasName; }
-
     void accept(TreeVisitor* v) override { v->visit(this); }
 
+    std::string getName() { return name; }
+
+    std::string getAliasName() { return aliasName; }
+
    private:
-    std::string aliasName;
     std::string name;
+    std::string aliasName;
 };
 #endif  // SELSQL_INDENTEXPRNODE_H

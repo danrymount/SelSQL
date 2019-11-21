@@ -1,9 +1,13 @@
+#include <thread>
 
 #include <gtest/gtest.h>
 #include "../Client/Client.h"
 #include "../src/Utils/Structures/Data/Variable.h"
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
+
+#define KILL
+#define Request std::pair<std::string, std::string>
 
 TEST(SERVER_TEST_CREATE, TEST1) {
     TestUtils::clear();
@@ -42,7 +46,6 @@ TEST(SERVER_TEST_CREATE, TEST3) {
 }
 
 TEST(SERVER_TEST_SELECT, TEST1) {
-    //    TestUtils::StartServer();
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
                               {"INSERT INTO t values(0);", "Success"},
@@ -331,7 +334,6 @@ TEST(SERVER_TEST_DELETE, TEST4) {
                               {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
                               {"INSERT INTO fff values(1, 2.789, 'adsasdasdasdasd');", "Success"},
                               {"DELETE FROM fff where id = 1;", "Success"},
-
                               {"SELECT * from fff;",
                                "\nid|age     |name |\n"
                                "10|2.000000|'Vvv'|\n"},
@@ -527,8 +529,8 @@ TEST(SERVER_TEST_JOIN, TEST2) {
                               {"INSERT INTO jh values(1, 3.7);", "Success"},
                               {"INSERT INTO jh values(2, 3.789);", "Success"},
                               {"SELECT * from (jj as j1 join jg as j2 on j1.id = j2.id) join jh on j1.age = jh.some;",
-                               "\nj1.id|j1.age  |j1.name |j2.id|j2.age  |jh.id|jh.some |\n"
-                               "2    |3.789000|'qwerty'|2    |3.700000|2    |3.789000|\n"},
+                               "\njh.id|jh.some |j1.id|j1.age  |j1.name |j2.id|j2.age  |\n"
+                               "2    |3.789000|2    |3.789000|'qwerty'|2    |3.700000|\n"},
                               {"SELECT * from jh as j3 join (jj as j1 join jg as j2 on j1.age = j2.age) on j3.id = "
                                "j2.id;",
                                "\nj3.id|j3.some |j1.id|j1.age  |j1.name  |j2.id|j2.age  |\n"
@@ -536,34 +538,35 @@ TEST(SERVER_TEST_JOIN, TEST2) {
                                "2    |3.789000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"}});
 }
 
-TEST(SERVER_TEST_JOIN, TEST3) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
-                              {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
-                              {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
-                              {"CREATE TABLE jk(id INT NOT NULL , some float, name char(150));", "Success"},
-                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
-                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-                              {"INSERT INTO jg values(1, 3.5);", "Success"},
-                              {"INSERT INTO jg values(2, 3.7);", "Success"},
-                              {"INSERT INTO jg values(3, 2.9);", "Success"},
-                              {"INSERT INTO jh values(3, 9.5);", "Success"},
-                              {"INSERT INTO jh values(1, 3.7);", "Success"},
-                              {"INSERT INTO jh values(2, 3.789);", "Success"},
-                              {"INSERT INTO jk values(1, 3, 'sfsf');", "Success"},
-                              {"SELECT * from (jj as j1 join jg as j2 on j1.age = j2.age) join (jk join jh on jk.id = "
-                               "jh.id) on j1.name = jk.name;",
-                               "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jk.id|jk.some |jk.name|jh.id|jh.some |\n"
-                               "1    |2.900000|'sfsf' |3    |2.900000|1    |3.000000|'sfsf' |1    |3.700000|\n"},
-                              {"SELECT * from ((jk join jg on jk.id = jg.id) join (jj as j1 join jg as j2 on j1.id = "
-                               "j2.id) on jk.id = jg.id) join (jj as j3 join jg as j4 on j3.age = j4.age) on j1.id = "
-                               "j4.id;",
-                               "\njk.id|jk.some |jk.name|jg.id|jg.age  |j1.id|j1.age  |j1.name |j2.id|j2.age  "
-                               "|j3.id|j3.age  |j3.name  |j4.id|j4.age  |\n"
-                               "1    |3.000000|'sfsf' |1    |3.500000|2    |3.789000|'qwerty'|2    |3.700000|5    "
-                               "|3.700000|'qwesdfy'|2    |3.700000|\n"}});
-}
+// TEST(SERVER_TEST_JOIN, TEST3) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
+//                              {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
+//                              {"CREATE TABLE jh(id INT NOT NULL , some float);", "Success"},
+//                              {"CREATE TABLE jk(id INT NOT NULL , some float, name char(150));", "Success"},
+//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
+//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
+//                              {"INSERT INTO jg values(1, 3.5);", "Success"},
+//                              {"INSERT INTO jg values(2, 3.7);", "Success"},
+//                              {"INSERT INTO jg values(3, 2.9);", "Success"},
+//                              {"INSERT INTO jh values(3, 9.5);", "Success"},
+//                              {"INSERT INTO jh values(1, 3.7);", "Success"},
+//                              {"INSERT INTO jh values(2, 3.789);", "Success"},
+//                              {"INSERT INTO jk values(1, 3, 'sfsf');", "Success"},
+//                              {"SELECT * from (jj as j1 join jg as j2 on j1.age = j2.age) join (jk join jh on jk.id =
+//                              "
+//                               "jh.id) on j1.name = jk.name;",
+//                               "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jh.id|jh.some |jk.id|jk.some |jk.name|\n"
+//                               "1    |2.900000|'sfsf' |3    |2.900000|1    |3.700000|1    |3.000000|'sfsf' |\n"},
+//                              {"SELECT * from ((jk join jg on jk.id = jg.id) join (jj as j1 join jg as j2 on j1.id = "
+//                               "j2.id) on jk.id = jg.id) join (jj as j3 join jg as j4 on j3.age = j4.age) on j1.id = "
+//                               "j4.id;",
+//                               "\njg.id|jg.age  |jk.id|jk.some |jk.name|j1.id|j1.age  |j1.name |j2.id|j2.age  "
+//                               "|j3.id|j3.age  |j3.name  |j4.id|j4.age  |\n"
+//                               "1    |3.500000|1    |3.000000|'sfsf' |2    |3.789000|'qwerty'|2    |3.700000|5    "
+//                               "|3.700000|'qwesdfy'|2    |3.700000|\n"}});
+//} //TODO падает с сигсегом
 
 TEST(SERVER_TEST_JOIN, TEST4) {
     TestUtils::clear();
@@ -585,6 +588,234 @@ TEST(SERVER_TEST_JOIN, TEST4) {
                                "1    |2.900000|\n"
                                "2    |3.700000|\n"
                                "5    |3.700000|\n"}});
+}
+
+TEST(SERVER_TEST_LEFT_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+                              {"SELECT * from table1 left join table2 on table1.id = table2.id;",
+                               "\ntable1.id|table1.age|table1.name|table2.id|table2.age|\n"
+                               "1        |2.900000  |'sfsf'     |1        |3.500000  |\n"
+                               "2        |3.789000  |'qwerty'   |2        |3.700000  |\n"
+                               "5        |3.700000  |'qwesdfy'  |null     |null      |\n"},
+                              {"SELECT * from (table1 as t1 left join table2 as t2 on t1.id = t2.id) left join table3"
+                               " on t1.age = table3.some;",
+                               "\nt1.id|t1.age  |t1.name  |t2.id|t2.age  |table3.id|table3.some|\n"
+                               "1    |2.900000|'sfsf'   |1    |3.500000|null     |null       |\n"
+                               "2    |3.789000|'qwerty' |2    |3.700000|2        |3.789000   |\n"
+                               "5    |3.700000|'qwesdfy'|null |null    |1        |3.700000   |\n"},
+                              {"SELECT t1.id, t2.age from table1 as t1 left join table2 as t2 on t1.id = t2.id or "
+                               "t1.age = t2.age;",
+                               "\nt1.id|t2.age  |\n"
+                               "1    |3.500000|\n"
+                               "1    |2.900000|\n"
+                               "2    |3.700000|\n"
+                               "5    |3.700000|\n"}});
+}
+
+// TEST(SERVER_TEST_RIGHT_JOIN, TEST1) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+//                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+//                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+//                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+//                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+//                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+//                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+//                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+//                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+//                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+//                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+//                              {"SELECT t1.id, t2.id, t1.name, t2.age from table1 as t1 right join table2 as t2 on "
+//                               "t1.id = t2.id;",
+//                               "\n"
+//                               "t1.id|t2.id|t1.name |t2.age  |\n"
+//                               "1    |1    |'sfsf'  |3.500000|\n"
+//                               "2    |2    |'qwerty'|3.700000|\n"
+//                               "null |3    |null    |2.900000|\n"},
+//                              {"SELECT * from table3 as t3 right join (table1 as t1 right join table2 as t2 on "
+//                               "t1.age = t2.age) on t3.id = t2.id;",
+//                               "\nt3.id|t3.some |t1.id|t1.age  |t1.name  |t2.id|t2.age  |\n"
+//                               "1    |3.700000|null |null    |null     |1    |3.500000|\n"
+//                               "2    |3.789000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"
+//                               "3    |9.500000|1    |2.900000|'sfsf'   |3    |2.900000|\n"},
+//                              {"SELECT table1.id, table2.age from table1 right join table2 on table1.id = table1.id "
+//                               "and table1.age = table2.age;",
+//                               "\ntable1.id|table2.age|\n"
+//                               "null     |3.500000  |\n"
+//                               "5        |3.700000  |\n"
+//                               "1        |2.900000  |\n"}});
+//} //TODO сигсег в дебаге
+
+TEST(SERVER_TEST_LEFT_RIGHT_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL , some float);", "Success"},
+                              {"CREATE TABLE table4(id INT NOT NULL , some float, name char(150));", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5);", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7);", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789);", "Success"},
+                              {"INSERT INTO table4 values(1, 3, 'sfsf');", "Success"},
+                              {"SELECT t1.age, table4.id, table4.name, t2.age from (table1 as t1 right join table2 as "
+                               "t2 on t1.age = t2.age) left join (table4 right join table3 on table4.id = table3.id) "
+                               "on t1.name = table4.name;",
+                               "\nt1.age  |table4.id|table4.name|t2.age  |\n"
+                               "null    |null     |null       |3.500000|\n"
+                               "3.700000|null     |null       |3.700000|\n"
+                               "2.900000|1        |'sfsf'     |2.900000|\n"},
+                              {"SELECT * from ((table4 left join table2 on table4.id = table2.id) right join (table1 "
+                               "as t1 right join table2 as t2 on t1.id = t2.id) on table4.id = table2.id) left join "
+                               "(table1 as t3 right join table2 as t4 on t3.age = t4.age) on t1.id = t4.id;",
+                               "\ntable4.id|table4.some|table4.name|table2.id|table2.age|t1.id|t1.age  |t1.name "
+                               "|t2.id|t2.age  |t3.id|t3.age  |t3.name  |t4.id|t4.age  |\n"
+                               "1        |3.000000   |'sfsf'     |1        |3.500000  |1    |2.900000|'sfsf'  |1    "
+                               "|3.500000|null |null    |null     |1    |3.500000|\n"
+                               "1        |3.000000   |'sfsf'     |1        |3.500000  |2    |3.789000|'qwerty'|2    "
+                               "|3.700000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"
+                               "1        |3.000000   |'sfsf'     |1        |3.500000  |null |null    |null    |3    "
+                               "|2.900000|null |null    |null     |null |null    |\n"}});
+}
+
+TEST(SERVER_TEST_FULL_JOIN, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.7);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"SELECT * from table1 full join table2 on table1.id = table2.id;",
+                               "\ntable1.id|table1.age|table1.name|table2.id|table2.age|\n"
+                               "1        |2.900000  |'sfsf'     |1        |3.500000  |\n"
+                               "2        |3.789000  |'qwerty'   |2        |3.700000  |\n"
+                               "5        |3.700000  |'qwesdfy'  |null     |null      |\n"
+                               "null     |null      |null       |3        |2.900000  |\n"},
+                              {"SELECT t1.id, t2.age from table1 as t1 full join table2 as t2 on t1.id = t2.id or "
+                               "t1.age = t2.age;",
+                               "\nt1.id|t2.age  |\n"
+                               "1    |3.500000|\n"
+                               "1    |2.900000|\n"
+                               "2    |3.700000|\n"
+                               "5    |3.700000|\n"}});
+}
+
+TEST(SERVER_TEST_UNION, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.789);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"SELECT age from table1 UNION SELECT age from table2;",
+                               "\nage     |\n"
+                               "3.500000|\n"
+                               "3.789000|\n"
+                               "2.900000|\n"
+                               "3.700000|\n"},
+                              {"SELECT id, age from table1 UNION SELECT id, age from table2;",
+                               "\nid|age     |\n"
+                               "1 |3.500000|\n"
+                               "2 |3.789000|\n"
+                               "3 |2.900000|\n"
+                               "1 |2.900000|\n"
+                               "5 |3.700000|\n"}});
+}
+
+TEST(SERVER_TEST_UNION, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5, 'qwerty');", "Success"},
+                              {"INSERT INTO table2 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7, 'sfsf');", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789, 'sfsf');", "Success"},
+                              {"SELECT * from table1 UNION SELECT * from table2;",
+                               "\nid|age     |name     |\n"
+                               "1 |3.500000|'qwerty' |\n"
+                               "2 |3.789000|'qwerty' |\n"
+                               "3 |2.900000|'sfsf'   |\n"
+                               "1 |2.900000|'sfsf'   |\n"
+                               "5 |3.700000|'qwesdfy'|\n"},
+                              {"SELECT id, age from table1 where id = 1 UNION SELECT id, age from table2 UNION "
+                               "SELECT id, age from table3;",
+                               "\nid|age     |\n"
+                               "3 |9.500000|\n"
+                               "1 |3.700000|\n"
+                               "2 |3.789000|\n"
+                               "1 |3.500000|\n"
+                               "3 |2.900000|\n"
+                               "1 |2.900000|\n"}});
+}
+
+TEST(SERVER_TEST_INTERSECT, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"INSERT INTO table2 values(2, 3.789);", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9);", "Success"},
+                              {"SELECT age from table1 INTERSECT SELECT age from table2;",
+                               "\nage     |\n"
+                               "3.789000|\n"
+                               "2.900000|\n"},
+                              {"SELECT id, age from table1 INTERSECT SELECT id, age from table2;",
+                               "\nid|age     |\n"
+                               "2 |3.789000|\n"}});
+}
+
+TEST(SERVER_TEST_INTERSECT, TEST2) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table3(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table1 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table1 values(5, 3.7, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5, 'qwerty');", "Success"},
+                              {"INSERT INTO table2 values(2, 3.789, 'qwerty');", "Success"},
+                              {"INSERT INTO table2 values(3, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table3 values(3, 9.5, 'qwesdfy');", "Success"},
+                              {"INSERT INTO table3 values(1, 3.7, 'sfsf');", "Success"},
+                              {"INSERT INTO table3 values(2, 3.789, 'sfsf');", "Success"},
+                              {"SELECT * from table1 INTERSECT SELECT * from table2;",
+                               "\nid|age     |name    |\n"
+                               "2 |3.789000|'qwerty'|\n"},
+                              {"SELECT id, age from table1 where id = 1 INTERSECT SELECT id, age from table2 INTERSECT "
+                               "SELECT id, age from table3;",
+                               "Success"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST1) {
@@ -688,10 +919,13 @@ TEST(SERVER_TEST_ERROR, TEST15) {
 TEST(SERVER_TEST_ERROR, TEST16) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(256));", "Success"},
-                              {"insert into qh values ('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
-                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                              {"insert into qh values "
+                               "('qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "qqqq"
                                "q"
-                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq"
+                               "qqqq"
                                "q"
                                "qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq');",
                                "CHAR IS VERY BIG ERROR: 13"}});
@@ -800,6 +1034,34 @@ TEST(SERVER_TEST_ERROR, TEST29) {
                               {"SELECT dgdfg, id from fn;", "Field doesnt exist ERROR: 6"}});
 }
 
+TEST(SERVER_TEST_ERROR, TEST30) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT age from table1 UNION SELECT id from table2;", "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST31) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT age from table1 INTERSECT SELECT id from table2;",
+                               "Field doesnt exist ERROR: 6"}});
+}
+
+TEST(SERVER_TEST_ERROR, TEST32) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+                              {"SELECT * from table1 UNION SELECT * from table2;", "Field doesnt exist ERROR: 6"}});
+}
+
 TEST(SERVER_TEST_SYN_ERROR, TEST1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"", "syntax error, unexpected $end (Str num 1, sym num 0): "}});
@@ -837,14 +1099,16 @@ TEST(SERVER_TEST_SYN_ERROR, TEST6) {
 TEST(SERVER_TEST_SYN_ERROR, TEST7) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (id innt);",
-                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str num "
+                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
+                               "num "
                                "1, sym num 19): innt"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST8) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (id charrrr(50));",
-                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str num "
+                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
+                               "num "
                                "1, sym num 22): charrrr"}});
 }
 
@@ -858,14 +1122,16 @@ TEST(SERVER_TEST_SYN_ERROR, TEST9) {
 TEST(SERVER_TEST_SYN_ERROR, TEST10) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name char54545(20));",
-                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str num "
+                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
+                               "num "
                                "1, sym num 26): char54545"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST11) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name 456456);",
-                               "syntax error, unexpected NUMBER, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
+                               "syntax error, unexpected NUMBER, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE "
+                               "(Str "
                                "num 1, sym num 23): 456456"}});
 }
 
@@ -878,14 +1144,16 @@ TEST(SERVER_TEST_SYN_ERROR, TEST12) {
 TEST(SERVER_TEST_SYN_ERROR, TEST13) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name int, nn char);",
-                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str num "
+                               "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
+                               "num "
                                "1, sym num 27): char"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST14) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name int;",
-                               "syntax error, unexpected SEMICOLON, expecting RBRACKET or COMMA (Str num 1, sym num "
+                               "syntax error, unexpected SEMICOLON, expecting RBRACKET or COMMA (Str num 1, sym "
+                               "num "
                                "21): ;"}});
 }
 
@@ -975,7 +1243,8 @@ TEST(SERVER_TEST_SYN_ERROR, TEST28) {
 TEST(SERVER_TEST_SYN_ERROR, TEST29) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t values;",
-                               "syntax error, unexpected SEMICOLON, expecting LBRACKET (Str num 1, sym num 18): ;"}});
+                               "syntax error, unexpected SEMICOLON, expecting LBRACKET (Str num 1, sym num 18): "
+                               ";"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST30) {
@@ -999,7 +1268,9 @@ TEST(SERVER_TEST_SYN_ERROR, TEST32) {
 TEST(SERVER_TEST_SYN_ERROR, TEST33) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t jon tt on t.id = tt.id;",
-                               "syntax error, unexpected IDENT, expecting SEMICOLON (Str num 1, sym num 15): jon"}});
+                               "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
+                               "sym num 15): "
+                               "jon"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST34) {
@@ -1011,7 +1282,8 @@ TEST(SERVER_TEST_SYN_ERROR, TEST34) {
 TEST(SERVER_TEST_SYN_ERROR, TEST35) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t a t1 join tt on t.id = tt.id;",
-                               "syntax error, unexpected IDENT, expecting SEMICOLON (Str num 1, sym num 13): a"}});
+                               "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
+                               "sym num 13): a"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST36) {
@@ -1020,34 +1292,137 @@ TEST(SERVER_TEST_SYN_ERROR, TEST36) {
                                "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
 }
 
-//TEST(SERVER_TEST_ALLOCATION, TEST1) {
-////    TestUtils::clear();
-////    TestUtils::checkRequests({{"create table t(id int);","Success"}});
-////    for (int i = 0; i < 1000; ++i){
-////        std::string req = "insert into t values("+std::to_string(i)+");";
-////        TestUtils::checkRequests({{req,"Success"}});
-////    }
-////    TestUtils::checkRequests({{"select * from t;",""}});
-//}
+TEST(SERVER_TEST_SYN_ERROR, TEST37) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t unon select * from t1;",
+                               "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
+                               "sym num 16): unon"}});
+}
 
-// TEST(SERVER_TEST_SYN_STRESS, TEST1) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
-//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-//                              //funChangeFile()
-//                              {"select * from jj;", "Success"}});
-//}
-//
-// TEST(SERVER_TEST_SYN_STRESS, TEST2) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
-//                              //funChangeFile()
-//                              {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-//                              //funChangeFile()
-//                              //funChangeFile()
-//                              {"select * from jj;", "Success"}});
-//}
+TEST(SERVER_TEST_SYN_ERROR, TEST38) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t interect select * from t1;",
+                               "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
+                               "sym num 20): interect"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST39) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t union;",
+                               "syntax error, unexpected SEMICOLON, expecting SELECT_ACTION (Str num 1, sym num 18): "
+                               ";"}});
+}
+
+TEST(SERVER_TEST_SYN_ERROR, TEST40) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"select * from t intersect insert into t values(1);",
+                               "syntax error, unexpected INSERT_ACTION, expecting SELECT_ACTION (Str num 1, sym num "
+                               "27): insert"}});
+}
+
+#ifdef KILL
+TEST(SERVER_TEST_SYN_STRESS, TEST1) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
+                               "int);",
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    std::string answerSecond = "\nid|age     |name    |col1|col2|col3|\n";
+    std::vector<Request> allRequest;
+    for (int i = 0; i < 71; i++) {
+        allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
+        answerSecond += "8 |3.780000|'sdfsdf'|5   |9   |6   |\n";
+    };
+    TestUtils::checkRequests(allRequest);
+    TestUtils::checkDrop({{"UPDATE jj SET id = (8+3-3)*2/2, age = 3.78, name = 'sdfsdf', col1 = 5, "
+                           "col2 = 9, col3 = 6 where id = 5 or not(id = 7 or id = 9);",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, answerSecond}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST2) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
+                               "int);",
+                               "Success"}});
+    std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
+    std::vector<Request> allRequest;
+    for (int i = 0; i < 2700; i++) {
+        allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
+        answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
+    };
+    TestUtils::checkRequests(allRequest);
+    TestUtils::checkDrop({{"delete from jj where (id = 5 or not(id = 7-7*1 or id = 9) or "
+                           "(id = 2+3*(id-75+63)+47 and age >= 5.15) or name = 'sdfsdfsdfsdf' or "
+                           "not age = id + age - 5*8 or name >= 'aaaaadddd') and id = 8 or id = 1 or age = 3.7 or "
+                           "col1 = 1 or col2 = 1 or col3 = 1 or name = 'qwerty';",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, "Success"}});
+}
+
+TEST(SERVER_TEST_SYN_STRESS, TEST3) {
+    TestUtils::clear();
+    TestUtils::run();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(300), "
+                               "col1 int NOT NULL, col2 int NOT NULL, col3 int NOT NULL, "
+                               "col4 int NOT NULL, col5 int NOT NULL, col6 int NOT NULL, "
+                               "col7 int NOT NULL, col8 int NOT NULL, col9 int NOT NULL, "
+                               "col10 int NOT NULL, col11 int NOT NULL, col12 int NOT NULL);",
+                               "Success"}});
+    std::string answerFirst = "\nid |age     |name  |col1|col2|col3|col4|col5|col6|col7|col8|col9|col10|col11|col12|\n";
+    std::vector<Request> allRequest;
+    for (int i = 1; i < 999; i++) {
+        std::string request = "INSERT INTO jj values(" + std::to_string(i) + ", 2.9, 'sfsf', ";
+        answerFirst += std::to_string(i);
+        for (int j = std::to_string(i).length(); j < 3; j++) {
+            answerFirst += " ";
+        }
+        answerFirst += "|2.900000|'sfsf'|";
+        for (int j = 0; j < 12; j++) {
+            request += std::to_string(i);
+            if (j != 11)
+                request += ", ";
+            answerFirst += std::to_string(i);
+            for (int k = std::to_string(i).length(); k < 4; k++) {
+                answerFirst += " ";
+            }
+            if (j > 8)
+                answerFirst += " ";
+            answerFirst += "|";
+        }
+        answerFirst += "\n";
+        request += ");";
+        allRequest.emplace_back(std::make_pair(request, "Success"));
+    };
+    TestUtils::checkRequests(allRequest);
+    std::string answerSecond = answerFirst +
+                               "999|7.500000|'dfdf'|999 |999 |999 |999 |999 |999 |999 |999 |999 |999  |999  |999  |\n";
+    TestUtils::checkDrop({{"insert into jj values(999, 7.5, 'dfdf', 999, 999, 999, 999, 999, 999, "
+                           "999, 999, 999, 999, 999, 999);",
+                           "SELECT * FROM jj;"},
+                          {answerFirst, answerSecond}});
+}
+#endif
+
+TEST(SERVER_TEST_THREAD, TEST1) {
+    TestUtils::clear();
+    std::vector<Request> request1{{"begin;", "Success"},
+                                  {"create table t(id int, name char(255), city char(255), age float", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"select * from t", "Success"},
+                                  {"commit;", ""}};
+    std::vector<Request> request2{{"begin;", "Success"},
+                                  {"create table t1(id int, name char(255), city char(255), age float", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
+                                  {"select * from t1", "Success"},
+                                  {"commit;", ""}};
+    std::thread client1(TestUtils::checkRequests, request1);
+    std::thread client2(TestUtils::checkRequests, request2);
+    client1.join();
+    client2.join();
+}

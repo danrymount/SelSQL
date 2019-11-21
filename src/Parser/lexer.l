@@ -14,6 +14,9 @@
     #include "../../src/Parser/Nodes/ExpressionsNodes/IndentNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/SourceJoinNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/BaseJoinNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/SelectNode.h"
+    #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
 
     #include "parser.h"
     #include <memory>
@@ -80,6 +83,8 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "ON"                    {ch += yyleng; return ON;}
 "UNION"                 {ch += yyleng; return UNION;}
 "INTERSECT"             {ch += yyleng; return INTERSECT;}
+"BEGIN"                 {ch += yyleng; return BEGIN_;}
+"COMMIT"                {ch += yyleng; return COMMIT;}
 
 {CHAR_TYPE}             {ch += yyleng;
                         charLen = "";

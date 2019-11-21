@@ -9,6 +9,8 @@
 #include "TreeVisitor.h"
 class ShowCreateVisitor : public TreeVisitor {
    public:
+    explicit ShowCreateVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(ShowCreateNode* node) override { node->getSource()->accept(this); }
 
     void visit(IdentNode* node) override { tableName = node->getBaseValue(); }

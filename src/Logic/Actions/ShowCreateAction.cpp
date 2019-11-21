@@ -9,11 +9,9 @@
 Message ShowCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto v = static_cast<ShowCreateVisitor *>(getTreeVisitor().get());
-    auto table = getEngine().ShowCreateTable(v->getTableName());
+    auto table = v->getEngine()->ShowCreateTable(v->getTableName());
     if (table->name.empty()) {
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
-    // TODO make print for showcreate
-
     return Message(ActionsUtils::makeRequestCreateFromTable(table));
 }

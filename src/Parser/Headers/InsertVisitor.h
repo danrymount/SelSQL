@@ -16,6 +16,8 @@
 #include "TreeVisitor.h"
 class InsertVisitor : public TreeVisitor {
    public:
+    explicit InsertVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
+
     void visit(InsertNode* node) override {
         node->getSource()->accept(this);
         node->getChild()->accept(this);
