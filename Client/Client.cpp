@@ -6,7 +6,7 @@
 #ifdef __WIN32
 #include "ClientUtils/Win/ClientUtilsWin.h"
 #elif __linux
-#include "ClientUtils/Win/ClientUtilsLin.h"
+#include "ClientUtils/Lin/ClientUtilsLin.h"
 #endif
 
 #include <cstring>
