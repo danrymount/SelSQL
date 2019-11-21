@@ -11,7 +11,7 @@ class Cursor {
     std::shared_ptr<DataBlock> data_block_;
     std::vector<std::pair<std::string, std::string>> values_;
 
-
+    int changed = 0;
     int read_block_id = 0;
     int write_block_id = 0;
     int current_pos = 0;
@@ -31,6 +31,8 @@ class Cursor {
     int Delete();
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Reset();
+
+    void Commit();
     std::vector<std::pair<std::string, std::string>> Fetch();
     ~Cursor();
 };

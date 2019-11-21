@@ -101,7 +101,7 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     data_block_->record_amount++;
     data_block_->last_record_pos++;
     std::memcpy(&data_block_->data_[pos_in_block], record, table_->record_size);
-
+    changed = 1;
     return 0;
 }
 
@@ -186,7 +186,7 @@ int Cursor::Delete() {
     data_block_->last_record_pos++;
     current_session_deleted_++;
     data_block_->was_changed = 1;
-
+    changed = 1;
     return 0;
 }
 
@@ -208,6 +208,7 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
     std::memcpy(&data_block_->data_[current_pos * table_->record_size], record, table_->record_size);
     data_block_->was_changed = 1;
+    changed = 1;
     return 0;
 }
 
@@ -217,22 +218,16 @@ int Cursor::Reset() {
     read_block_id = 0;
     write_block_id = 0;
     data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
+//    changed = 0;
     return 0;
 }
 
-Cursor::~Cursor() {
-    if (!table_->name.empty()) {
-        UpdateDataBlock();
-        file_manager_->UpdateFile(table_->name);
-        file_manager_->CloseAllFiles();
-    }
-}
 
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
 Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager)
-                                                                                                    : table_(table),
-                                                                                                      file_manager_(file_manager) {
+        : table_(table),
+          file_manager_(file_manager) {
     data_block_ = file_manager_->ReadDataBlock(table->name, 0);
     if (data_block_ == nullptr) {
         Allocate();
@@ -241,6 +236,7 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileMa
         values_.emplace_back(std::make_pair(i.first, ""));
     }
 }
+
 void Cursor::Allocate() {
     data_block_ = std::make_shared<DataBlock>();
     data_block_->record_size = table_->record_size;
@@ -251,6 +247,7 @@ void Cursor::Allocate() {
     readed_data = 0;
     current_session_deleted_ = 0;
 }
+
 int Cursor::NextDataBlock() {
     UpdateDataBlock();
     data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id);
@@ -266,4 +263,17 @@ int Cursor::NextDataBlock() {
     readed_data = 0;
     current_pos = 0;
     return 0;
+}
+
+void Cursor::Commit() {
+    if (!table_->name.empty() and changed) {
+        UpdateDataBlock();
+        file_manager_->UpdateFile(table_->name);
+    }
+}
+
+Cursor::~Cursor() {
+    if (file_manager_.get() != nullptr) {
+        file_manager_->CloseAllFiles();
+    }
 }

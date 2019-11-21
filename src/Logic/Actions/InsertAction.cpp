@@ -124,6 +124,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_STO);
     }
 
+    cursor.second->Commit();
     
 
     return message;

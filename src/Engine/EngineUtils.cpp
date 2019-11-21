@@ -149,7 +149,6 @@ int GetDataBlockSize(int record_size) {
 }
 void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->flush();
-
     int rec_amount = 0;
     int offset = 0;
     int size = GetFileSize(src);
@@ -166,6 +165,7 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     while (offset < size) {
         int block_id = 0;
         memcpy(&block_id, &buf[offset], sizeof(int));
+        std::cerr << block_id << std::endl;
         offset += 4;
         dist->seekp(4 + block_id * GetDataBlockSize(record_size));
         dist->write(&buf[offset], GetDataBlockSize(record_size));
