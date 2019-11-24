@@ -6,7 +6,7 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
-#define KILL
+//#define KILL
 #define Request std::pair<std::string, std::string>
 
 TEST(SERVER_TEST_CREATE, TEST1) {
@@ -1407,22 +1407,22 @@ TEST(SERVER_TEST_SYN_STRESS, TEST3) {
 }
 #endif
 
-TEST(SERVER_TEST_THREAD, TEST1) {
-    TestUtils::clear();
-    std::vector<Request> request1{{"begin;", "Success"},
-                                  {"create table t(id int, name char(255), city char(255), age float", "Success"},
-                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
-                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5", "Success"},
-                                  {"select * from t", "Success"},
-                                  {"commit;", ""}};
-    std::vector<Request> request2{{"begin;", "Success"},
-                                  {"create table t1(id int, name char(255), city char(255), age float", "Success"},
-                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
-                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5", "Success"},
-                                  {"select * from t1", "Success"},
-                                  {"commit;", ""}};
-    std::thread client1(TestUtils::checkRequests, request1);
-    std::thread client2(TestUtils::checkRequests, request2);
-    client1.join();
-    client2.join();
-}
+// TEST(SERVER_TEST_THREAD, TEST1) {
+//    TestUtils::clear();
+//    std::vector<Request> request1{{"begin;", "Success"},
+//                                  {"create table t(id int, name char(255), city char(255), age float);", "Success"},
+//                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+//                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+//                                  {"select * from t;", "Success"},
+//                                  {"commit;", "Success"}};
+//    std::vector<Request> request2{{"begin;", "Success"},
+//                                  {"create table t1(id int, name char(255), city char(255), age float);", "Success"},
+//                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+//                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+//                                  {"select * from t1;", "Success"},
+//                                  {"commit;", "Success"}};
+//    std::thread client1(TestUtils::checkRequests, request1);
+//    std::thread client2(TestUtils::checkRequests, request2);
+//    client1.join();
+//    client2.join();
+//}

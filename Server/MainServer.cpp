@@ -10,7 +10,7 @@ std::mutex m;
 
 std::string ExecuteRequest(const std::string &request) {
     std::lock_guard<std::mutex> guard(m);
-    std::string parser_msg;
+    std::string parser_msg = "Success";
 
     std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEngine());
     RootNode *tree = parse_request(request.c_str(), &parser_msg);

@@ -9,8 +9,10 @@
 #include "ClientUtils/Lin/ClientUtilsLin.h"
 #endif
 
+#include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <thread>
 Client::Client() {
     ClientUtils::startClient();
 
@@ -54,6 +56,9 @@ void Client::getMessage() {
             memset(rec_message, 0, sizeof(rec_message));
             int result = recv(client_socket, rec_message, MESSAGE_SIZE, 0);
             if (result <= 0) {
+                if (result == 0) {
+                    continue;
+                }
                 std::cerr << "Server disconnected" << std::endl;
                 throw ClientException();
             }
