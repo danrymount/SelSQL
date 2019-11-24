@@ -143,17 +143,21 @@ void FileManager::CloseAllFiles() {
 
 int FileManager::UpdateFile(const std::string& table_name) {
     auto flag = std::fstream(Constants::FLAG_FILE, std::ios::in | std::ios::out);
+
     if (!flag.is_open() and !table_name.empty()) {
         flag = std::fstream(Constants::FLAG_FILE, std::ios::in | std::ios::out | std::ios::trunc);
         flag << table_name;
+        flag.close();
         auto data_file = files_[table_name].data_file;
         RestoreFromTemp(temp.get(), data_file, table_data[table_name]->record_size);
-        flag.close();
         std::remove(Constants::FLAG_FILE.c_str());
         temp = std::make_shared<std::fstream>(Constants::TEMP_FILE,
                                               std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
 
     } else {
+        if (!flag.is_open()) {
+            return 0;
+        }
         std::string t_name;
         flag >> t_name;
         auto res = std::fstream(t_name + DIR_SEPARATOR + t_name + Constants::DATA_FILE_TYPE,
