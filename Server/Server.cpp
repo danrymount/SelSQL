@@ -18,12 +18,18 @@ Server::Server(int max_connection) {
         std::cerr << "Unable to create server socket" << std::endl;
         throw ServerException();
     }
-
+#ifdef __linux
+    int enable = 1;
+    if (setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        std::cerr << "HYU";
+    }
+#endif
     addr.sin_family = AF_INET;
     addr.sin_port = htons(18666);
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     if (bind(server_socket, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         std::cerr << "Unable to bind server socket" << std::endl;
+        ServerUtils::closeServer(server_socket);
         throw ServerException();
     }
 

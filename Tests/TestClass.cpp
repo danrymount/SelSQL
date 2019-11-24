@@ -6,7 +6,7 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
-//#define KILL
+#define KILL
 #define Request std::pair<std::string, std::string>
 
 TEST(SERVER_TEST_CREATE, TEST1) {
@@ -1322,8 +1322,10 @@ TEST(SERVER_TEST_SYN_ERROR, TEST40) {
 
 #ifdef KILL
 TEST(SERVER_TEST_SYN_STRESS, TEST1) {
+    TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
+    sleep(1);
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
                                "int);",
                                "Success"}});
@@ -1343,6 +1345,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST1) {
 }
 
 TEST(SERVER_TEST_SYN_STRESS, TEST2) {
+    TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150), col1 int, col2 int, col3 "
@@ -1350,6 +1353,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
                                "Success"}});
     std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
     std::vector<Request> allRequest;
+    // TODO FIX ON LINUX
     for (int i = 0; i < 2700; i++) {
         allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
         answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
@@ -1364,6 +1368,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
 }
 
 TEST(SERVER_TEST_SYN_STRESS, TEST3) {
+    TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(300), "

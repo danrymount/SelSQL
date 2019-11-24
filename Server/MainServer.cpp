@@ -56,7 +56,9 @@ int ListenClient(int id, Server *server) {
         message = ExecuteRequest(std::string(server->recieved_message));
         if (DEBUG) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
+
             std::cout << "\t" << message << std::endl;
+            //            std::cout<<message.size()<<std::endl;
         }
         server->SendMessage(message, id);
     }
@@ -75,6 +77,5 @@ void RunServer() {
             threads[i].join();
         }
     } catch (ServerException) {
-        std::cerr << "Message" << std::endl;
     }
 };

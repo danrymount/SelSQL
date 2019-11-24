@@ -26,8 +26,11 @@ Client::Client() {
     peer.sin_family = AF_INET;
     peer.sin_port = htons(18666);
     peer.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    server_connection = connect(client_socket, (struct sockaddr *)&peer, sizeof(peer));
+    int max_reconnect_amount = 100000;
+    int count = 0;
+    while (server_connection = connect(client_socket, (struct sockaddr *)&peer, sizeof(peer)),
+           server_connection and ++count != max_reconnect_amount) {
+    }
     if (server_connection) {
         std::cerr << "Unable to connect with server" << std::endl;
         throw ClientException();
