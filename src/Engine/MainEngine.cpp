@@ -48,6 +48,6 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     cursor = std::make_shared<Cursor>(table, file_manager_);
     return std::make_pair(table, cursor);
 }
-int MainEngine::getId() { return transactionId++; }
+int MainEngine::GetTransactionId() { return transaction_id++; }
 
-void MainEngine::commit(int transactionId) {}
+void MainEngine::Commit(int transaction_id) {}

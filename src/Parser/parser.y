@@ -162,7 +162,7 @@ query:
 request:
     BEGIN_ SEMICOLON{
     	clients[clientId].first = 1;
-    	clients[clientId].second = mainEngine->getId();
+    	clients[clientId].second = mainEngine->GetTransactionId();
     }|
     COMMIT SEMICOLON{
     	clients[clientId].first = 0;
