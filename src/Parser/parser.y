@@ -71,6 +71,8 @@
     #include "../../src/Parser/Nodes/TableNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
 
+    #include "../../src/Engine/Headers/MainEngine.h"
+
     extern int yylineno;
     extern int ch;
     extern char *yytext;
@@ -78,9 +80,12 @@
     int yylex();
     int yyerror(const char *s);
 
-    int isTransaction = 0;
+
+    std::shared_ptr<MainEngine> mainEngine;
+    int clientId = 0;
     RootNode *tree;
 
+    std::array<std::pair<int, int>, 10> clients;
     std::vector<ConstraintNode*> constraintsList;
     std::vector<VariableNode*> variablesList;
     std::vector<BaseActionNode*> children;
@@ -136,25 +141,31 @@
 %%
 query:
     request {
-    	tree = nullptr;
+        tree = nullptr;
 
+    	if(!clients[clientId].first && !children.empty()){
+    	    clients[clientId].second = mainEngine->getId();
+    	}
+    	if(!children.empty()){
+    	    children[0]->setId(clients[clientId].second);
+    	    tree = new RootNode(children);
+    	}
+
+    	std::cout << clients[clientId].first << " : " << clients[clientId].second << std::endl;
+	children.clear();
     	variablesList.clear();
     	columnsList.clear();
     	valuesList.clear();
     	updateList.clear();
-
-    	if(!isTransaction){
-    	    tree = new RootNode(children);
-            children.clear();
-    	}
     }
 
 request:
     BEGIN_ SEMICOLON{
-    	isTransaction = 1;
+    	clients[clientId].first = 1;
+    	clients[clientId].second = mainEngine->getId();
     }|
     COMMIT SEMICOLON{
-    	isTransaction = 0;
+    	clients[clientId].first = 0;
     }|
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
@@ -532,7 +543,9 @@ void set_input_string(const char* in);
 void end_string_scan(void);
 
 
-RootNode * parse_request(const char* in, std::string* msg) {
+RootNode * parse_request(const char* in, std::string* msg, std::shared_ptr<MainEngine> engine, int id) {
+  mainEngine = engine;
+  clientId = id;
   ch = 0;
   error_msg = msg;
   set_input_string(in);

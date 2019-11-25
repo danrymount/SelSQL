@@ -12,11 +12,11 @@
 #include "Exception.h"
 #include "Server.h"
 
-#define MAX_CONN 1
+#define MAX_CONN 10
 #define DEBUG 1
 
 void RunServer();
 int ListenClient(int id, Server* server);
-std::string ExecuteRequest(const std::string& request);
+std::string ExecuteRequest(const std::string& request, int id);
 
 #endif  // SELSQL_SERVER_H

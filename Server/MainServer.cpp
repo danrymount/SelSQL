@@ -8,12 +8,13 @@
 
 std::mutex m;
 
-std::string ExecuteRequest(const std::string &request) {
+static std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEngine());
+
+std::string ExecuteRequest(const std::string &request, int id) {
     std::lock_guard<std::mutex> guard(m);
     std::string parser_msg = "Success";
 
-    std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEngine());
-    RootNode *tree = parse_request(request.c_str(), &parser_msg);
+    RootNode *tree = parse_request(request.c_str(), &parser_msg, engine, id);
     if (tree == nullptr) {
         return parser_msg;
     } else {
@@ -53,7 +54,7 @@ int ListenClient(int id, Server *server) {
             std::cout << "\t" << server->recieved_message << std::endl;
         }
 
-        message = ExecuteRequest(std::string(server->recieved_message));
+        message = ExecuteRequest(std::string(server->recieved_message), id);
         if (DEBUG) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
 
