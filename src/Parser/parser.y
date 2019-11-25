@@ -144,7 +144,7 @@ query:
         tree = nullptr;
 
     	if(!clients[clientId].first && !children.empty()){
-    	    clients[clientId].second = mainEngine->getId();
+    	    clients[clientId].second = mainEngine->GetTransactionId();
     	}
     	if(!children.empty()){
     	    children[0]->setId(clients[clientId].second);

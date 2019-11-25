@@ -1354,7 +1354,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
     std::string answerFirst = "\nid|age     |name  |col1|col2|col3|\n";
     std::vector<Request> allRequest;
     // TODO FIX ON LINUX
-    for (int i = 0; i < 2700; i++) {
+    for (int i = 0; i < 2900; i++) {
         allRequest.emplace_back(std::make_pair("INSERT INTO jj values(1, 2.9, 'sfsf', 1, 1, 1);", "Success"));
         answerFirst += "1 |2.900000|'sfsf'|1   |1   |1   |\n";
     };
