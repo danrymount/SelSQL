@@ -107,10 +107,10 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
 
 int Cursor::UpdateDataBlock() {
     if (data_block_ != nullptr) {
-//        if (data_block_->record_amount == 0) {
-//            --write_block_id;
-//            return 0;
-//        }
+        //        if (data_block_->record_amount == 0) {
+        //            --write_block_id;
+        //            return 0;
+        //        }
         if (data_block_->was_changed) {
             table_->record_amount -= current_session_deleted_;
             data_block_->record_amount -= current_session_deleted_;
@@ -218,16 +218,17 @@ int Cursor::Reset() {
     read_block_id = 0;
     write_block_id = 0;
     data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
-//    changed = 0;
+    //    changed = 0;
     return 0;
 }
 
-
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
-Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager)
-        : table_(table),
-          file_manager_(file_manager) {
+Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager,
+               const std::shared_ptr<TransactManager> &transact_manager)
+                                                                                                    : table_(table),
+                                                                                                      file_manager_(file_manager),
+                                                                                                      transact_manager_(transact_manager) {
     data_block_ = file_manager_->ReadDataBlock(table->name, 0);
     if (data_block_ == nullptr) {
         Allocate();
@@ -273,7 +274,7 @@ void Cursor::Commit() {
 }
 
 Cursor::~Cursor() {
-    if (file_manager_.get() != nullptr) {
+    if (file_manager_ != nullptr) {
         file_manager_->CloseAllFiles();
     }
 }

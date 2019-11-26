@@ -19,13 +19,9 @@
 #endif
 
 typedef std::pair<char*, int> buffer_data;
+typedef std::pair<int, int> Position;
 namespace fs = std::filesystem;
 
-struct Position {
-    size_t transaction_id = 0;
-    int block_id = 0;
-    int pos_in_block = 0;
-};
 
 struct DB_FILE {
     int version = 0;

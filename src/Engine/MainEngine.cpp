@@ -48,7 +48,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
         return std::make_pair(table, cursor);
     }
     table = file_manager_->GetTable(tableName);
-    cursor = std::make_shared<Cursor>(table, file_manager_);
+    cursor = std::make_shared<Cursor>(table, file_manager_, transact_manager_);
     return std::make_pair(table, cursor);
 }
 int MainEngine::GetTransactionId() { return transact_manager_->GetTransactionId(); }

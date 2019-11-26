@@ -33,6 +33,7 @@ class ErrorConstants {
     inline static const int ERR_TYPE_MISMATCH = 11;
     inline static const int ERR_STO = 12;
     inline static const int ERR_BIG_CHAR = 13;
+    inline static const int ERR_TRANSACT_CONFLICT = 14;
 
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
