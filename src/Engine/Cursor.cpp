@@ -51,7 +51,7 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int 
     std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
 }
 
-int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data) {
+int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id) {
     size_t pos_in_block = 0;
     int no_place = 1;
     do {
@@ -180,7 +180,7 @@ int Cursor::NextRecord() {
     }
 }
 
-int Cursor::Delete() {
+int Cursor::Delete(int transact_id) {
     std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
     data_block_->deleted_pos_[data_block_->deleted++] = current_pos;
     data_block_->last_record_pos++;
@@ -190,7 +190,7 @@ int Cursor::Delete() {
     return 0;
 }
 
-int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id) {
     unsigned char record[table_->record_size];
     std::memcpy(record, &data_block_->data_[current_pos * table_->record_size], table_->record_size);
     auto fields = table_->getFields();

@@ -7,12 +7,14 @@
 
 #include <memory>
 #include "../../Utils/Structures/Data/Table.h"
-
 #include "../../Utils/Structures/Message.h"
-#include "../Headers/FileManager.h"
 #include "Cursor.h"
+#include "FileManager.h"
+#include "TransactManager.h"
+
 class MainEngine {
     std::shared_ptr<FileManager> file_manager_;
+    std::shared_ptr<TransactManager> transact_manager_;
 
    public:
     explicit MainEngine();
@@ -23,8 +25,6 @@ class MainEngine {
     int GetTransactionId();
     void Commit(int transaction_id);
 
-   private:
-    int transaction_id = 0;
 };
 
 #endif  // SELSQL_MAINENGINE_H

@@ -21,15 +21,16 @@ class Cursor {
     static void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
     void Allocate();
+
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager);
     Cursor();
-    int Insert(std::vector<std::string> cols, std::vector<std::string> new_data);
+    int Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id = 0);
     int UpdateDataBlock();
     int NextRecord();
     int NextDataBlock();
-    int Delete();
-    int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
+    int Delete(int transact_id = 0);
+    int Update(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id = 0);
     int Reset();
 
     void Commit();

@@ -34,7 +34,10 @@ Message MainEngine::DropTable(const std::string& tableName) {
     return result;
 }
 
-MainEngine::MainEngine() { file_manager_ = std::make_shared<FileManager>(); }
+MainEngine::MainEngine() {
+    file_manager_ = std::make_shared<FileManager>();
+    transact_manager_ = std::make_shared<TransactManager>();
+}
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName) {
     file_manager_->CloseAllFiles();
@@ -48,6 +51,6 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     cursor = std::make_shared<Cursor>(table, file_manager_);
     return std::make_pair(table, cursor);
 }
-int MainEngine::GetTransactionId() { return transaction_id++; }
+int MainEngine::GetTransactionId() { return transact_manager_->GetTransactionId(); }
 
 void MainEngine::Commit(int transaction_id) {}
