@@ -23,8 +23,13 @@ class RootNode : public BaseNode {
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
+    void isTransaction(int _transactionFlag) { transactionFlag = _transactionFlag; }
+
+    int isTransaction() { return transactionFlag; }
+
    private:
     std::vector<BaseActionNode*> children;
+    int transactionFlag = false;
     // std::map<NodeType, BaseNode*> children;
 };
 

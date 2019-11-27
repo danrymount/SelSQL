@@ -11,3 +11,5 @@ void ServerUtils::startServer() {
 }
 
 void ServerUtils::closeServer(int server_socket) { WSACleanup(); }
+
+void ServerUtils::setSockOpt(int server_socket) {}

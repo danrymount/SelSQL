@@ -56,7 +56,10 @@
 void TreeVisitor::visit(RootNode* node) {
     for (auto& child : node->getChildren()) {
         child->accept(this);
-        std::cout << "TID: " << child->getId() << std::endl;
+        if (!node->isTransaction() && !message.getErrorCode()) {
+            engine->Commit(child->getId());
+            std::cout << "COMMIT " << child->getId() << std::endl;
+        }
     }
 }
 

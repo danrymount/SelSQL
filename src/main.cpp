@@ -11,7 +11,7 @@
         std::getline(std::cin, request);
         auto parser_msg = new std::string();
 
-        RootNode *tree = parse_request(request.c_str(), parser_msg, engine);
+        RootNode *tree = parse_request(request.c_str(), parser_msg, engine, 0);
         if (tree == nullptr) {
             std::cout << *parser_msg << std::endl;
         } else {

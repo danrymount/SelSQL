@@ -9,6 +9,7 @@ class ServerUtils {
    public:
     static void startServer();
     static void closeServer(int);
+    static void setSockOpt(int);
 };
 
 #endif  // SELSQL_SERVERUTILSWIN_H

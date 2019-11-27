@@ -151,7 +151,6 @@ query:
     	    tree = new RootNode(children);
     	}
 
-    	std::cout << clients[clientId].first << " : " << clients[clientId].second << std::endl;
 	children.clear();
     	variablesList.clear();
     	columnsList.clear();
@@ -166,6 +165,8 @@ request:
     }|
     COMMIT SEMICOLON{
     	clients[clientId].first = 0;
+    	mainEngine->Commit(clients[clientId].second);
+    	std::cout << "Commit " << clients[clientId].second << std::endl;
     }|
     CREATE_ACTION TABLE IDENT LBRACKET variables RBRACKET SEMICOLON{
 	children.emplace_back(new CreateNode(new IdentNode(std::string($3)), new VariableListNode(variablesList)));
@@ -551,12 +552,13 @@ RootNode * parse_request(const char* in, std::string* msg, std::shared_ptr<MainE
   set_input_string(in);
   int res = yyparse();
   end_string_scan();
+  if(tree != nullptr){
+  	tree->isTransaction(clients[clientId].second);
+  }
   return tree;
 }
 
 int yyerror(const char *errmsg){
-
-
     std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     *error_msg = str;
 //    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
@@ -567,6 +569,7 @@ int yyerror(const char *errmsg){
     children.clear();
     updateList.clear();
     tree = nullptr;
+
 
     return 0;
 }
