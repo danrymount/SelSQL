@@ -553,7 +553,7 @@ RootNode * parse_request(const char* in, std::string* msg, std::shared_ptr<MainE
   int res = yyparse();
   end_string_scan();
   if(tree != nullptr){
-  	tree->isTransaction(clients[clientId].second);
+  	tree->isTransaction(clients[clientId].first);
   }
   return tree;
 }

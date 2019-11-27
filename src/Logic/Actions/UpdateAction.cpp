@@ -71,14 +71,17 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             }
 
             try {
-                cursor.second->Update(columns, values);
+                if (cursor.second->Update(columns, values, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                    return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+                };
+
             } catch (std::exception &exception) {
                 return Message(ErrorConstants::ERR_STO);
             }
 
         } while (!cursor.second->NextRecord());
     }
-//    cursor.second->Reset();
+    //    cursor.second->Reset();
     cursor.second->Commit();
     return message;
 }

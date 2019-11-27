@@ -41,7 +41,10 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
         if (exprVisitor->getResult()) {
             //            delete_count++;
-            cursor.second->Delete();
+
+            if (cursor.second->Delete(root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+            };
         }
 
     } while (!cursor.second->NextRecord());

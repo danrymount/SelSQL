@@ -96,7 +96,9 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         SaveFieldData(values_[i].second, type, record, next_pos);
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
-
+    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_id)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
     table_->record_amount++;
     data_block_->record_amount++;
     data_block_->last_record_pos++;
@@ -181,6 +183,9 @@ int Cursor::NextRecord() {
 }
 
 int Cursor::Delete(int transact_id) {
+    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_id)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
     std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
     data_block_->deleted_pos_[data_block_->deleted++] = current_pos;
     data_block_->last_record_pos++;
@@ -205,7 +210,9 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
         }
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
-
+    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_id)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
     std::memcpy(&data_block_->data_[current_pos * table_->record_size], record, table_->record_size);
     data_block_->was_changed = 1;
     changed = 1;

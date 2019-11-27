@@ -47,7 +47,8 @@ class ErrorConstants {
                                                             {ERR_TABLE_FULL, ERR_TABLE_FULL_str},
                                                             {ERR_TYPE_MISMATCH, "Types mismatch"},
                                                             {ERR_STO, "Value is out of range OR is not a number"},
-                                                            {ERR_BIG_CHAR, ERR_BIG_CHAR_str}};
+                                                            {ERR_BIG_CHAR, ERR_BIG_CHAR_str},
+                                                            {ERR_TRANSACT_CONFLICT, "Table is in use"}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H

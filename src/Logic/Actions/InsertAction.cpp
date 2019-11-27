@@ -119,7 +119,9 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             newCols.emplace_back(colVal.first);
             newVals.emplace_back(colVal.second);
         }
-        cursor.second->Insert(newCols, newVals);
+        if (cursor.second->Insert(newCols, newVals, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+            return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+        };
     } catch (std::exception &exception) {
         return Message(ErrorConstants::ERR_STO);
     }
