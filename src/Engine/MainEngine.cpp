@@ -54,6 +54,8 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
 int MainEngine::GetTransactionId() { return transact_manager_->GetTransactionId(); }
 
 void MainEngine::Commit(int transaction_id) {
-    std::cerr << "COMMIT id = " << transaction_id << std::endl;
+    if (transact_manager_->IsSuccessful(transaction_id)) {
+        std::cerr << "COMMIT id = " << transaction_id << std::endl;
+    }
     transact_manager_->ClearUsed(transaction_id);
 }
