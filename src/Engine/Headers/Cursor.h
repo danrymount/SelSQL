@@ -12,6 +12,8 @@ class Cursor {
     std::shared_ptr<TransactManager> transact_manager_;
     std::shared_ptr<DataBlock> data_block_;
     std::vector<std::pair<std::string, std::string>> values_;
+    std::shared_ptr<std::fstream> in_file_;
+    std::shared_ptr<std::fstream> out_file_;
 
     int changed = 0;
     int read_block_id = 0;
@@ -26,7 +28,8 @@ class Cursor {
 
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager,
-           const std::shared_ptr<TransactManager>& transact_manager);
+           const std::shared_ptr<TransactManager>& transact_manager, std::shared_ptr<std::fstream> in_file,
+           std::shared_ptr<std::fstream> out_file);
     Cursor();
     int Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id = 0);
     int UpdateDataBlock();

@@ -5,7 +5,7 @@
 #include "Headers/EngineUtils.h"
 
 #include <memory>
-
+char NAME_SEPARATOR = '_';
 void WriteIntToFile(std::fstream *file, int value) { file->write(reinterpret_cast<char *>(&value), sizeof(int)); }
 
 int ReadIntFromFile(std::fstream *file) {
@@ -90,7 +90,7 @@ std::shared_ptr<Table> ReadTableFromBuffer(char *data) {
     return table;
 }
 int GetFileSize(std::fstream *file) {
-    if (!file->is_open()) {
+    if (file == nullptr or !file->is_open()) {
         return -1;
     }
     file->seekg(0, std::ios::end);
@@ -179,6 +179,25 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     //    }
     dist->flush();
     delete[] buf;
+}
+std::string ConstructFileName(const std::string &table_name, size_t transaction_id) {
+    return Constants::TEMP_DIR + DIR_SEPARATOR + std::to_string(transaction_id) + NAME_SEPARATOR + table_name +
+           Constants::TEMP_FILE_TYPE;
+}
+std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
+    std::string res;
+    fs::create_directories(Constants::TEMP_DIR);
+    for (const auto &file : fs::directory_iterator(Constants::TEMP_DIR)) {
+        size_t file_id = 0;
+        std::string file_name = file.path().string();
+        file_name.erase(file_name.begin(), file_name.begin() + Constants::TEMP_DIR.size() + 1);
+        std::string file_id_str = file_name.substr(0, file_name.find(NAME_SEPARATOR));
+        file_id = std::stoll(file_id_str);
+        if (file_id == transaction_id) {
+            return file.path().string();
+        }
+    }
+    return ConstructFileName(table_name, transaction_id);
 }
 
 void DB_FILE::close() {

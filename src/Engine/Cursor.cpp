@@ -116,7 +116,7 @@ int Cursor::UpdateDataBlock() {
         if (data_block_->was_changed) {
             //            table_->record_amount -= current_session_deleted_;
             data_block_->record_amount -= current_session_deleted_;
-            file_manager_->UpdateBlock(table_, data_block_, write_block_id);
+            file_manager_->WriteDataBlock(table_, data_block_, write_block_id, out_file_);
         }
     }
     return 0;
@@ -226,7 +226,7 @@ int Cursor::Reset() {
     readed_data = 0;
     read_block_id = 0;
     write_block_id = 0;
-    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
+    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id, in_file_, table_->record_size);
     if (data_block_ == nullptr) {
         Allocate();
     }
@@ -236,11 +236,14 @@ int Cursor::Reset() {
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
 Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager,
-               const std::shared_ptr<TransactManager> &transact_manager)
+               const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> in_file,
+               std::shared_ptr<std::fstream> out_file)
                                                                                                     : table_(table),
                                                                                                       file_manager_(file_manager),
-                                                                                                      transact_manager_(transact_manager) {
-    data_block_ = file_manager_->ReadDataBlock(table->name, 0);
+                                                                                                      transact_manager_(transact_manager),
+                                                                                                      in_file_(in_file),
+                                                                                                      out_file_(out_file) {
+    data_block_ = file_manager_->ReadDataBlock(table->name, 0, in_file_, table->record_size);
     if (data_block_ == nullptr) {
         Allocate();
     }
@@ -264,7 +267,7 @@ void Cursor::Allocate() {
 
 int Cursor::NextDataBlock() {
     UpdateDataBlock();
-    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id);
+    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id, in_file_, table_->record_size);
     ++write_block_id;
 
     if (data_block_ == nullptr) {
@@ -282,12 +285,12 @@ int Cursor::NextDataBlock() {
 void Cursor::Commit() {
     if (!table_->name.empty() and changed) {
         UpdateDataBlock();
-        file_manager_->UpdateFile(table_->name);
+        file_manager_->UpdateFile(table_->name, out_file_);
     }
 }
 
 Cursor::~Cursor() {
     if (file_manager_ != nullptr) {
-        file_manager_->CloseAllFiles();
+        //        file_manager_->CloseAllFiles();
     }
 }

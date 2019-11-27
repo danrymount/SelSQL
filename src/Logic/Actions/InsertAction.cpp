@@ -26,7 +26,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
     }
 
-    cursor = v->getEngine()->GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName(), root->getId());
 
     auto table = cursor.first;
     if (table->name.empty()) {

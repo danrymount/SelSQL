@@ -16,26 +16,30 @@
 #include "../../Utils/Structures/Data/Table.h"
 #include "EngineUtils.h"
 
+typedef std::tuple<std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>> files;
 class FileManager {
-    std::map<std::string, DB_FILE> files_;
+    std::map<std::string, std::fstream*> meta_files_;
     std::shared_ptr<std::fstream> temp;
     std::map<std::string, std::shared_ptr<Table>> table_data;
 
     void ReadTableMetaData(const std::string& table_name);
     void WriteTableMetaData(const std::shared_ptr<Table>& table);
-    void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id);
-    
+
    public:
     explicit FileManager();
     ~FileManager();
-    int OpenFile(const std::string& table_name);
+    files OpenFile(const std::string& table_name, size_t transaction_id = 9999);
     int CreateFile(const std::shared_ptr<Table>& table);
-    void CloseAllFiles();
     int DeleteFile(const std::string& table_name);
     std::shared_ptr<Table> GetTable(const std::string& table_name);
-    std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id);
-    int UpdateBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id);
-    int UpdateFile(const std::string& table_name);
+    static std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id,
+                                                    const std::shared_ptr<std::fstream>& src, int record_size);
+    //    static void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id,
+    //    const std::shared_ptr<std::fstream>& dist);
+    static int WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
+                              std::shared_ptr<std::fstream> dist);
+    int UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src);
+    static void Clear(size_t transact_id);
 };
 
 #endif  // SELSQL_FILEMANAGER_H

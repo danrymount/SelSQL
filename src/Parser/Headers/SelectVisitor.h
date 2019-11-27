@@ -37,9 +37,11 @@
 typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
+    size_t tr_id = 0;
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
 
     void visit(SelectNode* node) override {
+        id = node->getId();
         allrecords.clear();
         columns.clear();
         node->getChild()->accept(this);
@@ -77,7 +79,7 @@ class SelectVisitor : public TreeVisitor {
                 node->getAlias()->accept(this);
                 alias = std::move(curValue);
             }
-            auto cursor = engine.GetCursor(_tableName);
+            auto cursor = engine.GetCursor(_tableName, tr_id);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
                 return;
