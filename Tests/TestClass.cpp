@@ -1427,8 +1427,8 @@ TEST(SERVER_TEST_THREAD, TEST5) {
     Client client1;
     Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
-                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"} б{"begin;",
-                                                                                                    "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"begin;", "Success"},
                                   {"update t set id = 3;", "Success"},
                                   {"select * from t;", ""}};
     std::vector<Request> request2{{"select * from t;", ""},
