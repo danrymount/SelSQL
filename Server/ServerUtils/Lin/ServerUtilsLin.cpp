@@ -13,5 +13,5 @@ void ServerUtils::closeServer(int server_socket) { shutdown(server_socket, SHUT_
 
 void ServerUtils::setSockOpt(int server_socket) {
     int enable = 1;
-    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+    setsockopt(server_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0;
 }
