@@ -6,7 +6,7 @@
 #include "Headers/TestUtils.h"
 #include "parser.cpp"
 
-#define KILL
+//#define KILL
 #define Request std::pair<std::string, std::string>
 
 TEST(SERVER_TEST_CREATE, TEST1) {

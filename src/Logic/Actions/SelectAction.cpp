@@ -38,9 +38,9 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return message;
         }
 
-        if (cursor.first->record_amount == 0) {
-            return Message();
-        }
+        //        if (cursor.first->record_amount == 0) {
+        //            return Message();
+        //        }
 
         cursor.second->Reset();
 

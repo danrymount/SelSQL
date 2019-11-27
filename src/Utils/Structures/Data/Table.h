@@ -14,7 +14,7 @@ class Table {
    public:
     typedef std::vector<std::pair<std::string, Variable>> FieldsMap;
 
-    size_t record_amount = 0;
+    //    size_t record_amount = 0;
     size_t record_size = 0;
 
     Table() = default;

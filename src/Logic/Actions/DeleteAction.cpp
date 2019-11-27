@@ -17,10 +17,10 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     int delete_count = 0;
 
-    if (cursor.first->record_amount == 0) {
-        cursor.second.reset();
-        return Message();
-    }
+    //    if (cursor.first->record_amount == 0) {
+    //        cursor.second.reset();
+    //        return Message();
+    //    }
 
     do {
         auto record = cursor.second->Fetch();

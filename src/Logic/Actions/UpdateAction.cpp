@@ -26,8 +26,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     std::vector<ActionsUtils::Record> allrecords;
     // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
-    if (cursor.first->record_amount) {
-        do {
+    //    if (cursor.first->record_amount) {
+    do {
             auto record = cursor.second->Fetch();
             if (record.empty()) {
                 continue;
@@ -80,8 +80,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             }
 
         } while (!cursor.second->NextRecord());
-    }
-    //    cursor.second->Reset();
+        //    }
+        //    cursor.second->Reset();
     cursor.second->Commit();
     return message;
 }

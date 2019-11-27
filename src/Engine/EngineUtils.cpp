@@ -44,9 +44,9 @@ buffer_data GetTableBuffer(Table *table) {
             offset += sizeof(value);
         }
     }
-    value = table->record_amount;
-    std::memcpy(&data[offset], &value, sizeof(value));
-    offset += sizeof(value);
+    //    value = table->record_amount;
+    //    std::memcpy(&data[offset], &value, sizeof(value));
+    //    offset += sizeof(value);
     return buffer_data(data, offset);
 }
 std::shared_ptr<Table> ReadTableFromBuffer(char *data) {
@@ -157,26 +157,26 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->read(buf, size);
     dist->clear();
     dist->seekp(std::ios::beg);
-    dist->write(buf, Constants::DATA_BLOCK_RECORD_AMOUNT);
-    memcpy(&rec_amount,buf,sizeof(int));
-
-    offset += 4;
+    //    dist->write(buf, Constants::DATA_BLOCK_RECORD_AMOUNT);
+    //    memcpy(&rec_amount,buf,sizeof(int));
+    //
+    //    offset += 4;
 
     while (offset < size) {
         int block_id = 0;
         memcpy(&block_id, &buf[offset], sizeof(int));
         //        std::cerr << ""block_id << std::endl;
         offset += 4;
-        dist->seekp(4 + block_id * GetDataBlockSize(record_size));
+        dist->seekp(block_id * GetDataBlockSize(record_size));
         dist->write(&buf[offset], GetDataBlockSize(record_size));
         offset += GetDataBlockSize(record_size);
     }
-    if (rec_amount == 0) {
-        char *empty = new char[GetFileSize(dist)];
-        memset(empty,0,GetFileSize(dist));
-        dist->write(empty,GetFileSize(dist));
-        delete[] empty;
-    }
+    //    if (rec_amount == 0) {
+    //        char *empty = new char[GetFileSize(dist)];
+    //        memset(empty,0,GetFileSize(dist));
+    //        dist->write(empty,GetFileSize(dist));
+    //        delete[] empty;
+    //    }
     dist->flush();
     delete[] buf;
 }

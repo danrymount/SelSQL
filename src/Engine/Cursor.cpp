@@ -72,7 +72,6 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         Allocate();
     }
 
-    data_block_->was_changed = 1;
     int count = 0;
     for (auto &i : values_) {
         if (cols.empty()) {
@@ -99,7 +98,8 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_id)) {
         return ErrorConstants::ERR_TRANSACT_CONFLICT;
     }
-    table_->record_amount++;
+    //    table_->record_amount++;
+    data_block_->was_changed = 1;
     data_block_->record_amount++;
     data_block_->last_record_pos++;
     std::memcpy(&data_block_->data_[pos_in_block], record, table_->record_size);
@@ -114,7 +114,7 @@ int Cursor::UpdateDataBlock() {
         //            return 0;
         //        }
         if (data_block_->was_changed) {
-            table_->record_amount -= current_session_deleted_;
+            //            table_->record_amount -= current_session_deleted_;
             data_block_->record_amount -= current_session_deleted_;
             file_manager_->UpdateBlock(table_, data_block_, write_block_id);
         }
@@ -123,10 +123,12 @@ int Cursor::UpdateDataBlock() {
 }
 
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
-    auto block = data_block_;
     unsigned char record[table_->record_size];
     std::vector<std::pair<std::string, std::string>> values;
-
+    if (data_block_ == nullptr) {
+        return values;
+    }
+    auto block = data_block_;
     std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
@@ -174,7 +176,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::NextRecord() {
-    if (data_block_->record_amount > readed_data) {
+    if (data_block_ != nullptr and data_block_->record_amount > readed_data) {
         current_pos++;
         return 0;
     } else {
@@ -225,7 +227,9 @@ int Cursor::Reset() {
     read_block_id = 0;
     write_block_id = 0;
     data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
-    //    changed = 0;
+    if (data_block_ == nullptr) {
+        Allocate();
+    }
     return 0;
 }
 
@@ -250,7 +254,9 @@ void Cursor::Allocate() {
     data_block_->record_size = table_->record_size;
     data_block_->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;
     data_block_->setDeletedPos(new char[data_block_->max_deleted_amount * sizeof(short int)]);
-    data_block_->setData(new char[Constants::DATA_SIZE]);
+    char *n_data = new char[Constants::DATA_SIZE];
+    memset(n_data, 0, Constants::DATA_SIZE);
+    data_block_->setData(n_data);
     current_pos = 0;
     readed_data = 0;
     current_session_deleted_ = 0;

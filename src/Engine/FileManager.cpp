@@ -96,20 +96,22 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     if (!GetFileSize(data_file)) {
         return nullptr;
     }
-    if (GetFileSize(data_file) <= 4 + GetDataBlockSize(table->record_size) * block_id) {
+    if (GetFileSize(data_file) <= GetDataBlockSize(table->record_size) * block_id) {
         return nullptr;
     }
 
     data_file->seekg(0, std::ios::beg);
-    int v = ReadIntFromFile(data_file);
-    offset += 4;
-
-    table->record_amount = v;
-    if (table->record_amount == 0) {
+    //    int v = ReadIntFromFile(data_file);
+    //    offset += 4;
+    //
+    //    table->record_amount = v;
+    //    if (table->record_amount == 0) {
+    //        return nullptr;
+    //    }
+    if (GetFileSize(data_file) < GetDataBlockSize(table->record_size)) {
         return nullptr;
     }
-
-    data_file->seekg(offset + GetDataBlockSize(table->record_size) * block_id, std::ios::beg);
+    data_file->seekg(GetDataBlockSize(table->record_size) * block_id, std::ios::beg);
     char data_buffer[GetDataBlockSize(table->record_size)];
     data_file->read(data_buffer, GetDataBlockSize(table->record_size));
     return ReadDataBlockFromBuffer(data_buffer, table->record_size);
@@ -121,11 +123,6 @@ void FileManager::WriteDataBlockToTemp(const std::string& table_name, std::share
     }
 
     int offset = GetFileSize(temp.get());
-    if (offset == 0) {
-        offset = 4;
-    }
-    WriteIntToFile(temp.get(), table_data[table_name]->record_amount);
-    //    if (data->record_amount != 0) {
     buffer_data buffer = GetDataBlockBuffer(data.get());
     temp->seekp(offset);
     temp->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
@@ -163,6 +160,7 @@ int FileManager::UpdateFile(const std::string& table_name) {
         auto res = std::fstream(t_name + DIR_SEPARATOR + t_name + Constants::DATA_FILE_TYPE,
                                 std::ios::binary | std::ios::in);
         if (res.is_open()) {
+            OpenFile(table_name);
             RestoreFromTemp(temp.get(), &res, table_data[table_name]->record_size);
         }
         flag.close();
