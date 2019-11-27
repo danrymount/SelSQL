@@ -13,7 +13,6 @@ static std::shared_ptr<MainEngine> engine = std::make_shared<MainEngine>(MainEng
 std::string ExecuteRequest(const std::string &request, int id) {
     std::lock_guard<std::mutex> guard(m);
     std::string parser_msg = "Success";
-
     RootNode *tree = parse_request(request.c_str(), &parser_msg, engine, id);
     if (tree == nullptr) {
         return parser_msg;
