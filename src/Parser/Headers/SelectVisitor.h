@@ -41,7 +41,7 @@ class SelectVisitor : public TreeVisitor {
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
 
     void visit(SelectNode* node) override {
-        id = node->getId();
+        tr_id = node->getId();
         allrecords.clear();
         columns.clear();
         node->getChild()->accept(this);
@@ -72,6 +72,7 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
+
         if (!curValue.empty()) {
             auto _tableName = std::move(curValue);
             std::string alias = _tableName;

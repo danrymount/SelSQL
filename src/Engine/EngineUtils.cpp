@@ -90,6 +90,7 @@ std::shared_ptr<Table> ReadTableFromBuffer(char *data) {
     return table;
 }
 int GetFileSize(std::fstream *file) {
+    file->flush();
     if (file == nullptr or !file->is_open()) {
         return -1;
     }
@@ -161,22 +162,23 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     //    memcpy(&rec_amount,buf,sizeof(int));
     //
     //    offset += 4;
+    dist->write(buf, size);
 
-    while (offset < size) {
-        int block_id = 0;
-        memcpy(&block_id, &buf[offset], sizeof(int));
-        //        std::cerr << ""block_id << std::endl;
-        offset += 4;
-        dist->seekp(block_id * GetDataBlockSize(record_size));
-        dist->write(&buf[offset], GetDataBlockSize(record_size));
-        offset += GetDataBlockSize(record_size);
-    }
-    //    if (rec_amount == 0) {
-    //        char *empty = new char[GetFileSize(dist)];
-    //        memset(empty,0,GetFileSize(dist));
-    //        dist->write(empty,GetFileSize(dist));
-    //        delete[] empty;
+    //    while (offset < size) {
+    //        int block_id = 0;
+    //        memcpy(&block_id, &buf[offset], sizeof(int));
+    //        //        std::cerr << ""block_id << std::endl;
+    //        offset += 4;
+    //        dist->seekp(block_id * GetDataBlockSize(record_size));
+    //        dist->write(&buf[offset], GetDataBlockSize(record_size));
+    //        offset += GetDataBlockSize(record_size);
     //    }
+    //    //    if (rec_amount == 0) {
+    //    //        char *empty = new char[GetFileSize(dist)];
+    //    //        memset(empty,0,GetFileSize(dist));
+    //    //        dist->write(empty,GetFileSize(dist));
+    //    //        delete[] empty;
+    //    //    }
     dist->flush();
     delete[] buf;
 }
@@ -193,7 +195,7 @@ std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
         file_name.erase(file_name.begin(), file_name.begin() + Constants::TEMP_DIR.size() + 1);
         std::string file_id_str = file_name.substr(0, file_name.find(NAME_SEPARATOR));
         file_id = std::stoll(file_id_str);
-        if (file_id == transaction_id) {
+        if (file_id == transaction_id and file_name.find(table_name) != std::string::npos) {
             return file.path().string();
         }
     }

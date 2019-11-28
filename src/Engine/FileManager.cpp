@@ -34,15 +34,17 @@ files FileManager::OpenFile(const std::string& table_name, size_t transaction_id
     if (!fs::exists(directory)) {
         return files();
     }
-    std::string dist_file;
+    std::string dist_file_name;
+    std::string src_file_name = table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE;
     if (transaction_id != 9999) {
-        dist_file = FindTempFile(table_name, transaction_id);
+        dist_file_name = FindTempFile(table_name, transaction_id);
     }
-    if (dist_file.empty() and transaction_id != 9999) {
-        dist_file = ConstructFileName(table_name, transaction_id);
+    if (dist_file_name.empty() and transaction_id != 9999) {
+        dist_file_name = ConstructFileName(table_name, transaction_id);
+    } else {
+        src_file_name = dist_file_name;
     }
-    std::cerr << dist_file << std::endl;
-
+    std::cerr << dist_file_name << std::endl;
     auto meta_file = new std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::META_FILE_TYPE,
                                       std::ios::in | std::ios::out | std::ios::binary);
     if (!meta_file->is_open()) {
@@ -50,11 +52,24 @@ files FileManager::OpenFile(const std::string& table_name, size_t transaction_id
     }
     meta_files_[table_name] = meta_file;
     ReadTableMetaData(table_name);
-    return files(meta_file,
-                 std::make_shared<std::fstream>(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
-                                                std::ios::in | std::ios::out | std::ios::binary),
-                 std::make_shared<std::fstream>(dist_file,
-                                                std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc));
+    int flag = 0;
+    if (src_file_name == dist_file_name and transaction_id != 9999) {
+        flag = 1;
+        try {
+            fs::copy_file(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE, src_file_name);
+        } catch (std::exception) {
+        }
+    }
+    if (flag) {
+        return files(meta_file,
+                     std::make_shared<std::fstream>(src_file_name, std::ios::in | std::ios::out | std::ios::binary),
+                     std::make_shared<std::fstream>(dist_file_name, std::ios::in | std::ios::out | std::ios::binary));
+    } else {
+        return files(meta_file,
+                     std::make_shared<std::fstream>(src_file_name, std::ios::in | std::ios::out | std::ios::binary),
+                     std::make_shared<std::fstream>(dist_file_name,
+                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc));
+    }
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     std::string table_name = table->name;
@@ -90,10 +105,10 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
     //        this->WriteDataBlockToTemp(std::string(table->name), data, block_id, dist);
     //    }
     int offset = GetFileSize(dist.get());
-
+    offset = block_id * GetDataBlockSize(data.get());
     buffer_data buffer = GetDataBlockBuffer(data.get());
     dist->seekp(offset);
-    dist->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
+    //    dist->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
     dist->write(buffer.first, buffer.second);
     delete[] buffer.first;
     return 0;

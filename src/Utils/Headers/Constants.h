@@ -9,7 +9,7 @@ class Constants {
    public:
     inline static const std::string TEMP_DIR = "UNCOMMITEDFILES";
     inline static const std::string FLAG_FILE = "FLAG.flag";
-    inline static const std::string TEMP_FILE = "TEMPORARY.file";
+    //    inline static const std::string TEMP_FILE = "TEMPORARY.file";
     inline static const std::string TEMP_FILE_TYPE = ".temp";
     inline static const std::string META_FILE_TYPE = ".METAselDB";
     inline static const std::string DATA_FILE_TYPE = ".DATAselDB";

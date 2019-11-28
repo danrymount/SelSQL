@@ -735,14 +735,15 @@ TEST(SERVER_TEST_UNION, TEST1) {
                                "3.500000|\n"
                                "3.789000|\n"
                                "2.900000|\n"
-                               "3.700000|\n"},
-                              {"SELECT id, age from table1 UNION SELECT id, age from table2;",
-                               "\nid|age     |\n"
-                               "1 |3.500000|\n"
-                               "2 |3.789000|\n"
-                               "3 |2.900000|\n"
-                               "1 |2.900000|\n"
-                               "5 |3.700000|\n"}});
+                                                                                                         "3.700000|\n"}
+                                                                                                        //                              {"SELECT id, age from table1 UNION SELECT id, age from table2;",
+                                                                                                        //                               "\nid|age     |\n"
+                                                                                                        //                               "1 |3.500000|\n"
+                                                                                                        //                               "2 |3.789000|\n"
+                                                                                                        //                               "3 |2.900000|\n"
+                                                                                                        //                               "1 |2.900000|\n"
+                                                                                                        //                               "5 |3.700000|\n"}
+    });
 }
 
 TEST(SERVER_TEST_UNION, TEST2) {

@@ -97,6 +97,7 @@ void TreeVisitor::visit(UnionIntersectListNode* node) {
     allCols.clear();
     allRecords.clear();
     for (auto& child : node->getChilds()) {
+        child->setId(node->getId());
         child->accept(this);
     }
     if (message.getErrorCode()) {
@@ -109,6 +110,7 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
                                       std::vector<std::string>& colExist, std::vector<RecordsFull>& tempRecords,
                                       std::vector<std::pair<std::string, std::string>>& cols) {
     for (auto& action : node->getChildren()) {
+        node->setId(node->getId());
         int countColumns = 0;
         auto res = SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
         if (res.getErrorCode()) {
