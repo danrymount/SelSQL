@@ -64,7 +64,9 @@ int MainEngine::GetTransactionId() { return transact_manager_->GetTransactionId(
 void MainEngine::Commit(int transaction_id) {
     if (transact_manager_->IsSuccessful(transaction_id)) {
         std::cerr << "COMMIT id = " << transaction_id << std::endl;
+        file_manager_->UpdateFile(transaction_id);
     }
+
     transact_manager_->ClearUsed(transaction_id);
     file_manager_->Clear(transaction_id);
 }

@@ -195,11 +195,11 @@ std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
         file_name.erase(file_name.begin(), file_name.begin() + Constants::TEMP_DIR.size() + 1);
         std::string file_id_str = file_name.substr(0, file_name.find(NAME_SEPARATOR));
         file_id = std::stoll(file_id_str);
-        if (file_id == transaction_id and file_name.find(table_name) != std::string::npos) {
+        if (file_id == transaction_id and (table_name.empty() or file_name.find(table_name) != std::string::npos)) {
             return file.path().string();
         }
     }
-    return ConstructFileName(table_name, transaction_id);
+    return res;
 }
 
 void DB_FILE::close() {

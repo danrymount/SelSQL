@@ -139,17 +139,32 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     return ReadDataBlockFromBuffer(data_buffer, record_size);
 }
 
-int FileManager::UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src) {
+int FileManager::UpdateFile(size_t transact_id) {
     auto flag = std::fstream(Constants::FLAG_FILE, std::ios::in | std::ios::out);
 
-    if (!flag.is_open() and !table_name.empty()) {
-        flag = std::fstream(Constants::FLAG_FILE, std::ios::in | std::ios::out | std::ios::trunc);
-        flag << table_name;
-        flag.close();
-        auto data_file = new std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
-                                          std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
-        RestoreFromTemp(src.get(), data_file, table_data[table_name]->record_size);
-        std::remove(Constants::FLAG_FILE.c_str());
+    if (!flag.is_open() and transact_id != 9999) {
+        fs::create_directory(Constants::TEMP_DIR);
+        for (auto file : fs::directory_iterator(Constants::TEMP_DIR)) {
+            std::string t_name = FindTempFile("", transact_id);
+            if (!t_name.empty()) {
+                auto temp_file = new std::fstream(t_name, std::ios::in | std::ios::out | std::ios::binary);
+                std::string table_name = t_name.substr(t_name.find('_') + 1, t_name.find('.') - t_name.find('_') - 1);
+
+                if (GetFileSize(temp_file) == 0) {
+                    return 0;
+                }
+                auto data_file = new std::fstream(table_name + DIR_SEPARATOR + table_name + Constants::DATA_FILE_TYPE,
+                                                  std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+                RestoreFromTemp(temp_file, data_file, table_data[table_name]->record_size);
+                temp_file->close();
+                std::remove(t_name.c_str());
+            }
+        }
+        //        flag = std::fstream(Constants::FLAG_FILE, std::ios::in | std::ios::out | std::ios::trunc);
+        //        flag << table_name;
+        //        flag.close();
+
+        //        std::remove(Constants::FLAG_FILE.c_str());
         //        temp = std::make_shared<std::fstream>(Constants::TEMP_FILE,
         //                                              std::ios::binary | std::ios::out | std::ios::trunc |
         //                                              std::ios::in);

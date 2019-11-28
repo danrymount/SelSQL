@@ -38,7 +38,7 @@ class FileManager {
     //    const std::shared_ptr<std::fstream>& dist);
     static int WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
                               std::shared_ptr<std::fstream> dist);
-    int UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src);
+    int UpdateFile(size_t transact_id);
     static void Clear(size_t transact_id);
 };
 

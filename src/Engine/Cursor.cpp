@@ -285,12 +285,13 @@ int Cursor::NextDataBlock() {
 void Cursor::Commit() {
     if (!table_->name.empty() and changed) {
         UpdateDataBlock();
-        file_manager_->UpdateFile(table_->name, out_file_);
+        //        file_manager_->UpdateFile(table_->name, out_file_);
     }
 }
 
 Cursor::~Cursor() {
     if (file_manager_ != nullptr) {
+        Commit();
         //        file_manager_->CloseAllFiles();
     }
 }
