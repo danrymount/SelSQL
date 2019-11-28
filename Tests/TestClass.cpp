@@ -1344,7 +1344,6 @@ TEST(SERVER_TEST_THREAD, TEST1) {
 TEST(SERVER_TEST_THREAD, TEST2) {
     TestUtils::clear();
     Client client1;
-    Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"begin;", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
@@ -1355,6 +1354,7 @@ TEST(SERVER_TEST_THREAD, TEST2) {
                                   {"commit;", "Success"}};
     std::vector<Request> request3{{"commit;", "Success"}, {"select * from t", ""}};
     TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
 }
@@ -1362,7 +1362,6 @@ TEST(SERVER_TEST_THREAD, TEST2) {
 TEST(SERVER_TEST_THREAD, TEST3) {
     TestUtils::clear();
     Client client1;
-    Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"begin;", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
@@ -1376,6 +1375,7 @@ TEST(SERVER_TEST_THREAD, TEST3) {
     std::vector<Request> request3{{"commit;", "Success"}, {"select * from b;", ""}};
     // всё понятно
     TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
 }
@@ -1405,7 +1405,6 @@ TEST(SERVER_TEST_THREAD, TEST4) {
 TEST(SERVER_TEST_THREAD, TEST5) {
     TestUtils::clear();
     Client client1;
-    Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
                                   {"begin;", "Success"},
@@ -1419,6 +1418,7 @@ TEST(SERVER_TEST_THREAD, TEST5) {
     std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
     // должна быть ошибка, апдейт сразу в двух транзакциях
     TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
     EXPECT_EQ(client1.response, "Success");
@@ -1448,7 +1448,6 @@ TEST(SERVER_TEST_THREAD, TEST6) {
 TEST(SERVER_TEST_THREAD, TEST7) {
     TestUtils::clear();
     Client client1;
-    Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"begin;", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
@@ -1460,6 +1459,7 @@ TEST(SERVER_TEST_THREAD, TEST7) {
     std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
     // должна быть ошибка?, инсерт сразу в двух транзакциях
     TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
     EXPECT_EQ(client1.response, "Success");
@@ -1468,7 +1468,6 @@ TEST(SERVER_TEST_THREAD, TEST7) {
 TEST(SERVER_TEST_THREAD, TEST8) {
     TestUtils::clear();
     Client client1;
-    Client client2;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
                                   {"begin;", "Success"},
@@ -1481,9 +1480,9 @@ TEST(SERVER_TEST_THREAD, TEST8) {
     std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
     // должна быть ошибка, делит сразу в двух транзакциях
     TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
-    EXPECT_EQ(client1.response, "Success");
 }
 
 TEST(SERVER_TEST_THREAD, TEST9) {
