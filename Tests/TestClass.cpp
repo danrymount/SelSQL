@@ -9,7 +9,7 @@
 #define KILL
 #define Request std::pair<std::string, std::string>
 
-TEST(SERVER_TEST_CREATE, TEST1) {
+TEST(SERVER_TEST_CREATE, CREATE_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
                                "char(50));",
@@ -23,7 +23,7 @@ TEST(SERVER_TEST_CREATE, TEST1) {
                                "1 |10.500000|'Vasya'|\n"}});
 }
 
-TEST(SERVER_TEST_CREATE, TEST2) {
+TEST(SERVER_TEST_CREATE, CREATE_TEST_MORE_CONSTRAINT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bbb(id INT PRIMARY KEY, age float NOT NULL, name char(50) UNIQUE);",
                                "Success"},
@@ -35,7 +35,7 @@ TEST(SERVER_TEST_CREATE, TEST2) {
                                "0 |10.500000|'Vasya'|\n"}});
 }
 
-TEST(SERVER_TEST_CREATE, TEST3) {
+TEST(SERVER_TEST_CREATE, CREATE_TEST_WITHOUT_CONSTRAINT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bbbb(id INT, age float, name char(30));", "Success"},
                               {"INSERT INTO bbbb values(0, 10.5, 'Vasya');", "Success"},
@@ -45,7 +45,7 @@ TEST(SERVER_TEST_CREATE, TEST3) {
                                "0 |10.500000|'Vasya'|\n"}});
 }
 
-TEST(SERVER_TEST_SELECT, TEST1) {
+TEST(SERVER_TEST_SELECT, SELECT_TEST_TABLE_WITH_ONE_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE t(id INT PRIMARY KEY);", "Success"},
                               {"INSERT INTO t values(0);", "Success"},
@@ -56,7 +56,7 @@ TEST(SERVER_TEST_SELECT, TEST1) {
                                "1 |\n"}});
 }
 
-TEST(SERVER_TEST_SELECT, TEST2) {
+TEST(SERVER_TEST_SELECT, SELECT_TEST_TABLE_WITH_TWO_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE b(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"INSERT INTO b values(0, 10);", "Success"},
@@ -67,7 +67,7 @@ TEST(SERVER_TEST_SELECT, TEST2) {
                                "1 |20 |\n"}});
 }
 
-TEST(SERVER_TEST_SELECT, TEST3) {
+TEST(SERVER_TEST_SELECT, SELECT_TEST_SELECTED_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bz(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"INSERT INTO bz values(0, 10);", "Success"},
@@ -78,7 +78,7 @@ TEST(SERVER_TEST_SELECT, TEST3) {
                                "1 |\n"}});
 }
 
-TEST(SERVER_TEST_SELECT, TEST4) {
+TEST(SERVER_TEST_SELECT, SELECT_TEST_ALL_COLUMNS_SELECTED) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bx(id INT PRIMARY KEY, age int NOT NULL, name CHAR(50));", "Success"},
                               {"INSERT INTO bx values(0, 10, 'sdf');", "Success"},
@@ -89,7 +89,7 @@ TEST(SERVER_TEST_SELECT, TEST4) {
                                "1 |20 |'tyty'|\n"}});
 }
 
-TEST(SERVER_TEST_SELECT, TEST5) {
+TEST(SERVER_TEST_SELECT, SELECT_TEST_DUPLICATE_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bc(id INT PRIMARY KEY, age int NOT NULL, name CHAR(50));", "Success"},
                               {"INSERT INTO bc values(0, 10, 'sdf');", "Success"},
@@ -100,7 +100,7 @@ TEST(SERVER_TEST_SELECT, TEST5) {
                                "1 |20 |'tyty'|1 |20 |'tyty'|1 |20 |'tyty'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST1) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_NUMBER_IN_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qwe(id CHAR(50));", "Success"},
                               {"insert into qwe values (1);", "Success"},
@@ -109,7 +109,7 @@ TEST(SERVER_TEST_INSERT, TEST1) {
                                "'1'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST2) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_FLOAT_NUMBER_IN_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qd(id int);", "Success"},
                               {"insert into qd values (22.22);", "Success"},
@@ -118,7 +118,7 @@ TEST(SERVER_TEST_INSERT, TEST2) {
                                "22|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST3) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_FLOAT_NUMBER_IN_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(20));", "Success"},
                               {"insert into qh values (2.2);", "Success"},
@@ -127,7 +127,7 @@ TEST(SERVER_TEST_INSERT, TEST3) {
                                "'2.200000'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST4) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_INT_NUMBER_IN_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int);", "Success"},
                               {"insert into qh values (1);", "Success"},
@@ -136,7 +136,7 @@ TEST(SERVER_TEST_INSERT, TEST4) {
                                "1 |\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST5) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_STRING_IN_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(20));", "Success"},
                               {"insert into qh values ('dgdf dfg %');", "Success"},
@@ -145,7 +145,7 @@ TEST(SERVER_TEST_INSERT, TEST5) {
                                "'dgdf dfg %'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST6) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_FLOAT_NUMBER_IN_FLOAT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id float);", "Success"},
                               {"insert into qh values (55.55);", "Success"},
@@ -154,7 +154,7 @@ TEST(SERVER_TEST_INSERT, TEST6) {
                                "55.550000|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST7) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_LONGER_STRING_IN_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(50));", "Success"},
                               {"insert into qh values ('ssdf 77 & % sdfsdf*/sdf''s');", "Success"},
@@ -163,7 +163,7 @@ TEST(SERVER_TEST_INSERT, TEST7) {
                                "'ssdf 77 & % sdfsdf*/sdf's'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST8) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_ONE_VALUE_PER_TABLE_WITH_TWO_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
                               {"insert into qh(id) values (6663);", "Success"},
@@ -172,7 +172,7 @@ TEST(SERVER_TEST_INSERT, TEST8) {
                                "6663|    |\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST9) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_REVERSE_ORDER) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
                               {"insert into qh(name, id) values ('sdf', 6663);", "Success"},
@@ -181,7 +181,7 @@ TEST(SERVER_TEST_INSERT, TEST9) {
                                "6663|'sdf'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST10) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_TWO_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE, name char(10));", "Success"},
                               {"insert into qh values (666, 'sfd');", "Success"},
@@ -190,7 +190,7 @@ TEST(SERVER_TEST_INSERT, TEST10) {
                                "666|'sfd'|\n"}});
 }
 
-TEST(SERVER_TEST_INSERT, TEST11) {
+TEST(SERVER_TEST_INSERT, INSERT_TEST_NEGATIVE_NUMBER_IN_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id int NOT NULL UNIQUE);", "Success"},
                               {"insert into qh values (-5);", "Success"},
@@ -208,19 +208,19 @@ TEST(SERVER_TEST_INSERT, TEST11) {
 //                               "  |3  |   |'sdf'|\n"}});
 //}
 
-TEST(SERVER_TEST_SHOW_CREATE, TEST1) {
+TEST(SERVER_TEST_SHOW_CREATE, SHOW_CREATE_TEST_TWO_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE g(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"SHOW CREATE TABLE g;", "CREATE TABLE g(id INT PRIMARY KEY, age INT NOT NULL);"}});
 }
 
-TEST(SERVER_TEST_SHOW_CREATE, TEST2) {
+TEST(SERVER_TEST_SHOW_CREATE, SHOW_CREATE_TEST_ONE_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE h(id INT);", "Success"},
                               {"SHOW CREATE TABLE h;", "CREATE TABLE h(id INT);"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST1) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE c(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"INSERT INTO c values(1, 20);", "Success"},
@@ -230,7 +230,7 @@ TEST(SERVER_TEST_UPDATE, TEST1) {
                                "8 |20 |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST2) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_INT_AND_FLOAT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE d(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"INSERT INTO d values(10, 20);", "Success"},
@@ -240,7 +240,7 @@ TEST(SERVER_TEST_UPDATE, TEST2) {
                                "15|9  |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST3) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_FLOAT_AND_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE dd(age float PRIMARY KEY, name char(100));", "Success"},
                               {"INSERT INTO dd values(1.5, 'Petya');", "Success"},
@@ -250,7 +250,7 @@ TEST(SERVER_TEST_UPDATE, TEST3) {
                                "5.500000|'Vasya'|\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST4) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_SET_VALUE_EQALLY_WHERE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -261,7 +261,7 @@ TEST(SERVER_TEST_UPDATE, TEST4) {
                                "1 |\n2 |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST5) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_VALUE_WITH_WHERE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -273,7 +273,7 @@ TEST(SERVER_TEST_UPDATE, TEST5) {
                                "3 |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST6) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_EXISTING_UNIQUE_VALUE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -283,7 +283,7 @@ TEST(SERVER_TEST_UPDATE, TEST6) {
                                "1 |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST7) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_EASY_MATH_EXPRESSION_IN_SET) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -293,7 +293,7 @@ TEST(SERVER_TEST_UPDATE, TEST7) {
                                "6 |\n"}});
 }
 
-TEST(SERVER_TEST_UPDATE, TEST8) {
+TEST(SERVER_TEST_UPDATE, UPDATE_TEST_COMPLEX_MATH_EXPRESSION_IN_SET) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -303,14 +303,14 @@ TEST(SERVER_TEST_UPDATE, TEST8) {
                                "-3|\n"}});
 }
 
-TEST(SERVER_TEST_DELETE, TEST1) {
+TEST(SERVER_TEST_DELETE, DELETE_TEST_DELETE_FROM_EMPTY_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE e(id INT PRIMARY KEY, age int NOT NULL);", "Success"},
                               {"DELETE FROM e;", "Success"},
                               {"SELECT * from e;", "Success"}});
 }
 
-TEST(SERVER_TEST_DELETE, TEST2) {
+TEST(SERVER_TEST_DELETE, DELETE_TEST_DELETE_TWO_STRING_WITH_TWO_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE f(id INT , age int NOT NULL);", "Success"},
                               {"INSERT INTO f values(10, 20);", "Success"},
@@ -319,7 +319,7 @@ TEST(SERVER_TEST_DELETE, TEST2) {
                               {"SELECT * from f;", "Success"}});
 }
 
-TEST(SERVER_TEST_DELETE, TEST3) {
+TEST(SERVER_TEST_DELETE, DELETE_TEST_DELETE_TWO_STRING_WITH_THREE_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ff(id INT , age float NOT NULL, name char(75));", "Success"},
                               {"INSERT INTO ff values(10, 2.0, 'Vvv');", "Success"},
@@ -328,7 +328,7 @@ TEST(SERVER_TEST_DELETE, TEST3) {
                               {"SELECT * from ff;", "Success"}});
 }
 
-TEST(SERVER_TEST_DELETE, TEST4) {
+TEST(SERVER_TEST_DELETE, DELETE_TEST_DELETE_WITH_WHERE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fff(id INT , age float NOT NULL, name char(75));", "Success"},
                               {"INSERT INTO fff values(10, 2.0, 'Vvv');", "Success"},
@@ -341,7 +341,7 @@ TEST(SERVER_TEST_DELETE, TEST4) {
                               {"SELECT * from fff;", "Success"}});
 }
 
-TEST(SERVER_TEST_ALL, TEST1) {
+TEST(SERVER_TEST_ALL, CRUD_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fe(id INT , age int NOT NULL);", "Success"},
                               {"INSERT INTO fe values(10, 20);", "Success"},
@@ -357,7 +357,7 @@ TEST(SERVER_TEST_ALL, TEST1) {
                                "5 |2  |\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST1) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fr(id INT , age int NOT NULL);", "Success"},
                               {"INSERT INTO fr values(10, 20);", "Success"},
@@ -382,7 +382,7 @@ TEST(SERVER_TEST_WHERE, TEST1) {
                                "10|20 |\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST2) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST_WITH_MATH_EXPRESSIONS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ft(id INT , age int NOT NULL);", "Success"},
                               {"INSERT INTO ft values(10, 20);", "Success"},
@@ -405,7 +405,7 @@ TEST(SERVER_TEST_WHERE, TEST2) {
                                "5 |2  |\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST3) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST_WITH_LOGIC_EXPRESSIONS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fy(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fy values(1, 2.9, 'sfsf');", "Success"},
@@ -431,7 +431,7 @@ TEST(SERVER_TEST_WHERE, TEST3) {
                                "2 |3.789000|'qwerty'|\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST4) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST_WITH_MATH_AND_LOGIC_EXPRESSIONS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fo(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fo values(1, 2.9, 'sfsf');", "Success"},
@@ -455,7 +455,7 @@ TEST(SERVER_TEST_WHERE, TEST4) {
                                "3 |0.789000|'hgfdsa'|\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST5) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST_WITH_SIGNS_OF_INEQUALITY) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fp(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fp values(1, 2.9, 'sfsf');", "Success"},
@@ -485,7 +485,7 @@ TEST(SERVER_TEST_WHERE, TEST5) {
                                "3 |0.789000|'hgfdsa'|\n"}});
 }
 
-TEST(SERVER_TEST_WHERE, TEST6) {
+TEST(SERVER_TEST_WHERE, WHERE_TEST_INT_EQUALLY_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
@@ -493,7 +493,7 @@ TEST(SERVER_TEST_WHERE, TEST6) {
                               {"SELECT * from fn where id = name;", "Success"}});
 }
 
-TEST(SERVER_TEST_JOIN, TEST1) {
+TEST(SERVER_TEST_JOIN, JOIN_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
@@ -514,7 +514,7 @@ TEST(SERVER_TEST_JOIN, TEST1) {
                                "5    |'qwesdfy'|\n"}});
 }
 
-TEST(SERVER_TEST_JOIN, TEST2) {
+TEST(SERVER_TEST_JOIN, JOIN_TEST_ONE_NESTED_JOIN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
@@ -538,7 +538,7 @@ TEST(SERVER_TEST_JOIN, TEST2) {
                                "2    |3.789000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"}});
 }
 
-// TEST(SERVER_TEST_JOIN, TEST3) {
+// TEST(SERVER_TEST_JOIN, JOIN_TEST_SEVERAL_NESTED_JOIN) {
 //    TestUtils::clear();
 //    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"},
 //                              {"CREATE TABLE jg(id INT NOT NULL , age float);", "Success"},
@@ -568,7 +568,7 @@ TEST(SERVER_TEST_JOIN, TEST2) {
 //                               "|3.700000|'qwesdfy'|2    |3.700000|\n"}});
 //} //TODO падает с сигсегом
 
-TEST(SERVER_TEST_JOIN, TEST4) {
+TEST(SERVER_TEST_JOIN, TEST_JOIN_WITH_LOGIC_EXPRESSIONS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE jl(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE jp(id INT NOT NULL , age float);", "Success"},
@@ -590,7 +590,7 @@ TEST(SERVER_TEST_JOIN, TEST4) {
                                "5    |3.700000|\n"}});
 }
 
-TEST(SERVER_TEST_LEFT_JOIN, TEST1) {
+TEST(SERVER_TEST_LEFT_JOIN, LEFT_JOIN_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
@@ -624,7 +624,7 @@ TEST(SERVER_TEST_LEFT_JOIN, TEST1) {
                                "5    |3.700000|\n"}});
 }
 
-// TEST(SERVER_TEST_RIGHT_JOIN, TEST1) {
+// TEST(SERVER_TEST_RIGHT_JOIN, RIGHT_JOIN_TEST) {
 //    TestUtils::clear();
 //    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
 //                              {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
@@ -659,7 +659,7 @@ TEST(SERVER_TEST_LEFT_JOIN, TEST1) {
 //                               "1        |2.900000  |\n"}});
 //} //TODO сигсег в дебаге
 
-TEST(SERVER_TEST_LEFT_RIGHT_JOIN, TEST1) {
+TEST(SERVER_TEST_LEFT_RIGHT_JOIN, LEFT_RIGHT_JOIN_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
@@ -695,7 +695,7 @@ TEST(SERVER_TEST_LEFT_RIGHT_JOIN, TEST1) {
                                "|2.900000|null |null    |null     |null |null    |\n"}});
 }
 
-TEST(SERVER_TEST_FULL_JOIN, TEST1) {
+TEST(SERVER_TEST_FULL_JOIN, FULL_JOIN_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL , age float);", "Success"},
@@ -720,7 +720,7 @@ TEST(SERVER_TEST_FULL_JOIN, TEST1) {
                                "5    |3.700000|\n"}});
 }
 
-TEST(SERVER_TEST_UNION, TEST1) {
+TEST(SERVER_TEST_UNION, UNION_TEST_ONE_UNION) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
@@ -745,7 +745,7 @@ TEST(SERVER_TEST_UNION, TEST1) {
                                "5 |3.700000|\n"}});
 }
 
-TEST(SERVER_TEST_UNION, TEST2) {
+TEST(SERVER_TEST_UNION, UNION_TEST_TWO_UNION_AND_SELECT_ALL) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float, name char(150));", "Success"},
@@ -777,7 +777,7 @@ TEST(SERVER_TEST_UNION, TEST2) {
                                "1 |2.900000|\n"}});
 }
 
-TEST(SERVER_TEST_INTERSECT, TEST1) {
+TEST(SERVER_TEST_INTERSECT, INTERSECT_TEST_ONE_INTERSECT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
@@ -796,7 +796,7 @@ TEST(SERVER_TEST_INTERSECT, TEST1) {
                                "2 |3.789000|\n"}});
 }
 
-TEST(SERVER_TEST_INTERSECT, TEST2) {
+TEST(SERVER_TEST_INTERSECT, INTERSECT_TEST_TWO_INTERSECT_AND_SELECT_ALL) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float, name char(150));", "Success"},
@@ -818,33 +818,33 @@ TEST(SERVER_TEST_INTERSECT, TEST2) {
                                "Success"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST1) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_CREATE_EXISTING_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE i(id INT);", "Success"},
                               {"CREATE TABLE i(id INT);", "Table already exists ERROR: 1"}});
     TestUtils::clear();
 }
 
-TEST(SERVER_TEST_ERROR, TEST2) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_CREATE_WITH_REPEATED_CONSTRAINTS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asa(id INT UNIQUE UNIQUE, id1 FLOAT NOT NULL);",
                                "Constraint already exists ERROR: 3"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST3) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_CREATE_WITH_SAME_COLUMN_NAMES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ac(id INT UNIQUE, id FLOAT NOT NULL);",
                                "Field name already used ERROR: 4"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST4) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_NULL_IN_NOT_NULL) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE m(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
                               {"insert into m values(1, 2);", "Success"},
                               {"insert into m values(null, null);", "Null values unavailable ERROR: 8"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST5) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_UPDATE_SET_NULL_IN_NOT_NULL) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE mm(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
                               {"insert into mm values(1, 2);", "Success"},
@@ -852,18 +852,18 @@ TEST(SERVER_TEST_ERROR, TEST5) {
                               {"update mm set di = null, id = 3;", "Null values unavailable ERROR: 8"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST6) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_IN_A_NO_EXISTENT_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into qqq values(1, 2);", "Table doesn`t exist ERROR: 2"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST7) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_INVALID_COUNT_OF_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE ac(id INT UNIQUE, di FLOAT NOT NULL);", "Success"},
                               {"insert into ac(id) values(1, 2);", "Invalid count of columns and values ERROR: 5"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST8) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_EXISTING_VALUE_IN_UNIQUE_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE k(id INT UNIQUE);", "Success"},
                               {"insert into k values(1);", "Success"},
@@ -871,52 +871,52 @@ TEST(SERVER_TEST_ERROR, TEST8) {
                               {"insert into k values(1);", "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST9) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_STRING_IN_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
                               {"insert into j values('sdfsdf');",
                                "Value is out of range OR is not a number ERROR: 12"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST10) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_NULL_IN_NOT_NULL_IN_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT NOT NULL);", "Success"},
                               {"insert into asas(id) values(1);", "Null values unavailable ERROR: 8"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST11) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_IN_NO_EXISTENT_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);", "Success"},
                               {"insert into asas(isasfdasf, id) values(1, 2);", "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST12) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_IN_NO_EXISTENT_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE asas(id INT UNIQUE, id1 FLOAT);", "Success"},
                               {"DROP TABLE asas;", "Success"},
                               {"insert into asas values (1, 5.5);", "Table doesn`t exist ERROR: 2"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST13) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_OVERSIZE_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
                               {"insert into j values(159753159753);",
                                "Int oversize (Str num 1, sym num 30): 159753159753"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST14) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_IN_SAME_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qw(id INT UNIQUE, id1 FLOAT);", "Success"},
                               {"insert into qw(id, id) values (1, 3);", "Same column in request ERROR: 7"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST15) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_OVERSIZE_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qe(id CHAR(10));", "Success"},
                               {"insert into qe values ('qwertyuiopqwertyuio');", "CHAR IS VERY BIG ERROR: 13"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST16) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_OVERSIZE_CHAR_256) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(256));", "Success"},
                               {"insert into qh values "
@@ -931,7 +931,7 @@ TEST(SERVER_TEST_ERROR, TEST16) {
                                "CHAR IS VERY BIG ERROR: 13"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST17) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_OVERSIZE_CHAR_1) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qh(id CHAR(1));", "Success"},
                               {"insert into qh values ('');", "Success"},
@@ -939,20 +939,20 @@ TEST(SERVER_TEST_ERROR, TEST17) {
                               {"insert into qh values ('aa');", "CHAR IS VERY BIG ERROR: 13"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST18) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_INVALID_COUNT_OF_COLUMNS_ALL_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9);", "Invalid count of columns and values ERROR: 5"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST19) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_STRING_IN_FLOAT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(age float);", "Success"},
                               {"INSERT INTO fn values('dfgdg');",
                                "Value is out of range OR is not a number ERROR: 12"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST20) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_UPDATE_SET_DUPLICATE_VALUES_IN_UNIQUE_COLUMN_WITH_WHERE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -961,7 +961,7 @@ TEST(SERVER_TEST_ERROR, TEST20) {
                                "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST21) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_UPDATE_SET_DUPLICATE_VALUES_IN_ALL_UNIQUE_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -969,7 +969,7 @@ TEST(SERVER_TEST_ERROR, TEST21) {
                               {"update qg set id = 3;", "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST22) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_UPDATE_SET_DUPLICATE_VALUES_IN_UNIQUE_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
                               {"insert into qg values (1);", "Success"},
@@ -977,7 +977,7 @@ TEST(SERVER_TEST_ERROR, TEST22) {
                               {"update qg set id = 2;", "Value already exists, use UNIQUE value ERROR: 9"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST23) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_WHERE_TYPES_MISMATCH) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE qg(id int unique, name char(50));", "Success"},
                               {"insert into qg values (1, 'qwe');", "Success"},
@@ -985,16 +985,7 @@ TEST(SERVER_TEST_ERROR, TEST23) {
                               {"select * from qg where id = name + 1;", "Types mismatch ERROR: 11"}});
 }
 
-// TEST(SERVER_TEST_ERROR, TEST24) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-//                              {"SELECT * from fn where qqq = poi;",
-//                               "Table fn:\n"}});  // TODO проверять существование колонки
-//}
-
-TEST(SERVER_TEST_ERROR, TEST25) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_JOIN_WITH_NOT_EXISTING_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
@@ -1002,7 +993,7 @@ TEST(SERVER_TEST_ERROR, TEST25) {
                               {"SELECT * from fn join nf on fn.id = nf.id;", "Table doesn`t exist ERROR: 2"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST26) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_JOIN_WITH_NOT_EXISTING_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
@@ -1010,16 +1001,7 @@ TEST(SERVER_TEST_ERROR, TEST26) {
                               {"SELECT * from fn as f1 join fn on f1.id = fn.id11;", "Field doesnt exist ERROR: 6"}});
 }
 
-// TEST(SERVER_TEST_ERROR, TEST27) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
-//                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
-//                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-//                              {"SELECT * from fn join fn on fn.id = fn.id;",
-//                               "Field doesnt exist ERROR: 6"}});  // TODO чекать на алиас в одной и той же таблице
-//}
-
-TEST(SERVER_TEST_ERROR, TEST28) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_JOIN_WITH_NOT_EXISTING_ALIAS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
@@ -1027,14 +1009,14 @@ TEST(SERVER_TEST_ERROR, TEST28) {
                               {"SELECT * from fn join fn on f1.id = fn.id;", "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST29) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_NOT_EXISTING_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
                               {"SELECT dgdfg, id from fn;", "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST30) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_UNION_WITH_DIFFERENT_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
@@ -1043,7 +1025,7 @@ TEST(SERVER_TEST_ERROR, TEST30) {
                               {"SELECT age from table1 UNION SELECT id from table2;", "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST31) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_INTERSECT_WITH_DIFFERENT_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
@@ -1053,7 +1035,7 @@ TEST(SERVER_TEST_ERROR, TEST31) {
                                "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST32) {
+TEST(SERVER_TEST_ERROR, ERROR_TEST_SELECT_ALL_UNION_WITH_DIFFERENT_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
                               {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
@@ -1062,41 +1044,41 @@ TEST(SERVER_TEST_ERROR, TEST32) {
                               {"SELECT * from table1 UNION SELECT * from table2;", "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST1) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_EMPTY_STRING) {
     TestUtils::clear();
     TestUtils::checkRequests({{"", "syntax error, unexpected $end (Str num 1, sym num 0): "}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST2) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ONE_SYMBOL) {
     TestUtils::clear();
     TestUtils::checkRequests({{"с", "syntax error, unexpected $end (Str num 1, sym num 0): "}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST3) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_CREATE_WITHOUT_COLUMNS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t ();",
                                "syntax error, unexpected RBRACKET, expecting IDENT (Str num 1, sym num 14): )"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST4) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CREATE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"creat table t (id int);",
                                "syntax error, unexpected IDENT (Str num 1, sym num 5): creat"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST5) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create tale t (id int);",
                                "syntax error, unexpected IDENT, expecting TABLE (Str num 1, sym num 10): tale"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST6) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_TABLE_NAME) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table 555 (id int);",
                                "syntax error, unexpected NUMBER, expecting IDENT (Str num 1, sym num 14): 555"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST7) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (id innt);",
                                "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
@@ -1104,7 +1086,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST7) {
                                "1, sym num 19): innt"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST8) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CHAR) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (id charrrr(50));",
                                "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
@@ -1112,14 +1094,14 @@ TEST(SERVER_TEST_SYN_ERROR, TEST8) {
                                "1, sym num 22): charrrr"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST9) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CHAR_LENGTH) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name char(45454554525452452452452));",
                                "syntax error, unexpected $undefined, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE "
                                "(Str num 1, sym num 46): char(45454554525452452452452)"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST10) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CHAR_NUMBERS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name char54545(20));",
                                "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
@@ -1127,7 +1109,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST10) {
                                "1, sym num 26): char54545"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST11) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_TYPE_OF_COLUMN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name 456456);",
                                "syntax error, unexpected NUMBER, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE "
@@ -1135,13 +1117,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST11) {
                                "num 1, sym num 23): 456456"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST12) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"create table 645 (name int);",
-                               "syntax error, unexpected NUMBER, expecting IDENT (Str num 1, sym num 14): 645"}});
-}
-
-TEST(SERVER_TEST_SYN_ERROR, TEST13) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CHAR_WITHOUT_LENGTH) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name int, nn char);",
                                "syntax error, unexpected IDENT, expecting INT_TYPE or FLOAT_TYPE or CHAR_TYPE (Str "
@@ -1149,7 +1125,7 @@ TEST(SERVER_TEST_SYN_ERROR, TEST13) {
                                "1, sym num 27): char"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST14) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_MISSING_BRACKET) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t (name int;",
                                "syntax error, unexpected SEMICOLON, expecting RBRACKET or COMMA (Str num 1, sym "
@@ -1157,115 +1133,103 @@ TEST(SERVER_TEST_SYN_ERROR, TEST14) {
                                "21): ;"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST15) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_DROP) {
     TestUtils::clear();
     TestUtils::checkRequests({{"dro table t;", "syntax error, unexpected IDENT (Str num 1, sym num 3): dro"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST16) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_DROP_SEVERAL_TABLES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"drop table t, y;",
                                "syntax error, unexpected COMMA, expecting SEMICOLON (Str num 1, sym num 11): ,"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST17) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_DROP_MISSING_SEMICOLON) {
     TestUtils::clear();
     TestUtils::checkRequests({{"drop table t",
                                "syntax error, unexpected $end, expecting SEMICOLON (Str num 1, sym num 10): "}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST18) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SHOW_CREATE_SHOW) {
     TestUtils::clear();
     TestUtils::checkRequests({{"shw create table t;", "syntax error, unexpected IDENT (Str num 1, sym num 3): shw"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST19) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SHOW_CREATE_CREATE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"show crate table t;",
                                "syntax error, unexpected IDENT, expecting CREATE_ACTION (Str num 1, sym num 9): "
                                "crate"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST20) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SHOW_CREATE_UNNECESSARY_BRACKETS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"show create table (t);",
                                "syntax error, unexpected LBRACKET, expecting IDENT (Str num 1, sym num 16): ("}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST21) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_COMMA_IN_TABLE_NAME) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into 'tt' values(1);",
                                "syntax error, unexpected STRVAL, expecting IDENT (Str num 1, sym num 14): 'tt'"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST22) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_INSERT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"inser into t values(1);",
                                "syntax error, unexpected IDENT (Str num 1, sym num 5): inser"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST23) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_INTO) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert ito t values(1);",
                                "syntax error, unexpected IDENT, expecting INTO (Str num 1, sym num 9): ito"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST24) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_NUMBER_IN_COLUMN_NAME) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(1);",
                                "syntax error, unexpected NUMBER, expecting IDENT (Str num 1, sym num 13): 1"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST25) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(col) valus;",
                                "syntax error, unexpected IDENT, expecting VALUES (Str num 1, sym num 21): valus"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST26) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_MISSING_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t(col) (5);",
                                "syntax error, unexpected LBRACKET, expecting VALUES (Str num 1, sym num 17): ("}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST27) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"insert into t (col) (col);",
-                               "syntax error, unexpected LBRACKET, expecting VALUES (Str num 1, sym num 17): ("}});
-}
-
-TEST(SERVER_TEST_SYN_ERROR, TEST28) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"insert into t (col) ();",
-                               "syntax error, unexpected LBRACKET, expecting VALUES (Str num 1, sym num 17): ("}});
-}
-
-TEST(SERVER_TEST_SYN_ERROR, TEST29) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_MISSING_BRACKET_WITH_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t values;",
                                "syntax error, unexpected SEMICOLON, expecting LBRACKET (Str num 1, sym num 18): "
                                ";"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST30) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_EMPTY_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert into t values();",
                                "syntax error, unexpected RBRACKET (Str num 1, sym num 19): )"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST31) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_MISSING_INTO) {
     TestUtils::clear();
     TestUtils::checkRequests({{"insert t values(7);",
                                "syntax error, unexpected IDENT, expecting INTO (Str num 1, sym num 7): t"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST32) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_WITHOUT_ON) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t join tt;",
                                "syntax error, unexpected SEMICOLON, expecting ON (Str num 1, sym num 19): ;"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST33) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_IN_JOIN) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t jon tt on t.id = tt.id;",
                                "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
@@ -1273,54 +1237,54 @@ TEST(SERVER_TEST_SYN_ERROR, TEST33) {
                                "jon"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST34) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_MISSING_ALIAS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t as join tt on t.id = tt.id;",
                                "syntax error, unexpected JOIN, expecting IDENT (Str num 1, sym num 18): join"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST35) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_IN_AS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t a t1 join tt on t.id = tt.id;",
                                "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
                                "sym num 13): a"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST36) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_MISSING_ON) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t as t1 join tt t.id = tt.id;",
                                "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST37) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_UNION) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t unon select * from t1;",
                                "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
                                "sym num 16): unon"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST38) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INTERSECT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t interect select * from t1;",
                                "syntax error, unexpected IDENT, expecting UNION or INTERSECT or SEMICOLON (Str num 1, "
                                "sym num 20): interect"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST39) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_UNION_MISSING_SELECT_AFTER_UNION) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t union;",
                                "syntax error, unexpected SEMICOLON, expecting SELECT_ACTION (Str num 1, sym num 18): "
                                ";"}});
 }
 
-TEST(SERVER_TEST_SYN_ERROR, TEST40) {
+TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INTERSECT_UNEXPECTED_INSERT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t intersect insert into t values(1);",
                                "syntax error, unexpected INSERT_ACTION, expecting SELECT_ACTION (Str num 1, sym num "
                                "27): insert"}});
 }
 
-TEST(SERVER_TEST_THREAD, TEST1) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_INSERT_IN_DIFFERENT_THREADS_IN_DIFFERENT_TABLES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                               {"create table t1(id int, name char(255), city char(255), age float);", "Success"}});
@@ -1341,7 +1305,7 @@ TEST(SERVER_TEST_THREAD, TEST1) {
     TestUtils::checkRequests({{"select * from t;", ""}, {"select * from t1;", ""}});
 }
 
-TEST(SERVER_TEST_THREAD, TEST2) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_NOT_YET_INSERTED_VALUES) {
     TestUtils::clear();
     Client client1;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
@@ -1359,7 +1323,7 @@ TEST(SERVER_TEST_THREAD, TEST2) {
     TestUtils::checkRequestsClient(request3, client1);
 }
 
-TEST(SERVER_TEST_THREAD, TEST3) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_INSERT_IN_ONE_TABLE_IN_DIFFERENT_TRANSACTIONS) {
     TestUtils::clear();
     Client client1;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
@@ -1380,7 +1344,7 @@ TEST(SERVER_TEST_THREAD, TEST3) {
     TestUtils::checkRequestsClient(request3, client1);
 }
 
-TEST(SERVER_TEST_THREAD, TEST4) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_DELETE_NOT_YET_INSERTED_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                               {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"}});
@@ -1402,7 +1366,7 @@ TEST(SERVER_TEST_THREAD, TEST4) {
     TestUtils::checkRequests({{"select * from t;", ""}});
 }
 
-TEST(SERVER_TEST_THREAD, TEST5) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_IN_TWO_TRANSACTIONS) {
     TestUtils::clear();
     Client client1;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
@@ -1424,7 +1388,7 @@ TEST(SERVER_TEST_THREAD, TEST5) {
     EXPECT_EQ(client1.response, "Success");
 }
 
-TEST(SERVER_TEST_THREAD, TEST6) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                               {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"}});
@@ -1445,7 +1409,7 @@ TEST(SERVER_TEST_THREAD, TEST6) {
     TestUtils::checkRequests({{"select * from t;", ""}});
 }
 
-TEST(SERVER_TEST_THREAD, TEST7) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_INSERT_INTO_TWO_TRANSACTIONS) {
     TestUtils::clear();
     Client client1;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
@@ -1465,7 +1429,7 @@ TEST(SERVER_TEST_THREAD, TEST7) {
     EXPECT_EQ(client1.response, "Success");
 }
 
-TEST(SERVER_TEST_THREAD, TEST8) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_DELETE_INTO_TWO_TRANSACTIONS) {
     TestUtils::clear();
     Client client1;
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
@@ -1485,7 +1449,7 @@ TEST(SERVER_TEST_THREAD, TEST8) {
     TestUtils::checkRequestsClient(request3, client1);
 }
 
-TEST(SERVER_TEST_THREAD, TEST9) {
+TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_INTO_TWO_TRANSACTIONS_PARALLEL_TREADS) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                               {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"}});
@@ -1505,8 +1469,8 @@ TEST(SERVER_TEST_THREAD, TEST9) {
     TestUtils::checkRequests({{"select * from t;", ""}});
 }
 
-#ifdef KILL
-TEST(SERVER_TEST_SYN_STRESS, TEST1) {
+#ifdef KIL
+TEST(SERVER_TEST_SYN_STRESS, STRESS_TEST_UPDATE) {
     TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
@@ -1528,7 +1492,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST1) {
                           {answerFirst, answerSecond}});
 }
 
-TEST(SERVER_TEST_SYN_STRESS, TEST2) {
+TEST(SERVER_TEST_SYN_STRESS, STRESS_TEST_DELETE) {
     TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
@@ -1551,7 +1515,7 @@ TEST(SERVER_TEST_SYN_STRESS, TEST2) {
                           {answerFirst, "Success"}});
 }
 
-TEST(SERVER_TEST_SYN_STRESS, TEST3) {
+TEST(SERVER_TEST_SYN_STRESS, STRESS_TEST_INSERT) {
     TestUtils::kill();
     TestUtils::clear();
     TestUtils::run();
