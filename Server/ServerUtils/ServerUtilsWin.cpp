@@ -1,8 +1,8 @@
 //
 // Created by User on 10.11.2019.
 //
-#include "ServerUtilsWin.h"
 #include <winsock2.h>
+#include "ServerUtils.h"
 void ServerUtils::startServer() {
     WSACleanup();
     WORD wV = MAKEWORD(2, 2);

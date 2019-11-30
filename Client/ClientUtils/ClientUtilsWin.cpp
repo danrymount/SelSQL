@@ -1,8 +1,8 @@
 //
 // Created by User on 10.11.2019.
 //
-#include "ClientUtilsWin.h"
 #include <winsock2.h>
+#include "ClientUtils.h"
 
 void ClientUtils::startClient() {
     WORD wV = MAKEWORD(2, 2);

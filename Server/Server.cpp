@@ -3,13 +3,9 @@
 //
 
 #include "Server.h"
-#ifdef __WIN32
-#include "ServerUtils/Win/ServerUtilsWin.h"
-#elif __linux
-#include "ServerUtils/Lin/ServerUtilsLin.h"
-#endif
 #include <cstring>
 #include <iostream>
+#include "ServerUtils/ServerUtils.h"
 
 Server::Server(int max_connection) {
     ServerUtils::startServer();

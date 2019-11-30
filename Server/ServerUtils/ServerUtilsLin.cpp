@@ -2,10 +2,10 @@
 // Created by User on 10.11.2019.
 //
 
-#include "ServerUtilsLin.h"
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>
+#include "ServerUtils.h"
 
 void ServerUtils::startServer() {}
 

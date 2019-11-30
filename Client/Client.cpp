@@ -3,11 +3,7 @@
 //
 
 #include "Client.h"
-#ifdef __WIN32
-#include "ClientUtils/Win/ClientUtilsWin.h"
-#elif __linux
-#include "ClientUtils/Lin/ClientUtilsLin.h"
-#endif
+#include "ClientUtils/ClientUtils.h"
 
 #include <unistd.h>
 #include <cstring>
