@@ -8,7 +8,7 @@ FILE(GLOB Utils ${SOURCE_DIR}/Utils/*.cpp ${SOURCE_DIR}/Utils/Headers/*.h)
 
 link_libraries(stdc++fs)
 if (UNIX)
-    add_executable(Tests main_test.cpp TestClass.cpp
+    add_executable(Tests_CRUD main_test.cpp TestClass.cpp
             ../Headers/TestUtils.h . ../../Client/Client.cpp ../../Client/ClientUtils/ClientUtilsLin.cpp)
     link_libraries(stdc++fs)
 endif ()
