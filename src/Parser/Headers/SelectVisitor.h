@@ -34,7 +34,7 @@
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
-typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
+typedef std::vector<RecordsFull> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
@@ -44,6 +44,7 @@ class SelectVisitor : public TreeVisitor {
         columns.clear();
         node->getChild()->accept(this);
         source = node->getSource();
+        std::cout << node->getId() << std::endl;
     }
 
     void visit(ColumnsAndExprNode* node) override {
@@ -98,15 +99,14 @@ class SelectVisitor : public TreeVisitor {
         }
     }
 
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
-    addRecord(const std::string& aliasName, std::shared_ptr<Cursor> cursor) {
-        std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
+    std::vector<RecordsFull> addRecord(const std::string& aliasName, std::shared_ptr<Cursor> cursor) {
+        std::vector<RecordsFull> records;
         do {
             auto _record = cursor->Fetch();
             if (_record.empty()) {
                 continue;
             }
-            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+            RecordsFull _newRecord;
             for (auto& col : _record) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair(aliasName, col.first), col.second));
             }
@@ -137,9 +137,7 @@ class SelectVisitor : public TreeVisitor {
         secondRecords.clear();
     }
 
-    int sideJoin(const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstRec,
-                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& secondRec,
-                 const std::vector<std::pair<std::pair<std::string, std::string>, std::string>>& firstJoinRec,
+    int sideJoin(const RecordsFull& firstRec, const RecordsFull& secondRec, const RecordsFull& firstJoinRec,
                  BaseJoinNode* node) {
         auto flag = 0;
         auto joinRecords = firstRec;
@@ -303,7 +301,7 @@ class SelectVisitor : public TreeVisitor {
         node->getRight()->accept(this);
     }
 
-    static bool compareForHash(std::pair<std::pair<std::string, std::string>, std::string>& val) {
+    static bool compareForHash(RecordColumn& val) {
         auto curName = std::find_if(curExpr.begin(), curExpr.end(),
                                     [val](const std::pair<std::string, std::string>& value) {
                                         return value.second == val.first.second;
@@ -325,10 +323,7 @@ class SelectVisitor : public TreeVisitor {
         return false;
     }
 
-    void
-    addRec(JoinRecord small, JoinRecord large,
-           std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>>
-                                                                                                               vals) {
+    void addRec(JoinRecord small, JoinRecord large, std::unordered_map<std::string, RecordsFull> vals) {
         for (auto& rec : small) {
             auto ident = std::find_if(rec.begin(), rec.end(), compareForHash);
             auto record = vals.find(ident->second);
@@ -352,7 +347,7 @@ class SelectVisitor : public TreeVisitor {
     }
 
     void hashJoin(JoinNode* node) {
-        std::unordered_map<std::string, std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> vals;
+        std::unordered_map<std::string, RecordsFull> vals;
 
         auto large = firstRecords;
         auto small = secondRecords;
@@ -430,9 +425,7 @@ class SelectVisitor : public TreeVisitor {
 
     void setRecords(JoinRecord _records) { allrecords.emplace_back(_records); }
 
-    std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> getRecords() {
-        return allrecords[0];
-    }
+    std::vector<RecordsFull> getRecords() { return allrecords[0]; }
 
     void setExpressionVisitor(ExpressionVisitor* visitor) { expressionVisitor = visitor; }
 

@@ -97,6 +97,7 @@ void TreeVisitor::visit(UnionIntersectListNode* node) {
     allCols.clear();
     allRecords.clear();
     for (auto& child : node->getChilds()) {
+        child->setId(node->getId());
         child->accept(this);
     }
     if (message.getErrorCode()) {
@@ -110,6 +111,7 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
                                       std::vector<std::pair<std::string, std::string>>& cols) {
     for (auto& action : node->getChildren()) {
         int countColumns = 0;
+        action->setId(node->getId());
         auto res = SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
         if (res.getErrorCode()) {
             return res;
@@ -125,11 +127,11 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
             }
         }
         for (auto& col : tempCols) {
-            col.first.erase();
-            if (std::find(colExist.begin(), colExist.end(), col.second) != colExist.end()) {
+            // col.first.erase();
+            if (std::find(colExist.begin(), colExist.end(), col.first + col.second) != colExist.end()) {
                 countColumns++;
             } else if (!tempSize) {
-                colExist.emplace_back(col.second);
+                colExist.emplace_back(col.first + col.second);
                 countColumns++;
             } else {
                 return Message(ErrorConstants::ERR_NO_SUCH_FIELD);  // TODO сделать другую ошибку
@@ -144,8 +146,8 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> tempRec;
             for (int i = 0; i < rec.size(); i++) {
                 auto col = rec[i];
-                if (std::find(colExist.begin(), colExist.end(), col.first.second) != colExist.end()) {
-                    col.first.first.erase();
+                if (std::find(colExist.begin(), colExist.end(), col.first.first + col.first.second) != colExist.end()) {
+                    // col.first.first.erase();
                     tempRec.emplace_back(col);
                 }
             }
@@ -153,8 +155,9 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
         }
     }
 
-    for (auto& col : colExist) {
-        cols.emplace_back(std::make_pair("", col));
+    for (auto& col : tempRecords[0]) {
+        cols.emplace_back(std::make_pair(col.first.first, col.first.second));
+        // cols.emplace_back(std::make_pair("", col));
     }
 
     return Message();
