@@ -355,19 +355,20 @@ TEST(SERVER_TEST_JOIN_UNION_INTERSECT, TEST_UNION_AND_INTERSECT_WITH_LEFT_RIGHT_
                               {"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO jj values(2, 3.789, 'qwerty');", "Success"},
                               {"INSERT INTO jj values(5, 3.7, 'qwesdfy');", "Success"},
-                              {"INSERT INTO jg values(1, 3.5);", "Success"},
+                              {"INSERT INTO jg values(1, 2.9);", "Success"},
                               {"INSERT INTO jg values(2, 3.7);", "Success"},
                               {"INSERT INTO jg values(3, 2.9);", "Success"},
                               {"SELECT * from jj right join jg on jj.id = jg.id UNION "
                                "SELECT * from jj left join jg on jj.age = jg.age;",
                                "\njj.id|jj.age   |jj.name |jg.id|jg.age  |\n"
-                               "1    |2.900000|'sfsf'   |1    |3.500000|\n"
+                               "1    |2.900000|'sfsf'   |1    |2.900000|\n"
                                "2    |3.789000|'qwerty' |2    |3.700000|\n"
                                "null |null    |null     |3    |2.900000|\n"
-                               "5    |3.700000|'qwesdfy'|null |null    |\n"},
+                               "1    |2.900000|'sfsf'   |3    |2.900000|\n"
+                               "2    |3.789000|'qwerty' |null |null    |\n"
+                               "5    |3.700000|'qwesdfy'|2    |3.700000|\n"},
                               {"SELECT * from jj left join jg on jj.id = jg.id INTERSECT "
                                "SELECT * from jj right join jg on jj.age = jg.age;",
                                "\njj.id|jj.age   |jj.name |jg.id|jg.age  |\n"
-                               "1    |2.900000|'sfsf'   |1    |3.500000|\n"
-                               "2    |3.789000|'qwerty' |2    |3.700000|\n"}});
+                               "1    |2.900000|'sfsf'   |1    |2.900000|\n"}});
 }
