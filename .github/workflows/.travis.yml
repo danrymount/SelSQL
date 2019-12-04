@@ -12,6 +12,7 @@ jobs:
           sudo add-apt-repository ppa:jonathonf/gcc-9.2
           sudo apt-get update
           sudo apt-get install gcc-9
+          update-alternatives --query gcc
           gcc --version
       - name: install flex and bison
         run: sudo apt install flex bison
