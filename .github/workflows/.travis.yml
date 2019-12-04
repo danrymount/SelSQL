@@ -9,6 +9,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: install compiller
         run: |
+          mkdir ~/root
+          cd ~/root
           sudo add-apt-repository ppa:jonathonf/gcc-9.2
           sudo apt-get install gcc-9.2
           gcc --version
