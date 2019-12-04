@@ -13,6 +13,7 @@ class Constants {
     inline static const std::string TEMP_FILE_TYPE = ".temp";
     inline static const std::string META_FILE_TYPE = ".METAselDB";
     inline static const std::string DATA_FILE_TYPE = ".DATAselDB";
+    inline static const std::string LOG_FILE_TYPE = ".log";
     inline static const std::string FILE_TYPE = ".selDB";
     static const int MD_TABLE_NAME_SIZE = 256;
     static const int MD_TABLE_COLUMN_AMOUNT_SIZE = sizeof(int);

@@ -16,9 +16,9 @@
 #include "../../Utils/Structures/Data/Table.h"
 #include "EngineUtils.h"
 
-typedef std::tuple<std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>> files;
+typedef std::pair<std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>> files;
 class FileManager {
-    std::map<std::string, std::fstream*> meta_files_;
+    std::map<std::string, std::shared_ptr<std::fstream>> meta_files_;
     std::shared_ptr<std::fstream> temp;
     std::map<std::string, std::shared_ptr<Table>> table_data;
 

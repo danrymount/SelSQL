@@ -17,8 +17,8 @@ Message MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
 std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& tableName) {
     std::shared_ptr<Table> table(new Table());
 
-    auto [meta, src, dist] = file_manager_->OpenFile(tableName);
-    if (meta == nullptr or src == nullptr or dist == nullptr) {
+    auto [meta, data] = file_manager_->OpenFile(tableName);
+    if (meta == nullptr or data == nullptr) {
         return table;
     }
     table = file_manager_->GetTable(tableName);
@@ -43,20 +43,17 @@ MainEngine::MainEngine() {
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,
                                                                                  size_t transaction_id) {
-    //    file_manager_->CloseAllFiles();
     std::shared_ptr<Table> table(new Table());
     std::shared_ptr<Cursor> cursor(new Cursor());
     std::cerr << "GET CURSOR  " << transaction_id << std::endl;
-    auto [meta, src, dist] = file_manager_->OpenFile(tableName, transaction_id);
-    //    if (file_manager_->OpenFile(tableName,transaction_id)) {
-    //        return std::make_pair(table, cursor);
-    //    }
-    if (meta == nullptr or src == nullptr or dist == nullptr) {
+    auto [meta, data] = file_manager_->OpenFile(tableName, transaction_id);
+
+    if (meta == nullptr or data == nullptr) {
         table = std::make_shared<Table>();
         return std::make_pair(table, cursor);
     }
     table = file_manager_->GetTable(tableName);
-    cursor = std::make_shared<Cursor>(table, file_manager_, transact_manager_, src, dist);
+    cursor = std::make_shared<Cursor>(table, file_manager_, transact_manager_, data);
     return std::make_pair(table, cursor);
 }
 int MainEngine::GetTransactionId() { return transact_manager_->GetTransactionId(); }
