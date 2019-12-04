@@ -13,5 +13,5 @@ jobs:
         run: sudo apt install flex bison
       - name: install CMake
         run: |
-          sudo snap install cmake
+          sudo snap install cmake --classic
           cmake --version
