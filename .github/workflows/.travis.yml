@@ -1,19 +1,17 @@
-name: C/C++ CI
+name: C++ CI
 
 on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    
     steps:
-    - uses: actions/checkout@v1
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - uses: actions/checkout@v1
+      - name: install compiller
+        run: sudo apt-get install -y gcc g++
+      - name: install flex and bison
+        run: sudo apt install flex bison
+      - name: install CMake
+        run: |
+          sudo snap install cmake
+          cmake --version
