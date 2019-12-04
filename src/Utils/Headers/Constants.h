@@ -24,7 +24,7 @@ class Constants {
     static const int MD_COLUMN_CONSTR_SIZE = sizeof(int);
     static const int MD_COLUMN_CONSTR_AMOUNT_SIZE = sizeof(int);
     static const int MD_COLUMN_CONSTR_AMOUNT_MAX = 10;
-
+    static const int MAX_VERSIONS = 100;
 
     static const int MD_SIZE = MD_TABLE_NAME_SIZE + MD_TABLE_COLUMN_AMOUNT_SIZE +
                                             MD_TABLE_COLUMN_AMOUNT_MAX * (MD_COLUMN_NAME_SIZE + MD_COLUMN_TYPE_SIZE +

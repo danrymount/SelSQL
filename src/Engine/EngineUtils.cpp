@@ -201,6 +201,36 @@ std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
     }
     return ConstructFileName(table_name, transaction_id);
 }
+void DataToLog(const std::shared_ptr<std::fstream> &data, const std::shared_ptr<std::fstream> &log, long transaction_sp,
+               int record_size) {
+    // TODO NEED FIX
+    int offset = 0;
+    int size = GetFileSize(data.get());
+    char *buf = new char[size];
+    if (size == 0) {
+        return;
+    }
+    int record_size_in_log = record_size + 2 * sizeof(long);
+    data->seekg(std::ios::beg);
+    data->read(buf, size);
+    int block_id = 0;
+    while (offset < size) {
+        log->seekp(block_id * GetDataBlockSize(record_size_in_log));
+        int count = 0;
+        for (int i = 0; i < GetDataBlockSize(record_size); i += record_size) {
+            char rec[record_size_in_log];
+            std::memcpy(&rec, &buf[offset + i], record_size);
+            std::memcpy(&rec[record_size], &transaction_sp, sizeof(transaction_sp));
+            std::memcpy(&rec[record_size + sizeof(transaction_sp)], &transaction_sp, sizeof(transaction_sp));
+            log->write(rec, record_size_in_log);
+            log->seekp(block_id * GetDataBlockSize(record_size_in_log) + count * record_size_in_log * Constants::MAX_VERSIONS,
+                       std::ios::beg);
+            count++;
+        }
+        block_id++;
+        offset += GetDataBlockSize(record_size);
+    }
+}
 
 void DB_FILE::close() {
     meta_file->close();

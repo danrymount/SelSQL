@@ -45,5 +45,7 @@ std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 void RestoreFromTemp(std::fstream* src, std::fstream* dist, int record_size);
 std::string ConstructFileName(const std::string& table_name, size_t transaction_id);
 std::string FindTempFile(const std::string& table_name, size_t transaction_id);
+void DataToLog(const std::shared_ptr<std::fstream>& data, const std::shared_ptr<std::fstream>& log, long transaction_sp,
+               int record_size);
 class FileNotOpened {};
 #endif  // SELSQL_ENGINEUTILS_H

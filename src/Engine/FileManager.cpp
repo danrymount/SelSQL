@@ -28,7 +28,7 @@ void FileManager::ReadTableMetaData(const std::string& table_name) {
     meta_file->read(buffer, size);
     table_data[table_name] = ReadTableFromBuffer(buffer);
 }
-files FileManager::OpenFile(const std::string& table_name, size_t transaction_id) {
+files FileManager::OpenFile(const std::string& table_name, long transaction_sp) {
     const std::string& file_name = table_name;
     if (!fs::exists(table_name)) {
         return files();
@@ -51,9 +51,10 @@ files FileManager::OpenFile(const std::string& table_name, size_t transaction_id
         data_file = std::make_shared<std::fstream>(data_file_name,
                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
     }
-    if (!log_file->is_open()) {
+    if (!log_file->is_open() or GetFileSize(log_file.get()) == 0) {
         log_file = std::make_shared<std::fstream>(log_file_name,
                                                   std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+        DataToLog(data_file, log_file, transaction_sp, table_data[table_name]->record_size);
     }
 
     return files(meta_file, data_file);
