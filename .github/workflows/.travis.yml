@@ -19,4 +19,5 @@ jobs:
           ./bootstrap
           make
           sudo make install
+          gcc --version
           cmake --version
