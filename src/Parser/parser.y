@@ -85,7 +85,7 @@
     int clientId = 0;
     RootNode *tree;
 
-    std::array<std::pair<int, int>, 10> clients;
+    std::array<std::pair<int, long>, 10> clients;
     std::vector<ConstraintNode*> constraintsList;
     std::vector<VariableNode*> variablesList;
     std::vector<BaseActionNode*> children;
@@ -144,7 +144,7 @@ query:
         tree = nullptr;
 
     	if(!clients[clientId].first && !children.empty()){
-    	    clients[clientId].second = mainEngine->GetTransactionId();
+    	    clients[clientId].second = mainEngine->GetTransactionSP();
     	}
     	if(!children.empty()){
     	    children[0]->setId(clients[clientId].second);
@@ -161,7 +161,7 @@ query:
 request:
     BEGIN_ SEMICOLON{
     	clients[clientId].first = 1;
-    	clients[clientId].second = mainEngine->GetTransactionId();
+    	clients[clientId].second = mainEngine->GetTransactionSP();
     }|
     COMMIT SEMICOLON{
     	clients[clientId].first = 0;

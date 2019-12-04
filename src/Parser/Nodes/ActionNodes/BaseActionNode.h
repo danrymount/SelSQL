@@ -28,13 +28,13 @@ class BaseActionNode : public BaseNode {
     BaseNode* getSource() { return source; }
     // std::string getTableName() { return tableName; }
 
-    void setId(int _id) { id = _id; }
-    int getId() { return id; }
+    void setId(long _id) { id = _id; }
+    long getId() { return id; }
 
    private:
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
-    int id;
+    long id;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

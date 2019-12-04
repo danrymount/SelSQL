@@ -5,16 +5,15 @@
 #include "EngineUtils.h"
 
 class TransactManager {
-    size_t new_transaction_id = 0;
-    std::map<std::string, std::map<Position, size_t>> in_use;
+    std::map<std::string, std::map<Position, long>> in_use;
     std::vector<size_t> restricted;
 
    public:
     TransactManager();
-    size_t GetTransactionId();
-    void ClearUsed(size_t transaction_id);
-    int SetUsed(const std::string& table_name, Position position, size_t transaction_id);
-    int IsSuccessful(size_t transaction_id);
-    void RestrictTransaction(size_t transaction_id);
+    long GetTransactionSP();
+    void ClearUsed(long transaction_sp);
+    int SetUsed(const std::string& table_name, Position position, long transaction_sp);
+    int IsSuccessful(long transaction_sp);
+    void RestrictTransaction(long transaction_sp);
 };
 #endif  // SELSQL_TRANSACTMANAGER_H
