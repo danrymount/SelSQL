@@ -10,6 +10,7 @@ jobs:
       - name: install compiller
         run: |
           sudo add-apt-repository ppa:jonathonf/gcc-9.2
+          sudo apt-get update
           sudo apt-get install gcc-9
           gcc --version
       - name: install flex and bison
