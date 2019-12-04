@@ -10,23 +10,11 @@ class DataBlock {
    public:
     int was_changed = 0;
     char* data_;
-    short int* deleted_pos_;
-    size_t record_amount = 0;
     size_t record_size = 0;
-    size_t last_record_pos = 0;
-    size_t deleted = 0;
-    size_t max_deleted_amount = 0;
-    void setDeletedPos(char* pos) { deleted_pos_ = reinterpret_cast<short*>(pos); }
-    char* getDeletedPos() { return reinterpret_cast<char*>(deleted_pos_); }
-    void setData(char* pos) {
-        data_ = pos;
-    };
+    void setData(char* pos) { data_ = pos; };
     DataBlock(){};
 
-    ~DataBlock() {
-        delete[] data_;
-        delete[] deleted_pos_;
-    }
+    ~DataBlock() { delete[] data_; }
 };
 
 #endif  // SELSQL_DATABLOCK_H

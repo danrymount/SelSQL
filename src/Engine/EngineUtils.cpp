@@ -103,14 +103,6 @@ int GetFileSize(std::fstream *file) {
 buffer_data GetDataBlockBuffer(DataBlock *data_block) {
     char *data = new char[GetDataBlockSize(data_block)];
     int offset = 0;
-    std::memcpy(&data[offset], &data_block->record_amount, sizeof(int));
-    offset += sizeof(int);
-    std::memcpy(&data[offset], &data_block->last_record_pos, sizeof(int));
-    offset += sizeof(int);
-    std::memcpy(&data[offset], &data_block->deleted, sizeof(int));
-    offset += sizeof(int);
-    std::memcpy(&data[offset], data_block->getDeletedPos(), data_block->max_deleted_amount * sizeof(short int));
-    offset += data_block->max_deleted_amount * sizeof(short int);
     std::memcpy(&data[offset], data_block->data_, Constants::DATA_SIZE);
 
     offset += Constants::DATA_SIZE;
@@ -120,17 +112,6 @@ std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) 
     int offset = 0;
     auto dataBlock = std::make_shared<DataBlock>();
     dataBlock->record_size = record_size;
-    std::memcpy(&dataBlock->record_amount, &data[offset], sizeof(int));
-    offset += sizeof(int);
-    std::memcpy(&dataBlock->last_record_pos, &data[offset], sizeof(int));
-    offset += sizeof(int);
-    std::memcpy(&dataBlock->deleted, &data[offset], sizeof(int));
-    offset += sizeof(int);
-    dataBlock->max_deleted_amount = Constants::DATA_SIZE / record_size;
-    char *deleted = new char[dataBlock->max_deleted_amount * sizeof(short int)];
-    std::memcpy(deleted, &data[offset], dataBlock->max_deleted_amount * sizeof(short int));
-    offset += dataBlock->max_deleted_amount * sizeof(short int);
-    dataBlock->setDeletedPos(deleted);
     char *block_data = new char[Constants::DATA_SIZE];
     std::memcpy(block_data, &data[offset], Constants::DATA_SIZE);
     offset += Constants::DATA_SIZE;
@@ -138,16 +119,8 @@ std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) 
 
     return dataBlock;
 }
-int GetDataBlockSize(DataBlock *data_block) {
-    return Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
-           Constants::DATA_BLOCK_RECORD_LAST_POS + data_block->max_deleted_amount * sizeof(short int) +
-           Constants::DATA_SIZE;
-}
-int GetDataBlockSize(int record_size) {
-    return Constants::DATA_BLOCK_DELETED_AMOUNT + Constants::DATA_BLOCK_RECORD_AMOUNT +
-           Constants::DATA_BLOCK_RECORD_LAST_POS + Constants::DATA_SIZE / record_size * sizeof(short int) +
-           Constants::DATA_SIZE;
-}
+int GetDataBlockSize(DataBlock *data_block) { return Constants::DATA_SIZE; }
+int GetDataBlockSize(int record_size) { return Constants::DATA_SIZE; }
 void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->flush();
     int rec_amount = 0;

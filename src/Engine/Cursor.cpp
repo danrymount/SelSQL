@@ -54,13 +54,11 @@ void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int 
 int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id) {
     size_t pos_in_block = 0;
     int no_place = 1;
+    char empty[data_block_->record_size];
+    std::memset(&empty, '0', data_block_->record_size);
     do {
-        if (data_block_->deleted) {
-            pos_in_block = data_block_->deleted_pos_[--data_block_->deleted] * table_->record_size;
-            no_place = 0;
-            break;
-        } else if (data_block_->last_record_pos <= Constants::DATA_SIZE / table_->record_size - 1) {
-            pos_in_block = data_block_->last_record_pos * table_->record_size;
+        if (std::memcmp(&data_block_->data_[pos_in_block * data_block_->record_size], &empty,
+                        data_block_->record_size) == 0) {
             no_place = 0;
             break;
         }
@@ -100,8 +98,6 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
     }
     //    table_->record_amount++;
     data_block_->was_changed = 1;
-    data_block_->record_amount++;
-    data_block_->last_record_pos++;
     std::memcpy(&data_block_->data_[pos_in_block], record, table_->record_size);
     changed = 1;
     return 0;
@@ -115,7 +111,6 @@ int Cursor::UpdateDataBlock() {
         //        }
         if (data_block_->was_changed) {
             //            table_->record_amount -= current_session_deleted_;
-            data_block_->record_amount -= current_session_deleted_;
             file_manager_->WriteDataBlock(table_, data_block_, write_block_id, data_file_);
         }
     }
@@ -176,7 +171,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::NextRecord() {
-    if (data_block_ != nullptr and data_block_->record_amount > readed_data) {
+    if (data_block_ != nullptr and Constants::DATA_SIZE / data_block_->record_size > current_pos) {
         current_pos++;
         return 0;
     } else {
@@ -189,9 +184,6 @@ int Cursor::Delete(int transact_id) {
         return ErrorConstants::ERR_TRANSACT_CONFLICT;
     }
     std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
-    data_block_->deleted_pos_[data_block_->deleted++] = current_pos;
-    data_block_->last_record_pos++;
-    current_session_deleted_++;
     data_block_->was_changed = 1;
     changed = 1;
     return 0;
@@ -253,8 +245,6 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileMa
 void Cursor::Allocate() {
     data_block_ = std::make_shared<DataBlock>();
     data_block_->record_size = table_->record_size;
-    data_block_->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;
-    data_block_->setDeletedPos(new char[data_block_->max_deleted_amount * sizeof(short int)]);
     char *n_data = new char[Constants::DATA_SIZE];
     memset(n_data, 0, Constants::DATA_SIZE);
     data_block_->setData(n_data);

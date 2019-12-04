@@ -1,6 +1,7 @@
 
 #include "Headers/TransactManager.h"
 
+// TODO PROBLEMS IN MANAGER
 TransactManager::TransactManager() = default;
 long TransactManager::GetTransactionSP() {
     std::chrono::time_point tp = std::chrono::system_clock::now();
@@ -36,7 +37,7 @@ int TransactManager::SetUsed(const std::string& table_name, Position position, l
         return 0;
     }
     RestrictTransaction(transaction_sp);
-    return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    return 0;
 }
 void TransactManager::RestrictTransaction(long transaction_sp) { restricted.emplace_back(transaction_sp); }
 int TransactManager::IsSuccessful(long transaction_sp) {
@@ -45,5 +46,5 @@ int TransactManager::IsSuccessful(long transaction_sp) {
             return 0;
         }
     }
-    return 1;
+    return 0;
 }
