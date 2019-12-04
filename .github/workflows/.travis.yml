@@ -8,11 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: install compiller
-        run: sudo apt-get install -y gcc g++
+        run: |
+          sudo add-apt-repository ppa:jonathonf/gcc-9.2.0
+          sudo apt-get install gcc-9.2
       - name: install flex and bison
         run: sudo apt install flex bison
       - name: install CMake
         run: |
-          sudo apt install cmake
+          wget https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0-Linux-x86_64.sh
+          chmod +x ./cmake-3.14.0-Linux-x86_64.sh
+          sudo ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local --exclude-subdir
+          which cmake
           gcc --version
           cmake --version
