@@ -9,8 +9,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: install compiller
         run: |
-          sudo yum -y update
-          sudo yum -y install bzip2 wget gcc gcc-c++ gmp-devel mpfr-devel libmpc-devel make
+          sudo add-apt-repository ppa:jonathonf/gcc-9.2
+          sudo apt-get install gcc-9.2
           gcc --version
       - name: install flex and bison
         run: sudo apt install flex bison
