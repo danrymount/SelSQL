@@ -13,11 +13,6 @@ jobs:
         run: sudo apt install flex bison
       - name: install CMake
         run: |
-          wget https://github.com/Kitware/CMake/releases/download/v3.15.2/cmake-3.15.2.tar.gz
-          tar -zxvf cmake-3.15.2.tar.gz
-          cd cmake-3.15.2
-          ./bootstrap
-          make
-          sudo make install
+          sudo apt install cmake
           gcc --version
           cmake --version
