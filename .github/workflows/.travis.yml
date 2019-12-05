@@ -12,7 +12,7 @@ jobs:
           sudo add-apt-repository ppa:jonathonf/gcc-9.2
           sudo apt-get update
           sudo apt-get install gcc-9
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+          sudo update-alternatives —install /usr/bin/gcc gcc /usr/bin/gcc-9 90 —slave /usr/bin/g++ g++ /usr/bin/g++-9 —slave /usr/bin/gcov gcov /usr/bin/gcov-9
       - name: install flex and bison
         run: sudo apt install flex bison
       - name: install CMake
