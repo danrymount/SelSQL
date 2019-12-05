@@ -1,25 +1,3 @@
-*
 
-
-!src
-!src/**/
-!Tests
-!Tests/**/
-!Client
-!Client/**/
-!Server
-!Server/**/
-!lib
-!lib/**/
-
-
-!.gitignore
-!.clang-format
-
-
-
-!**/CMakeLists.txt
-!**/*.cpp
-!**/*.h
-!**/*.l
-!**/*.y
+/cmake-build-debug/
+/.idea/
