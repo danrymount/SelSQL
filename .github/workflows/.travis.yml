@@ -30,9 +30,15 @@ jobs:
         run: |
           cd ./build/Tests/Tests_CRUD
           ./Tests_CRUD
-          ls /usr/
+          ls /home/runner/work/SelSQL/
           pwd
-          ls /home/
+          ls /home/runner/work/SelSQL/SelSQL/
+          pwd
+          ls /home/runner/work/SelSQL/SelSQL/build/
+          pwd
+          ls /home/runner/work/SelSQL/SelSQL/build/Tests/
+          pwd
+          ls /home/runner/work/SelSQL/SelSQL/build/Tests/Tests_CRUD
 #          cd ../Tests_JUI
 #          ./Tests_JUI
 #          cd ./build/Tests/Tests_Error
