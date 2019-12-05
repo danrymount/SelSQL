@@ -21,6 +21,7 @@ jobs:
           chmod +x ./cmake-3.14.0-Linux-x86_64.sh
           sudo ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local --exclude-subdir
           which cmake
+          g++ --version
       - name: run tests
         run: |
           export CC="gcc-9"
