@@ -23,6 +23,8 @@ jobs:
           which cmake
       - name: run tests
         run: |
+          export CC="gcc-9"
+          export CXX="g++-9"
           export MAKEFLAGS="-j $(nproc)"
           cmake -H. -Bbuild
           cmake --build build
