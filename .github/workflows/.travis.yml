@@ -29,7 +29,9 @@ jobs:
           ./Server &
       - name: run tests
         run: |
-          cd ../Tests/Tests_CRUD
+#          cd ../Tests/Tests_CRUD
+          cd ..
+          pwd
           ./Tests_CRUD
           ls /home/runner/work/SelSQL/
           pwd
