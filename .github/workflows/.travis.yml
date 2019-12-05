@@ -25,10 +25,11 @@ jobs:
         run: |
           cmake -H. -Bbuild
           cmake --build build
-          ./build/Server/Server &
+          cd ./build/Server
+          ./Server &
       - name: run tests
         run: |
-          cd ./build/Tests/Tests_CRUD
+          cd ../Tests/Tests_CRUD
           ./Tests_CRUD
           ls /home/runner/work/SelSQL/
           pwd
