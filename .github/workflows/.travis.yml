@@ -33,5 +33,5 @@ jobs:
           ./Tests_CRUD
           cd ../Tests_JUI
           ./Tests_JUI
-          cd ../Tests/Tests_Error
+          cd ../Tests_Error
           ./Tests_Error
