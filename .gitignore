@@ -9,6 +9,8 @@
 !Client/**/
 !Server
 !Server/**/
+!lib
+!lib/**/
 
 
 !.gitignore
