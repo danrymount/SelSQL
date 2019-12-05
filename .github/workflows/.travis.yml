@@ -31,8 +31,9 @@ jobs:
           cd ./build/Tests/Tests_CRUD
           ./Tests_CRUD
           ls /usr/
+          pwd
           ls /home/
-          cd ../Tests_JUI
-          ./Tests_JUI
-          cd ./build/Tests/Tests_Error
-          ./Tests_Error
+#          cd ../Tests_JUI
+#          ./Tests_JUI
+#          cd ./build/Tests/Tests_Error
+#          ./Tests_Error
