@@ -3,7 +3,8 @@ name: C++ CI
 on: [push]
 
 jobs:
-  build:
+  Tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
