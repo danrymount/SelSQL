@@ -23,5 +23,6 @@ jobs:
           which cmake
       - name: run tests
         run: |
+          export MAKEFLAGS="-j $(nproc)"
           cmake -H. -Bbuild
           cmake --build build
