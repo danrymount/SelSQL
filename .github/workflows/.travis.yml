@@ -29,7 +29,6 @@ jobs:
           ./Server &
       - name: run tests
         run: |
-#          cd ../Tests/Tests_CRUD
           cd ..
           pwd
           ./Tests_CRUD
@@ -46,3 +45,4 @@ jobs:
 #          ./Tests_JUI
 #          cd ./build/Tests/Tests_Error
 #          ./Tests_Error
+#          cd ../Tests/Tests_CRUD
