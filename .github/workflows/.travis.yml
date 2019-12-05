@@ -23,3 +23,5 @@ jobs:
           which cmake
       - name: run tests
         run: |
+          cmake -H. -Bbuild
+          cmake --build build
