@@ -29,8 +29,7 @@ jobs:
           ./Server &
       - name: run tests
         run: |
-          cd ..
-          pwd
+          cd ./build/Tests/Tests_CRUD
           ./Tests_CRUD
           ls /home/runner/work/SelSQL/
           pwd
@@ -45,4 +44,3 @@ jobs:
 #          ./Tests_JUI
 #          cd ./build/Tests/Tests_Error
 #          ./Tests_Error
-#          cd ../Tests/Tests_CRUD
