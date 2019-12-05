@@ -30,12 +30,9 @@ jobs:
         run: |
           cd ./build/Tests/Tests_CRUD
           ./Tests_CRUD
-          ls /
-          cd ./build/Tests/
-          ls /
-          cd ./build/Server/
-          ls /
-          cd ./build/Tests/Tests_JUI
+          ls /usr/
+          ls /home/
+          cd ../Tests_JUI
           ./Tests_JUI
           cd ./build/Tests/Tests_Error
           ./Tests_Error
