@@ -28,7 +28,7 @@ class FileManager {
    public:
     explicit FileManager();
     ~FileManager();
-    files OpenFile(const std::string& table_name, long transaction_sp = 0);
+    files OpenFile(const std::string& table_name);
     int CreateFile(const std::shared_ptr<Table>& table);
     int DeleteFile(const std::string& table_name);
     std::shared_ptr<Table> GetTable(const std::string& table_name);

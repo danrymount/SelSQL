@@ -28,7 +28,7 @@ void FileManager::ReadTableMetaData(const std::string& table_name) {
     meta_file->read(buffer, size);
     table_data[table_name] = ReadTableFromBuffer(buffer);
 }
-files FileManager::OpenFile(const std::string& table_name, long transaction_sp) {
+files FileManager::OpenFile(const std::string& table_name) {
     const std::string& file_name = table_name;
     if (!fs::exists(table_name)) {
         return files();
@@ -40,8 +40,7 @@ files FileManager::OpenFile(const std::string& table_name, long transaction_sp) 
                                                                              std::ios::in | std::ios::out | std::ios::binary);
     std::shared_ptr<std::fstream> data_file = std::make_shared<std::fstream>(data_file_name,
                                                                              std::ios::in | std::ios::out | std::ios::binary);
-    std::shared_ptr<std::fstream> log_file = std::make_shared<std::fstream>(log_file_name,
-                                                                            std::ios::in | std::ios::out | std::ios::binary);
+
     if (!meta_file->is_open()) {
         return files();
     }
@@ -51,12 +50,6 @@ files FileManager::OpenFile(const std::string& table_name, long transaction_sp) 
         data_file = std::make_shared<std::fstream>(data_file_name,
                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
     }
-    if (!log_file->is_open() or GetFileSize(log_file.get()) == 0) {
-        log_file = std::make_shared<std::fstream>(log_file_name,
-                                                  std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
-        DataToLog(data_file, log_file, transaction_sp, table_data[table_name]->record_size);
-    }
-
     return files(meta_file, data_file);
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
@@ -84,14 +77,7 @@ int FileManager::DeleteFile(const std::string& table_name) {
 
 int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
                                 std::shared_ptr<std::fstream> dist) {
-    //    if (meta_files_.find(table->name) == meta_files_.end() or !meta_files_[table->name].isOpen()) {
-    //        std::cerr << __func__ << "\t File isn't opened" << std::endl;
-    //        throw FileNotOpened();
-    //    }
 
-    //    if (data != nullptr) {
-    //        this->WriteDataBlockToTemp(std::string(table->name), data, block_id, dist);
-    //    }
     int offset = GetFileSize(dist.get());
     offset = block_id * GetDataBlockSize(data.get());
     buffer_data buffer = GetDataBlockBuffer(data.get());

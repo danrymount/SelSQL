@@ -4,6 +4,7 @@
 #include <memory>
 #include <utility>
 #include "../../Utils/Headers/Constants.h"
+#include "../../Utils/Structures/Data/Record.h"
 #include "FileManager.h"
 #include "TransactManager.h"
 class Cursor {

@@ -46,7 +46,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     std::shared_ptr<Table> table(new Table());
     std::shared_ptr<Cursor> cursor(new Cursor());
     std::cerr << "GET CURSOR  " << transaction_sp << std::endl;
-    auto [meta, data] = file_manager_->OpenFile(tableName, transaction_sp);
+    auto [meta, data] = file_manager_->OpenFile(tableName);
 
     if (meta == nullptr or data == nullptr) {
         table = std::make_shared<Table>();

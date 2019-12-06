@@ -171,7 +171,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::NextRecord() {
-    if (data_block_ != nullptr and Constants::DATA_SIZE / data_block_->record_size > current_pos) {
+    if (data_block_ != nullptr and Constants::DATA_SIZE / data_block_->record_size > current_pos + 1) {
         current_pos++;
         return 0;
     } else {
