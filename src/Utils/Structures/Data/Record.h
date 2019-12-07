@@ -28,7 +28,8 @@ struct Record {
         offset += sizeof(tr_e);
         return result;
     };
-    void SetRecordBuf(char *buf) {
+
+    void SetAllRecordBuf(char *buf) {
         int offset = 0;
         std::memcpy(&index, &buf[offset], sizeof(index));
         offset += sizeof(index);
@@ -39,6 +40,7 @@ struct Record {
         std::memcpy(&tr_e, &buf[offset], sizeof(tr_e));
         offset += sizeof(tr_e);
     };
+    void SetOnlyRecordBuf(char *buf) { std::memcpy(record_buf, buf, record_size); };
     ~Record() { delete[] record_buf; }
 };
 #endif  // SELSQL_RECORD_H

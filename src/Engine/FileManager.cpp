@@ -46,9 +46,12 @@ files FileManager::OpenFile(const std::string& table_name) {
     }
     meta_files_[table_name] = meta_file;
     ReadTableMetaData(table_name);
-    if (!data_file->is_open()) {
+    if (!data_file->is_open() or GetFileSize(data_file.get()) == 0) {
         data_file = std::make_shared<std::fstream>(data_file_name,
                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
+        int zero = 0;
+        data_file->write(reinterpret_cast<char*>(&zero), sizeof(zero));
+        data_file->flush();
     }
     return files(meta_file, data_file);
 }
@@ -77,13 +80,13 @@ int FileManager::DeleteFile(const std::string& table_name) {
 
 int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
                                 std::shared_ptr<std::fstream> dist) {
-
     int offset = GetFileSize(dist.get());
-    offset = block_id * GetDataBlockSize(data.get());
+    offset = 4 + block_id * GetDataBlockSize(data.get());
     buffer_data buffer = GetDataBlockBuffer(data.get());
     dist->seekp(offset);
     //    dist->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
     dist->write(buffer.first, buffer.second);
+    dist->flush();
     delete[] buffer.first;
     return 0;
 }
@@ -102,12 +105,13 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
         return nullptr;
     }
 
-    data_file->seekg(0, std::ios::beg);
+    data_file->seekg(sizeof(int), std::ios::beg);
 
     if (GetFileSize(data_file) < GetDataBlockSize(record_size)) {
         return nullptr;
     }
-    data_file->seekg(GetDataBlockSize(record_size) * block_id, std::ios::beg);
+    // TODO SAVE BLOCKS TILL END
+    data_file->seekg(sizeof(int) + GetDataBlockSize(record_size) * block_id, std::ios::beg);
     char data_buffer[GetDataBlockSize(record_size)];
     data_file->read(data_buffer, GetDataBlockSize(record_size));
     return ReadDataBlockFromBuffer(data_buffer, record_size);

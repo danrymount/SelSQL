@@ -22,20 +22,21 @@ class Cursor {
     int readed_data = 0;
     int current_session_deleted_ = 0;
 
-    static void SaveFieldData(std::string val, Type type, unsigned char* dist, int start_pos);
-    static void GetFieldData(std::string* dist, Type type, unsigned char* src, int start_pos);
+    static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
+    static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
     void Allocate();
+    int EmplaceBack(char* record_buf, long tr_s, long tr_e);
 
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager,
            const std::shared_ptr<TransactManager>& transact_manager, std::shared_ptr<std::fstream> data_file);
     Cursor();
-    int Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id = 0);
+    int Insert(const std::vector<std::string>& cols, const std::vector<std::string>& new_data, long transact_sp = 0);
     int UpdateDataBlock();
     int NextRecord();
     int NextDataBlock();
-    int Delete(int transact_id = 0);
-    int Update(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id = 0);
+    int Delete(long transact_sp = 0);
+    int Update(std::vector<std::string> cols, std::vector<std::string> new_data, long transact_sp = 0);
     int Reset();
 
     void Commit();
