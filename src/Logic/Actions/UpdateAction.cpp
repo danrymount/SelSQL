@@ -82,6 +82,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         } while (!cursor.second->NextRecord());
         //    }
         //    cursor.second->Reset();
-    cursor.second->Commit();
-    return message;
+        cursor.second->Commit(root->getId());
+        return message;
 }

@@ -37,8 +37,8 @@ Message MainEngine::DropTable(const std::string& tableName) {
 }
 
 MainEngine::MainEngine() {
-    file_manager_ = std::make_shared<FileManager>();
     transact_manager_ = std::make_shared<TransactManager>();
+    file_manager_ = std::make_shared<FileManager>(transact_manager_);
 }
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,

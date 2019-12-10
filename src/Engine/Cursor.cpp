@@ -209,8 +209,9 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
     char full_record_buf1[record.GetRecordFullSize()];
     record.tr_e = transact_sp;
 
-    std::memcpy(record.GetRecordBuf(), &data_block_->data_[current_pos * record.GetRecordFullSize()],
+    std::memcpy(&data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordBuf(),
                 record.GetRecordFullSize());
+    //    UpdateDataBlock();
     EmplaceBack(record.record_buf, transact_sp, 0);
     return 0;
 }
@@ -277,8 +278,9 @@ int Cursor::NextDataBlock() {
     return 0;
 }
 
-void Cursor::Commit() {
-    if (!table_->name.empty() and changed) {
+void Cursor::Commit(long tr) {
+    if (!table_->name.empty()) {
+        transact_manager_->Clear(table_->name, tr);
         UpdateDataBlock();
         file_manager_->UpdateFile(table_->name, data_file_);
     }
@@ -309,9 +311,18 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
 
     std::memcpy(&last_block->data_[last_pos * new_record.GetRecordFullSize()], new_record.GetRecordBuf(),
                 new_record.GetRecordFullSize());
+    data_file_->seekp(4 + last_pos * new_record.GetRecordFullSize());
+    data_file_->write(new_record.GetRecordBuf(), new_record.GetRecordFullSize());
     data_file_->seekp(std::ios::beg);
+
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
+    std::cerr << "LAST _ POS " << last_pos << std::endl;
+    data_file_->seekp(4 + Constants::DATA_SIZE, std::ios::beg);
+    char a = '0';
+    data_file_->write(&a, 1);
     data_file_->flush();
-    file_manager_->WriteDataBlock(table_, last_block, block_id, data_file_);
+
+    //    file_manager_->WriteDataBlock(table_, last_block, block_id+100, data_file_);
+    transact_manager_->SetNewPos(table_->name, last_pos - 1, tr_s);
     return 0;
 }

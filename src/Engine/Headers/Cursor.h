@@ -39,7 +39,7 @@ class Cursor {
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data, long transact_sp = 0);
     int Reset();
 
-    void Commit();
+    void Commit(long tr);
     std::vector<std::pair<std::string, std::string>> Fetch(long tr_p);
     ~Cursor();
 };

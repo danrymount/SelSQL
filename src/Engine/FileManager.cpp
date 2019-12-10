@@ -1,7 +1,9 @@
 #include "Headers/FileManager.h"
+#include <algorithm>
 #include <memory>
 
 #include "../Utils/Structures/Data/DataBlock.h"
+#include "../Utils/Structures/Data/Record.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
     //    if (meta_files_.find(table->name) == meta_files_.end() or !meta_files_[table->name].isOpen()) {
@@ -81,11 +83,35 @@ int FileManager::DeleteFile(const std::string& table_name) {
 int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
                                 std::shared_ptr<std::fstream> dist) {
     int offset = GetFileSize(dist.get());
+    int flag = 0;
+    if (block_id > 90) {
+        flag = 1;
+        block_id -= 100;
+    }
     offset = 4 + block_id * GetDataBlockSize(data.get());
     buffer_data buffer = GetDataBlockBuffer(data.get());
     dist->seekp(offset);
+
     //    dist->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
-    dist->write(buffer.first, buffer.second);
+    auto ignore = transact_manager_->ignore[table->name];
+    std::sort(ignore.begin(), ignore.end());
+    int l_off = 0;
+    Record record(table->record_size);
+
+    if (ignore.empty() or flag) {
+        dist->write(buffer.first, buffer.second);
+    } else {
+        for (auto pos : ignore) {
+            std::cerr << pos.first << std::endl;
+            if (pos.first - l_off > 0) {
+                dist->write(&buffer.first[l_off], (pos.first - l_off) * record.GetRecordFullSize());
+            }
+
+            l_off = pos.first;
+        }
+    }
+
+    //
     dist->flush();
     delete[] buffer.first;
     return 0;
@@ -150,7 +176,7 @@ int FileManager::UpdateFile(const std::string& table_name, const std::shared_ptr
     }
 }
 
-FileManager::FileManager() {
+FileManager::FileManager(std::shared_ptr<TransactManager> manager) : transact_manager_(manager) {
     //    temp = std::make_shared<std::fstream>(Constants::TEMP_FILE,
     //                                          std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     //    UpdateFile("");

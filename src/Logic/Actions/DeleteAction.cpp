@@ -52,6 +52,6 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    cursor.second->table->record_amount -= delete_count;
     //    cursor.second->UpdateDataBlock();
     //    cursor.second.reset();
-    cursor.second->Commit();
+    cursor.second->Commit(root->getId());
     return Message();
 }

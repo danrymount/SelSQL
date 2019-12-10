@@ -48,3 +48,15 @@ int TransactManager::IsSuccessful(long transaction_sp) {
     }
     return 0;
 }
+void TransactManager::SetNewPos(const std::string& table_name, int pos, long tr) {
+    ignore[table_name].emplace_back(std::make_pair(pos, tr));
+}
+void TransactManager::Clear(const std::string& table_name, long tr) {
+    for (auto position = ignore[table_name].begin(); position != ignore[table_name].end();) {
+        if (position->second == tr) {
+            position = ignore[table_name].erase(position);
+        } else {
+            ++position;
+        }
+    }
+}
