@@ -1,0 +1,38 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  Tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: install compiller
+        run: |
+          sudo add-apt-repository ppa:jonathonf/gcc-9.2
+          sudo apt-get update
+          sudo apt-get install gcc-9 g++-9
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9
+      - name: install flex and bison
+        run: sudo apt install flex bison
+      - name: install CMake
+        run: |
+          wget https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0-Linux-x86_64.sh
+          chmod +x ./cmake-3.14.0-Linux-x86_64.sh
+          sudo ./cmake-3.14.0-Linux-x86_64.sh --skip-license --prefix=/usr/local --exclude-subdir
+          which cmake
+      - name: run server
+        run: |
+          cmake -H. -Bbuild
+          cmake --build build
+          cd ./build/Server
+          ./Server &
+      - name: run tests
+        run: |
+          cd ./build/Tests/Tests_CRUD
+          ./Tests_CRUD
+          cd ../Tests_JUI
+          ./Tests_JUI
+          cd ../Tests_Error
+          ./Tests_Error
