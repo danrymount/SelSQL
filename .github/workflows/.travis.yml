@@ -36,3 +36,8 @@ jobs:
           ./Tests_JUI
           cd ../Tests_Error
           ./Tests_Error
+      - name: git test
+        run: |
+          git status
+          git checkout master
+          git status
