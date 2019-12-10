@@ -174,7 +174,8 @@ int Cursor::Delete(long transact_sp) {
     if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_sp)) {
         return ErrorConstants::ERR_TRANSACT_CONFLICT;
     }
-    std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
+    Record record(table_->record_size);
+    std::memset(&data_block_->data_[current_pos * record.GetRecordFullSize()], '0', record.GetRecordFullSize());
     data_block_->was_changed = 1;
     changed = 1;
     return 0;
