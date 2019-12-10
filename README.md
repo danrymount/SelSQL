@@ -1,4 +1,5 @@
 # SelSQL
+[![Status](https://github.com/quiksilver4210/SelSQL/workflows/Tests/badge.svg)](https://github.com/quiksilver4210/SelSQL/actions)
 
 ## Участники
 - Хачатрян Илья https://github.com/quiksilver4210

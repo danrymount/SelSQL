@@ -36,7 +36,3 @@ jobs:
           ./Tests_JUI
           cd ../Tests_Error
           ./Tests_Error
-      - name: merge with master
-        run: |
-          git checkout master
-          git merge dev
