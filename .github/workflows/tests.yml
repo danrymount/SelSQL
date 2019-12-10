@@ -43,5 +43,5 @@ jobs:
       - name: merge
         run: |
           git checkout -b origin/master
-          git merge origin/dev --commit
+          git merge origin/new_dev --commit
           git push origin master
