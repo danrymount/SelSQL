@@ -56,6 +56,7 @@
 void TreeVisitor::visit(RootNode* node) {
     for (auto& child : node->getChildren()) {
         child->accept(this);
+
         if (!node->isTransaction() && !message.getErrorCode()) {
             engine->Commit(child->getId());
             std::cout << "COMMIT " << child->getId() << std::endl;
@@ -96,7 +97,10 @@ void TreeVisitor::visit(SelectNode* node) {
 void TreeVisitor::visit(UnionIntersectListNode* node) {
     allCols.clear();
     allRecords.clear();
-    for (auto& child : node->getChilds()) {
+    for (auto child : node->getChilds()) {
+        for (auto c : child->getChildren()) {
+            c->setId(node->getId());
+        }
         child->setId(node->getId());
         child->accept(this);
     }
@@ -109,8 +113,8 @@ void TreeVisitor::visit(UnionIntersectListNode* node) {
 Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::shared_ptr<SelectVisitor>& visitor,
                                       std::vector<std::string>& colExist, std::vector<RecordsFull>& tempRecords,
                                       std::vector<std::pair<std::string, std::string>>& cols) {
+    //    node->setId(node->getId());
     for (auto& action : node->getChildren()) {
-        node->setId(node->getId());
         int countColumns = 0;
         auto res = SelectAction(visitor).execute(std::make_shared<SelectNode>(*action));
         if (res.getErrorCode()) {
@@ -122,8 +126,10 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
 
         if (tempCols[0].second == "*") {
             tempCols.clear();
-            for (auto& col : records[0]) {
-                tempCols.emplace_back(col.first);
+            if (!records.empty()) {
+                for (auto& col : records[0]) {
+                    tempCols.emplace_back(col.first);
+                }
             }
         }
         for (auto& col : tempCols) {

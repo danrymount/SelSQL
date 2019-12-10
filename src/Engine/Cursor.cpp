@@ -100,7 +100,7 @@ int Cursor::UpdateDataBlock() {
     return 0;
 }
 
-std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
+std::vector<std::pair<std::string, std::string>> Cursor::Fetch(long tr_p) {
     Record record(table_->record_size);
     unsigned char record_buf[record.GetRecordFullSize()];
     std::vector<std::pair<std::string, std::string>> values;
@@ -111,6 +111,9 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
 
     std::memcpy(record_buf, &block->data_[current_pos * record.GetRecordFullSize()], record.GetRecordFullSize());
     record.SetAllRecordBuf((char *)record_buf);
+    if (!(record.tr_s <= tr_p and record.tr_e >= tr_p)) {
+        return values;
+    }
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
         char field[Constants::TYPE_SIZE[table_->fields[i].second.type] + 1];
@@ -201,9 +204,11 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
     //    }
     //    std::memcpy(&data_block_->data_[current_pos * table_->record_size], record., table_->record_size);
     //    data_block_->was_changed = 1;
-    //    changed = 1;
+    data_block_->was_changed = 1;
     char full_record_buf1[record.GetRecordFullSize()];
-    std::memcpy(full_record_buf1, &data_block_->data_[current_pos * record.GetRecordFullSize()],
+    record.tr_e = transact_sp;
+
+    std::memcpy(record.GetRecordBuf(), &data_block_->data_[current_pos * record.GetRecordFullSize()],
                 record.GetRecordFullSize());
     EmplaceBack(record.record_buf, transact_sp, 0);
     return 0;
@@ -255,6 +260,7 @@ void Cursor::Allocate() {
 int Cursor::NextDataBlock() {
     UpdateDataBlock();
     Record record(table_->record_size);
+
     data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id, data_file_, record.GetRecordFullSize());
     ++write_block_id;
 

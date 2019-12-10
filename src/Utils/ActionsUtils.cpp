@@ -419,12 +419,12 @@ int ActionsUtils::compareLessEq(const std::string& a, const std::string& b) {
     return std::stod(a) <= std::stod(b);
 }
 std::vector<ActionsUtils::Record>
-ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor) {
+ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor, long tr_p) {
     std::vector<Record> records;
 
     cursor.second->Reset();
     do {
-        auto record = cursor.second->Fetch();
+        auto record = cursor.second->Fetch(tr_p);
         if (!record.empty()) {
             records.emplace_back(record);
         }

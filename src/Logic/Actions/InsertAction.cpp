@@ -99,7 +99,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
     std::vector<ActionsUtils::Record> records;
     //    if (cursor.first->record_amount) {
-    records = ActionsUtils::getAllRecords(cursor);
+    records = ActionsUtils::getAllRecords(cursor, root->getId());
     //    }
 
     message = ActionsUtils::checkFieldsExist(table, columnsValues);

@@ -105,7 +105,7 @@ class SelectVisitor : public TreeVisitor {
     addRecord(const std::string& aliasName, std::shared_ptr<Cursor> cursor) {
         std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
         do {
-            auto _record = cursor->Fetch();
+            auto _record = cursor->Fetch(tr_id);
             if (_record.empty()) {
                 continue;
             }

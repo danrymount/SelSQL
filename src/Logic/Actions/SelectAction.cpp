@@ -45,7 +45,8 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         cursor.second->Reset();
 
         do {
-            auto _record = cursor.second->Fetch();
+            std::cerr << root->getId() << std::endl;
+            auto _record = cursor.second->Fetch(root->getId());
             if (_record.empty()) {
                 continue;
             }

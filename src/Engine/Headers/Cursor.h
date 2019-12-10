@@ -40,7 +40,7 @@ class Cursor {
     int Reset();
 
     void Commit();
-    std::vector<std::pair<std::string, std::string>> Fetch();
+    std::vector<std::pair<std::string, std::string>> Fetch(long tr_p);
     ~Cursor();
 };
 #endif  // SELSQL_CURSOR_H

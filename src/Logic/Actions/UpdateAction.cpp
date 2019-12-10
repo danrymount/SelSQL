@@ -28,8 +28,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     // cursor.second->Reset();
     //    if (cursor.first->record_amount) {
     do {
-            auto record = cursor.second->Fetch();
-            if (record.empty()) {
+        auto record = cursor.second->Fetch(root->getId());
+        if (record.empty()) {
                 continue;
             }
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
@@ -63,7 +63,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             return message;
         }
         do {
-            auto _record = cursor.second->Fetch();
+            auto _record = cursor.second->Fetch(root->getId());
             // TODO std::find
             auto rec = std::find(records.begin(), records.end(), _record);
             if (rec == records.end()) {

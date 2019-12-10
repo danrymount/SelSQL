@@ -23,7 +23,7 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    }
 
     do {
-        auto record = cursor.second->Fetch();
+        auto record = cursor.second->Fetch(root->getId());
         if (record.empty()) {
             continue;
         }
