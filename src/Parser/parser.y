@@ -95,6 +95,7 @@
 %}
 
 %token CREATE_ACTION SHOW_ACTION DROP_ACTION INSERT_ACTION SELECT_ACTION UPDATE_ACTION DELETE_ACTION TABLE INTO FROM
+%token FOR SYSTEM TIME ALL DATE_TYPE TO
 %token VALUES SET WHERE AS AND OR NOT JOIN LEFT RIGHT FULL ON UNION INTERSECT BEGIN_ COMMIT
 %token CONSTR_UNIQUE CONSTR_NOT_NULL CONSTR_PRIMARY_KEY
 %token INT_TYPE FLOAT_TYPE CHAR_TYPE
@@ -195,7 +196,7 @@ request:
     }
 
 select:
-    SELECT_ACTION cols_select FROM IDENT empty where_exprs {
+    SELECT_ACTION cols_select FROM IDENT empty where_exprs system_time{
 	$$ = new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6)));
 	columnsList.clear();
     }|
@@ -205,6 +206,12 @@ select:
     }
 
 empty:
+
+system_time:
+    |
+    FOR SYSTEM TIME FROM DATE_TYPE TO DATE_TYPE {
+
+    }
 
 variables:
     variable {

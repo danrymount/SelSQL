@@ -35,6 +35,7 @@ FLOATNUM ([0-9]+"."[0-9]+)+
 IDENT    ([A-Za-z0-9]*)
 STRVAL   [']([^']|[']['])*[']
 CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
+DATE_TYPE     ([0-9]+"-"+[0-9]+"-"+[0-9]+" "+[0-9]+":"+[0-9]+)
 
 %%
 "CREATE"                {ch += yyleng; return CREATE_ACTION;}
@@ -85,6 +86,11 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
 "INTERSECT"             {ch += yyleng; return INTERSECT;}
 "BEGIN"                 {ch += yyleng; return BEGIN_;}
 "COMMIT"                {ch += yyleng; return COMMIT;}
+"FOR"                   {ch += yyleng; return FOR;}
+"SYSTEM"                {ch += yyleng; return SYSTEM;}
+"TIME"                  {ch += yyleng; return TIME;}
+"ALL"                   {ch += yyleng; return ALL;}
+"TO"                    {ch += yyleng; return TO;}
 
 {CHAR_TYPE}             {ch += yyleng;
                         charLen = "";
@@ -115,6 +121,9 @@ CHAR_TYPE     "CHAR"[ \t\r\f]*"("[ \t\r\f]*[0-9]*[ \t\r\f]*")"
                         }
                         yylval.string = &str[0]; return STRVAL; }
 {IDENT}                 {ch += yyleng; yylval.string = new char[100](); sscanf(yytext, "%s", yylval.string); return IDENT; }
+{DATE_TYPE}             {ch += yyleng;
+                        yylval.string = new char[100]();
+                        return DATE_TYPE;}
 
 %%
 
