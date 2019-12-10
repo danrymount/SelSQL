@@ -36,7 +36,12 @@ jobs:
           ./Tests_JUI
           cd ../Tests_Error
           ./Tests_Error
+      - name: auth
+        run: |
+          git config --global user.email "${GITHUB_ACTOR}@https://users.noreply.github.com/"
+          git config --global user.name "${GITHUB_ACTOR}"
       - name: merge
         run: |
           git checkout -b origin/master
           git merge origin/dev --commit
+          git push origin master
