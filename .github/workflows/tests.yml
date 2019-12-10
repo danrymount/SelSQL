@@ -36,3 +36,7 @@ jobs:
           ./Tests_JUI
           cd ../Tests_Error
           ./Tests_Error
+      - name: merge
+        run: |
+          git checkout -b origin/master
+          git merge origin/dev --commit
