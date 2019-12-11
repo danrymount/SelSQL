@@ -4,9 +4,16 @@
 // TODO PROBLEMS IN MANAGER
 TransactManager::TransactManager() = default;
 long TransactManager::GetTransactionSP() {
-    std::chrono::time_point tp = std::chrono::system_clock::now();
+    std::fstream temp("CLOCK_TR_ID", std::ios::in | std::ios::out);
+    if (!temp.is_open()) {
+        temp = std::fstream("CLOCK_TR_ID", std::ios::in | std::ios::out | std::ios::trunc);
+    }
     long value = 0;
-    std::memcpy(&value, &tp, sizeof(tp));
+    temp >> value;
+    std::cout << value << std::endl;
+    temp.clear();
+    temp.seekp(std::ios::beg);
+    temp << (value + 1);
     return value;
 }
 void TransactManager::ClearUsed(long transaction_sp) {

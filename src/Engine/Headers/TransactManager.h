@@ -12,7 +12,7 @@ class TransactManager {
    public:
     std::map<std::string, std::vector<std::pair<int, long>>> ignore;
     TransactManager();
-    long GetTransactionSP();
+    static long GetTransactionSP();
     void ClearUsed(long transaction_sp);
     int SetUsed(const std::string& table_name, Position position, long transaction_sp);
     int IsSuccessful(long transaction_sp);
