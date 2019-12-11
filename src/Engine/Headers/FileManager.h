@@ -32,14 +32,14 @@ class FileManager {
     ~FileManager();
     files OpenFile(const std::string& table_name);
     int CreateFile(const std::shared_ptr<Table>& table);
-    int DeleteFile(const std::string& table_name);
+    static int DeleteFile(const std::string& table_name);
     std::shared_ptr<Table> GetTable(const std::string& table_name);
-    std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id,
-                                             const std::shared_ptr<std::fstream>& src, int record_size);
+    static std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id,
+                                                    const std::shared_ptr<std::fstream>& src, int record_size);
     //    static void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id,
     //    const std::shared_ptr<std::fstream>& dist);
-    int WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
-                       std::shared_ptr<std::fstream> dist);
+    static int WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
+                              std::shared_ptr<std::fstream> dist);
     int UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src);
     static void Clear(size_t transact_id);
 };

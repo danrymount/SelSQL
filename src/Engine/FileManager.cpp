@@ -6,11 +6,6 @@
 #include "../Utils/Structures/Data/Record.h"
 
 void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
-    //    if (meta_files_.find(table->name) == meta_files_.end() or !meta_files_[table->name].isOpen()) {
-    //        std::cerr << __func__ << "\t File isn't opened" << std::endl;
-    //        throw FileNotOpened();
-    //    }
-
     auto meta_file = meta_files_[table->name];
     meta_file->seekp(0, std::ios::beg);
     buffer_data buffer = GetTableBuffer(table.get());
@@ -20,10 +15,6 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
 }
 
 void FileManager::ReadTableMetaData(const std::string& table_name) {
-    //    if (meta_files_.find(table_name) == meta_files_.end() or !meta_files_[table_name].isOpen()) {
-    //        std::cerr << __func__ << "\t File isn't opened" << std::endl;
-    //        throw FileNotOpened();
-    //    }
     auto meta_file = meta_files_[table_name];
     int size = GetFileSize(meta_file.get());
     char buffer[size];
@@ -59,7 +50,6 @@ files FileManager::OpenFile(const std::string& table_name) {
 }
 int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
     std::string table_name = table->name;
-    //    this->CloseAllFiles();
     if (!fs::create_directory(table->name)) {
         return 1;
     }
@@ -75,53 +65,14 @@ int FileManager::CreateFile(const std::shared_ptr<Table>& table) {
 }
 std::shared_ptr<Table> FileManager::GetTable(const std::string& table_name) { return table_data[table_name]; }
 
-int FileManager::DeleteFile(const std::string& table_name) {
-    //    this->CloseAllFiles();
-    return !fs::remove_all(table_name);
-}
+int FileManager::DeleteFile(const std::string& table_name) { return !fs::remove_all(table_name); }
 
 int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
                                 std::shared_ptr<std::fstream> dist) {
-    int offset = GetFileSize(dist.get());
-    int flag = 0;
-    if (block_id > 90) {
-        flag = 1;
-        block_id -= 100;
-    }
-    offset = 4 + block_id * C::DATA_BLOCK_SIZE;
+    int offset = 4 + block_id * C::DATA_BLOCK_SIZE;
     buffer_data buffer = GetDataBlockBuffer(data.get());
     dist->seekp(offset);
-
-    //    dist->write(reinterpret_cast<char*>(&block_id), sizeof(block_id));
-    auto ignore = transact_manager_->ignore[table->name];
-    std::sort(ignore.begin(), ignore.end());
-    int l_off = 0;
-    Record record(table->record_size);
-
-    int last_pos = -1;
-    for (auto i = ignore.begin(); i != ignore.end();) {
-        if (i->first - last_pos == 1 and last_pos != -1) {
-            last_pos = i->first;
-            i = ignore.erase(i);
-        } else {
-            last_pos = i->first;
-            i++;
-        }
-    }
-    if (ignore.empty() or flag) {
-        dist->write(buffer.first, buffer.second);
-    } else {
-        for (auto pos : ignore) {
-            std::cerr << pos.first << std::endl;
-            if (pos.first - l_off > 0) {
-                dist->write(&buffer.first[l_off], (pos.first - l_off) * record.GetRecordSize());
-            }
-
-            l_off = pos.first;
-        }
-    }
-
-    //
+    dist->write(buffer.first, buffer.second);
     dist->flush();
     delete[] buffer.first;
     return 0;
@@ -130,9 +81,7 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
 std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id,
                                                       const std::shared_ptr<std::fstream>& src, int record_size) {
     auto data_file = src.get();
-    if (transact_manager_->GetDataBlock(table_name, block_id) != nullptr) {
-        return transact_manager_->GetDataBlock(table_name, block_id);
-    }
+
     if (data_file == nullptr or !data_file->is_open()) {
         return nullptr;
     }
@@ -149,7 +98,6 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     if (GetFileSize(data_file) < C::DATA_BLOCK_SIZE) {
         return nullptr;
     }
-    // TODO SAVE BLOCKS TILL END
     data_file->seekg(sizeof(int) + C::DATA_BLOCK_SIZE * block_id, std::ios::beg);
     char data_buffer[C::DATA_BLOCK_SIZE];
     data_file->read(data_buffer, C::DATA_BLOCK_SIZE);
@@ -194,7 +142,7 @@ FileManager::FileManager(std::shared_ptr<TransactManager> manager) : transact_ma
     //                                          std::ios::binary | std::ios::out | std::ios::trunc | std::ios::in);
     //    UpdateFile("");
 }
-FileManager::~FileManager() {}
+FileManager::~FileManager() = default;
 void FileManager::Clear(size_t transaction_id) {
     fs::create_directories(C::TEMP_DIR);
     for (const auto& file : fs::directory_iterator(C::TEMP_DIR)) {
