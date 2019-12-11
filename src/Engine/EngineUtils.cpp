@@ -108,10 +108,9 @@ buffer_data GetDataBlockBuffer(DataBlock *data_block) {
     offset += C::DATA_BLOCK_SIZE;
     return buffer_data(data, offset);
 }
-std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) {
+std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data) {
     int offset = 0;
     auto dataBlock = std::make_shared<DataBlock>();
-    dataBlock->record_size = record_size;
     char *block_data = new char[C::DATA_BLOCK_SIZE];
     std::memcpy(block_data, &data[offset], C::DATA_BLOCK_SIZE);
     offset += C::DATA_BLOCK_SIZE;

@@ -15,16 +15,14 @@ class Cursor {
     std::vector<std::pair<std::string, std::string>> values_;
     std::shared_ptr<std::fstream> data_file_;
 
-    int changed = 0;
-    int read_block_id = 0;
-    int write_block_id = 0;
-    int current_pos = 0;
-    int readed_data = 0;
+    int block_id_ = 0;
+    int pos_in_block_ = 0;
 
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
     std::shared_ptr<DataBlock> Allocate();
     int EmplaceBack(char* record_buf, long tr_s, long tr_e);
+    std::shared_ptr<DataBlock> GetRightDataBlock(int block_id, bool with_alloc);
 
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager,

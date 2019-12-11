@@ -26,7 +26,7 @@ namespace fs = std::filesystem;
 int GetFileSize(std::fstream* file);
 buffer_data GetTableBuffer(Table* table);
 buffer_data GetDataBlockBuffer(DataBlock* data_block);
-std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data, int record_amount);
+std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data);
 std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 void RestoreFromTemp(std::fstream* src, std::fstream* dist, int record_size);
 std::string ConstructFileName(const std::string& table_name, size_t transaction_id);

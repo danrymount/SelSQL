@@ -79,7 +79,7 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
 }
 
 std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id,
-                                                      const std::shared_ptr<std::fstream>& src, int record_size) {
+                                                      const std::shared_ptr<std::fstream>& src) {
     auto data_file = src.get();
 
     if (data_file == nullptr or !data_file->is_open()) {
@@ -101,7 +101,7 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     data_file->seekg(sizeof(int) + C::DATA_BLOCK_SIZE * block_id, std::ios::beg);
     char data_buffer[C::DATA_BLOCK_SIZE];
     data_file->read(data_buffer, C::DATA_BLOCK_SIZE);
-    return ReadDataBlockFromBuffer(data_buffer, record_size);
+    return ReadDataBlockFromBuffer(data_buffer);
 }
 
 int FileManager::UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src) {

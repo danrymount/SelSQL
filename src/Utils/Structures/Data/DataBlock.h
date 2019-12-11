@@ -10,7 +10,6 @@ class DataBlock {
    public:
     int was_changed = 0;
     char* data_;
-    size_t record_size = 0;
     void setData(char* pos) { data_ = pos; };
     DataBlock(){};
 
