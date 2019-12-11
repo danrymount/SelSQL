@@ -171,11 +171,20 @@ int Cursor::NextRecord() {
 }
 
 int Cursor::Delete(long transact_sp) {
-    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_sp)) {
-        return ErrorConstants::ERR_TRANSACT_CONFLICT;
-    }
+    //    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_sp)) {
+    //        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    //    }
+
     Record record(table_->record_size);
-    std::memset(&data_block_->data_[current_pos * record.GetRecordFullSize()], '0', record.GetRecordFullSize());
+    char *buf = new char[record.GetRecordFullSize()];
+    std::memcpy(buf, &data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordFullSize());
+
+    record.tr_e = transact_sp;
+
+    std::memcpy(&data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordBuf(),
+                record.GetRecordFullSize());
+    memset(record.record_buf, '0', table_->record_size);
+    EmplaceBack(record.record_buf, transact_sp, 0);
     data_block_->was_changed = 1;
     changed = 1;
     return 0;
@@ -200,11 +209,7 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
         }
         next_pos += Constants::TYPE_SIZE[type] + 1;
     }
-    //    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, current_pos), transact_sp)) {
-    //        return ErrorConstants::ERR_TRANSACT_CONFLICT;
-    //    }
-    //    std::memcpy(&data_block_->data_[current_pos * table_->record_size], record., table_->record_size);
-    //    data_block_->was_changed = 1;
+
     data_block_->was_changed = 1;
     char full_record_buf1[record.GetRecordFullSize()];
     record.tr_e = transact_sp;
@@ -322,7 +327,6 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
     data_file_->write(&a, 1);
     data_file_->flush();
 
-    //    file_manager_->WriteDataBlock(table_, last_block, block_id+100, data_file_);
     transact_manager_->SetNewPos(table_->name, last_pos - 1, tr_s);
     return 0;
 }

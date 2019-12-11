@@ -98,6 +98,16 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
     int l_off = 0;
     Record record(table->record_size);
 
+    int last_pos = -1;
+    for (auto i = ignore.begin(); i != ignore.end();) {
+        if (i->first - last_pos == 1 and last_pos != -1) {
+            last_pos = i->first;
+            i = ignore.erase(i);
+        } else {
+            last_pos = i->first;
+            i++;
+        }
+    }
     if (ignore.empty() or flag) {
         dist->write(buffer.first, buffer.second);
     } else {
