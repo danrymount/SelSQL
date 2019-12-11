@@ -62,6 +62,7 @@ void MainEngine::Commit(long transaction_sp) {
     if (transact_manager_->IsSuccessful(transaction_sp)) {
         std::cerr << "COMMIT id = " << transaction_sp << std::endl;
     }
+
     transact_manager_->ClearUsed(transaction_sp);
     file_manager_->Clear(transaction_sp);
 }

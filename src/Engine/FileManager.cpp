@@ -130,6 +130,9 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
 std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id,
                                                       const std::shared_ptr<std::fstream>& src, int record_size) {
     auto data_file = src.get();
+    if (transact_manager_->GetDataBlock(table_name, block_id) != nullptr) {
+        return transact_manager_->GetDataBlock(table_name, block_id);
+    }
     if (data_file == nullptr or !data_file->is_open()) {
         return nullptr;
     }
@@ -137,7 +140,7 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     if (!GetFileSize(data_file)) {
         return nullptr;
     }
-    if (GetFileSize(data_file) <= GetDataBlockSize(record_size) * block_id) {
+    if (GetFileSize(data_file) <= 4 + GetDataBlockSize(record_size) * block_id) {
         return nullptr;
     }
 

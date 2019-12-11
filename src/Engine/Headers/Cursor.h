@@ -20,11 +20,10 @@ class Cursor {
     int write_block_id = 0;
     int current_pos = 0;
     int readed_data = 0;
-    int current_session_deleted_ = 0;
 
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
-    void Allocate();
+    std::shared_ptr<DataBlock> Allocate();
     int EmplaceBack(char* record_buf, long tr_s, long tr_e);
 
    public:
