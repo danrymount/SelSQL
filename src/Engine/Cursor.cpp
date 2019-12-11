@@ -103,15 +103,15 @@ int Cursor::UpdateDataBlock() {
 
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch(long tr_p) {
     Record record(table_->record_size);
-    char *record_buf = new char[record.GetRecordFullSize()];
+    char *record_buf = new char[record.GetRecordSize()];
     std::vector<std::pair<std::string, std::string>> values;
     if (data_block_ == nullptr) {
         return values;
     }
     auto block = data_block_;
     std::cerr << "FETCH " << current_pos << std::endl;
-    std::memcpy(record_buf, &block->data_[current_pos * record.GetRecordFullSize()], record.GetRecordFullSize());
-    record.SetAllRecordBuf((char *)record_buf);
+    std::memcpy(record_buf, &block->data_[current_pos * record.GetRecordSize()], record.GetRecordSize());
+    record.SetRecord((char *)record_buf);
     if (!(record.tr_s <= tr_p and record.tr_e >= tr_p)) {
         return values;
     }
@@ -120,7 +120,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch(long tr_p) {
         char field[C::TYPE_SIZE[table_->fields[i].second.type] + 1];
         Type type = table_->fields[i].second.type;
         std::string value;
-        std::memcpy(field, &record.record_buf[field_pos], C::TYPE_SIZE[table_->fields[i].second.type] + 1);
+        std::memcpy(field, &record.values_buf[field_pos], C::TYPE_SIZE[table_->fields[i].second.type] + 1);
         if (field[0] != 'n' and field[0] != 'N') {
             return std::vector<std::pair<std::string, std::string>>();
         }
@@ -165,11 +165,9 @@ int Cursor::NextRecord() {
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
     std::cerr << "LAST_POS IN NEXT REC " << last_pos << std::endl;
     std::cerr << "DELETE ON "
-              << (C::DATA_BLOCK_SIZE * (read_block_id + 1) / Record(table_->record_size).GetRecordFullSize())
-              << std::endl;
+              << (C::DATA_BLOCK_SIZE * (read_block_id + 1) / Record(table_->record_size).GetRecordSize()) << std::endl;
     if (data_block_ != nullptr and
-        last_pos >= current_pos + (read_block_id *
-                                   C::DATA_BLOCK_SIZE) / Record(table_->record_size).GetRecordFullSize()) {
+        last_pos >= current_pos + (read_block_id * C::DATA_BLOCK_SIZE) / Record(table_->record_size).GetRecordSize()) {
         current_pos++;
         return 0;
     } else {
@@ -183,15 +181,15 @@ int Cursor::Delete(long transact_sp) {
     //    }
 
     Record record(table_->record_size);
-    char *buf = new char[record.GetRecordFullSize()];
-    std::memcpy(buf, &data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordFullSize());
+    char *buf = new char[record.GetRecordSize()];
+    std::memcpy(buf, &data_block_->data_[current_pos * record.GetRecordSize()], record.GetRecordSize());
 
     record.tr_e = transact_sp;
 
-    std::memcpy(&data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordBuf(),
-                record.GetRecordFullSize());
-    memset(record.record_buf, '0', table_->record_size);
-    EmplaceBack(record.record_buf, transact_sp, 0);
+    std::memcpy(&data_block_->data_[current_pos * record.GetRecordSize()], record.GetRecordBuf(),
+                record.GetRecordSize());
+    memset(record.values_buf, '0', table_->record_size);
+    EmplaceBack(record.values_buf, transact_sp, 0);
     data_block_->was_changed = 1;
     changed = 1;
     return 0;
@@ -199,11 +197,10 @@ int Cursor::Delete(long transact_sp) {
 
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data, long transact_sp) {
     Record record(table_->record_size);
-    char full_record_buf[record.GetRecordFullSize()];
-    std::memcpy(full_record_buf, &data_block_->data_[current_pos * record.GetRecordFullSize()],
-                record.GetRecordFullSize());
+    char full_record_buf[record.GetRecordSize()];
+    std::memcpy(full_record_buf, &data_block_->data_[current_pos * record.GetRecordSize()], record.GetRecordSize());
 
-    record.SetAllRecordBuf(full_record_buf);
+    record.SetRecord(full_record_buf);
     auto fields = table_->getFields();
     int next_pos = 0;
     for (size_t i = 0; i < values_.size(); ++i) {
@@ -211,20 +208,20 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
         for (size_t j = 0; j < cols.size(); j++) {
             if (values_[i].first == cols[j]) {
-                SaveFieldData(new_data[j], type, record.record_buf, next_pos);
+                SaveFieldData(new_data[j], type, record.values_buf, next_pos);
             }
         }
         next_pos += C::TYPE_SIZE[type] + 1;
     }
 
     data_block_->was_changed = 1;
-    char full_record_buf1[record.GetRecordFullSize()];
+    char full_record_buf1[record.GetRecordSize()];
     record.tr_e = transact_sp;
 
-    std::memcpy(&data_block_->data_[current_pos * record.GetRecordFullSize()], record.GetRecordBuf(),
-                record.GetRecordFullSize());
+    std::memcpy(&data_block_->data_[current_pos * record.GetRecordSize()], record.GetRecordBuf(),
+                record.GetRecordSize());
     //    UpdateDataBlock();
-    EmplaceBack(record.record_buf, transact_sp, 0);
+    EmplaceBack(record.values_buf, transact_sp, 0);
     return 0;
 }
 
@@ -234,7 +231,7 @@ int Cursor::Reset() {
     read_block_id = 0;
     write_block_id = 0;
     Record record(table_->record_size);
-    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id, data_file_, record.GetRecordFullSize());
+    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id, data_file_, record.GetRecordSize());
     if (data_block_ == nullptr) {
         data_block_ = Allocate();
     }
@@ -250,7 +247,7 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileMa
                                                                                                       transact_manager_(transact_manager),
                                                                                                       data_file_(data_file) {
     Record record(table->record_size);
-    data_block_ = file_manager_->ReadDataBlock(table->name, 0, data_file_, record.GetRecordFullSize());
+    data_block_ = file_manager_->ReadDataBlock(table->name, 0, data_file_, record.GetRecordSize());
     if (data_block_ == nullptr) {
         data_block_ = Allocate();
         transact_manager_->SetDataBlock(table->name, 0, data_block_);
@@ -263,7 +260,7 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileMa
 std::shared_ptr<DataBlock> Cursor::Allocate() {
     auto block = std::make_shared<DataBlock>();
     Record record(table_->record_size);
-    block->record_size = record.GetRecordFullSize();
+    block->record_size = record.GetRecordSize();
     char *n_data = new char[C::DATA_BLOCK_SIZE];
     memset(n_data, 0, C::DATA_BLOCK_SIZE);
     block->setData(n_data);
@@ -274,7 +271,7 @@ int Cursor::NextDataBlock() {
     UpdateDataBlock();
     Record record(table_->record_size);
 
-    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id, data_file_, record.GetRecordFullSize());
+    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id, data_file_, record.GetRecordSize());
     ++write_block_id;
 
     if (data_block_ == nullptr) {
@@ -307,7 +304,7 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
     std::cerr << "EMPLACE_BACK " << last_pos << std::endl;
-    int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordFullSize());
+    int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = file_manager_->ReadDataBlock(table_->name, block_id, data_file_, table_->record_size);
     if (last_block == nullptr) {
         flag = 1;
@@ -320,15 +317,15 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
 
     new_record.tr_s = tr_s;
     new_record.tr_e = INT64_MAX;
-    new_record.SetOnlyRecordBuf(record_buf);
+    new_record.SetValues(record_buf);
 
     if (flag) {
-        std::memcpy(&last_block->data_[last_pos * new_record.GetRecordFullSize()], new_record.GetRecordBuf(),
-                    new_record.GetRecordFullSize());
+        std::memcpy(&last_block->data_[last_pos * new_record.GetRecordSize()], new_record.GetRecordBuf(),
+                    new_record.GetRecordSize());
         file_manager_->WriteDataBlock(table_, last_block, block_id, data_file_);
     } else {
-        data_file_->seekp(4 + last_pos * new_record.GetRecordFullSize(), std::ios::beg);
-        data_file_->write(new_record.GetRecordBuf(), new_record.GetRecordFullSize());
+        data_file_->seekp(4 + last_pos * new_record.GetRecordSize(), std::ios::beg);
+        data_file_->write(new_record.GetRecordBuf(), new_record.GetRecordSize());
         std::cerr << "LAST _ POS " << last_pos << std::endl;
         data_file_->flush();
     }

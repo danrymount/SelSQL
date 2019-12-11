@@ -114,7 +114,7 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
         for (auto pos : ignore) {
             std::cerr << pos.first << std::endl;
             if (pos.first - l_off > 0) {
-                dist->write(&buffer.first[l_off], (pos.first - l_off) * record.GetRecordFullSize());
+                dist->write(&buffer.first[l_off], (pos.first - l_off) * record.GetRecordSize());
             }
 
             l_off = pos.first;

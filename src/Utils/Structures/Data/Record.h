@@ -6,18 +6,19 @@
 #define SELSQL_RECORD_H
 #include <cstring>
 struct Record {
-    char *record_buf;
+    char *values_buf;
     long tr_s = 0;
     long tr_e = 0;
+    char commited = 0;
     int record_size = 0;
 
-    explicit Record(int rec_size) : record_size(rec_size) { record_buf = new char[record_size]; };
+    explicit Record(int rec_size) : record_size(rec_size) { values_buf = new char[record_size]; };
 
-    int GetRecordFullSize() { return record_size + sizeof(tr_s) + sizeof(tr_e); };
+    int GetRecordSize() { return record_size + sizeof(tr_s) + sizeof(tr_e); };
     char *GetRecordBuf() {
-        char *result = new char[GetRecordFullSize()];
+        char *result = new char[GetRecordSize()];
         int offset = 0;
-        std::memcpy(&result[offset], record_buf, record_size);
+        std::memcpy(&result[offset], values_buf, record_size);
         offset += record_size;
         std::memcpy(&result[offset], &tr_s, sizeof(tr_s));
         offset += sizeof(tr_s);
@@ -26,16 +27,17 @@ struct Record {
         return result;
     };
 
-    void SetAllRecordBuf(char *buf) {
+    void SetRecord(char *buf) {
         int offset = 0;
-        std::memcpy(record_buf, &buf[offset], record_size);
+        std::memcpy(values_buf, &buf[offset], record_size);
         offset += record_size;
         std::memcpy(&tr_s, &buf[offset], sizeof(tr_s));
         offset += sizeof(tr_s);
         std::memcpy(&tr_e, &buf[offset], sizeof(tr_e));
         offset += sizeof(tr_e);
     };
-    void SetOnlyRecordBuf(char *buf) { std::memcpy(record_buf, buf, record_size); };
-    ~Record() {}
+    void SetValues(char *buf) { std::memcpy(values_buf, buf, record_size); };
+
+    ~Record() { delete[] values_buf; }
 };
 #endif  // SELSQL_RECORD_H
