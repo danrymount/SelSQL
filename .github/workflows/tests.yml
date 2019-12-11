@@ -36,3 +36,10 @@ jobs:
           ./Tests_JUI
           cd ../Tests_Error
           ./Tests_Error
+      - name: merge with dev branch
+        uses: devmasx/merge-branch@v1.1.0
+        with:
+          type: now
+          target_branch: 'dev'
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
