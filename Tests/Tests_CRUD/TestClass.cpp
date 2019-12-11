@@ -2,6 +2,7 @@
 #include "../../Client/Client.h"
 #include "../Headers/TestUtils.h"
 
+
 TEST(SERVER_TEST_CREATE, CREATE_TEST) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE bb(id INT PRIMARY KEY UNIQUE NOT NULL, age float NOT NULL UNIQUE, name "
@@ -484,4 +485,26 @@ TEST(SERVER_TEST_WHERE, WHERE_TEST_INT_EQUALLY_CHAR) {
                               {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
                               {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
                               {"SELECT * from fn where id = name;", "Success"}});
+}
+
+
+TEST(SERVER_TEST_BIG, MANY_REQUESTS) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE jj(id INT NOT NULL , age float, name char(150));", "Success"}});
+    std::string answer = "\nid|age     |name  |\n";
+    std::string answerUpdate = "\nid|age     |name  |\n";
+    for (int i = 0; i < 100; i++) {
+        TestUtils::checkRequests({{"INSERT INTO jj values(1, 2.9, 'sfsf');", "Success"}});
+        answer += "1 |2.900000|'sfsf'|\n";
+        answerUpdate += "15|0.500000|'sfsf'|\n";
+    };
+    TestUtils::checkRequests({{"select * from jj;", answer},
+                              {"update jj set id = 15, age = 0.5;", "Success"},
+                              {"select * from jj;", answerUpdate},
+                              {"delete from jj;", "Success"},
+                              {"select * from jj;", "Success"},
+                              {"INSERT INTO jj values(6, 0.9, 'sf');", "Success"},
+                              {"select * from jj;",
+                               "\nid|age     |name|\n"
+                               "6 |0.900000|'sf'|\n"}});
 }
