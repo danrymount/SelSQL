@@ -24,10 +24,9 @@ class FileManager {
     std::map<std::string, std::shared_ptr<Table>> table_data;
     std::shared_ptr<TransactManager> transact_manager_;
 
-    void ReadTableMetaData(const std::string& table_name);
-    void WriteTableMetaData(const std::shared_ptr<Table>& table);
-
    public:
+    void ReadTableMetaData(const std::string& table_name, const std::shared_ptr<std::fstream>& meta_file);
+    void WriteTableMetaData(const std::shared_ptr<Table>& table);
     explicit FileManager(std::shared_ptr<TransactManager> manager);
     ~FileManager();
     files OpenFile(const std::string& table_name);

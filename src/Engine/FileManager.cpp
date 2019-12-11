@@ -14,12 +14,12 @@ void FileManager::WriteTableMetaData(const std::shared_ptr<Table>& table) {
     delete[] buffer.first;
 }
 
-void FileManager::ReadTableMetaData(const std::string& table_name) {
-    auto meta_file = meta_files_[table_name];
+void FileManager::ReadTableMetaData(const std::string& table_name, const std::shared_ptr<std::fstream>& meta_file) {
     int size = GetFileSize(meta_file.get());
     char buffer[size];
     meta_file->read(buffer, size);
     table_data[table_name] = ReadTableFromBuffer(buffer);
+    meta_file->close();
 }
 files FileManager::OpenFile(const std::string& table_name) {
     const std::string& file_name = table_name;
@@ -37,8 +37,7 @@ files FileManager::OpenFile(const std::string& table_name) {
     if (!meta_file->is_open()) {
         return files();
     }
-    meta_files_[table_name] = meta_file;
-    ReadTableMetaData(table_name);
+    
     if (!data_file->is_open() or GetFileSize(data_file.get()) == 0) {
         data_file = std::make_shared<std::fstream>(data_file_name,
                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);

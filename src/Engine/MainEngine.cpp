@@ -20,6 +20,7 @@ std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& tableName)
     if (meta == nullptr or data == nullptr) {
         return table;
     }
+    file_manager_->ReadTableMetaData(tableName, meta);
     table = file_manager_->GetTable(tableName);
     return table;
 }
@@ -49,6 +50,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
         table = std::make_shared<Table>();
         return std::make_pair(table, cursor);
     }
+    file_manager_->ReadTableMetaData(tableName, meta);
     table = file_manager_->GetTable(tableName);
     cursor = std::make_shared<Cursor>(table, file_manager_, transact_manager_, data);
     return std::make_pair(table, cursor);
@@ -61,5 +63,5 @@ void MainEngine::Commit(long transaction_sp) {
     }
 
     transact_manager_->ClearUsed(transaction_sp);
-    file_manager_->Clear(transaction_sp);
+    //    file_manager_->Clear(transaction_sp);
 }

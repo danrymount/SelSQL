@@ -53,7 +53,7 @@ int TransactManager::IsSuccessful(long transaction_sp) {
             return 0;
         }
     }
-    return 0;
+    return 1;
 }
 void TransactManager::SetNewPos(const std::string& table_name, int pos, long tr) {
     ignore[table_name].emplace_back(std::make_pair(pos, tr));
