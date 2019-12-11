@@ -37,7 +37,7 @@ files FileManager::OpenFile(const std::string& table_name) {
     if (!meta_file->is_open()) {
         return files();
     }
-    
+
     if (!data_file->is_open() or GetFileSize(data_file.get()) == 0) {
         data_file = std::make_shared<std::fstream>(data_file_name,
                                                    std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc);
@@ -70,10 +70,15 @@ int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared
                                 std::shared_ptr<std::fstream> dist) {
     int offset = 4 + block_id * C::DATA_BLOCK_SIZE;
     buffer_data buffer = GetDataBlockBuffer(data.get());
+    if (dist == nullptr) {
+        std::string data_file_name = table->name + DIR_SEPARATOR + table->name + C::DATA_FILE_TYPE;
+        dist = std::make_shared<std::fstream>(data_file_name, std::ios::binary | std::ios::out | std::ios::in);
+    }
     dist->seekp(offset);
     dist->write(buffer.first, buffer.second);
     dist->flush();
     delete[] buffer.first;
+    dist.reset();
     return 0;
 }
 

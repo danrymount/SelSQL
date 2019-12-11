@@ -225,11 +225,13 @@ int Cursor::Reset() {
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
 Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager,
-               const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file)
+               const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
+               long tr_p)
                                                                                                     : table_(table),
                                                                                                       file_manager_(file_manager),
                                                                                                       transact_manager_(transact_manager),
-                                                                                                      data_file_(data_file) {
+                                                                                                      data_file_(data_file),
+                                                                                                      current_tr_p_(tr_p) {
     Record record(table->record_size);
     data_block_ = GetRightDataBlock(block_id_, true);
     for (const auto &i : table_->fields) {
@@ -283,7 +285,6 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
     char *record = new_record.GetRecordBuf();
     std::memcpy(&last_block->data_[last_pos * new_record.GetRecordSize()], record, new_record.GetRecordSize());
     delete[] record;
-    file_manager_->WriteDataBlock(table_, last_block, block_id, data_file_);
 
     data_file_->seekp(std::ios::beg);
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
@@ -298,7 +299,7 @@ std::shared_ptr<DataBlock> Cursor::GetRightDataBlock(int block_id, bool with_all
             return nullptr;
         }
         right_block = Allocate();
-        transact_manager_->SetDataBlock(table_->name, block_id, right_block);
+        transact_manager_->SetDataBlock(table_->name, block_id, right_block, current_tr_p_);
     }
     return right_block;
 }
