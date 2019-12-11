@@ -37,9 +37,6 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
-    //    if (table->record_amount == Constants::DATA_SIZE / table->record_size) {
-    //        return Message(ErrorConstants::ERR_TABLE_FULL);
-    //    }
 
     if (columns.empty() && (table->getFields().size() != values.size())) {
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);

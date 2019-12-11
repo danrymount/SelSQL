@@ -7,7 +7,6 @@
 Message MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
     Message result;
     int error = file_manager_->CreateFile(table);
-    //    file_manager_->CloseAllFiles();
     if (error) {
         result = Message(ErrorConstants::ERR_TABLE_EXISTS);
     }
@@ -22,7 +21,6 @@ std::shared_ptr<Table> MainEngine::ShowCreateTable(const std::string& tableName)
         return table;
     }
     table = file_manager_->GetTable(tableName);
-    //    file_manager_->CloseAllFiles();
     return table;
 }
 
@@ -32,7 +30,6 @@ Message MainEngine::DropTable(const std::string& tableName) {
     if (error) {
         result = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
-    //    file_manager_->CloseAllFiles();
     return result;
 }
 

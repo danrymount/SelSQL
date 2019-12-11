@@ -14,21 +14,21 @@ int ReadIntFromFile(std::fstream *file) {
     return res;
 }
 buffer_data GetTableBuffer(Table *table) {
-    char *data = new char[Constants::MD_SIZE];
+    char *data = new char[C::MD_SIZE];
     int offset = 0;
     std::string name;
-    name.reserve(Constants::MD_COLUMN_NAME_SIZE);
+    name.reserve(C::MD_COLUMN_NAME_SIZE);
     name = table->name;
-    std::memcpy(&data[offset], name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-    offset += Constants::MD_COLUMN_NAME_SIZE;
+    std::memcpy(&data[offset], name.c_str(), C::MD_COLUMN_NAME_SIZE);
+    offset += C::MD_COLUMN_NAME_SIZE;
     int value = table->getFields().size();
     std::memcpy(&data[offset], &value, sizeof(value));
     offset += sizeof(value);
     for (auto &field : table->getFields()) {
         name.clear();
         name = field.first;
-        std::memcpy(&data[offset], name.c_str(), Constants::MD_COLUMN_NAME_SIZE);
-        offset += Constants::MD_COLUMN_NAME_SIZE;
+        std::memcpy(&data[offset], name.c_str(), C::MD_COLUMN_NAME_SIZE);
+        offset += C::MD_COLUMN_NAME_SIZE;
         value = Type(field.second.type);
         std::memcpy(&data[offset], &value, sizeof(value));
         offset += sizeof(value);
@@ -52,22 +52,22 @@ buffer_data GetTableBuffer(Table *table) {
 std::shared_ptr<Table> ReadTableFromBuffer(char *data) {
     auto table = std::make_shared<Table>();
     int offset = 0;
-    char name[Constants::MD_TABLE_NAME_SIZE] = {};
-    std::memcpy(&name, &data[offset], Constants::MD_TABLE_NAME_SIZE);
+    char name[C::MD_TABLE_NAME_SIZE] = {};
+    std::memcpy(&name, &data[offset], C::MD_TABLE_NAME_SIZE);
     table->name = name;
-    offset += Constants::MD_TABLE_NAME_SIZE;
+    offset += C::MD_TABLE_NAME_SIZE;
     int column_size;
     std::memcpy(&column_size, &data[offset], sizeof(int));
     offset += sizeof(int);
     for (int i = 0; i < column_size; ++i) {
         Variable var;
-        char var_name[Constants::MD_COLUMN_NAME_SIZE];
+        char var_name[C::MD_COLUMN_NAME_SIZE];
         int type = 0;
         int type_size = 0;
         int constr_size = 0;
         std::vector<Constraint> constraints;
-        std::memcpy(var_name, &data[offset], Constants::MD_COLUMN_NAME_SIZE);
-        offset += Constants::MD_COLUMN_NAME_SIZE;
+        std::memcpy(var_name, &data[offset], C::MD_COLUMN_NAME_SIZE);
+        offset += C::MD_COLUMN_NAME_SIZE;
         std::memcpy(&type, &data[offset], sizeof(int));
         offset += sizeof(type);
         std::memcpy(&type_size, &data[offset], sizeof(int));
@@ -101,26 +101,25 @@ int GetFileSize(std::fstream *file) {
     return size;
 }
 buffer_data GetDataBlockBuffer(DataBlock *data_block) {
-    char *data = new char[GetDataBlockSize(data_block)];
+    char *data = new char[C::DATA_BLOCK_SIZE];
     int offset = 0;
-    std::memcpy(&data[offset], data_block->data_, Constants::DATA_SIZE);
+    std::memcpy(&data[offset], data_block->data_, C::DATA_BLOCK_SIZE);
 
-    offset += Constants::DATA_SIZE;
+    offset += C::DATA_BLOCK_SIZE;
     return buffer_data(data, offset);
 }
 std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char *data, int record_size) {
     int offset = 0;
     auto dataBlock = std::make_shared<DataBlock>();
     dataBlock->record_size = record_size;
-    char *block_data = new char[Constants::DATA_SIZE];
-    std::memcpy(block_data, &data[offset], Constants::DATA_SIZE);
-    offset += Constants::DATA_SIZE;
+    char *block_data = new char[C::DATA_BLOCK_SIZE];
+    std::memcpy(block_data, &data[offset], C::DATA_BLOCK_SIZE);
+    offset += C::DATA_BLOCK_SIZE;
     dataBlock->setData(block_data);
 
     return dataBlock;
 }
-int GetDataBlockSize(DataBlock *data_block) { return Constants::DATA_SIZE; }
-int GetDataBlockSize(int record_size) { return Constants::DATA_SIZE; }
+
 void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->flush();
     int rec_amount = 0;
@@ -131,7 +130,7 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     src->read(buf, size);
     dist->clear();
     dist->seekp(std::ios::beg);
-    //    dist->write(buf, Constants::DATA_BLOCK_RECORD_AMOUNT);
+    //    dist->write(buf, C::DATA_BLOCK_RECORD_AMOUNT);
     //    memcpy(&rec_amount,buf,sizeof(int));
     //
     //    offset += 4;
@@ -156,16 +155,16 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     delete[] buf;
 }
 std::string ConstructFileName(const std::string &table_name, size_t transaction_id) {
-    return Constants::TEMP_DIR + DIR_SEPARATOR + std::to_string(transaction_id) + NAME_SEPARATOR + table_name +
-           Constants::TEMP_FILE_TYPE;
+    return C::TEMP_DIR + DIR_SEPARATOR + std::to_string(transaction_id) + NAME_SEPARATOR + table_name +
+           C::TEMP_FILE_TYPE;
 }
 std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
     std::string res;
-    fs::create_directories(Constants::TEMP_DIR);
-    for (const auto &file : fs::directory_iterator(Constants::TEMP_DIR)) {
+    fs::create_directories(C::TEMP_DIR);
+    for (const auto &file : fs::directory_iterator(C::TEMP_DIR)) {
         size_t file_id = 0;
         std::string file_name = file.path().string();
-        file_name.erase(file_name.begin(), file_name.begin() + Constants::TEMP_DIR.size() + 1);
+        file_name.erase(file_name.begin(), file_name.begin() + C::TEMP_DIR.size() + 1);
         std::string file_id_str = file_name.substr(0, file_name.find(NAME_SEPARATOR));
         file_id = std::stoll(file_id_str);
         if (file_id == transaction_id and file_name.find(table_name) != std::string::npos) {
@@ -174,13 +173,3 @@ std::string FindTempFile(const std::string &table_name, size_t transaction_id) {
     }
     return ConstructFileName(table_name, transaction_id);
 }
-
-void DB_FILE::close() {
-    meta_file->close();
-    data_file->close();
-    delete meta_file;
-    delete data_file;
-}
-
-int DB_FILE::isOpen() { return meta_file->is_open() and data_file->is_open(); }
-DB_FILE::DB_FILE(std::fstream *m_file, std::fstream *d_file) : meta_file(m_file), data_file(d_file) {}
