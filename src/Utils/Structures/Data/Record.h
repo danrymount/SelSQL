@@ -38,6 +38,6 @@ struct Record {
     };
     void SetValues(char *buf) { std::memcpy(values_buf, buf, record_size); };
 
-    ~Record() { delete[] values_buf; }
+    ~Record() {}
 };
 #endif  // SELSQL_RECORD_H

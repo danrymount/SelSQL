@@ -32,7 +32,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     // cursor.second->Reset();
     //    if (cursor.first->record_amount) {
     do {
-        auto record = cursor.second->Fetch(root->getId());
+        auto record = cursor.second->Fetch();
         if (record.empty()) {
                 continue;
             }
@@ -71,7 +71,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             return message;
         }
         do {
-            auto _record = cursor.second->Fetch(root->getId());
+            auto _record = cursor.second->Fetch();
             // TODO std::find
             auto rec = std::find(records.begin(), records.end(), _record);
             if (rec == records.end()) {
@@ -79,7 +79,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             }
 
             try {
-                if (cursor.second->Update(columns, values, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
                     commitTransaction(root);
 
                     return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
@@ -92,10 +92,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
             }
 
         } while (!cursor.second->NextRecord());
-        //    }
-        //    cursor.second->Reset();
-        cursor.second->Commit(root->getId());
-        //        commitTransaction(root);
 
         return message;
 }

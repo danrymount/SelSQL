@@ -52,7 +52,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         do {
             std::cerr << root->getId() << std::endl;
-            auto _record = cursor.second->Fetch(root->getId());
+            auto _record = cursor.second->Fetch();
             if (_record.empty()) {
                 continue;
             }

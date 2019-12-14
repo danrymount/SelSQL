@@ -424,7 +424,7 @@ ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_
     cursor.second->Reset();
     do {
         // TODO CHECK ONLY IF IT NEED
-        auto record = cursor.second->Fetch(tr_p);
+        auto record = cursor.second->Fetch();
         if (!record.empty()) {
             records.emplace_back(record);
         }

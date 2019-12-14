@@ -145,7 +145,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             newCols.emplace_back(colVal.first);
             newVals.emplace_back(colVal.second);
         }
-        if (cursor.second->Insert(newCols, newVals, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+        if (cursor.second->Insert(newCols, newVals) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
             commitTransaction(root);
 
             return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
@@ -155,8 +155,5 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_STO);
     }
 
-    cursor.second->Commit(root->getId());
-    //    commitTr
-    //
     return message;
 }

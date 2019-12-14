@@ -25,7 +25,7 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    }
 
     do {
-        auto record = cursor.second->Fetch(root->getId());
+        auto record = cursor.second->Fetch();
         if (record.empty()) {
             continue;
         }
@@ -46,7 +46,7 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
         if (exprVisitor->getResult()) {
             //            delete_count++;
 
-            if (cursor.second->Delete(root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+            if (cursor.second->Delete() == ErrorConstants::ERR_TRANSACT_CONFLICT) {
                 commitTransaction(root);
 
                 return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
