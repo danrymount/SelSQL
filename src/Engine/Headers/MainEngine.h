@@ -15,6 +15,7 @@
 class MainEngine {
     std::shared_ptr<FileManager> file_manager_;
     std::shared_ptr<TransactManager> transact_manager_;
+    std::shared_ptr<DataManager> data_manager_;
 
    public:
     explicit MainEngine();

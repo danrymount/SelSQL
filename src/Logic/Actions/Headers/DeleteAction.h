@@ -19,7 +19,7 @@ class DeleteAction : public BaseAction {
 
    private:
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
-    ExpressionVisitor* exprVisitor;
+    ExpressionVisitor* exprVisitor = nullptr;
 };
 
 #endif  // SELSQL_DELETEACTION_H

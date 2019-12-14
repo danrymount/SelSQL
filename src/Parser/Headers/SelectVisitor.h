@@ -80,6 +80,7 @@ class SelectVisitor : public TreeVisitor {
                 node->getAlias()->accept(this);
                 alias = std::move(curValue);
             }
+
             auto cursor = engine.GetCursor(_tableName, tr_id);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
@@ -98,6 +99,7 @@ class SelectVisitor : public TreeVisitor {
                 }
                 allrecords.emplace_back(addRecord(alias, cursor.second));
             }
+            std::cerr << _tableName << std::endl;
         }
     }
 

@@ -88,16 +88,6 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
 }
 
 int Cursor::UpdateDataBlock() {
-    if (data_block_ != nullptr) {
-        //        if (data_block_->record_amount == 0) {
-        //            --write_block_id;
-        //            return 0;
-        //        }
-        if (data_block_->was_changed) {
-            //            table_->record_amount -= current_session_deleted_;
-            file_manager_->WriteDataBlock(table_, data_block_, block_id_, data_file_);
-        }
-    }
     return 0;
 }
 
@@ -109,7 +99,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch(long tr_p) {
         return values;
     }
     auto block = data_block_;
-    std::cerr << "FETCH " << pos_in_block_ << std::endl;
+    std::cerr << "FETCH BLOCK " << block_id_ << " POS " << pos_in_block_ << std::endl;
     char record_buf[record.GetRecordSize()];
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord((char *)record_buf);
@@ -218,46 +208,50 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 int Cursor::Reset() {
     pos_in_block_ = 0;
     block_id_ = 0;
-    data_block_ = GetRightDataBlock(block_id_, false);
+    data_block_ = data_manager_->GetDataBlock(table_->name, 0, false);
+    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, 0));
     return 0;
 }
 
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
-Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager,
+Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataManager> &data_manager,
                const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
                long tr_p)
                                                                                                     : table_(table),
-                                                                                                      file_manager_(file_manager),
+                                                                                                      data_manager_(data_manager),
                                                                                                       transact_manager_(transact_manager),
                                                                                                       data_file_(data_file),
                                                                                                       current_tr_p_(tr_p) {
     Record record(table->record_size);
-    data_block_ = GetRightDataBlock(block_id_, true);
+    data_block_ = data_manager_->GetDataBlock(table_->name, 0, true);
+    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, 0));
+
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
     }
 }
-
-std::shared_ptr<DataBlock> Cursor::Allocate() {
-    auto block = std::make_shared<DataBlock>();
-    Record record(table_->record_size);
-    char *n_data = new char[C::DATA_BLOCK_SIZE];
-    memset(n_data, 0, C::DATA_BLOCK_SIZE);
-    block->setData(n_data);
-    return block;
-}
+//
+// std::shared_ptr<DataBlock> Cursor::Allocate() {
+////    auto block = std::make_shared<DataBlock>();
+////    Record record(table_->record_size);
+////    char *n_data = new char[C::DATA_BLOCK_SIZE];
+////    memset(n_data, 0, C::DATA_BLOCK_SIZE);
+////    block->setData(n_data);
+////    return block;
+//}
 
 int Cursor::NextDataBlock() {
     //    UpdateDataBlock();
     Record record(table_->record_size);
 
-    data_block_ = GetRightDataBlock(++block_id_, false);
+    data_block_ = data_manager_->GetDataBlock(table_->name, ++block_id_, false);
 
     if (data_block_ == nullptr) {
         --block_id_;
         return 1;
     }
+    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, block_id_));
     pos_in_block_ = 0;
     return 0;
 }
@@ -273,13 +267,13 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
     int last_pos = 0;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
-    std::cerr << "EMPLACE_BACK " << last_pos << std::endl;
+    std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
-    auto last_block = GetRightDataBlock(block_id, true);
-
+    auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
+    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, block_id));
     Record new_record(table_->record_size);
 
-    new_record.tr_s = tr_s;
+    new_record.tr_s = tr_s + 1;
     new_record.tr_e = INT64_MAX;
     new_record.SetValues(record_buf);
     char *record = new_record.GetRecordBuf();
@@ -288,18 +282,22 @@ int Cursor::EmplaceBack(char *record_buf, long tr_s, long tr_e) {
 
     data_file_->seekp(std::ios::beg);
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
+    data_file_->flush();
+    data_file_->seekg(std::ios::beg);
+    data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
+    std::cerr << "POS " << last_pos << std::endl;
     transact_manager_->SetNewPos(table_->name, last_pos - 1, tr_s);
     return 0;
 }
-std::shared_ptr<DataBlock> Cursor::GetRightDataBlock(int block_id, bool with_alloc) {
-    auto right_block = transact_manager_->GetDataBlock(table_->name, block_id);
-    if (right_block == nullptr) {
-        right_block = file_manager_->ReadDataBlock(table_->name, block_id, data_file_);
-        if (right_block == nullptr and !with_alloc) {
-            return nullptr;
-        }
-        right_block = Allocate();
-        transact_manager_->SetDataBlock(table_->name, block_id, right_block, current_tr_p_);
-    }
-    return right_block;
-}
+// std::shared_ptr<DataBlock> Cursor::GetRightDataBlock(int block_id, bool with_alloc) {
+//    auto right_block = transact_manager_->GetDataBlock(table_->name, block_id);
+//    if (right_block == nullptr) {
+//        right_block = file_manager_->ReadDataBlock(table_->name, block_id, data_file_);
+//        if (right_block == nullptr and !with_alloc) {
+//            return nullptr;
+//        }
+//        right_block = Allocate();
+//        transact_manager_->SetDataBlock(table_->name, block_id, right_block, current_tr_p_);
+//    }
+//    return right_block;
+//}

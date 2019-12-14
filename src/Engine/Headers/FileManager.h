@@ -33,12 +33,10 @@ class FileManager {
     int CreateFile(const std::shared_ptr<Table>& table);
     static int DeleteFile(const std::string& table_name);
     std::shared_ptr<Table> GetTable(const std::string& table_name);
-    static std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id,
-                                                    const std::shared_ptr<std::fstream>& src);
+    static std::shared_ptr<DataBlock> ReadDataBlock(const std::string& table_name, int block_id);
     //    static void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id,
     //    const std::shared_ptr<std::fstream>& dist);
-    static int WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
-                              std::shared_ptr<std::fstream> dist);
+    static int WriteDataBlock(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id);
     int UpdateFile(const std::string& table_name, const std::shared_ptr<std::fstream>& src);
     static void Clear(size_t transact_id);
 };

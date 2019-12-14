@@ -66,45 +66,42 @@ std::shared_ptr<Table> FileManager::GetTable(const std::string& table_name) { re
 
 int FileManager::DeleteFile(const std::string& table_name) { return !fs::remove_all(table_name); }
 
-int FileManager::WriteDataBlock(const std::shared_ptr<Table>& table, std::shared_ptr<DataBlock> data, int block_id,
-                                std::shared_ptr<std::fstream> dist) {
+int FileManager::WriteDataBlock(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id) {
+    std::string data_file_name = table_name + DIR_SEPARATOR + table_name + C::DATA_FILE_TYPE;
+    std::fstream data_file(data_file_name, std::ios::in | std::ios::out);
     int offset = 4 + block_id * C::DATA_BLOCK_SIZE;
     buffer_data buffer = GetDataBlockBuffer(data.get());
-    if (dist == nullptr) {
-        std::string data_file_name = table->name + DIR_SEPARATOR + table->name + C::DATA_FILE_TYPE;
-        dist = std::make_shared<std::fstream>(data_file_name, std::ios::binary | std::ios::out | std::ios::in);
-    }
-    dist->seekp(offset);
-    dist->write(buffer.first, buffer.second);
-    dist->flush();
+
+    data_file.seekp(offset);
+    data_file.write(buffer.first, buffer.second);
+    data_file.flush();
     delete[] buffer.first;
-    dist.reset();
     return 0;
 }
 
-std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id,
-                                                      const std::shared_ptr<std::fstream>& src) {
-    auto data_file = src.get();
+std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
+    std::string data_file_name = table_name + DIR_SEPARATOR + table_name + C::DATA_FILE_TYPE;
+    std::fstream data_file(data_file_name, std::ios::in);
 
-    if (data_file == nullptr or !data_file->is_open()) {
+    if (!data_file.is_open()) {
         return nullptr;
     }
 
-    if (!GetFileSize(data_file)) {
+    if (!GetFileSize(&data_file)) {
         return nullptr;
     }
-    if (GetFileSize(data_file) <= 4 + C::DATA_BLOCK_SIZE * block_id) {
+    if (GetFileSize(&data_file) <= 4 + C::DATA_BLOCK_SIZE * block_id) {
         return nullptr;
     }
 
-    data_file->seekg(sizeof(int), std::ios::beg);
+    data_file.seekg(sizeof(int), std::ios::beg);
 
-    if (GetFileSize(data_file) < C::DATA_BLOCK_SIZE) {
+    if (GetFileSize(&data_file) < C::DATA_BLOCK_SIZE) {
         return nullptr;
     }
-    data_file->seekg(sizeof(int) + C::DATA_BLOCK_SIZE * block_id, std::ios::beg);
+    data_file.seekg(sizeof(int) + C::DATA_BLOCK_SIZE * block_id, std::ios::beg);
     char data_buffer[C::DATA_BLOCK_SIZE];
-    data_file->read(data_buffer, C::DATA_BLOCK_SIZE);
+    data_file.read(data_buffer, C::DATA_BLOCK_SIZE);
     return ReadDataBlockFromBuffer(data_buffer);
 }
 

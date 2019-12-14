@@ -37,6 +37,7 @@ Message MainEngine::DropTable(const std::string& tableName) {
 MainEngine::MainEngine() {
     transact_manager_ = std::make_shared<TransactManager>();
     file_manager_ = std::make_shared<FileManager>(transact_manager_);
+    data_manager_ = std::make_shared<DataManager>();
 }
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,
@@ -52,7 +53,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     }
     file_manager_->ReadTableMetaData(tableName, meta);
     table = file_manager_->GetTable(tableName);
-    cursor = std::make_shared<Cursor>(table, file_manager_, transact_manager_, data, transaction_sp);
+    cursor = std::make_shared<Cursor>(table, data_manager_, transact_manager_, data, transaction_sp);
     return std::make_pair(table, cursor);
 }
 long MainEngine::GetTransactionSP() { return transact_manager_->GetTransactionSP(); }
@@ -63,11 +64,15 @@ void MainEngine::Commit(long transaction_sp) {
     }
 
     transact_manager_->ClearUsed(transaction_sp);
-    auto vec = transact_manager_->trans_usage[transaction_sp];
-    for (auto bl : vec) {
-        auto dataBlock = transact_manager_->GetDataBlock(bl.first, bl.second);
-        file_manager_->WriteDataBlock(file_manager_->GetTable(bl.first), dataBlock, bl.second, nullptr);
+
+    if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
+        auto vec = transact_manager_->trans_usage[transaction_sp];
+
+        for (auto bl : vec) {
+            data_manager_->FreeDataBlock(bl.first, bl.second);
+        }
     }
+
     // TODO CLEANUP
     ////    file_manager_->Clear(transaction_sp);
 }

@@ -5,11 +5,13 @@
 #include <utility>
 #include "../../Utils/Headers/Constants.h"
 #include "../../Utils/Structures/Data/Record.h"
+#include "DataManager.h"
 #include "FileManager.h"
 #include "TransactManager.h"
 class Cursor {
     std::shared_ptr<Table> table_;
-    std::shared_ptr<FileManager> file_manager_;
+    //    std::shared_ptr<FileManager> file_manager_;
+    std::shared_ptr<DataManager> data_manager_;
     std::shared_ptr<TransactManager> transact_manager_;
     std::shared_ptr<DataBlock> data_block_;
     std::vector<std::pair<std::string, std::string>> values_;
@@ -20,12 +22,11 @@ class Cursor {
     long current_tr_p_ = 0;
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
-    std::shared_ptr<DataBlock> Allocate();
+
     int EmplaceBack(char* record_buf, long tr_s, long tr_e);
-    std::shared_ptr<DataBlock> GetRightDataBlock(int block_id, bool with_alloc);
 
    public:
-    Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<FileManager>& file_manager,
+    Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<DataManager>& data_manager,
            const std::shared_ptr<TransactManager>& transact_manager, std::shared_ptr<std::fstream> data_file,
            long tr_p);
     Cursor();

@@ -33,7 +33,7 @@ class Constants {
                                                                           MD_COLUMN_CONSTR_AMOUNT_MAX *
                                                                           MD_COLUMN_CONSTR_SIZE);
     static const int MD_HASH_SUM = sizeof(double);
-    static const int DATA_BLOCK_SIZE = 1 * 1024;
+    static const int DATA_BLOCK_SIZE = 64 * 1024;
     static const int DATA_BLOCK_RECORD_AMOUNT = sizeof(int);
     static const int DATA_BLOCK_RECORD_LAST_POS = sizeof(int);
     static const int DATA_BLOCK_DELETED_AMOUNT = sizeof(int);

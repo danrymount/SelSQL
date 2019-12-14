@@ -67,11 +67,11 @@ void TransactManager::Clear(const std::string& table_name, long tr) {
         }
     }
 }
-std::shared_ptr<DataBlock> TransactManager::GetDataBlock(std::string table_name, int block_id) {
-    return in_use_block[table_name][block_id];
-}
-void TransactManager::SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block,
-                                   long tr_p) {
-    in_use_block[table_name][block_id] = data_block;
-    trans_usage[tr_p].emplace_back(std::make_pair(table_name, block_id));
-}
+// std::shared_ptr<DataBlock> TransactManager::GetDataBlock(std::string table_name, int block_id) {
+//    return in_use_block[table_name][block_id];
+//}
+// void TransactManager::SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block,
+//                                   long tr_p) {
+//    in_use_block[table_name][block_id] = data_block;
+//    trans_usage[tr_p].emplace_back(std::make_pair(table_name, block_id));
+//}
