@@ -410,7 +410,7 @@ TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INSERT_MISSING_INTO) {
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_WITHOUT_ON) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t join tt;",
-                               "syntax error, unexpected SEMICOLON, expecting ON (Str num 1, sym num 19): ;"}});
+                               "syntax error, unexpected SEMICOLON (Str num 1, sym num 19): ;"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_IN_JOIN) {
@@ -437,7 +437,7 @@ TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_IN_AS) {
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_SELECT_JOIN_MISSING_ON) {
     TestUtils::clear();
     TestUtils::checkRequests({{"select * from t as t1 join tt t.id = tt.id;",
-                               "syntax error, unexpected IDENT, expecting ON (Str num 1, sym num 23): t"}});
+                               "syntax error, unexpected IDENT (Str num 1, sym num 23): t"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_UNION) {
