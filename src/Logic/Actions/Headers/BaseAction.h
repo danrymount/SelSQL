@@ -16,9 +16,15 @@ class BaseAction {
    public:
     explicit BaseAction(std::shared_ptr<TreeVisitor> _visitor) : visitor(std::move(_visitor)) {}
 
-    virtual Message execute(std::shared_ptr<BaseActionNode>) = 0;
+    virtual Message execute(std::shared_ptr<BaseActionNode> root) = 0;
 
     std::shared_ptr<TreeVisitor> getTreeVisitor() { return visitor; }
+
+    void commitTransaction(std::shared_ptr<BaseActionNode> root) {
+        if (!root->isTransaction()) {
+            visitor->getEngine()->Commit(root->getId());
+        }
+    }
 
    protected:
     ActionsUtils actionsUtils;

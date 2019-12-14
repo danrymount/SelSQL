@@ -148,6 +148,7 @@ query:
     	}
     	if(!children.empty()){
     	    children[0]->setId(clients[clientId].second);
+    	    children[0]->isTransaction(clients[clientId].first);
     	    tree = new RootNode(children);
     	}
 

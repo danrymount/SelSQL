@@ -67,7 +67,6 @@ void MainEngine::Commit(long transaction_sp) {
 
     if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
         auto vec = transact_manager_->trans_usage[transaction_sp];
-
         for (auto bl : vec) {
             data_manager_->FreeDataBlock(bl.first, bl.second);
         }

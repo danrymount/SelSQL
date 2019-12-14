@@ -14,11 +14,15 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     cursor = v->getEngine()->GetCursor(v->getTableName(), root->getId());
     auto table = cursor.first;
     if (table->name.empty()) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     message = ActionsUtils::checkFieldsExist(table, updateColumns);
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
 
@@ -41,6 +45,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 expr->accept(exprVisitor);
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
             if (exprVisitor->getResult()) {
@@ -60,6 +66,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
         if (message.getErrorCode()) {
+            commitTransaction(root);
+
             return message;
         }
         do {
@@ -72,10 +80,14 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
             try {
                 if (cursor.second->Update(columns, values, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                    commitTransaction(root);
+
                     return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
                 };
 
             } catch (std::exception &exception) {
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_STO);
             }
 
@@ -83,5 +95,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         //    }
         //    cursor.second->Reset();
         cursor.second->Commit(root->getId());
+        //        commitTransaction(root);
+
         return message;
 }

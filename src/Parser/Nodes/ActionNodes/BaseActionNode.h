@@ -26,6 +26,11 @@ class BaseActionNode : public BaseNode {
     void setChildren(BaseNode* _child) { child = _child; }
     BaseNode* getChild() { return child; }
     BaseNode* getSource() { return source; }
+
+    bool isTransaction() { return inTransaction; }
+
+    void isTransaction(bool _inTransaction) { inTransaction = _inTransaction; }
+
     // std::string getTableName() { return tableName; }
 
     void setId(long _id) { id = _id; }
@@ -35,6 +40,7 @@ class BaseActionNode : public BaseNode {
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
     long id;
+    bool inTransaction;
 };
 
 #endif  // SELSQL_BASEACTIONNODE_H

@@ -12,6 +12,8 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto values = v->getValues();
 
     if ((values.size() != columns.size()) && !(columns.size() == 1 && columns[0] == "*")) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
@@ -21,6 +23,8 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             if (i == j)
                 continue;
             if (col == columns[j]) {
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_SAME_COLUMN);
             }
         }
@@ -30,15 +34,21 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     auto table = cursor.first;
     if (table->name.empty()) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     if (!columns.empty() && columns[0] == "*" && (values.size() != cursor.first->getFields().size())) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
 
     if (columns.empty() && (table->getFields().size() != values.size())) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
@@ -55,6 +65,8 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         if (checkExists.size() != columns.size()) {
+            commitTransaction(root);
+
             return Message(ErrorConstants::ERR_NO_SUCH_FIELD);
         }
     }
@@ -75,6 +87,8 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
                     columnsValues.emplace_back(std::make_pair(cursor.first->getFields()[i].first, values[i]));
                     continue;
                 } else {
+                    commitTransaction(root);
+
                     return Message(ErrorConstants::ERR_BIG_CHAR);
                 }
             }
@@ -96,16 +110,31 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
     std::vector<ActionsUtils::Record> records;
     //    if (cursor.first->record_amount) {
-    records = ActionsUtils::getAllRecords(cursor, root->getId());
-    //    }
+    bool needData = false;
+    for (auto i : table->getFields()) {
+        for (auto j : i.second.getConstraints()) {
+            if (j != NOT_NULL) {
+                needData = true;
+            }
+        }
+    }
 
     message = ActionsUtils::checkFieldsExist(table, columnsValues);
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
 
+    if (needData) {
+        records = ActionsUtils::getAllRecords(cursor, root->getId());
+    }
+    //    }
+
     message = actionsUtils.checkConstraint(columnsValues, cursor.first, records);
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
 
@@ -117,13 +146,17 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             newVals.emplace_back(colVal.second);
         }
         if (cursor.second->Insert(newCols, newVals, root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+            commitTransaction(root);
+
             return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
         };
     } catch (std::exception &exception) {
+        commitTransaction(root);
         return Message(ErrorConstants::ERR_STO);
     }
 
     cursor.second->Commit(root->getId());
-
+    //    commitTr
+    //
     return message;
 }

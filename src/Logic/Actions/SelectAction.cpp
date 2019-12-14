@@ -14,6 +14,8 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     source->accept(getTreeVisitor().get());
     auto message = v->getMessage();
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
     auto tableName = v->getTableName();
@@ -30,11 +32,15 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         if (table->name.empty()) {
+            commitTransaction(root);
+
             return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         }
 
         message = ActionsUtils::checkFieldsExist(table, columnValues);
         if (message.getErrorCode()) {
+            commitTransaction(root);
+
             return message;
         }
 
@@ -67,5 +73,6 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         } while (!cursor.second->NextRecord());
     }
     v->setRecords(records);
+
     return Message(ActionsUtils::checkSelectColumns(records, v->getColumns()));
 };

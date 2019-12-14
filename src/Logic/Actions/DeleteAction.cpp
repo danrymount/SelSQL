@@ -12,6 +12,8 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     cursor = v->getEngine()->GetCursor(v->getTableName(), root->getId());
     if (cursor.first->name.empty()) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
@@ -37,12 +39,16 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
             expr->accept(exprVisitor);
         } catch (std::exception &exception) {
             std::string exc = exception.what();
+            commitTransaction(root);
+
             return Message(ErrorConstants::ERR_TYPE_MISMATCH);
         }
         if (exprVisitor->getResult()) {
             //            delete_count++;
 
             if (cursor.second->Delete(root->getId()) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
             };
         }
@@ -52,6 +58,8 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    cursor.second->table->record_amount -= delete_count;
     //    cursor.second->UpdateDataBlock();
     //    cursor.second.reset();
-    cursor.second->Commit(root->getId());
+    //    cursor.second->Commit(root->getId());
+    //    commitTransaction(root);
+
     return Message();
 }

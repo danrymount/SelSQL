@@ -72,7 +72,7 @@ Message ActionsUtils::checkConstraintFroUpdate(const ActionsUtils::Record& updat
     Message error;
     std::string colName;
     if (records.empty()) {
-        error = checkFirstConstraint(updateColumns, table, records);
+        error = checkFirstConstraint(updateColumns, table);
         if (error.getErrorCode()) {
             return error;
         }
@@ -146,8 +146,7 @@ Message ActionsUtils::checkConstraintFroUpdate(const ActionsUtils::Record& updat
     return Message();
 }
 
-Message ActionsUtils::checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
-                                           const std::vector<ActionsUtils::Record>& records) {
+Message ActionsUtils::checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table) {
     int i = 0;
     Message error;
     std::string colName;
@@ -181,7 +180,7 @@ Message ActionsUtils::checkConstraint(const Record& updateColumns, const std::sh
     Message error;
     std::string colName;
     if (records.empty()) {
-        error = checkFirstConstraint(updateColumns, table, records);
+        error = checkFirstConstraint(updateColumns, table);
         if (error.getErrorCode()) {
             return error;
         }
@@ -424,6 +423,7 @@ ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_
 
     cursor.second->Reset();
     do {
+        // TODO CHECK ONLY IF IT NEED
         auto record = cursor.second->Fetch(tr_p);
         if (!record.empty()) {
             records.emplace_back(record);

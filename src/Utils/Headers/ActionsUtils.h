@@ -83,8 +83,7 @@ class ActionsUtils {
     static Message checkUnique(std::string newVal, const std::string& oldVal);
     static Message checkPrimaryKey(const std::string& newVal, const std::string& oldVal);
 
-    Message checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
-                                 const std::vector<ActionsUtils::Record>& records);
+    Message checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H
