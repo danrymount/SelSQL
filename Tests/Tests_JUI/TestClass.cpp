@@ -37,10 +37,10 @@ TEST(SERVER_TEST_JOIN, JOIN_TEST_ONE_NESTED_JOIN) {
                               {"INSERT INTO jh values(3, 9.5);", "Success"},
                               {"INSERT INTO jh values(1, 3.7);", "Success"},
                               {"INSERT INTO jh values(2, 3.789);", "Success"},
-                              {"SELECT * from (jj as j1 join jg as j2 on j1.id = j2.id) join jh on j1.age = jh.some;",
+                              {"SELECT * from jj as j1 join jg as j2 on j1.id = j2.id join jh on j1.age = jh.some;",
                                "\njh.id|jh.some |j1.id|j1.age  |j1.name |j2.id|j2.age  |\n"
                                "2    |3.789000|2    |3.789000|'qwerty'|2    |3.700000|\n"},
-                              {"SELECT * from jh as j3 join (jj as j1 join jg as j2 on j1.age = j2.age) on j3.id = "
+                              {"SELECT * from jh as j3 join jj as j1 join jg as j2 on j1.age = j2.age on j3.id = "
                                "j2.id;",
                                "\nj3.id|j3.some |j1.id|j1.age  |j1.name  |j2.id|j2.age  |\n"
                                "3    |9.500000|1    |2.900000|'sfsf'   |3    |2.900000|\n"
@@ -63,12 +63,12 @@ TEST(SERVER_TEST_JOIN, JOIN_TEST_SEVERAL_NESTED_JOIN) {
                               {"INSERT INTO jh values(1, 3.7);", "Success"},
                               {"INSERT INTO jh values(2, 3.789);", "Success"},
                               {"INSERT INTO jk values(1, 3, 'sfsf');", "Success"},
-                              {"SELECT * from (jj as j1 join jg as j2 on j1.age = j2.age) join (jk join jh on jk.id ="
-                               "jh.id) on j1.name = jk.name;",
+                              {"SELECT * from jj as j1 join jg as j2 on j1.age = j2.age join jk join jh on jk.id ="
+                               "jh.id on j1.name = jk.name;",
                                "\nj1.id|j1.age  |j1.name|j2.id|j2.age  |jh.id|jh.some |jk.id|jk.some |jk.name|\n"
                                "1    |2.900000|'sfsf' |3    |2.900000|1    |3.700000|1    |3.000000|'sfsf' |\n"},
-                              {"SELECT * from ((jk join jg on jk.id = jg.id) join (jj as j1 join jg as j2 on j1.id = "
-                               "j2.id) on jk.id = jg.id) join (jj as j3 join jg as j4 on j3.age = j4.age) on j1.id = "
+                              {"SELECT * from jk join jg on jk.id = jg.id join jj as j1 join jg as j2 on j1.id = "
+                               "j2.id on jk.id = jg.id join jj as j3 join jg as j4 on j3.age = j4.age on j1.id = "
                                "j4.id;",
                                "\njg.id|jg.age  |jk.id|jk.some |jk.name|j1.id|j1.age  |j1.name |j2.id|j2.age  "
                                "|j3.id|j3.age  |j3.name  |j4.id|j4.age  |\n"
@@ -117,7 +117,7 @@ TEST(SERVER_TEST_LEFT_JOIN, LEFT_JOIN_TEST) {
                                "1        |2.900000  |'sfsf'     |1        |3.500000  |\n"
                                "2        |3.789000  |'qwerty'   |2        |3.700000  |\n"
                                "5        |3.700000  |'qwesdfy'  |null     |null      |\n"},
-                              {"SELECT * from (table1 as t1 left join table2 as t2 on t1.id = t2.id) left join table3"
+                              {"SELECT * from table1 as t1 left join table2 as t2 on t1.id = t2.id left join table3"
                                " on t1.age = table3.some;",
                                "\nt1.id|t1.age  |t1.name  |t2.id|t2.age  |table3.id|table3.some|\n"
                                "1    |2.900000|'sfsf'   |1    |3.500000|null     |null       |\n"
@@ -153,8 +153,8 @@ TEST(SERVER_TEST_RIGHT_JOIN, RIGHT_JOIN_TEST) {
                                "1    |1    |'sfsf'  |3.500000|\n"
                                "2    |2    |'qwerty'|3.700000|\n"
                                "null |3    |null    |2.900000|\n"},
-                              {"SELECT * from table3 as t3 right join (table1 as t1 right join table2 as t2 on "
-                               "t1.age = t2.age) on t3.id = t2.id;",
+                              {"SELECT * from table3 as t3 right join table1 as t1 right join table2 as t2 on "
+                               "t1.age = t2.age on t3.id = t2.id;",
                                "\nt3.id|t3.some |t1.id|t1.age  |t1.name  |t2.id|t2.age  |\n"
                                "1    |3.700000|null |null    |null     |1    |3.500000|\n"
                                "2    |3.789000|5    |3.700000|'qwesdfy'|2    |3.700000|\n"
@@ -183,16 +183,16 @@ TEST(SERVER_TEST_LEFT_RIGHT_JOIN, LEFT_RIGHT_JOIN_TEST) {
                               {"INSERT INTO table3 values(1, 3.7);", "Success"},
                               {"INSERT INTO table3 values(2, 3.789);", "Success"},
                               {"INSERT INTO table4 values(1, 3, 'sfsf');", "Success"},
-                              {"SELECT t1.age, table4.id, table4.name, t2.age from (table1 as t1 right join table2 as "
-                               "t2 on t1.age = t2.age) left join (table4 right join table3 on table4.id = table3.id) "
+                              {"SELECT t1.age, table4.id, table4.name, t2.age from table1 as t1 right join table2 as "
+                               "t2 on t1.age = t2.age left join table4 right join table3 on table4.id = table3.id "
                                "on t1.name = table4.name;",
                                "\nt1.age  |table4.id|table4.name|t2.age  |\n"
                                "null    |null     |null       |3.500000|\n"
                                "3.700000|null     |null       |3.700000|\n"
                                "2.900000|1        |'sfsf'     |2.900000|\n"},
-                              {"SELECT * from ((table4 left join table2 on table4.id = table2.id) right join (table1 "
-                               "as t1 right join table2 as t2 on t1.id = t2.id) on table4.id = table2.id) left join "
-                               "(table1 as t3 right join table2 as t4 on t3.age = t4.age) on t1.id = t4.id;",
+                              {"SELECT * from table4 left join table2 on table4.id = table2.id right join table1 "
+                               "as t1 right join table2 as t2 on t1.id = t2.id on table4.id = table2.id left join "
+                               "table1 as t3 right join table2 as t4 on t3.age = t4.age on t1.id = t4.id;",
                                "\ntable4.id|table4.some|table4.name|table2.id|table2.age|t1.id|t1.age  |t1.name "
                                "|t2.id|t2.age  |t3.id|t3.age  |t3.name  |t4.id|t4.age  |\n"
                                "1        |3.000000   |'sfsf'     |1        |3.500000  |1    |2.900000|'sfsf'  |1    "
