@@ -25,7 +25,7 @@ class Cursor {
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
 
-    int EmplaceBack(char* record_buf);
+    int EmplaceBack(Record* record);
     int NextDataBlock();
 
    public:

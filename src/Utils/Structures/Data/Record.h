@@ -5,6 +5,9 @@
 #ifndef SELSQL_RECORD_H
 #define SELSQL_RECORD_H
 #include <cstring>
+// TODO CHANGE LONG TO long long or int64_t
+// TODO ADD COMMITED FLAG
+// TODO ADD TRANSACTION CALENDAR
 struct Record {
     char *values_buf;
     long tr_s = 0;
@@ -38,6 +41,6 @@ struct Record {
     };
     void SetValues(char *buf) { std::memcpy(values_buf, buf, record_size); };
 
-    ~Record() {}
+    ~Record() { delete[] values_buf; }
 };
 #endif  // SELSQL_RECORD_H

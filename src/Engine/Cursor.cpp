@@ -78,7 +78,11 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
         SaveFieldData(values_[i].second, type, record, next_pos);
         next_pos += C::TYPE_SIZE[type] + 1;
     }
-    EmplaceBack(record);
+    Record new_record(table_->record_size);
+    new_record.SetValues(record);
+    new_record.tr_s = current_tr_p_;
+    new_record.tr_e = INT64_MAX;
+    EmplaceBack(&new_record);
 
     //    if (transact_manager_->SetUsed(table_->name, Position(write_block_id, pos_in_block_), transact_id)) {
     //        return ErrorC::ERR_TRANSACT_CONFLICT;
@@ -172,10 +176,13 @@ int Cursor::Delete() {
 }
 
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+    // TODO FIX IF EMPLACE BACK THEN WE FETCH ON EMPLACED POS
     Record record(table_->record_size);
+    Record new_record(table_->record_size);
     char full_record_buf[record.GetRecordSize()];
     std::memcpy(full_record_buf, &data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord(full_record_buf);
+    new_record.SetRecord(full_record_buf);
     auto fields = table_->getFields();
     int next_pos = 0;
     for (size_t i = 0; i < values_.size(); ++i) {
@@ -183,18 +190,18 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
         for (size_t j = 0; j < cols.size(); j++) {
             if (values_[i].first == cols[j]) {
-                SaveFieldData(new_data[j], type, record.values_buf, next_pos);
+                SaveFieldData(new_data[j], type, new_record.values_buf, next_pos);
             }
         }
         next_pos += C::TYPE_SIZE[type] + 1;
     }
 
-    char full_record_buf1[record.GetRecordSize()];
     record.tr_e = current_tr_p_;
-
+    new_record.tr_s = current_tr_p_;
+    new_record.tr_e = INT64_MAX;
     std::memcpy(&data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordBuf(),
                 record.GetRecordSize());
-    EmplaceBack(record.values_buf);
+    EmplaceBack(&new_record);
     return 0;
 }
 
@@ -239,7 +246,7 @@ int Cursor::NextDataBlock() {
     return 0;
 }
 
-int Cursor::EmplaceBack(char *record_buf) {
+int Cursor::EmplaceBack(Record *record) {
     int last_pos = 0;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
@@ -247,14 +254,10 @@ int Cursor::EmplaceBack(char *record_buf) {
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
     transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, block_id));
-    Record new_record(table_->record_size);
 
-    new_record.tr_s = current_tr_p_ + 1;
-    new_record.tr_e = INT64_MAX;
-    new_record.SetValues(record_buf);
-    char *record = new_record.GetRecordBuf();
-    std::memcpy(&last_block->data_[last_pos * new_record.GetRecordSize()], record, new_record.GetRecordSize());
-    delete[] record;
+    char *record_buf = record->GetRecordBuf();
+    std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
+    delete[] record_buf;
 
     data_file_->seekp(std::ios::beg);
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
