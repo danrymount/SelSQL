@@ -85,7 +85,7 @@
     int clientId = 0;
     RootNode *tree;
 
-    std::array<std::pair<int, long>, 10> clients;
+    std::array<std::pair<int, int64_t>, 10> clients;
     std::vector<ConstraintNode*> constraintsList;
     std::vector<VariableNode*> variablesList;
     std::vector<BaseActionNode*> children;

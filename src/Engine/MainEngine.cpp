@@ -41,10 +41,10 @@ MainEngine::MainEngine() {
 }
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,
-                                                                                 long transaction_sp) {
+                                                                                 int64_t transaction_id) {
     std::shared_ptr<Table> table(new Table());
     std::shared_ptr<Cursor> cursor(new Cursor());
-    std::cerr << "GET CURSOR  " << transaction_sp << std::endl;
+    std::cerr << "GET CURSOR  " << transaction_id << std::endl;
     auto [meta, data] = file_manager_->OpenFile(tableName);
 
     if (meta == nullptr or data == nullptr) {
@@ -53,12 +53,12 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     }
     file_manager_->ReadTableMetaData(tableName, meta);
     table = file_manager_->GetTable(tableName);
-    cursor = std::make_shared<Cursor>(table, data_manager_, transact_manager_, data, transaction_sp);
+    cursor = std::make_shared<Cursor>(table, data_manager_, transact_manager_, data, transaction_id);
     return std::make_pair(table, cursor);
 }
-long MainEngine::GetTransactionSP() { return transact_manager_->GetTransactionSP(); }
+int64_t MainEngine::GetTransactionSP() { return transact_manager_->GetTransactionSP(); }
 
-void MainEngine::Commit(long transaction_sp) {
+void MainEngine::Commit(int64_t transaction_sp) {
     if (transact_manager_->IsSuccessful(transaction_sp)) {
         std::cerr << "COMMIT id = " << transaction_sp << std::endl;
     }

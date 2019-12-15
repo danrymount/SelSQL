@@ -23,9 +23,9 @@ class MainEngine {
     std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
     Message DropTable(const std::string& tableName);
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(const std::string& tableName,
-                                                                         long transaction_sp);
-    long GetTransactionSP();
-    void Commit(long transaction_sp);
+                                                                         int64_t transaction_id);
+    int64_t GetTransactionSP();
+    void Commit(int64_t transaction_id);
 };
 
 #endif  // SELSQL_MAINENGINE_H

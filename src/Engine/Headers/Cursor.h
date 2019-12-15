@@ -21,7 +21,7 @@ class Cursor {
 
     int block_id_ = 0;
     int pos_in_block_ = 0;
-    long current_tr_p_ = 0;
+    int64_t current_tr_id_ = 0;
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
 
@@ -31,7 +31,7 @@ class Cursor {
    public:
     Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<DataManager>& data_manager,
            const std::shared_ptr<TransactManager>& transact_manager, std::shared_ptr<std::fstream> data_file,
-           long tr_p);
+           int64_t tr_id);
     Cursor();
     int Insert(const std::vector<std::string>& cols, const std::vector<std::string>& new_data);
     int NextRecord();

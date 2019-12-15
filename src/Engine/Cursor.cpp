@@ -80,7 +80,7 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
     }
     Record new_record(table_->record_size);
     new_record.SetValues(record);
-    new_record.tr_s = current_tr_p_;
+    new_record.tr_s = current_tr_id_;
     new_record.tr_e = INT64_MAX;
     EmplaceBack(&new_record);
 
@@ -106,7 +106,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     char record_buf[record.GetRecordSize()];
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord((char *)record_buf);
-    if (!(record.tr_s <= current_tr_p_ and record.tr_e >= current_tr_p_)) {
+    if (!(record.tr_s <= current_tr_id_ and record.tr_e >= current_tr_id_)) {
         return values;
     }
     int field_pos = 0;
@@ -169,7 +169,7 @@ int Cursor::Delete() {
     Record cur_record(table_->record_size);
     char *buf = new char[cur_record.GetRecordSize()];
     std::memcpy(buf, &data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordSize());
-    cur_record.tr_e = current_tr_p_;
+    cur_record.tr_e = current_tr_id_;
     std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
                 cur_record.GetRecordSize());
     return 0;
@@ -196,8 +196,8 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
         next_pos += C::TYPE_SIZE[type] + 1;
     }
 
-    record.tr_e = current_tr_p_;
-    new_record.tr_s = current_tr_p_;
+    record.tr_e = current_tr_id_;
+    new_record.tr_s = current_tr_id_;
     new_record.tr_e = INT64_MAX;
     std::memcpy(&data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordBuf(),
                 record.GetRecordSize());
@@ -209,7 +209,7 @@ int Cursor::Reset() {
     pos_in_block_ = 0;
     block_id_ = 0;
     data_block_ = data_manager_->GetDataBlock(table_->name, 0, false);
-    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, 0));
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
     return 0;
 }
 
@@ -217,15 +217,15 @@ Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
 Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataManager> &data_manager,
                const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
-               long tr_p)
+               int64_t tr_id)
                                                                                                     : table_(table),
                                                                                                       data_manager_(data_manager),
                                                                                                       transact_manager_(transact_manager),
                                                                                                       data_file_(data_file),
-                                                                                                      current_tr_p_(tr_p) {
+                                                                                                      current_tr_id_(tr_id) {
     Record record(table->record_size);
     data_block_ = data_manager_->GetDataBlock(table_->name, 0, true);
-    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, 0));
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
 
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
@@ -241,7 +241,7 @@ int Cursor::NextDataBlock() {
         --block_id_;
         return 1;
     }
-    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, block_id_));
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id_));
     pos_in_block_ = 0;
     return 0;
 }
@@ -253,7 +253,7 @@ int Cursor::EmplaceBack(Record *record) {
     std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
-    transact_manager_->trans_usage[current_tr_p_].emplace_back(std::make_pair(table_->name, block_id));
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id));
 
     char *record_buf = record->GetRecordBuf();
     std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
@@ -265,6 +265,6 @@ int Cursor::EmplaceBack(Record *record) {
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
     std::cerr << "POS " << last_pos << std::endl;
-    transact_manager_->SetNewPos(table_->name, last_pos - 1, current_tr_p_);
+    transact_manager_->SetNewPos(table_->name, last_pos - 1, current_tr_id_);
     return 0;
 }

@@ -33,13 +33,13 @@ class BaseActionNode : public BaseNode {
 
     // std::string getTableName() { return tableName; }
 
-    void setId(long _id) { id = _id; }
-    long getId() { return id; }
+    void setId(int64_t _id) { id = _id; }
+    int64_t getId() { return id; }
 
    private:
     BaseNode* child = nullptr;
     BaseNode* source = nullptr;
-    long id;
+    int64_t id;
     bool inTransaction;
 };
 

@@ -73,6 +73,5 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         } while (!cursor.second->NextRecord());
     }
     v->setRecords(records);
-
     return Message(ActionsUtils::checkSelectColumns(records, v->getColumns()));
 };
