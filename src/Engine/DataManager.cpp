@@ -2,6 +2,7 @@
 // Created by quiks on 14.12.2019.
 //
 #include "Headers/DataManager.h"
+#include "Headers/Cursor.h"
 std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_name, int block_id, bool with_alloc) {
     auto position = std::make_pair(table_name, block_id);
     if (cached_block.find(position) == cached_block.end()) {
@@ -30,4 +31,8 @@ void DataManager::FreeDataBlock(const std::string& table_name, int block_id) {
         FileManager::WriteDataBlock(table_name, cached_block[position].first, block_id);
         cached_block.erase(position);
     }
+}
+void DataManager::CommitDataBlock(std::string& table_name, int block_id, const std::vector<int>& positions, int tr_id,
+                                  int record_size) {
+    Cursor::MakeCommited(cached_block[std::make_pair(table_name, block_id)].first, tr_id, positions, record_size);
 }

@@ -12,7 +12,7 @@
 
 class Cursor {
     std::shared_ptr<Table> table_;
-    //    std::shared_ptr<FileManager> file_manager_;
+
     std::shared_ptr<DataManager> data_manager_;
     std::shared_ptr<TransactManager> transact_manager_;
     std::shared_ptr<DataBlock> data_block_;
@@ -39,5 +39,7 @@ class Cursor {
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
     int Reset();
     std::vector<std::pair<std::string, std::string>> Fetch();
+    static void MakeCommited(const std::shared_ptr<DataBlock>& block, int64_t tr_id,
+                             const std::vector<int>& need_commit, int record_size);
 };
 #endif  // SELSQL_CURSOR_H

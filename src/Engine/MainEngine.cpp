@@ -63,15 +63,19 @@ void MainEngine::Commit(int64_t transaction_sp) {
         std::cerr << "COMMIT id = " << transaction_sp << std::endl;
     }
 
-    transact_manager_->ClearUsed(transaction_sp);
-
     if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
         auto vec = transact_manager_->trans_usage[transaction_sp];
         for (auto bl : vec) {
+            data_manager_->CommitDataBlock(bl.first, bl.second,
+                                           transact_manager_->GetPositionsNeedCommit(bl.first, bl.second,
+                                                                                     transaction_sp),
+                                           transaction_sp, file_manager_->GetTable(bl.first)->record_size);
             data_manager_->FreeDataBlock(bl.first, bl.second);
         }
     }
-
+    transact_manager_->ClearUsed(transaction_sp);
+    transact_manager_->EndTransaction(transaction_sp);
+    transact_manager_->UpdateTransactionTable();
     // TODO CLEANUP
     ////    file_manager_->Clear(transaction_sp);
 }

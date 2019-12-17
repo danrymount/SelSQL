@@ -2,7 +2,23 @@
 #include "Headers/TransactManager.h"
 
 // TODO PROBLEMS IN MANAGER
-TransactManager::TransactManager() = default;
+TransactManager::TransactManager() {
+    std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
+    if (!file.is_open()) {
+        return;
+    }
+
+    while (file.good()) {
+        int tr_id = 0;
+        int64_t time_s = 0;
+        int64_t time_e = 0;
+        file >> tr_id >> time_s >> time_e;
+        if (tr_id == time_s and time_s == 0) {
+            continue;
+        }
+        transaction_table[tr_id] = std::make_pair(time_s, time_e);
+    }
+};
 int64_t TransactManager::GetTransactionSP() {
     std::fstream temp("CLOCK_TR_ID", std::ios::in | std::ios::out);
     if (!temp.is_open()) {
@@ -14,6 +30,10 @@ int64_t TransactManager::GetTransactionSP() {
     temp.clear();
     temp.seekp(std::ios::beg);
     temp << (value + 1);
+    int64_t start_time = 0;
+    std::chrono::time_point s_time = std::chrono::system_clock::now();
+    std::memcpy(&start_time, &s_time, sizeof(s_time));
+    transaction_table[value] = std::make_pair(start_time, 0);
     return value;
 }
 void TransactManager::ClearUsed(int64_t transaction_id) {
@@ -29,7 +49,6 @@ void TransactManager::ClearUsed(int64_t transaction_id) {
     }
 }
 int TransactManager::SetUsed(const std::string& table_name, Position position, int64_t transaction_id) {
-    //    std::cerr << "SetUsed " << transaction_id << std::endl;
     if (in_use.find(table_name) == in_use.end()) {
         std::map<Position, long> new_;
         new_[position] = transaction_id;
@@ -67,6 +86,31 @@ void TransactManager::Clear(const std::string& table_name, int64_t transaction_i
         }
     }
 }
+std::vector<int> TransactManager::GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id) {
+    std::vector<int> positions;
+    for (auto table : in_use) {
+        for (auto pos : table.second) {
+            if (pos.second == tr_id and pos.first.first == block_id) {
+                positions.emplace_back(pos.first.second);
+            }
+        }
+    }
+    return positions;
+}
+void TransactManager::UpdateTransactionTable() {
+    std::fstream file("TR_TABLE", std::ios::in | std::ios::out | std::ios::trunc);
+    for (auto tr : transaction_table) {
+        file << tr.first << " " << tr.second.first << " " << tr.second.second << std::endl;
+    }
+}
+void TransactManager::EndTransaction(int64_t tr_id) {
+    int64_t value = 0;
+    int64_t end_time = 0;
+    std::chrono::time_point e_time = std::chrono::system_clock::now();
+    std::memcpy(&end_time, &e_time, sizeof(e_time));
+    transaction_table[tr_id].second = end_time;
+}
+
 // std::shared_ptr<DataBlock> TransactManager::GetDataBlock(std::string table_name, int block_id) {
 //    return in_use_block[table_name][block_id];
 //}
