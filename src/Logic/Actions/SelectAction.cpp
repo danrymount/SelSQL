@@ -3,9 +3,12 @@
 //
 
 #include "Headers/SelectAction.h"
+#include <mutex>
 #include "../../Parser/Headers/SelectVisitor.h"
 
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
+    std::mutex my;
+    std::lock_guard<std::mutex> guard(my);
     root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
     auto expr = v->getExpr();

@@ -10,7 +10,8 @@
 #endif
 #include <cstring>
 #include <iostream>
-
+#include <mutex>
+std::mutex m11;
 Server::Server(int max_connection) {
     ServerUtils::startServer();
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -35,6 +36,7 @@ Server::Server(int max_connection) {
     communication_socket.resize(max_connection, 0);
 }
 int Server::ListenSocket(int id) {
+    std::lock_guard<std::mutex> guard(m11);
     memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
     /*следует помнить, что данные поступают неравномерно*/
     int rc = recv(communication_socket[id], recieved_message, MESSAGE_SIZE, 0);
@@ -44,6 +46,7 @@ int Server::ListenSocket(int id) {
     return 0;
 }
 void Server::SendMessage(std::string response, int id) {
+    std::lock_guard<std::mutex> guard(m11);
     if (sendto(communication_socket[id], response.c_str(), response.size(), 0, (struct sockaddr *)&addr, sizeof(addr)) <
         0) {
         std::cerr << "Send error" << std::endl;

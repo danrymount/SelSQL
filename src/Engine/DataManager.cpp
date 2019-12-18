@@ -2,8 +2,11 @@
 // Created by quiks on 14.12.2019.
 //
 #include "Headers/DataManager.h"
+#include <mutex>
 #include "Headers/Cursor.h"
+std::mutex data_mutex;
 std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_name, int block_id, bool with_alloc) {
+    std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
     if (cached_block.find(position) == cached_block.end()) {
         std::shared_ptr<DataBlock> data_block;
@@ -25,6 +28,7 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_na
     return cached_block[position].first;
 }
 void DataManager::FreeDataBlock(const std::string& table_name, int block_id) {
+    std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
     cached_block[std::make_pair(table_name, block_id)].second--;
     if (cached_block[position].second == 0) {
@@ -34,5 +38,6 @@ void DataManager::FreeDataBlock(const std::string& table_name, int block_id) {
 }
 void DataManager::CommitDataBlock(std::string& table_name, int block_id,
                                   const std::vector<std::pair<int, int>>& positions, int tr_id, int record_size) {
+    std::lock_guard<std::mutex> g(data_mutex);
     Cursor::MakeCommited(cached_block[std::make_pair(table_name, block_id)].first, tr_id, positions, record_size);
 }
