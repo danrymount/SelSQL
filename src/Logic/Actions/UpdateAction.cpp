@@ -72,7 +72,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
         do {
             auto _record = cursor.second->Fetch();
-            // TODO std::find
             auto rec = std::find(records.begin(), records.end(), _record);
             if (rec == records.end()) {
                 continue;

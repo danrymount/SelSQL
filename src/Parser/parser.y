@@ -70,6 +70,8 @@
     #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectNode.h"
     #include "../../src/Parser/Nodes/TableNode.h"
     #include "../../src/Parser/Nodes/JoinNodes/UnionIntersectListNode.h"
+    #include "../../src/Parser/Nodes/SystemTimeNode.h"
+    #include "../../src/Parser/Nodes/SystemTimeAllNode.h"
 
     #include "../../src/Engine/Headers/MainEngine.h"
 
@@ -100,12 +102,13 @@
 %token INT_TYPE FLOAT_TYPE CHAR_TYPE
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
+%token FOR SYSTEM TIME ALL DATE_TYPE TO
 
 
 %type<Constraint> constraint
 %type<Variable> variable
 %type<t> type
-%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL
+%type<string> IDENT FLOATNUM NUMBER STRVAL STAR VALNULL DATE_TYPE
 %type<Value> value
 %type<Column> colname col_select
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
@@ -115,6 +118,7 @@
 %type<UINode> union_intercest
 %type<SNode> select
 %type<UIList> union_intercest_expr
+%type<Base> system_time
 //%type<string> id
 //%type<string> request
 
@@ -124,7 +128,7 @@
     char *string;
     ConstraintNode *Constraint;
     VariableNode *Variable;
-    BaseValueNode* Value;
+    BaseValueNode *Value;
     ColumnNode* Column;
     BaseExprNode* Expr;
     CmpNode* Cmp;
@@ -132,8 +136,8 @@
     BaseJoinNode* BaseJoin;
     UnionIntersectNode* UINode;
     SelectNode* SNode;
-    UnionIntersectListNode *UIList;
-
+    UnionIntersectListNode* UIList;
+    BaseNode* Base;
     Type t;
     int charLen;
 }
@@ -196,8 +200,12 @@ request:
     }
 
 select:
-    SELECT_ACTION cols_select FROM IDENT empty where_exprs {
+    SELECT_ACTION cols_select FROM IDENT empty where_exprs{
 	$$ = new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6)));
+	columnsList.clear();
+    }|
+    SELECT_ACTION cols_select FROM IDENT empty where_exprs system_time{
+	$$ = new SelectNode(new TableNode(new IdentNode(std::string($4))), new ColumnsAndExprNode(columnsList, new ExprNode($6)), $7);
 	columnsList.clear();
     }|
     SELECT_ACTION cols_select FROM join where_exprs {
@@ -206,6 +214,15 @@ select:
     }
 
 empty:
+
+
+system_time:
+    FOR SYSTEM TIME FROM DATE_TYPE TO DATE_TYPE {
+	$$ = new SystemTimeNode(std::string($5), std::string($7));
+    }|
+    FOR SYSTEM TIME FROM ALL{
+	$$ = new SystemTimeAllNode();
+    }
 
 variables:
     variable {

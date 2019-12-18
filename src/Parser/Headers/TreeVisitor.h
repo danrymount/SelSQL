@@ -72,6 +72,9 @@ class TreeVisitor : public Visitor {
     void visit(UnionJoinNode* node) override;
     void visit(IntersectJoinNode* node) override;
 
+    void visit(SystemTimeNode* node) override;
+    void visit(SystemTimeAllNode* node) override;
+
     Message getMessage() { return message; }
 
     std::shared_ptr<MainEngine> getEngine() { return engine; };

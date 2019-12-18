@@ -32,6 +32,8 @@
 #include "../Nodes/JoinNodes/LeftJoinNode.h"
 #include "../Nodes/JoinNodes/RightJoinNode.h"
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
+#include "../Nodes/SystemTimeAllNode.h"
+#include "../Nodes/SystemTimeNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
 typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
@@ -45,6 +47,10 @@ class SelectVisitor : public TreeVisitor {
         allrecords.clear();
         columns.clear();
         node->getChild()->accept(this);
+        auto systemTime = node->getSystemTimeNode();
+        if (systemTime != nullptr) {
+            systemTime->accept(this);
+        }
         source = node->getSource();
     }
 
@@ -59,6 +65,12 @@ class SelectVisitor : public TreeVisitor {
         node->getChild()->accept(this);
         tableName = std::move(curValue);
     }
+
+    void visit(SystemTimeNode* node) override {
+        std::cout << node->getPeriodA() << ":" << node->getPeriodB() << std::endl;
+    }
+
+    void visit(SystemTimeAllNode* node) override { std::cout << "ALL" << std::endl; }
 
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
@@ -453,9 +465,9 @@ class SelectVisitor : public TreeVisitor {
     std::vector<JoinRecord> allrecords;
 
     std::vector<std::pair<std::string, std::string>> columns;
-    BaseExprNode* expr;
-    BaseNode* source;
-    ExpressionVisitor* expressionVisitor;
+    BaseExprNode* expr = nullptr;
+    BaseNode* source = nullptr;
+    ExpressionVisitor* expressionVisitor = nullptr;
     int countEq = 0;
     inline static int id = -1;
     inline static std::vector<std::pair<std::string, std::string>> curExpr;
