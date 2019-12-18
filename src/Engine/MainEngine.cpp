@@ -3,7 +3,8 @@
 //
 
 #include "Headers/MainEngine.h"
-
+#include <mutex>
+std::mutex mutex3;
 Message MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
     Message result;
     int error = file_manager_->CreateFile(table);
@@ -43,6 +44,7 @@ MainEngine::MainEngine() {
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,
                                                                                  int64_t transaction_id) {
+    std::lock_guard<std::mutex> guard(mutex3);
     std::shared_ptr<Table> table(new Table());
     std::shared_ptr<Cursor> cursor(new Cursor());
     std::cerr << "GET CURSOR  " << transaction_id << std::endl;
@@ -60,6 +62,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
 int64_t MainEngine::GetTransactionSP() { return transact_manager_->GetTransactionSP(); }
 
 void MainEngine::Commit(int64_t transaction_sp) {
+    std::lock_guard<std::mutex> guard(mutex3);
     if (transact_manager_->IsSuccessful(transaction_sp)) {
         std::cerr << "COMMIT id = " << transaction_sp << std::endl;
     }

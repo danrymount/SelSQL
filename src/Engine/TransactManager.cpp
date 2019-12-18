@@ -1,6 +1,8 @@
 
 #include "Headers/TransactManager.h"
+#include <mutex>
 
+std::mutex mutex;
 // TODO PROBLEMS IN MANAGER
 TransactManager::TransactManager() {
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
@@ -20,6 +22,7 @@ TransactManager::TransactManager() {
     }
 };
 int64_t TransactManager::GetTransactionSP() {
+    std::lock_guard l(mutex);
     std::fstream temp("CLOCK_TR_ID", std::ios::in | std::ios::out);
     if (!temp.is_open()) {
         temp = std::fstream("CLOCK_TR_ID", std::ios::in | std::ios::out | std::ios::trunc);

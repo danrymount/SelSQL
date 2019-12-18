@@ -1,7 +1,8 @@
 #include "Headers/Cursor.h"
 #include <cstring>
+#include <mutex>
 #include <utility>
-
+std::mutex mutex1;
 void convert_INT(char *dist, const std::string &val, Type type);
 void convert_FLOAT(char *dist, const std::string &val, Type type);
 void convert_CHAR(char *dist, std::string val, Type type);
@@ -274,6 +275,7 @@ int Cursor::NextDataBlock() {
 }
 
 int Cursor::EmplaceBack(Record *record) {
+    std::lock_guard l(mutex1);
     int last_pos = 0;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
