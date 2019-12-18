@@ -200,11 +200,10 @@ int Cursor::Delete() {
     char *buf = new char[cur_record.GetRecordSize()];
     std::memcpy(buf, &data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordSize());
     cur_record.tr_e = current_tr_id_;
-    cur_record.commited_tr_s = '0';
+//    cur_record.commited_tr_s = '0';
     cur_record.commited_tr_e = '0';
     std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
                 cur_record.GetRecordSize());
-
     return 0;
 }
 
@@ -270,10 +269,10 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataMa
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
     }
-    //    std::cerr << "MAX POS = " << max_pos << std::endl;
+    std::cerr << "MAX POS = " << max_pos << std::endl;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&max_pos), sizeof(max_pos));
-    //    std::cerr << "MAX POS = " << max_pos << std::endl;
+    std::cerr << "MAX POS = " << max_pos << std::endl;
 }
 
 int Cursor::NextDataBlock() {

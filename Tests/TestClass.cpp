@@ -1023,44 +1023,44 @@ TEST(SERVER_TEST_ERROR, TEST26) {
 TEST(SERVER_TEST_ERROR, TEST28) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
-                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
-                              {"SELECT * from fn join fn on f1.id = fn.id;", "Field doesnt exist ERROR: 6"}});
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');",                        "Success"},
+                              {"INSERT INTO fn values(2, 3.789, 'qwerty');",                    "Success"},
+                              {"SELECT * from fn join fn on f1.id = fn.id;",                    "Field doesnt exist ERROR: 6"}});
 }
 
 TEST(SERVER_TEST_ERROR, TEST29) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE fn(id INT NOT NULL , age float, name char(150));", "Success"},
-                              {"INSERT INTO fn values(1, 2.9, 'sfsf');", "Success"},
-                              {"SELECT dgdfg, id from fn;", "Field doesnt exist ERROR: 6"}});
+                              {"INSERT INTO fn values(1, 2.9, 'sfsf');",                        "Success"},
+                              {"SELECT dgdfg, id from fn;",                                     "Field doesnt exist ERROR: 6"}});
 }
 
-TEST(SERVER_TEST_ERROR, TEST30) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
-                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
-                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
-                              {"SELECT age from table1 UNION SELECT id from table2;", "Field doesnt exist ERROR: 6"}});
-}
-
-TEST(SERVER_TEST_ERROR, TEST31) {
-    TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
-                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
-                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
-                              {"SELECT age from table1 INTERSECT SELECT id from table2;",
-                               "Field doesnt exist ERROR: 6"}});
-}
+//TEST(SERVER_TEST_ERROR, TEST30) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+//                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+//                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+//                              {"SELECT age from table1 UNION SELECT id from table2;", "Field doesnt exist ERROR: 6"}});
+//}
+//
+//TEST(SERVER_TEST_ERROR, TEST31) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
+//                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
+//                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
+//                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
+//                              {"SELECT age from table1 INTERSECT SELECT id from table2;",
+//                               "Field doesnt exist ERROR: 6"}});
+//}
 
 TEST(SERVER_TEST_ERROR, TEST32) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE table1(id INT NOT NULL, age float, name char(150));", "Success"},
-                              {"CREATE TABLE table2(id INT NOT NULL, age float);", "Success"},
-                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');", "Success"},
-                              {"INSERT INTO table2 values(1, 3.5);", "Success"},
-                              {"SELECT * from table1 UNION SELECT * from table2;", "Field doesnt exist ERROR: 6"}});
+                              {"CREATE TABLE table2(id INT NOT NULL, age float);",                 "Success"},
+                              {"INSERT INTO table1 values(1, 2.9, 'sfsf');",                       "Success"},
+                              {"INSERT INTO table2 values(1, 3.5);",                               "Success"},
+                              {"SELECT * from table1 UNION SELECT * from table2;",                 "Field doesnt exist ERROR: 6"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, TEST1) {

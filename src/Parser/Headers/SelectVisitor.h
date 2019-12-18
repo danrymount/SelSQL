@@ -39,7 +39,7 @@
 typedef std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
-    long tr_id = 0;
+    int64_t tr_id = 0;
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
 
     void visit(SelectNode* node) override {
@@ -408,6 +408,7 @@ class SelectVisitor : public TreeVisitor {
             if (ident == large[0].end()) {
                 ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
                 if (ident == small[0].end()) {
+//                    this->getEngine()->Commit(tr_id);
                     message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
                     return;
                 } else {

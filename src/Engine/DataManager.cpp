@@ -4,8 +4,10 @@
 #include "Headers/DataManager.h"
 #include <mutex>
 #include "Headers/Cursor.h"
+
 std::mutex data_mutex;
-std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_name, int block_id, bool with_alloc) {
+
+std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string &table_name, int block_id, bool with_alloc) {
     std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
     if (cached_block.find(position) == cached_block.end()) {
@@ -13,7 +15,7 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_na
         data_block = FileManager::ReadDataBlock(table_name, block_id);
         if (data_block == nullptr and with_alloc) {
             data_block = std::make_shared<DataBlock>();
-            char* new_data = new char[C::DATA_BLOCK_SIZE];
+            char *new_data = new char[C::DATA_BLOCK_SIZE];
             std::memset(new_data, '0', C::DATA_BLOCK_SIZE);
             data_block->setData(new_data);
         }
@@ -27,17 +29,27 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string& table_na
     cached_block[position].second++;
     return cached_block[position].first;
 }
-void DataManager::FreeDataBlock(const std::string& table_name, int block_id) {
+
+void DataManager::FreeDataBlock(const std::string &table_name, int block_id) {
     std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
-    cached_block[std::make_pair(table_name, block_id)].second--;
-    if (cached_block[position].second == 0) {
+//    cached_block[std::make_pair(table_name, block_id)].second--;
+//    if (cached_block[position].second == 0) {
+    if (cached_block.find(position) != cached_block.end() and cached_block[position].first != nullptr) {
         FileManager::WriteDataBlock(table_name, cached_block[position].first, block_id);
-        cached_block.erase(position);
     }
+
+//        cached_block.erase(position);
+//    }
 }
-void DataManager::CommitDataBlock(std::string& table_name, int block_id,
-                                  const std::vector<std::pair<int, int>>& positions, int tr_id, int record_size) {
+
+void DataManager::CommitDataBlock(std::string &table_name, int block_id,
+                                  const std::vector<std::pair<int, int>> &positions, int tr_id, int record_size) {
     std::lock_guard<std::mutex> g(data_mutex);
     Cursor::MakeCommited(cached_block[std::make_pair(table_name, block_id)].first, tr_id, positions, record_size);
+}
+
+void DataManager::ClearAll() {
+    cached_block.clear();
+
 }
