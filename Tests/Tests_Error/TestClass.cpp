@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "../../Client/Client.h"
 #include "../Headers/TestUtils.h"
+#include "../RQG/Generator.h"
 
 TEST(SERVER_TEST_ERROR, ERROR_TEST_CREATE_EXISTING_TABLE) {
     TestUtils::clear();
@@ -466,4 +467,32 @@ TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_INTERSECT_UNEXPECTED_INSERT)
     TestUtils::checkRequests({{"select * from t intersect insert into t values(1);",
                                "syntax error, unexpected INSERT_ACTION, expecting SELECT_ACTION (Str num 1, sym num "
                                "27): insert"}});
+}
+
+TEST(RQG, RQG) {
+    TestUtils::clear();
+    std::string cols = "(id int, name char(50), city char(50), age int, phone int, address char(50), status char(50), "
+                       "preferences char(50), car char(50), education char(50), job char(50), children int, money int, "
+                       "house int, pets int);";
+    TestUtils::checkRequests({{"create table peoples" + cols, "Success"},
+                              {"create table employees" + cols, "Success"},
+                              {"create table children" + cols, "Success"},
+                              {"create table men" + cols, "Success"},
+                              {"create table women" + cols, "Success"},
+                              {"create table teachers" + cols, "Success"},
+                              {"create table students" + cols, "Success"},
+                              {"create table doctors" + cols, "Success"},
+                              {"create table directors" + cols, "Success"},
+                              {"create table friends" + cols, "Success"}});
+    Generator query;
+    Client client;
+    for (int i = 0; i < 100; i++) {
+        std::string a = query.run();
+        client.execRequest(a);
+        if (client.response.substr(0, 0) == "#") {
+            EXPECT_EQ("Bad request","");
+        }
+        std::cout << a << std::endl;
+    }
+    std::cout << query.run();
 }
