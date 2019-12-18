@@ -19,12 +19,15 @@ class MainEngine {
 
    public:
     explicit MainEngine();
+    //    MainEngine(const MainEngine&) = delete;
+    //    MainEngine operator=(const MainEngine&) = delete;
     Message CreateTable(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
     Message DropTable(const std::string& tableName);
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(const std::string& tableName,
                                                                          int64_t transaction_id);
     int64_t GetTransactionSP();
+    //    static MainEngine& GetInstance();
     void Commit(int64_t transaction_id);
 };
 

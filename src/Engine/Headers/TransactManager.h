@@ -5,11 +5,11 @@
 #include "EngineUtils.h"
 
 class TransactManager {
-    std::map<std::string, std::map<Position, std::pair<int64_t, int>>> in_use;
+    std::map<std::string, std::map<Position, std::vector<std::pair<int64_t, int>>>> in_use;
     std::vector<size_t> restricted;
-    std::map<int, std::pair<int64_t, int64_t>> transaction_table;
 
    public:
+    std::map<int, std::pair<int64_t, int64_t>> transaction_table;
     std::map<int64_t, std::vector<std::pair<std::string, int>>> trans_usage;
     std::map<std::string, std::vector<std::pair<int, int64_t>>> ignore;
     TransactManager();

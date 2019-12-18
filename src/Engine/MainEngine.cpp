@@ -35,6 +35,7 @@ Message MainEngine::DropTable(const std::string& tableName) {
 }
 
 MainEngine::MainEngine() {
+    std::cerr << "CONSTRUCTOR ENGINE" << std::endl;
     transact_manager_ = std::make_shared<TransactManager>();
     file_manager_ = std::make_shared<FileManager>(transact_manager_);
     data_manager_ = std::make_shared<DataManager>();
@@ -79,3 +80,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
     // TODO CLEANUP
     ////    file_manager_->Clear(transaction_sp);
 }
+// MainEngine& MainEngine::GetInstance() {
+//    static MainEngine mainEngine;
+//    return mainEngine;
+//}

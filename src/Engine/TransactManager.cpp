@@ -33,15 +33,23 @@ int64_t TransactManager::GetTransactionSP() {
     int64_t start_time = 0;
     std::chrono::time_point s_time = std::chrono::system_clock::now();
     std::memcpy(&start_time, &s_time, sizeof(s_time));
-    transaction_table[value] = std::make_pair(start_time, 0);
+    transaction_table[value] = std::make_pair(start_time, INT64_MAX);
+    //    std::cerr << "GIVE TO TRANS = " << value << std::endl;
+    //    std::cerr << transaction_table[value].first << " - " << transaction_table[value].second << std::endl;
     return value;
 }
 void TransactManager::ClearUsed(int64_t transaction_id) {
     for (auto& table : in_use) {
         for (auto position = table.second.begin(); position != table.second.end();) {
-            if (position->second.first == transaction_id) {
-                position = table.second.erase(position);
-            } else {
+            int flag = 0;
+            for (auto i : position->second) {
+                if (i.first == transaction_id) {
+                    flag = 1;
+                    position = table.second.erase(position);
+                }
+                break;
+            }
+            if (!flag) {
                 ++position;
             }
         }
@@ -49,20 +57,24 @@ void TransactManager::ClearUsed(int64_t transaction_id) {
 }
 int TransactManager::SetUsed(const std::string& table_name, Position position, int64_t transaction_id, int operation) {
     if (in_use.find(table_name) == in_use.end()) {
-        std::map<Position, std::pair<long, int>> new_;
-        new_[position] = std::make_pair(transaction_id, operation);
+        std::map<Position, std::vector<std::pair<int64_t, int>>> new_;
+        new_[position].emplace_back(std::make_pair(transaction_id, operation));
         in_use[table_name] = new_;
         return 0;
     }
     if (in_use[table_name].find(position) == in_use[table_name].end()) {
-        in_use[table_name][position] = std::make_pair(transaction_id, operation);
+        in_use[table_name][position].emplace_back(std::make_pair(transaction_id, operation));
         return 0;
     }
-    if (in_use[table_name][position].first == transaction_id) {
-        return 0;
+    for (auto i : in_use[table_name][position]) {
+        if (i.first == transaction_id) {
+            in_use[table_name][position].emplace_back(std::make_pair(transaction_id, operation));
+            return 0;
+        }
     }
-    RestrictTransaction(transaction_id);
-    return 0;
+
+    //    RestrictTransaction(transaction_id);
+    return ErrorConstants::ERR_TRANSACT_CONFLICT;
 }
 void TransactManager::RestrictTransaction(int64_t transaction_id) { restricted.emplace_back(transaction_id); }
 int TransactManager::IsSuccessful(long transaction_id) {
@@ -90,8 +102,10 @@ std::vector<std::pair<int, int>> TransactManager::GetPositionsNeedCommit(std::st
     std::vector<std::pair<int, int>> positions;
     for (auto table : in_use) {
         for (auto pos : table.second) {
-            if (pos.second.first == tr_id and pos.first.first == block_id) {
-                positions.emplace_back(std::make_pair(pos.first.second, pos.second.second));
+            for (auto p : pos.second) {
+                if (p.first == tr_id and pos.first.first == block_id) {
+                    positions.emplace_back(std::make_pair(pos.first.second, p.second));
+                }
             }
         }
     }

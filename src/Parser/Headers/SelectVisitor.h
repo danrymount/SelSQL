@@ -81,7 +81,7 @@ class SelectVisitor : public TreeVisitor {
                 alias = std::move(curValue);
             }
 
-            auto cursor = engine.GetCursor(_tableName, tr_id);
+            auto cursor = getEngine()->GetCursor(_tableName, tr_id);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
                 return;
@@ -444,7 +444,6 @@ class SelectVisitor : public TreeVisitor {
     std::string getTableName() { return tableName; }
 
    private:
-    MainEngine engine;
     std::string curValue;
     std::string tableName;
     JoinRecord firstRecords;

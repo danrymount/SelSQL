@@ -13,7 +13,7 @@
 class TreeVisitor : public Visitor {
    public:
     TreeVisitor() = default;
-    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(std::move(_engine)) {}
+    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(_engine) {}
 
     void visit(RootNode* node) override;
     void visit(CreateNode* node) override;

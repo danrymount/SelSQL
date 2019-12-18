@@ -83,15 +83,6 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
     new_record.tr_s = current_tr_id_;
     new_record.tr_e = 0;
     EmplaceBack(&new_record);
-
-    //    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_)) {
-    //        return ErrorConstants::ERR_TRANSACT_CONFLICT;
-    //    }
-    //    //    table_->record_amount++;
-    //    data_block_->was_changed = 1;
-
-    //    changed = 1;
-    //    return 0;
 }
 
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
@@ -107,8 +98,16 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     record.SetRecord((char *)record_buf);
 
     // TODO UPDATE CONDITION
-    if (!((record.commited_tr_s == 'c' and record.tr_s < current_tr_id_) or
-          (record.commited_tr_e == 'c' and record.tr_e > current_tr_id_))) {
+
+    //    std::cerr << "FETCH TRANS  = " << current_tr_id_ << std::endl;
+    //    std::cerr << transact_manager_->transaction_table[record.tr_s].second << " - "
+    //              << transact_manager_->transaction_table[current_tr_id_].first << std::endl;
+    if ((((record.commited_tr_s == 'c' and
+           transact_manager_->transaction_table[record.tr_s].second < transact_manager_->transaction_table[current_tr_id_].first) or
+          (record.commited_tr_e == 'c' and record.tr_e > current_tr_id_) or
+          (record.commited_tr_s == '0' and record.tr_s == current_tr_id_)) and
+         (record.tr_e < record.tr_s or (record.tr_e != current_tr_id_ and record.commited_tr_e == '0')))) {
+    } else {
         return values;
     }
     int field_pos = 0;
@@ -127,6 +126,15 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         values.emplace_back(std::make_pair(table_->fields[i].first, value));
         field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
+
+    std::cerr << "FETCH" << std::endl;
+    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
+              << std::endl;
+    std::cerr << "DATA : ";
+    for (auto i : values) {
+        std::cerr << i.second << " ";
+    }
+    std::cerr << std::endl;
     return values;
 }
 
@@ -156,7 +164,7 @@ void Cursor::GetFieldData(std::string *dist, Type type, char *src, int start_pos
 
 int Cursor::NextRecord() {
     if (data_block_ != nullptr and
-        max_pos >= pos_in_block_ + (block_id_ * C::DATA_BLOCK_SIZE) / Record(table_->record_size).GetRecordSize()) {
+        max_pos - 1 > pos_in_block_ + (block_id_ * C::DATA_BLOCK_SIZE) / Record(table_->record_size).GetRecordSize()) {
         pos_in_block_++;
         return 0;
     } else {
@@ -165,6 +173,9 @@ int Cursor::NextRecord() {
 }
 
 int Cursor::Delete() {
+    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
     Record cur_record(table_->record_size);
     char *buf = new char[cur_record.GetRecordSize()];
     std::memcpy(buf, &data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordSize());
@@ -173,13 +184,14 @@ int Cursor::Delete() {
     cur_record.commited_tr_e = '0';
     std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
                 cur_record.GetRecordSize());
-    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
-        return ErrorConstants::ERR_TRANSACT_CONFLICT;
-    }
+
     return 0;
 }
 
 int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
     Record record(table_->record_size);
     Record new_record(table_->record_size);
     char full_record_buf[record.GetRecordSize()];
@@ -204,13 +216,11 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
     new_record.tr_e = 0;
     new_record.commited_tr_s = '0';
     new_record.commited_tr_e = '0';
-    record.commited_tr_s = '0';
+    // record.commited_tr_s = '0';
     record.commited_tr_e = '0';
     std::memcpy(&data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordBuf(),
                 record.GetRecordSize());
-    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
-        return ErrorConstants::ERR_TRANSACT_CONFLICT;
-    }
+
     EmplaceBack(&new_record);
     return 0;
 }
@@ -240,8 +250,10 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataMa
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
     }
+    //    std::cerr << "MAX POS = " << max_pos << std::endl;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&max_pos), sizeof(max_pos));
+    //    std::cerr << "MAX POS = " << max_pos << std::endl;
 }
 
 int Cursor::NextDataBlock() {
@@ -262,7 +274,7 @@ int Cursor::EmplaceBack(Record *record) {
     int last_pos = 0;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
-    std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
+    //    std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
     transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id));
