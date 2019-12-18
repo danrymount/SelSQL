@@ -77,6 +77,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
     transact_manager_->ClearUsed(transaction_sp);
     transact_manager_->EndTransaction(transaction_sp);
     transact_manager_->UpdateTransactionTable();
+    return;
     // TODO CLEANUP
     ////    file_manager_->Clear(transaction_sp);
 }

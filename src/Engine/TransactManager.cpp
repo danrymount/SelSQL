@@ -122,6 +122,7 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     int64_t end_time = 0;
     std::chrono::time_point e_time = std::chrono::system_clock::now();
     std::memcpy(&end_time, &e_time, sizeof(e_time));
+    std::cerr << "END TIME " << end_time;
     transaction_table[tr_id].second = end_time;
 }
 

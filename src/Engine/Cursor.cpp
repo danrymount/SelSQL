@@ -100,13 +100,16 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     // TODO UPDATE CONDITION
 
     //    std::cerr << "FETCH TRANS  = " << current_tr_id_ << std::endl;
-    //    std::cerr << transact_manager_->transaction_table[record.tr_s].second << " - "
-    //              << transact_manager_->transaction_table[current_tr_id_].first << std::endl;
-    if ((((record.commited_tr_s == 'c' and
-           transact_manager_->transaction_table[record.tr_s].second < transact_manager_->transaction_table[current_tr_id_].first) or
-          (record.commited_tr_e == 'c' and record.tr_e > current_tr_id_) or
-          (record.commited_tr_s == '0' and record.tr_s == current_tr_id_)) and
-         (record.tr_e < record.tr_s or (record.tr_e != current_tr_id_ and record.commited_tr_e == '0')))) {
+
+    if ((record.commited_tr_e == 'c' and
+         transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
+         record.tr_s != record.tr_e) or
+        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
+         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second) or
+        (record.commited_tr_s == 'c' and
+         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second and
+         record.tr_e == 0) or
+        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
     } else {
         return values;
     }
