@@ -4,7 +4,7 @@
 #include "../Client/Client.h"
 #include "../src/Utils/Structures/Data/Variable.h"
 #include "Headers/TestUtils.h"
-#include "parser.cpp"
+
 
 //#define KILL
 #define Request std::pair<std::string, std::string>

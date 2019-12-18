@@ -96,24 +96,24 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     auto block = data_block_;
     char record_buf[record.GetRecordSize()];
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
-    record.SetRecord((char *)record_buf);
+    record.SetRecord((char *) record_buf);
 
     // TODO UPDATE CONDITION
 
     //    std::cerr << "FETCH TRANS  = " << current_tr_id_ << std::endl;
 
-    if ((record.commited_tr_e == 'c' and
-         transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
-         record.tr_s != record.tr_e) or
-        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
-         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second) or
-        (record.commited_tr_s == 'c' and
-         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second and
-         record.tr_e == 0) or
-        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
-    } else {
-        return values;
-    }
+//    if ((record.commited_tr_e == 'c' and
+//         transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
+//         record.tr_s != record.tr_e) or
+//        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
+//         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second) or
+//        (record.commited_tr_s == 'c' and
+//         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second and
+//         record.tr_e == 0) or
+//        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
+//    } else {
+//        return values;
+//    }
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
         char field[C::TYPE_SIZE[table_->fields[i].second.type] + 1];
@@ -139,6 +139,22 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         std::cerr << i.second << " ";
     }
     std::cerr << std::endl;
+    if ((record.commited_tr_e == 'c' and
+         transact_manager_->transaction_table[record.tr_e].second >
+         transact_manager_->transaction_table[current_tr_id_].first and
+         record.tr_s != record.tr_e) or
+        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
+         transact_manager_->transaction_table[current_tr_id_].first >
+         transact_manager_->transaction_table[record.tr_s].second) or
+        (record.commited_tr_s == 'c' and
+         transact_manager_->transaction_table[current_tr_id_].first >
+         transact_manager_->transaction_table[record.tr_s].second and
+         record.tr_e == 0) or
+        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
+    } else {
+        values.clear();
+        return values;
+    }
     return values;
 }
 
@@ -294,6 +310,7 @@ int Cursor::EmplaceBack(Record *record) {
     transact_manager_->SetUsed(table_->name, std::make_pair(block_id, last_pos - 1), current_tr_id_, 1);
     return 0;
 }
+
 void Cursor::MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id,
                           const std::vector<std::pair<int, int>> &need_commit, int record_size) {
     Record record(record_size);
@@ -301,4 +318,12 @@ void Cursor::MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id
     for (auto i : need_commit) {
         std::memcpy(&block->data_[(i.first + 1) * record.GetRecordSize() - i.second - 1], &c, sizeof(c));
     }
+}
+
+Cursor::~Cursor() {
+    if (data_file_ != nullptr) {
+        data_file_->close();
+    }
+
+
 }

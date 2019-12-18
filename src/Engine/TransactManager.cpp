@@ -79,8 +79,10 @@ int TransactManager::SetUsed(const std::string& table_name, Position position, i
     //    RestrictTransaction(transaction_id);
     return ErrorConstants::ERR_TRANSACT_CONFLICT;
 }
+
 void TransactManager::RestrictTransaction(int64_t transaction_id) { restricted.emplace_back(transaction_id); }
-int TransactManager::IsSuccessful(long transaction_id) {
+
+int TransactManager::IsSuccessful(int64_t transaction_id) {
     for (auto i : restricted) {
         if (i == transaction_id) {
             return 0;
@@ -88,10 +90,12 @@ int TransactManager::IsSuccessful(long transaction_id) {
     }
     return 1;
 }
-void TransactManager::SetNewPos(const std::string& table_name, int pos, int64_t transaction_id) {
+
+void TransactManager::SetNewPos(const std::string &table_name, int pos, int64_t transaction_id) {
     ignore[table_name].emplace_back(std::make_pair(pos, transaction_id));
 }
-void TransactManager::Clear(const std::string& table_name, int64_t transaction_id) {
+
+void TransactManager::Clear(const std::string &table_name, int64_t transaction_id) {
     for (auto position = ignore[table_name].begin(); position != ignore[table_name].end();) {
         if (position->second == transaction_id) {
             position = ignore[table_name].erase(position);

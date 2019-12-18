@@ -56,6 +56,7 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     }
     file_manager_->ReadTableMetaData(tableName, meta);
     table = file_manager_->GetTable(tableName);
+
     cursor = std::make_shared<Cursor>(table, data_manager_, transact_manager_, data, transaction_id);
     return std::make_pair(table, cursor);
 }

@@ -29,18 +29,28 @@ class Cursor {
     int EmplaceBack(Record* record);
     int NextDataBlock();
 
-   public:
-    Cursor(const std::shared_ptr<Table>& table, const std::shared_ptr<DataManager>& data_manager,
-           const std::shared_ptr<TransactManager>& transact_manager, std::shared_ptr<std::fstream> data_file,
+public:
+    Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataManager> &data_manager,
+           const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
            int64_t tr_id);
+
     Cursor();
-    int Insert(const std::vector<std::string>& cols, const std::vector<std::string>& new_data);
+
+    int Insert(const std::vector<std::string> &cols, const std::vector<std::string> &new_data);
+
     int NextRecord();
+
     int Delete();
+
     int Update(std::vector<std::string> cols, std::vector<std::string> new_data);
+
     int Reset();
+
+    ~Cursor();
+
     std::vector<std::pair<std::string, std::string>> Fetch();
-    static void MakeCommited(const std::shared_ptr<DataBlock>& block, int64_t tr_id,
-                             const std::vector<std::pair<int, int>>& need_commit, int record_size);
+
+    static void MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id,
+                             const std::vector<std::pair<int, int>> &need_commit, int record_size);
 };
 #endif  // SELSQL_CURSOR_H
