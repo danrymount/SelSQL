@@ -32,7 +32,7 @@ void DataManager::FreeDataBlock(const std::string& table_name, int block_id) {
         cached_block.erase(position);
     }
 }
-void DataManager::CommitDataBlock(std::string& table_name, int block_id, const std::vector<int>& positions, int tr_id,
-                                  int record_size) {
+void DataManager::CommitDataBlock(std::string& table_name, int block_id,
+                                  const std::vector<std::pair<int, int>>& positions, int tr_id, int record_size) {
     Cursor::MakeCommited(cached_block[std::make_pair(table_name, block_id)].first, tr_id, positions, record_size);
 }

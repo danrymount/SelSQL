@@ -22,6 +22,7 @@ class Cursor {
     int block_id_ = 0;
     int pos_in_block_ = 0;
     int64_t current_tr_id_ = 0;
+    int max_pos = 0;
     static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
     static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
 
@@ -40,6 +41,6 @@ class Cursor {
     int Reset();
     std::vector<std::pair<std::string, std::string>> Fetch();
     static void MakeCommited(const std::shared_ptr<DataBlock>& block, int64_t tr_id,
-                             const std::vector<int>& need_commit, int record_size);
+                             const std::vector<std::pair<int, int>>& need_commit, int record_size);
 };
 #endif  // SELSQL_CURSOR_H

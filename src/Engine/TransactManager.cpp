@@ -37,10 +37,9 @@ int64_t TransactManager::GetTransactionSP() {
     return value;
 }
 void TransactManager::ClearUsed(int64_t transaction_id) {
-    //    std::cerr << "ClearUsed " << transaction_id << std::endl;
     for (auto& table : in_use) {
         for (auto position = table.second.begin(); position != table.second.end();) {
-            if (position->second == transaction_id) {
+            if (position->second.first == transaction_id) {
                 position = table.second.erase(position);
             } else {
                 ++position;
@@ -48,18 +47,18 @@ void TransactManager::ClearUsed(int64_t transaction_id) {
         }
     }
 }
-int TransactManager::SetUsed(const std::string& table_name, Position position, int64_t transaction_id) {
+int TransactManager::SetUsed(const std::string& table_name, Position position, int64_t transaction_id, int operation) {
     if (in_use.find(table_name) == in_use.end()) {
-        std::map<Position, long> new_;
-        new_[position] = transaction_id;
+        std::map<Position, std::pair<long, int>> new_;
+        new_[position] = std::make_pair(transaction_id, operation);
         in_use[table_name] = new_;
         return 0;
     }
     if (in_use[table_name].find(position) == in_use[table_name].end()) {
-        in_use[table_name][position] = transaction_id;
+        in_use[table_name][position] = std::make_pair(transaction_id, operation);
         return 0;
     }
-    if (in_use[table_name][position] == transaction_id) {
+    if (in_use[table_name][position].first == transaction_id) {
         return 0;
     }
     RestrictTransaction(transaction_id);
@@ -86,12 +85,13 @@ void TransactManager::Clear(const std::string& table_name, int64_t transaction_i
         }
     }
 }
-std::vector<int> TransactManager::GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id) {
-    std::vector<int> positions;
+std::vector<std::pair<int, int>> TransactManager::GetPositionsNeedCommit(std::string table_name, int block_id,
+                                                                         int64_t tr_id) {
+    std::vector<std::pair<int, int>> positions;
     for (auto table : in_use) {
         for (auto pos : table.second) {
-            if (pos.second == tr_id and pos.first.first == block_id) {
-                positions.emplace_back(pos.first.second);
+            if (pos.second.first == tr_id and pos.first.first == block_id) {
+                positions.emplace_back(std::make_pair(pos.first.second, pos.second.second));
             }
         }
     }

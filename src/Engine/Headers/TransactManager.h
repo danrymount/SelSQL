@@ -5,7 +5,7 @@
 #include "EngineUtils.h"
 
 class TransactManager {
-    std::map<std::string, std::map<Position, int64_t>> in_use;
+    std::map<std::string, std::map<Position, std::pair<int64_t, int>>> in_use;
     std::vector<size_t> restricted;
     std::map<int, std::pair<int64_t, int64_t>> transaction_table;
 
@@ -15,12 +15,12 @@ class TransactManager {
     TransactManager();
     int64_t GetTransactionSP();
     void ClearUsed(int64_t transaction_id);
-    int SetUsed(const std::string& table_name, Position position, int64_t transaction_id);
+    int SetUsed(const std::string& table_name, Position position, int64_t transaction_id, int operation);
     int IsSuccessful(int64_t transaction_id);
     void RestrictTransaction(int64_t transaction_id);
     void SetNewPos(const std::string& table_name, int pos, int64_t transaction_id);
     void Clear(const std::string& table_name, int64_t transaction_id);
-    std::vector<int> GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id);
+    std::vector<std::pair<int, int>> GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id);
     void UpdateTransactionTable();
     void EndTransaction(int64_t tr_id);
     //    std::shared_ptr<DataBlock> GetDataBlock(std::string table_name, int block_id);
