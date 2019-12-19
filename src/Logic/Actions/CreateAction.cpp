@@ -6,11 +6,16 @@
 #include "../../Parser/Headers/CreateVisitor.h"
 Message CreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
-    auto v = static_cast<CreateVisitor*>(getTreeVisitor().get());
+    auto v = static_cast<CreateVisitor *>(getTreeVisitor().get());
     auto t = v->getTable();
     auto error = v->getError();
     if (error.getErrorCode()) {
+        v->getEngine()->Commit(root->getId());
         return error;
     }
-    return v->getEngine()->CreateTable(std::make_shared<Table>(v->getTable()));
+    Message msg = v->getEngine()->CreateTable(std::make_shared<Table>(v->getTable()));
+    if (msg.getErrorCode()) {
+        v->getEngine()->Commit(root->getId());
+    }
+    return msg;
 }

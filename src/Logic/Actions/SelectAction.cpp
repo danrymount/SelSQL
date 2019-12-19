@@ -67,6 +67,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             try {
                 expr->accept(exprVisitor);
             } catch (std::exception &exception) {
+                v->getEngine()->Commit(root->getId());
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }

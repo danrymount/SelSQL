@@ -22,6 +22,7 @@ TransactManager::TransactManager() {
     }
 };
 int64_t TransactManager::GetTransactionSP() {
+    active_tr++;
     std::lock_guard l(mutex);
     std::fstream temp("CLOCK_TR_ID", std::ios::in | std::ios::out);
     if (!temp.is_open()) {
@@ -125,6 +126,7 @@ void TransactManager::UpdateTransactionTable() {
     }
 }
 void TransactManager::EndTransaction(int64_t tr_id) {
+    --active_tr;
     int64_t value = 0;
     int64_t end_time = 0;
     std::chrono::time_point e_time = std::chrono::system_clock::now();
