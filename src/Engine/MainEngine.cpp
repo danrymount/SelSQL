@@ -86,7 +86,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
     if (transact_manager_->active_tr == 0) {
         data_manager_->ClearAll();
     } else {
-        _sleep(999999);
+        //        _sleep(999999);
     }
     // TODO CLEANUP
 //        file_manager_->Clear(transaction_sp);
