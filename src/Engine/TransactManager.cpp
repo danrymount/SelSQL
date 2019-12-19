@@ -38,8 +38,6 @@ int64_t TransactManager::GetTransactionSP() {
     std::chrono::time_point s_time = std::chrono::system_clock::now();
     std::memcpy(&start_time, &s_time, sizeof(s_time));
     transaction_table[value] = std::make_pair(start_time, INT64_MAX);
-    //    std::cerr << "GIVE TO TRANS = " << value << std::endl;
-    //    std::cerr << transaction_table[value].first << " - " << transaction_table[value].second << std::endl;
     return value;
 }
 void TransactManager::ClearUsed(int64_t transaction_id) {
@@ -77,7 +75,7 @@ int TransactManager::SetUsed(const std::string& table_name, Position position, i
         }
     }
 
-    //    RestrictTransaction(transaction_id);
+    RestrictTransaction(transaction_id);
     return ErrorConstants::ERR_TRANSACT_CONFLICT;
 }
 
@@ -92,11 +90,11 @@ int TransactManager::IsSuccessful(int64_t transaction_id) {
     return 1;
 }
 
-void TransactManager::SetNewPos(const std::string &table_name, int pos, int64_t transaction_id) {
+void TransactManager::SetNewPos(const std::string& table_name, int pos, int64_t transaction_id) {
     ignore[table_name].emplace_back(std::make_pair(pos, transaction_id));
 }
 
-void TransactManager::Clear(const std::string &table_name, int64_t transaction_id) {
+void TransactManager::Clear(const std::string& table_name, int64_t transaction_id) {
     for (auto position = ignore[table_name].begin(); position != ignore[table_name].end();) {
         if (position->second == transaction_id) {
             position = ignore[table_name].erase(position);

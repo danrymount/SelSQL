@@ -7,8 +7,6 @@
 class TransactManager {
     std::map<std::string, std::map<Position, std::vector<std::pair<int64_t, int>>>> in_use;
     std::vector<size_t> restricted;
-
-
    public:
     int active_tr = 0;
     std::map<int, std::pair<int64_t, int64_t>> transaction_table;

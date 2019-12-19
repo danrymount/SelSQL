@@ -33,14 +33,9 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string &table_na
 void DataManager::FreeDataBlock(const std::string &table_name, int block_id) {
     std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
-//    cached_block[std::make_pair(table_name, block_id)].second--;
-//    if (cached_block[position].second == 0) {
     if (cached_block.find(position) != cached_block.end() and cached_block[position].first != nullptr) {
         FileManager::WriteDataBlock(table_name, cached_block[position].first, block_id);
     }
-
-//        cached_block.erase(position);
-//    }
 }
 
 void DataManager::CommitDataBlock(std::string &table_name, int block_id,
@@ -49,7 +44,4 @@ void DataManager::CommitDataBlock(std::string &table_name, int block_id,
     Cursor::MakeCommited(cached_block[std::make_pair(table_name, block_id)].first, tr_id, positions, record_size);
 }
 
-void DataManager::ClearAll() {
-    cached_block.clear();
-
-}
+void DataManager::ClearAll() { cached_block.clear(); }

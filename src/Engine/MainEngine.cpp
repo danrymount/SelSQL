@@ -66,27 +66,25 @@ void MainEngine::Commit(int64_t transaction_sp) {
     std::lock_guard<std::mutex> guard(mutex3);
     if (transact_manager_->IsSuccessful(transaction_sp)) {
         std::cerr << "COMMIT id = " << transaction_sp << std::endl;
-    }
-
-    if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
-        auto vec = transact_manager_->trans_usage[transaction_sp];
-        for (auto bl : vec) {
-            data_manager_->CommitDataBlock(bl.first, bl.second,
-                                           transact_manager_->GetPositionsNeedCommit(bl.first, bl.second,
-                                                                                     transaction_sp),
-                                           transaction_sp, file_manager_->GetTable(bl.first)->record_size);
-            data_manager_->FreeDataBlock(bl.first, bl.second);
+        if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
+            auto vec = transact_manager_->trans_usage[transaction_sp];
+            for (auto bl : vec) {
+                data_manager_->CommitDataBlock(bl.first, bl.second,
+                                               transact_manager_->GetPositionsNeedCommit(bl.first, bl.second,
+                                                                                         transaction_sp),
+                                               transaction_sp, file_manager_->GetTable(bl.first)->record_size);
+                data_manager_->FreeDataBlock(bl.first, bl.second);
+            }
         }
     }
+
     transact_manager_->ClearUsed(transaction_sp);
     transact_manager_->EndTransaction(transaction_sp);
     transact_manager_->UpdateTransactionTable();
     std::cerr << std::endl;
     std::cerr << "ACTIVE_TR : " << transact_manager_->active_tr << std::endl;
     if (transact_manager_->active_tr <= 0) {
-        if (transact_manager_->active_tr < 0) {
-            transact_manager_->active_tr = 0;
-        }
+        transact_manager_->active_tr = 0;
         data_manager_->ClearAll();
     } else {
         //        _sleep(999999);
