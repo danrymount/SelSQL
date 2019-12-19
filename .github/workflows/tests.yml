@@ -1,6 +1,9 @@
 name: Tests
 
-on: [push]
+on:
+  push:
+    branches:
+      - pre_dev
 
 jobs:
   Tests:
