@@ -32,12 +32,15 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_NOT_YET_INSERTED_VALUES) {
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"begin;", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-                                  {"select * from t;", ""}};
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"}};
     std::vector<Request> request2{{"begin;", "Success"},
                                   {"update t set id = 2;", "Success"},
-                                  {"select * from t;", ""},
+                                  {"select * from t;", "Success"},
                                   {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t", ""}};
+    std::vector<Request> request3{{"commit;", "Success"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"}};
     TestUtils::checkRequestsClient(request1, client1);
     Client client2;
     TestUtils::checkRequestsClient(request2, client2);
@@ -50,15 +53,18 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_INSERT_IN_ONE_TABLE_IN_DIFFERENT_TRANSACTIO
     std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
                                   {"begin;", "Success"},
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-                                  {"select * from t;", ""}};
-    std::vector<Request> request2{{"select * from t;", ""},
-                                  {"create table b(id int, name char(255), city char(255), age float);", "Success"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"}};
+    std::vector<Request> request2{{"select * from t;", "Success"},
                                   {"begin;", "Success"},
-                                  {"insert into b values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-                                  {"select * from b;", ""},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from b;", ""}};
-    // всё понятно
+    std::vector<Request> request3{{"commit;", "Success"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n1 "
+                                   "|'Vasya'|'Gorod'|7.500000|\n"}};
     TestUtils::checkRequestsClient(request1, client1);
     Client client2;
     TestUtils::checkRequestsClient(request2, client2);
@@ -94,19 +100,23 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_IN_TWO_TRANSACTIONS) {
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
                                   {"begin;", "Success"},
                                   {"update t set id = 3;", "Success"},
-                                  {"select * from t;", ""}};
-    std::vector<Request> request2{{"select * from t;", ""},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n3 |'Vasya'|'Gorod'|7.500000|\n"}};
+    std::vector<Request> request2{{"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"begin;", "Success"},
-                                  {"update t set id = 3;", "Success"},
-                                  {"select * from t;", ""},
+                                  {"update t set id = 3;", "Table is in use ERROR: 14"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
+    std::vector<Request> request3{{"commit;", "Success"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n3 |'Vasya'|'Gorod'|7.500000|\n"}};
     // должна быть ошибка, апдейт сразу в двух транзакциях
     TestUtils::checkRequestsClient(request1, client1);
     Client client2;
     TestUtils::checkRequestsClient(request2, client2);
     TestUtils::checkRequestsClient(request3, client1);
-    EXPECT_EQ(client1.response, "Success");
 }
 
 TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES) {
@@ -130,26 +140,6 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES) {
     TestUtils::checkRequests({{"select * from t;", ""}});
 }
 
-TEST(SERVER_TEST_THREAD, THREAD_TEST_INSERT_INTO_TWO_TRANSACTIONS) {
-    TestUtils::clear();
-    Client client1;
-    std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
-                                  {"begin;", "Success"},
-                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-                                  {"select * from t;", ""}};
-    std::vector<Request> request2{{"begin;", "Success"},
-                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-                                  {"select * from t;", ""},
-                                  {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
-    // должна быть ошибка?, инсерт сразу в двух транзакциях
-    TestUtils::checkRequestsClient(request1, client1);
-    Client client2;
-    TestUtils::checkRequestsClient(request2, client2);
-    TestUtils::checkRequestsClient(request3, client1);
-    EXPECT_EQ(client1.response, "Success");
-}
-
 TEST(SERVER_TEST_THREAD, THREAD_TEST_DELETE_INTO_TWO_TRANSACTIONS) {
     TestUtils::clear();
     Client client1;
@@ -157,12 +147,13 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_DELETE_INTO_TWO_TRANSACTIONS) {
                                   {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
                                   {"begin;", "Success"},
                                   {"delete from t where id = 1;", "Success"},
-                                  {"select * from t;", ""}};
+                                  {"select * from t;", "Success"}};
     std::vector<Request> request2{{"begin;", "Success"},
-                                  {"delete from t where id = 1;", "Success"},
-                                  {"select * from t;", ""},
+                                  {"delete from t where id = 1;", "Table is in use ERROR: 14"},
+                                  {"select * from t;",
+                                   "\nid|name   |city   |age     |\n1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", ""}};
+    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", "Success"}};
     // должна быть ошибка, делит сразу в двух транзакциях
     TestUtils::checkRequestsClient(request1, client1);
     Client client2;
