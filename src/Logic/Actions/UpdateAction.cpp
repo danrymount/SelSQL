@@ -11,14 +11,18 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
     auto expr = v->getExpr();
-    cursor = v->getEngine()->GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName(), root->getId());
     auto table = cursor.first;
     if (table->name.empty()) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     message = ActionsUtils::checkFieldsExist(table, updateColumns);
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
 
@@ -26,10 +30,10 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     std::vector<ActionsUtils::Record> allrecords;
     // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
-    if (cursor.first->record_amount) {
-        do {
-            auto record = cursor.second->Fetch();
-            if (record.empty()) {
+    //    if (cursor.first->record_amount) {
+    do {
+        auto record = cursor.second->Fetch();
+        if (record.empty()) {
                 continue;
             }
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
@@ -41,6 +45,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 expr->accept(exprVisitor);
             } catch (std::exception &exception) {
                 std::string exc = exception.what();
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
             if (exprVisitor->getResult()) {
@@ -60,25 +66,31 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
         if (message.getErrorCode()) {
+            commitTransaction(root);
+
             return message;
         }
         do {
             auto _record = cursor.second->Fetch();
-            // TODO std::find
             auto rec = std::find(records.begin(), records.end(), _record);
             if (rec == records.end()) {
                 continue;
             }
 
             try {
-                cursor.second->Update(columns, values);
+                if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                    commitTransaction(root);
+
+                    return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+                };
+
             } catch (std::exception &exception) {
+                commitTransaction(root);
+
                 return Message(ErrorConstants::ERR_STO);
             }
 
         } while (!cursor.second->NextRecord());
-    }
-//    cursor.second->Reset();
-    cursor.second->Commit();
-    return message;
+
+        return message;
 }

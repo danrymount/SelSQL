@@ -15,39 +15,22 @@
 #ifdef __WIN32
 #define DIR_SEPARATOR '\\'
 #elif __linux
-#define DIR_SEPARATOR  '/'
+#define DIR_SEPARATOR '/'
 #endif
 
 typedef std::pair<char*, int> buffer_data;
+typedef std::pair<int, int> Position;
+typedef Constants C;
 namespace fs = std::filesystem;
 
-struct Position {
-    size_t transaction_id = 0;
-    int block_id = 0;
-    int pos_in_block = 0;
-};
-
-struct DB_FILE {
-    int version = 0;
-    std::fstream* meta_file;
-    std::fstream* data_file;
-    DB_FILE() = default;
-    DB_FILE(std::fstream* m_file, std::fstream* d_file);
-
-    void close();
-    int isOpen();
-};
-
-void WriteIntToFile(std::fstream* file, int value);
-int ReadIntFromFile(std::fstream* file);
 int GetFileSize(std::fstream* file);
-int GetDataBlockSize(DataBlock* data_block);
-int GetDataBlockSize(int record_size);
 buffer_data GetTableBuffer(Table* table);
 buffer_data GetDataBlockBuffer(DataBlock* data_block);
-std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data,int record_amount);
+std::shared_ptr<DataBlock> ReadDataBlockFromBuffer(char* data);
 std::shared_ptr<Table> ReadTableFromBuffer(char* data);
 void RestoreFromTemp(std::fstream* src, std::fstream* dist, int record_size);
+std::string ConstructFileName(const std::string& table_name, size_t transaction_id);
+std::string FindTempFile(const std::string& table_name, size_t transaction_id);
 
-class FileNotOpened{};
+class FileNotOpened {};
 #endif  // SELSQL_ENGINEUTILS_H

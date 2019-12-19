@@ -14,7 +14,7 @@ class Table {
    public:
     typedef std::vector<std::pair<std::string, Variable>> FieldsMap;
 
-    size_t record_amount = 0;
+    //    size_t record_amount = 0;
     size_t record_size = 0;
 
     Table() = default;
@@ -51,7 +51,7 @@ class Table {
 
     //    void calcMaxDeleted() {
     //        calcRecordSize();
-    //        max_deleted_amount = Constants::DATA_SIZE / record_size;
+    //        max_deleted_amount = Constants::DATA_BLOCK_SIZE / record_size;
     //        deleted_pos = new int[max_deleted_amount];
     //    }
     void setFields(std::vector<std::pair<std::string, Variable>> &fields_) { this->fields = fields_; }

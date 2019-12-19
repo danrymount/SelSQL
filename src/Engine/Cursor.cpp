@@ -1,78 +1,61 @@
 #include "Headers/Cursor.h"
 #include <cstring>
+#include <mutex>
 #include <utility>
+std::mutex mutex1;
+void convert_INT(char *dist, const std::string &val, Type type);
+void convert_FLOAT(char *dist, const std::string &val, Type type);
+void convert_CHAR(char *dist, std::string val, Type type);
+std::vector<std::function<void(char *dist, std::string val, Type type)>> convert_TYPE = {convert_INT, convert_FLOAT,
+                                                                                         convert_CHAR};
+void convert_INT(char *dist, const std::string &val, Type type) {
+    char null_flag = 'n';
+    if (!val.empty() and val != "null") {
+        int v = std::stoi(val);
+        std::memcpy(&dist[1], &v, C::TYPE_SIZE[type]);
+    } else {
+        null_flag = 'N';
+    }
+    dist[0] = null_flag;
+}
+void convert_FLOAT(char *dist, const std::string &val, Type type) {
+    char null_flag = 'n';
+    if (!val.empty() and val != "null") {
+        double fl = std::stod(val);
+        std::memcpy(&dist[1], &fl, C::TYPE_SIZE[type]);
+    } else {
+        null_flag = 'N';
+    }
 
-void convert(unsigned char *dist, std::string val, Type type) {
-    unsigned char null_flag = 'n';
-    switch (type) {
-        case TYPE_INT: {
-            if (!val.empty() and val != "null") {
-                int v = std::stoi(val);
-                std::memcpy(&dist[1], &v, Constants::TYPE_SIZE[type]);
-            } else {
-                null_flag = 'N';
-            }
-            break;
+    dist[0] = null_flag;
+}
+void convert_CHAR(char *dist, std::string val, Type type) {
+    char null_flag = 'n';
+    if (!val.empty()) {
+        val.reserve(C::TYPE_SIZE[type]);
+        if (val.size() > C::TYPE_SIZE[type]) {
         }
-        case TYPE_FLOAT: {
-            if (!val.empty() and val != "null") {
-                double fl = std::stod(val);
-                std::memcpy(&dist[1], &fl, Constants::TYPE_SIZE[type]);
+        if (val.find('\'') == std::string::npos) {
+            if (val.size() + 2 > C::TYPE_SIZE[type]) {
+                throw std::exception();
             } else {
-                null_flag = 'N';
+                val = '\'' + val + "\'";
             }
-            break;
         }
-        case TYPE_CHAR: {
-            if (!val.empty()) {
-                val.reserve(Constants::TYPE_SIZE[type]);
-                if (val.size() > Constants::TYPE_SIZE[type]) {
-                }
-                if (val.find('\'') == std::string::npos) {
-                    if (val.size() + 2 > Constants::TYPE_SIZE[type]) {
-                        throw std::exception();
-                    } else {
-                        val = '\'' + val + "\'";
-                    }
-                }
-                std::memcpy(&dist[1], val.c_str(), Constants::TYPE_SIZE[type]);
-            } else {
-                null_flag = 'N';
-            }
-            break;
-        }
+        std::memcpy(&dist[1], val.c_str(), C::TYPE_SIZE[type]);
+    } else {
+        null_flag = 'N';
     }
     dist[0] = null_flag;
 }
 
-void Cursor::SaveFieldData(std::string val, Type type, unsigned char *dist, int start_pos) {
-    unsigned char temp_field[Constants::TYPE_SIZE[type] + 1];
-    convert(temp_field, std::move(val), type);
-    std::memcpy(&dist[start_pos], temp_field, Constants::TYPE_SIZE[type] + 1);
+void Cursor::SaveFieldData(std::string val, Type type, char *dist, int start_pos) {
+    char temp_field[C::TYPE_SIZE[type] + 1];
+    convert_TYPE[type](temp_field, std::move(val), type);
+    std::memcpy(&dist[start_pos], temp_field, C::TYPE_SIZE[type] + 1);
 }
 
-int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id) {
-    size_t pos_in_block = 0;
-    int no_place = 1;
-    do {
-        if (data_block_->deleted) {
-            pos_in_block = data_block_->deleted_pos_[--data_block_->deleted] * table_->record_size;
-            no_place = 0;
-            break;
-        } else if (data_block_->last_record_pos <= Constants::DATA_SIZE / table_->record_size - 1) {
-            pos_in_block = data_block_->last_record_pos * table_->record_size;
-            no_place = 0;
-            break;
-        }
-    } while (!NextDataBlock());
-
-    if (no_place) {
-        read_block_id++;
-        write_block_id++;
-        Allocate();
-    }
-
-    data_block_->was_changed = 1;
+int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::string> &new_data) {
     int count = 0;
     for (auto &i : values_) {
         if (cols.empty()) {
@@ -89,50 +72,54 @@ int Cursor::Insert(std::vector<std::string> cols, std::vector<std::string> new_d
         }
     }
     auto fields = table_->getFields();
-    unsigned char record[table_->record_size];
+    char record[table_->record_size];
     size_t next_pos = 0;
     for (size_t i = 0; i < values_.size(); ++i) {
         Type type = fields[i].second.type;
         SaveFieldData(values_[i].second, type, record, next_pos);
-        next_pos += Constants::TYPE_SIZE[type] + 1;
+        next_pos += C::TYPE_SIZE[type] + 1;
     }
-
-    table_->record_amount++;
-    data_block_->record_amount++;
-    data_block_->last_record_pos++;
-    std::memcpy(&data_block_->data_[pos_in_block], record, table_->record_size);
-    changed = 1;
-    return 0;
-}
-
-int Cursor::UpdateDataBlock() {
-    if (data_block_ != nullptr) {
-//        if (data_block_->record_amount == 0) {
-//            --write_block_id;
-//            return 0;
-//        }
-        if (data_block_->was_changed) {
-            table_->record_amount -= current_session_deleted_;
-            data_block_->record_amount -= current_session_deleted_;
-            file_manager_->UpdateBlock(table_, data_block_, write_block_id);
-        }
-    }
-    return 0;
+    Record new_record(table_->record_size);
+    new_record.SetValues(record);
+    new_record.tr_s = current_tr_id_;
+    new_record.tr_e = 0;
+    EmplaceBack(&new_record);
 }
 
 std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
-    auto block = data_block_;
-    unsigned char record[table_->record_size];
-    std::vector<std::pair<std::string, std::string>> values;
+    Record record(table_->record_size);
 
-    std::memcpy(record, &block->data_[current_pos * table_->record_size], table_->record_size);
+    std::vector<std::pair<std::string, std::string>> values;
+    if (data_block_ == nullptr) {
+        return values;
+    }
+    auto block = data_block_;
+    char record_buf[record.GetRecordSize()];
+    std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
+    record.SetRecord((char *) record_buf);
+
+    // TODO UPDATE CONDITION
+
+    //    std::cerr << "FETCH TRANS  = " << current_tr_id_ << std::endl;
+
+//    if ((record.commited_tr_e == 'c' and
+//         transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
+//         record.tr_s != record.tr_e) or
+//        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
+//         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second) or
+//        (record.commited_tr_s == 'c' and
+//         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second and
+//         record.tr_e == 0) or
+//        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
+//    } else {
+//        return values;
+//    }
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
-        unsigned char field[Constants::TYPE_SIZE[table_->fields[i].second.type] + 1];
+        char field[C::TYPE_SIZE[table_->fields[i].second.type] + 1];
         Type type = table_->fields[i].second.type;
         std::string value;
-        std::memcpy(field, &block->data_[field_pos + current_pos * table_->record_size],
-                    Constants::TYPE_SIZE[table_->fields[i].second.type] + 1);
+        std::memcpy(field, &record.values_buf[field_pos], C::TYPE_SIZE[table_->fields[i].second.type] + 1);
         if (field[0] != 'n' and field[0] != 'N') {
             return std::vector<std::pair<std::string, std::string>>();
         }
@@ -141,30 +128,54 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         }
 
         values.emplace_back(std::make_pair(table_->fields[i].first, value));
-        field_pos += Constants::TYPE_SIZE[table_->fields[i].second.type] + 1;
+        field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
-    readed_data++;
+
+    std::cerr << "FETCH" << std::endl;
+    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
+              << std::endl;
+    std::cerr << "DATA : ";
+    for (auto i : values) {
+        std::cerr << i.second << " ";
+    }
+    std::cerr << std::endl;
+    if ((record.commited_tr_e == 'c' and
+         transact_manager_->transaction_table[record.tr_e].second >
+         transact_manager_->transaction_table[current_tr_id_].first and
+         record.tr_s != record.tr_e) or
+        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
+         transact_manager_->transaction_table[current_tr_id_].first >
+         transact_manager_->transaction_table[record.tr_s].second) or
+        (record.commited_tr_s == 'c' and
+         transact_manager_->transaction_table[current_tr_id_].first >
+         transact_manager_->transaction_table[record.tr_s].second and
+         record.tr_e == 0) or
+        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
+    } else {
+        values.clear();
+        return values;
+    }
     return values;
 }
 
-void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int start_pos) {
+void Cursor::GetFieldData(std::string *dist, Type type, char *src, int start_pos) {
     switch (type) {
         case TYPE_INT: {
             int v;
-            std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
+            std::memcpy(&v, &src[start_pos + 1], C::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
         }
 
         case TYPE_FLOAT: {
             double v;
-            std::memcpy(&v, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
+            std::memcpy(&v, &src[start_pos + 1], C::TYPE_SIZE[type]);
             *dist = std::to_string(v);
             break;
         }
         case TYPE_CHAR: {
-            char dst[Constants::TYPE_SIZE[type]];
-            std::memcpy(dst, &src[start_pos + 1], Constants::TYPE_SIZE[type]);
+            char dst[C::TYPE_SIZE[type]];
+            std::memcpy(dst, &src[start_pos + 1], C::TYPE_SIZE[type]);
             *dist = std::string(dst);
             break;
         }
@@ -172,27 +183,40 @@ void Cursor::GetFieldData(std::string *dist, Type type, unsigned char *src, int 
 }
 
 int Cursor::NextRecord() {
-    if (data_block_->record_amount > readed_data) {
-        current_pos++;
+    if (data_block_ != nullptr and
+        max_pos - 1 > pos_in_block_ + (block_id_ * C::DATA_BLOCK_SIZE) / Record(table_->record_size).GetRecordSize()) {
+        pos_in_block_++;
         return 0;
     } else {
         return NextDataBlock();
     }
 }
 
-int Cursor::Delete(int transact_id) {
-    std::memset(&data_block_->data_[current_pos * table_->record_size], '0', table_->record_size);
-    data_block_->deleted_pos_[data_block_->deleted++] = current_pos;
-    data_block_->last_record_pos++;
-    current_session_deleted_++;
-    data_block_->was_changed = 1;
-    changed = 1;
+int Cursor::Delete() {
+    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
+    Record cur_record(table_->record_size);
+    char *buf = new char[cur_record.GetRecordSize()];
+    std::memcpy(buf, &data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordSize());
+    cur_record.tr_e = current_tr_id_;
+//    cur_record.commited_tr_s = '0';
+    cur_record.commited_tr_e = '0';
+    std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
+                cur_record.GetRecordSize());
     return 0;
 }
 
-int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data, int transact_id) {
-    unsigned char record[table_->record_size];
-    std::memcpy(record, &data_block_->data_[current_pos * table_->record_size], table_->record_size);
+int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_data) {
+    if (transact_manager_->SetUsed(table_->name, Position(block_id_, pos_in_block_), current_tr_id_, 0)) {
+        return ErrorConstants::ERR_TRANSACT_CONFLICT;
+    }
+    Record record(table_->record_size);
+    Record new_record(table_->record_size);
+    char full_record_buf[record.GetRecordSize()];
+    std::memcpy(full_record_buf, &data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
+    record.SetRecord(full_record_buf);
+    new_record.SetRecord(full_record_buf);
     auto fields = table_->getFields();
     int next_pos = 0;
     for (size_t i = 0; i < values_.size(); ++i) {
@@ -200,80 +224,105 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
 
         for (size_t j = 0; j < cols.size(); j++) {
             if (values_[i].first == cols[j]) {
-                SaveFieldData(new_data[j], type, record, next_pos);
+                SaveFieldData(new_data[j], type, new_record.values_buf, next_pos);
             }
         }
-        next_pos += Constants::TYPE_SIZE[type] + 1;
+        next_pos += C::TYPE_SIZE[type] + 1;
     }
 
-    std::memcpy(&data_block_->data_[current_pos * table_->record_size], record, table_->record_size);
-    data_block_->was_changed = 1;
-    changed = 1;
+    record.tr_e = current_tr_id_;
+    new_record.tr_s = current_tr_id_;
+    new_record.tr_e = 0;
+    new_record.commited_tr_s = '0';
+    new_record.commited_tr_e = '0';
+    // record.commited_tr_s = '0';
+    record.commited_tr_e = '0';
+    std::memcpy(&data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordBuf(),
+                record.GetRecordSize());
+
+    EmplaceBack(&new_record);
     return 0;
 }
 
 int Cursor::Reset() {
-    current_pos = 0;
-    readed_data = 0;
-    read_block_id = 0;
-    write_block_id = 0;
-    data_block_ = file_manager_->ReadDataBlock(table_->name, read_block_id);
-//    changed = 0;
+    pos_in_block_ = 0;
+    block_id_ = 0;
+    data_block_ = data_manager_->GetDataBlock(table_->name, 0, false);
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
     return 0;
 }
-
 
 Cursor::Cursor() { table_ = std::make_shared<Table>(); }
 
-Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<FileManager> &file_manager)
-        : table_(table),
-          file_manager_(file_manager) {
-    data_block_ = file_manager_->ReadDataBlock(table->name, 0);
-    if (data_block_ == nullptr) {
-        Allocate();
-    }
+Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataManager> &data_manager,
+               const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
+               int64_t tr_id)
+                                                                                                    : table_(table),
+                                                                                                      data_manager_(data_manager),
+                                                                                                      transact_manager_(transact_manager),
+                                                                                                      data_file_(data_file),
+                                                                                                      current_tr_id_(tr_id) {
+    Record record(table->record_size);
+    data_block_ = data_manager_->GetDataBlock(table_->name, 0, true);
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
+
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
     }
-}
-
-void Cursor::Allocate() {
-    data_block_ = std::make_shared<DataBlock>();
-    data_block_->record_size = table_->record_size;
-    data_block_->max_deleted_amount = Constants::DATA_SIZE / table_->record_size;
-    data_block_->setDeletedPos(new char[data_block_->max_deleted_amount * sizeof(short int)]);
-    data_block_->setData(new char[Constants::DATA_SIZE]);
-    current_pos = 0;
-    readed_data = 0;
-    current_session_deleted_ = 0;
+    std::cerr << "MAX POS = " << max_pos << std::endl;
+    data_file_->seekg(std::ios::beg);
+    data_file_->read(reinterpret_cast<char *>(&max_pos), sizeof(max_pos));
+    std::cerr << "MAX POS = " << max_pos << std::endl;
 }
 
 int Cursor::NextDataBlock() {
-    UpdateDataBlock();
-    data_block_ = file_manager_->ReadDataBlock(table_->name, ++read_block_id);
-    ++write_block_id;
+    Record record(table_->record_size);
+
+    data_block_ = data_manager_->GetDataBlock(table_->name, ++block_id_, false);
 
     if (data_block_ == nullptr) {
-        --read_block_id;
-        --write_block_id;
-
+        --block_id_;
         return 1;
     }
-    //    std::cerr<<"NEXT BLOCK READED "<<read_block_id<<std::endl;
-    readed_data = 0;
-    current_pos = 0;
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id_));
+    pos_in_block_ = 0;
     return 0;
 }
 
-void Cursor::Commit() {
-    if (!table_->name.empty() and changed) {
-        UpdateDataBlock();
-        file_manager_->UpdateFile(table_->name);
+int Cursor::EmplaceBack(Record *record) {
+    std::lock_guard l(mutex1);
+    int last_pos = 0;
+    data_file_->seekg(std::ios::beg);
+    data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
+    //    std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
+    int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
+    auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
+    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id));
+
+    char *record_buf = record->GetRecordBuf();
+    std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
+    delete[] record_buf;
+
+    data_file_->seekp(std::ios::beg);
+    data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
+    data_file_->flush();
+    transact_manager_->SetUsed(table_->name, std::make_pair(block_id, last_pos - 1), current_tr_id_, 1);
+    return 0;
+}
+
+void Cursor::MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id,
+                          const std::vector<std::pair<int, int>> &need_commit, int record_size) {
+    Record record(record_size);
+    char c = 'c';
+    for (auto i : need_commit) {
+        std::memcpy(&block->data_[(i.first + 1) * record.GetRecordSize() - i.second - 1], &c, sizeof(c));
     }
 }
 
 Cursor::~Cursor() {
-    if (file_manager_.get() != nullptr) {
-        file_manager_->CloseAllFiles();
+    if (data_file_ != nullptr) {
+        data_file_->close();
     }
+
+
 }

@@ -12,7 +12,7 @@
 #include "Exception.h"
 #include "Server.h"
 
-#define MAX_CONN 10
+#define MAX_CONN 2
 #define DEBUG 1
 
 void RunServer();

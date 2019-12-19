@@ -3,9 +3,12 @@
 //
 
 #include "Headers/SelectAction.h"
+#include <mutex>
 #include "../../Parser/Headers/SelectVisitor.h"
 
 Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
+    std::mutex my;
+    std::lock_guard<std::mutex> guard(my);
     root->accept(getTreeVisitor().get());
     auto v = static_cast<SelectVisitor *>(getTreeVisitor().get());
     auto expr = v->getExpr();
@@ -14,13 +17,15 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
     source->accept(getTreeVisitor().get());
     auto message = v->getMessage();
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
     auto tableName = v->getTableName();
     if (tableName.empty()) {
         records = v->getRecords();
     } else {
-        cursor = v->getEngine()->GetCursor(tableName);
+        cursor = v->getEngine()->GetCursor(tableName, root->getId());
         auto table = cursor.first;
         auto columns = v->getColumns();
         std::vector<std::pair<std::string, std::string>> columnValues;
@@ -30,21 +35,26 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         if (table->name.empty()) {
+            commitTransaction(root);
+
             return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
         }
 
         message = ActionsUtils::checkFieldsExist(table, columnValues);
         if (message.getErrorCode()) {
+            commitTransaction(root);
+
             return message;
         }
 
-        if (cursor.first->record_amount == 0) {
-            return Message();
-        }
+        //        if (cursor.first->record_amount == 0) {
+        //            return Message();
+        //        }
 
         cursor.second->Reset();
 
         do {
+            std::cerr << root->getId() << std::endl;
             auto _record = cursor.second->Fetch();
             if (_record.empty()) {
                 continue;
@@ -57,6 +67,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             try {
                 expr->accept(exprVisitor);
             } catch (std::exception &exception) {
+                v->getEngine()->Commit(root->getId());
                 std::string exc = exception.what();
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }

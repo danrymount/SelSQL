@@ -33,6 +33,7 @@ class ErrorConstants {
     inline static const int ERR_TYPE_MISMATCH = 11;
     inline static const int ERR_STO = 12;
     inline static const int ERR_BIG_CHAR = 13;
+    inline static const int ERR_TRANSACT_CONFLICT = 14;
 
     inline static std::map<int, std::string> mapOfErrors = {{ERR_TABLE_NOT_EXISTS, ERR_TABLE_NOT_EXISTS_str},
                                                             {ERR_TABLE_EXISTS, ERR_TABLE_EXISTS_str},
@@ -46,7 +47,8 @@ class ErrorConstants {
                                                             {ERR_TABLE_FULL, ERR_TABLE_FULL_str},
                                                             {ERR_TYPE_MISMATCH, "Types mismatch"},
                                                             {ERR_STO, "Value is out of range OR is not a number"},
-                                                            {ERR_BIG_CHAR, ERR_BIG_CHAR_str}};
+                                                            {ERR_BIG_CHAR, ERR_BIG_CHAR_str},
+                                                            {ERR_TRANSACT_CONFLICT, "Table is in use"}};
 };
 
 #endif  // SELSQL_ERRORCONSTANTS_H
