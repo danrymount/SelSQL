@@ -111,7 +111,7 @@
 %type<Expr> where_exprs where_expr expr_priority_1 expr_priority_2 expr_priority_3 expr_priority_4 expr_priority_5 expr_priority_6 expr update_elem
 %type<Cmp> equal_sign
 %type<Idt> alias
-%type<BaseJoin> join join_type join_expr
+%type<BaseJoin> join join_type
 %type<UINode> union_intercest
 %type<SNode> select
 %type<UIList> union_intercest_expr
@@ -312,20 +312,12 @@ alias:
     }
 
 join:
-    join_expr{
-    	$$ = $1;
-    }|
-    join join_type join_expr ON where_expr{
-    	$2->addChilds($1, $3, new ExprNode($5));
-	$$ = $2;
-    }
-
-join_expr:
     IDENT alias{
     	$$ = new SourceJoinNode(new IdentNode($1), $2);
     }|
-    LBRACKET join RBRACKET{
-	$$ = new SourceJoinNode($2, new IdentNode(""));
+    join join_type join ON where_expr{
+    	$2->addChilds($1, $3, new ExprNode($5));
+	$$ = $2;
     }
 
 join_type:
