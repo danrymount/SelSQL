@@ -155,8 +155,9 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES) {
                                    "\nid|name   |city   |age     |\n"
                                    "1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"update t6 set id = 9 where id = 1;", "Success"},
-                                  {"select * from t6;", "\nid|name   |city   |age     |\n"
-                                                        "9 |'Vasya'|'Gorod'|7.500000|\n"},
+                                  {"select * from t6;",
+                                   "\nid|name   |city   |age     |\n"
+                                   "9 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
     // в этом тесте предполагается, что делит у второго клиента выполнится во время работы первого и соответственно не
     // удаит значение с айди равным 10 а также выполнятся апдейты в обоих транзакциях, т.к. они апдейтят разные поля
@@ -164,9 +165,10 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES) {
     std::thread client2(TestUtils::checkRequests, request2);
     client1.join();
     client2.join();
-    TestUtils::checkRequests({{"select * from t6;", "\nid|name   |city     |age     |\n"
-                                                    "10|'Vas'  |'Gorodok'|4.500000|\n"
-                                                    "9 |'Vasya'|'Gorod'  |7.500000|\n"}});
+    TestUtils::checkRequests({{"select * from t6;",
+                               "\nid|name   |city     |age     |\n"
+                               "10|'Vas'  |'Gorodok'|4.500000|\n"
+                               "9 |'Vasya'|'Gorod'  |7.500000|\n"}});
 }
 
 TEST(SERVER_TEST_THREAD, THREAD_TEST_DELETE_INTO_TWO_TRANSACTIONS) {
@@ -208,10 +210,37 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_INTO_TWO_TRANSACTIONS_PARALLEL_TREAD
                                   {"commit;", "Success"}};
     // в этом тесте должна быть ошибка, апдейт сразу в двух транзакциях
     std::thread client1(TestUtils::checkRequests, request1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
     std::thread client2(TestUtils::checkRequests, request2);
     client1.join();
     client2.join();
     TestUtils::checkRequests({{"select * from t8;",
                                "\nid|name   |city   |age     |\n"
                                "10|'Vasya'|'Gorod'|7.500000|\n"}});
+}
+
+TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES_INTO_TWO_TRANSACTIONS) {
+    TestUtils::clear();
+    Client client1;
+    std::vector<Request> request1{{"create table t9(id int, name char(255), city char(255), age float);", "Success"},
+                                  {"insert into t9 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"begin;", "Success"},
+                                  {"insert into t9 values(5, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"update t9 set id = 15 where id = 5;", "Success"},
+                                  {"select * from t9;", "\nid|name   |city   |age     |\n"
+                                                        "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                                        "15|'Vasya'|'Gorod'|7.500000|\n"}};
+    std::vector<Request> request2{{"begin;", "Success"},
+                                  {"update t9 set id = 15 where id = 1;", "Success"},
+                                  {"select * from t9;",
+                                   "\nid|name   |city   |age     |\n"
+                                   "15|'Vasya'|'Gorod'|7.500000|\n"},
+                                  {"commit;", "Success"}};
+    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t9;", "\nid|name   |city   |age     |\n"
+                                                                                "15|'Vasya'|'Gorod'|7.500000|\n"
+                                                                                "15|'Vasya'|'Gorod'|7.500000|\n"}};
+    TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
+    TestUtils::checkRequestsClient(request2, client2);
+    TestUtils::checkRequestsClient(request3, client1);
 }
