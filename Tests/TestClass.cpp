@@ -2,9 +2,7 @@
 
 #include <gtest/gtest.h>
 #include "../Client/Client.h"
-#include "../src/Utils/Structures/Data/Variable.h"
 #include "Headers/TestUtils.h"
-
 
 //#define KILL
 #define Request std::pair<std::string, std::string>
@@ -1320,57 +1318,57 @@ TEST(SERVER_TEST_SYN_ERROR, TEST40) {
                                "syntax error, unexpected INSERT_ACTION, expecting SELECT_ACTION (Str num 1, sym num "
                                "27): insert"}});
 }
-//
-// TEST(SERVER_TEST_THREAD, TEST1) {
-//    TestUtils::clear();
-//    TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
-//                              {"create table t1(id int, name char(255), city char(255), age float);", "Success"}});
-//    std::vector<Request> request1{{"begin;", "Success"},
-//                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-//                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-//                                  {"select * from t;", ""},
-//                                  {"commit;", "Success"}};
-//    std::vector<Request> request2{{"begin;", "Success"},
-//                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-//                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-//                                  {"select * from t1;", ""},
-//                                  {"commit;", "Success"}};
-//    std::thread client1(TestUtils::checkRequests, request1);
-//    std::thread client2(TestUtils::checkRequests, request2);
-//    client1.join();
-//    client2.join();
-//    TestUtils::checkRequests({{"select * from t;", ""}});
-//    TestUtils::checkRequests({{"select * from t1;", ""}});
-//}
-//
-// TEST(SERVER_TEST_THREAD, TEST2) {
-//    TestUtils::clear();
-//    Client client1;
-//    Client client2;
-//    std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
-//                                  {"begin;", "Success"},
-//                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
-//                                  {"select * from t;", ""}};
-//    std::vector<Request> request2{{"begin;", "Success"},
-//                                  {"update t set id = 2;", "Success"},
-//                                  {"select * from t;", ""},
-//                                  {"commit;", "Success"}};
-//    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t", ""}};
-//    for (const auto &request : request1) {
-//        client1.execRequest(request.first);
-//        EXPECT_EQ(client1.response, request.second);
-//    }
-//    for (const auto &request : request2) {
-//        client2.execRequest(request.first);
-//        EXPECT_EQ(client2.response, request.second);
-//    }
-//    for (const auto &request : request3) {
-//        client1.execRequest(request.first);
-//        EXPECT_EQ(client1.response, request.second);
-//    }
-//    EXPECT_EQ(client1.response, "Success");
-//}
-//
+
+ TEST(SERVER_TEST_THREAD, TEST1) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"create table t(id int, name char(255), city char(255), age float);", "Success"},
+                              {"create table t1(id int, name char(255), city char(255), age float);", "Success"}});
+    std::vector<Request> request1{{"begin;", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"select * from t;", "\nid|name   |city   |age     |\n"
+                                                       "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                                       "1 |'Vasya'|'Gorod'|7.500000|\n"},
+                                  {"commit;", "Success"}};
+    std::vector<Request> request2{{"begin;", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"insert into t1 values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"select * from t1;", "\nid|name   |city   |age     |\n"
+                                                        "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                                        "1 |'Vasya'|'Gorod'|7.500000|\n"},
+                                  {"commit;", "Success"}};
+    std::thread client1(TestUtils::checkRequests, request1);
+    std::thread client2(TestUtils::checkRequests, request2);
+    client1.join();
+    client2.join();
+    TestUtils::checkRequests({{"select * from t;", "\nid|name   |city   |age     |\n"
+                                                   "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                                   "1 |'Vasya'|'Gorod'|7.500000|\n"}});
+    TestUtils::checkRequests({{"select * from t1;", "\nid|name   |city   |age     |\n"
+                                                    "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                                    "1 |'Vasya'|'Gorod'|7.500000|\n"}});
+}
+
+ TEST(SERVER_TEST_THREAD, TEST2) {
+    TestUtils::clear();
+    Client client1;
+    std::vector<Request> request1{{"create table t(id int, name char(255), city char(255), age float);", "Success"},
+                                  {"begin;", "Success"},
+                                  {"insert into t values(1, 'Vasya', 'Gorod',  7.5);", "Success"},
+                                  {"select * from t;", "\nid|name   |city   |age     |\n"
+                                                       "1 |'Vasya'|'Gorod'|7.500000|\n"}};
+    std::vector<Request> request2{{"begin;", "Success"},
+                                  {"update t set id = 2;", "Success"},
+                                  {"select * from t;", "Success"},
+                                  {"commit;", "Success"}};
+    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t;", "\nid|name   |city   |age     |\n"
+                                                                               "1 |'Vasya'|'Gorod'|7.500000|\n"}};
+    TestUtils::checkRequestsClient(request1, client1);
+    Client client2;
+    TestUtils::checkRequestsClient(request2, client2);
+    TestUtils::checkRequestsClient(request3, client1);
+}
+
 // TEST(SERVER_TEST_THREAD, TEST3) {
 //    TestUtils::clear();
 //    Client client1;
