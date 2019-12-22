@@ -425,8 +425,8 @@ ActionsUtils::getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_
     do {
         // TODO CHECK ONLY IF IT NEED
         auto record = cursor.second->Fetch();
-        if (!record.empty()) {
-            records.emplace_back(record);
+        if (!record.first.empty()) {
+            records.emplace_back(record.first);
         }
 
     } while (!cursor.second->NextRecord());

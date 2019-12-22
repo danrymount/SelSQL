@@ -26,12 +26,12 @@ Message DeleteAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     do {
         auto record = cursor.second->Fetch();
-        if (record.empty()) {
+        if (record.first.empty()) {
             continue;
         }
 
         std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-        for (auto &col : record) {
+        for (auto &col : record.first) {
             _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
         }
         exprVisitor->setFirstValues(_newRecord);

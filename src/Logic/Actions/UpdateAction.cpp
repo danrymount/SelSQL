@@ -33,11 +33,11 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     //    if (cursor.first->record_amount) {
     do {
         auto record = cursor.second->Fetch();
-        if (record.empty()) {
-                continue;
+        if (record.first.empty()) {
+            continue;
             }
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            for (auto &col : record) {
+            for (auto &col : record.first) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
             exprVisitor->setFirstValues(_newRecord);
@@ -50,10 +50,10 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 return Message(ErrorConstants::ERR_TYPE_MISMATCH);
             }
             if (exprVisitor->getResult()) {
-                records.emplace_back(record);
+                records.emplace_back(record.first);
             }
-            allrecords.emplace_back(record);
-        } while (!cursor.second->NextRecord());
+            allrecords.emplace_back(record.first);
+    } while (!cursor.second->NextRecord());
         cursor.second->Reset();
 
         // TODO сменить входные параметры
@@ -72,7 +72,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
         do {
             auto _record = cursor.second->Fetch();
-            auto rec = std::find(records.begin(), records.end(), _record);
+            auto rec = std::find(records.begin(), records.end(), _record.first);
             if (rec == records.end()) {
                 continue;
             }

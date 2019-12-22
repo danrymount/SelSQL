@@ -56,11 +56,11 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         do {
             std::cerr << root->getId() << std::endl;
             auto _record = cursor.second->Fetch();
-            if (_record.empty()) {
+            if (_record.first.empty()) {
                 continue;
             }
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            for (auto &col : _record) {
+            for (auto &col : _record.first) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
             exprVisitor->setFirstValues(_newRecord);

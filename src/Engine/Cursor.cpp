@@ -86,12 +86,13 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
     EmplaceBack(&new_record);
 }
 
-std::vector<std::pair<std::string, std::string>> Cursor::Fetch(int64_t time_s, int64_t time_e) {
+std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, int64_t>> Cursor::Fetch(int64_t time_s,
+                                                                                                       int64_t time_e) {
     Record record(table_->record_size);
 
     std::vector<std::pair<std::string, std::string>> values;
     if (data_block_ == nullptr) {
-        return values;
+        return std::make_pair(values, std::make_pair(0, 0));
     }
     auto block = data_block_;
     char record_buf[record.GetRecordSize()];
@@ -105,7 +106,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch(int64_t time_s, i
         std::string value;
         std::memcpy(field, &record.values_buf[field_pos], C::TYPE_SIZE[table_->fields[i].second.type] + 1);
         if (field[0] != 'n' and field[0] != 'N') {
-            return std::vector<std::pair<std::string, std::string>>();
+            return std::make_pair(std::vector<std::pair<std::string, std::string>>(), std::make_pair(0, 0));
         }
         if (field[0] == 'n') {
             GetFieldData(&value, type, field, 0);
@@ -128,10 +129,11 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch(int64_t time_s, i
              time_s < transact_manager_->transaction_table[record.tr_s].first) and
             (time_e < transact_manager_->transaction_table[record.tr_s].first or
              time_s > transact_manager_->transaction_table[record.tr_e].first)) {
-            return values;
+            return std::make_pair(values, std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
+                                                         transact_manager_->transaction_table[record.tr_e].first));
         } else {
             values.clear();
-            return values;
+            return std::make_pair(values, std::make_pair(0, 0));
         }
     }
 
@@ -146,9 +148,9 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch(int64_t time_s, i
         (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
     } else {
         values.clear();
-        return values;
+        return std::make_pair(values, std::make_pair(0, 0));
     }
-    return values;
+    return std::make_pair(values, std::make_pair(0, 0));
 }
 
 void Cursor::GetFieldData(std::string *dist, Type type, char *src, int start_pos) {

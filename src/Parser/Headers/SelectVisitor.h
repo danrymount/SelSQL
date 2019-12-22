@@ -120,11 +120,11 @@ class SelectVisitor : public TreeVisitor {
         std::vector<RecordsFull> records;
         do {
             auto _record = cursor->Fetch();
-            if (_record.empty()) {
+            if (_record.first.empty()) {
                 continue;
             }
             RecordsFull _newRecord;
-            for (auto& col : _record) {
+            for (auto& col : _record.first) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair(aliasName, col.first), col.second));
             }
             records.emplace_back(_newRecord);

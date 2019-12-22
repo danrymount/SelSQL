@@ -23,13 +23,13 @@ class Cursor {
     int pos_in_block_ = 0;
     int64_t current_tr_id_ = 0;
     int max_pos = 0;
-    static void SaveFieldData(std::string val, Type type, char* dist, int start_pos);
-    static void GetFieldData(std::string* dist, Type type, char* src, int start_pos);
+    static void SaveFieldData(std::string val, Type type, char *dist, int start_pos);
+    static void GetFieldData(std::string *dist, Type type, char *src, int start_pos);
 
-    int EmplaceBack(Record* record);
+    int EmplaceBack(Record *record);
     int NextDataBlock();
 
-public:
+   public:
     Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataManager> &data_manager,
            const std::shared_ptr<TransactManager> &transact_manager, std::shared_ptr<std::fstream> data_file,
            int64_t tr_id);
@@ -48,8 +48,9 @@ public:
 
     ~Cursor();
 
-    std::vector<std::pair<std::string, std::string>> Fetch(int64_t time_s = 0, int64_t time_e = 0);
-
+    //    std::vector<std::pair<std::string, std::string>> Fetch(int64_t time_s = 0, int64_t time_e = 0);
+    std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, int64_t>> Fetch(int64_t time_s = 0,
+                                                                                                   int64_t time_e = 0);
     static void MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id,
                              const std::vector<std::pair<int, int>> &need_commit, int record_size);
 };
