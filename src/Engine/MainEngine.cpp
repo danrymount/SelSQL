@@ -65,7 +65,7 @@ int64_t MainEngine::GetTransactionSP() { return transact_manager_->GetTransactio
 void MainEngine::Commit(int64_t transaction_sp) {
     std::lock_guard<std::mutex> guard(mutex3);
     if (transact_manager_->IsSuccessful(transaction_sp)) {
-        std::cerr << "COMMIT id = " << transaction_sp << std::endl;
+        //        std::cerr << "COMMIT id = " << transaction_sp << std::endl;
         if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
             auto vec = transact_manager_->trans_usage[transaction_sp];
             for (auto bl : vec) {
@@ -86,13 +86,5 @@ void MainEngine::Commit(int64_t transaction_sp) {
     if (transact_manager_->active_tr <= 0) {
         transact_manager_->active_tr = 0;
         data_manager_->ClearAll();
-    } else {
-        //        _sleep(999999);
     }
-    // TODO CLEANUP
-    //        file_manager_->Clear(transaction_sp);
 }
-// MainEngine& MainEngine::GetInstance() {
-//    static MainEngine mainEngine;
-//    return mainEngine;
-//}

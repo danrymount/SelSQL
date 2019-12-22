@@ -98,23 +98,7 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord((char *)record_buf);
 
-    // TODO UPDATE CONDITION
 
-    //    std::cerr << "FETCH TRANS  = " << current_tr_id_ << std::endl;
-
-    //    if ((record.commited_tr_e == 'c' and
-    //         transact_manager_->transaction_table[record.tr_e].second >
-    //         transact_manager_->transaction_table[current_tr_id_].first and record.tr_s != record.tr_e) or
-    //        (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
-    //         transact_manager_->transaction_table[current_tr_id_].first >
-    //         transact_manager_->transaction_table[record.tr_s].second) or
-    //        (record.commited_tr_s == 'c' and
-    //         transact_manager_->transaction_table[current_tr_id_].first >
-    //         transact_manager_->transaction_table[record.tr_s].second and record.tr_e == 0) or
-    //        (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
-    //    } else {
-    //        return values;
-    //    }
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
         char field[C::TYPE_SIZE[table_->fields[i].second.type] + 1];
@@ -132,14 +116,14 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
 
-    std::cerr << "FETCH" << std::endl;
-    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
-              << std::endl;
-    std::cerr << "DATA : ";
-    for (auto i : values) {
-        std::cerr << i.second << " ";
-    }
-    std::cerr << std::endl;
+    //    std::cerr << "FETCH" << std::endl;
+    //    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
+    //              << std::endl;
+    //    std::cerr << "DATA : ";
+    //    for (auto i : values) {
+    //        std::cerr << i.second << " ";
+    //    }
+    //    std::cerr << std::endl;
     if ((record.commited_tr_e == 'c' and
          transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
          record.tr_s != record.tr_e) or

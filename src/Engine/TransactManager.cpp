@@ -22,8 +22,9 @@ TransactManager::TransactManager() {
     }
 };
 int64_t TransactManager::GetTransactionSP() {
-    active_tr++;
     std::lock_guard l(mutex);
+    active_tr++;
+
     std::fstream temp("CLOCK_TR_ID", std::ios::in | std::ios::out);
     if (!temp.is_open()) {
         temp = std::fstream("CLOCK_TR_ID", std::ios::in | std::ios::out | std::ios::trunc);

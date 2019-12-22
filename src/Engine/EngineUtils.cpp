@@ -135,21 +135,21 @@ void RestoreFromTemp(std::fstream *src, std::fstream *dist, int record_size) {
     //    offset += 4;
     dist->write(buf, size);
 
-    //    while (offset < size) {
-    //        int block_id = 0;
-    //        memcpy(&block_id, &buf[offset], sizeof(int));
-    //        //        std::cerr << ""block_id << std::endl;
-    //        offset += 4;
-    //        dist->seekp(block_id * GetDataBlockSize(record_size));
-    //        dist->write(&buf[offset], GetDataBlockSize(record_size));
-    //        offset += GetDataBlockSize(record_size);
-    //    }
-    //    //    if (rec_amount == 0) {
-    //    //        char *empty = new char[GetFileSize(dist)];
-    //    //        memset(empty,0,GetFileSize(dist));
-    //    //        dist->write(empty,GetFileSize(dist));
-    //    //        delete[] empty;
-    //    //    }
+    //        while (offset < size) {
+    //            int block_id = 0;
+    //            memcpy(&block_id, &buf[offset], sizeof(int));
+    //            //        std::cerr << ""block_id << std::endl;
+    //            offset += 4;
+    //            dist->seekp(block_id * GetDataBlockSize(record_size));
+    //            dist->write(&buf[offset], GetDataBlockSize(record_size));
+    //            offset += GetDataBlockSize(record_size);
+    //        }
+    //        //    if (rec_amount == 0) {
+    //        //        char *empty = new char[GetFileSize(dist)];
+    //        //        memset(empty,0,GetFileSize(dist));
+    //        //        dist->write(empty,GetFileSize(dist));
+    //        //        delete[] empty;
+    //        //    }
     dist->flush();
     delete[] buf;
 }

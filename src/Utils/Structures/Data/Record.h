@@ -5,9 +5,7 @@
 #ifndef SELSQL_RECORD_H
 #define SELSQL_RECORD_H
 #include <cstring>
-// TODO CHANGE LONG TO long long or int64_t
-// TODO ADD COMMITED FLAG
-// TODO ADD TRANSACTION CALENDAR
+
 struct Record {
     char *values_buf;
     int64_t tr_s = 0;
