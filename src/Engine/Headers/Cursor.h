@@ -48,7 +48,7 @@ public:
 
     ~Cursor();
 
-    std::vector<std::pair<std::string, std::string>> Fetch();
+    std::vector<std::pair<std::string, std::string>> Fetch(int64_t time_s = 0, int64_t time_e = 0);
 
     static void MakeCommited(const std::shared_ptr<DataBlock> &block, int64_t tr_id,
                              const std::vector<std::pair<int, int>> &need_commit, int record_size);

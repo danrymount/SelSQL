@@ -86,7 +86,7 @@ int Cursor::Insert(const std::vector<std::string> &cols, const std::vector<std::
     EmplaceBack(&new_record);
 }
 
-std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
+std::vector<std::pair<std::string, std::string>> Cursor::Fetch(int64_t time_s, int64_t time_e) {
     Record record(table_->record_size);
 
     std::vector<std::pair<std::string, std::string>> values;
@@ -97,7 +97,6 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     char record_buf[record.GetRecordSize()];
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord((char *)record_buf);
-
 
     int field_pos = 0;
     for (int i = 0; i < table_->fields.size(); ++i) {
@@ -115,7 +114,6 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
         values.emplace_back(std::make_pair(table_->fields[i].first, value));
         field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
-
     //    std::cerr << "FETCH" << std::endl;
     //    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
     //              << std::endl;
@@ -124,6 +122,19 @@ std::vector<std::pair<std::string, std::string>> Cursor::Fetch() {
     //        std::cerr << i.second << " ";
     //    }
     //    std::cerr << std::endl;
+    if (time_s != 0 and time_e != 0) {
+        if ((record.commited_tr_s == 'c' or record.commited_tr_e == 'c') and
+            (time_s > transact_manager_->transaction_table[record.tr_e].first or
+             time_s < transact_manager_->transaction_table[record.tr_s].first) and
+            (time_e < transact_manager_->transaction_table[record.tr_s].first or
+             time_s > transact_manager_->transaction_table[record.tr_e].first)) {
+            return values;
+        } else {
+            values.clear();
+            return values;
+        }
+    }
+
     if ((record.commited_tr_e == 'c' and
          transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
          record.tr_s != record.tr_e) or
