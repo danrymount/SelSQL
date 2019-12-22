@@ -55,13 +55,29 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         do {
             std::cerr << root->getId() << std::endl;
-            auto _record = cursor.second->Fetch(v->getStartTime(), v->getFinishTime());
+
+            auto start = v->getStartTime();
+            auto finish = v->getFinishTime();
+            if (start == -1) {
+                start = 0;
+                finish = 0;
+            }
+
+            auto _record = cursor.second->Fetch(start, finish);
             if (_record.first.empty()) {
                 continue;
             }
             std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
             for (auto &col : _record.first) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+            }
+
+            if (start > 0) {
+                auto startTime = getDateTime(_record.second.first);
+                auto endTime = !_record.second.second ? "-" : getDateTime(_record.second.second);
+
+                _newRecord.emplace_back(std::make_pair(std::make_pair("", "start_time"), startTime));
+                _newRecord.emplace_back(std::make_pair(std::make_pair("", "end_time"), endTime));
             }
             exprVisitor->setFirstValues(_newRecord);
             try {

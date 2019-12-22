@@ -73,7 +73,12 @@ class SelectVisitor : public TreeVisitor {
     }
 
     void visit(SystemTimeAllNode* node) override {
+        auto date = "21-01-1999 8:30:21";
+        std::tm tm{};
+        strptime(date, "%d-%m-%Y %H:%M:%S", &tm);
         startTime = 0;
+        auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        std::memcpy(&startTime, &s_time, sizeof(s_time));
         finishTIme = INT64_MAX;
     }
 
@@ -472,8 +477,8 @@ class SelectVisitor : public TreeVisitor {
     int countEq = 0;
     inline static int id = -1;
     inline static std::vector<std::pair<std::string, std::string>> curExpr;
-    int64_t startTime = 0;
-    int64_t finishTIme = 0;
+    int64_t startTime = -1;
+    int64_t finishTIme = -1;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H
