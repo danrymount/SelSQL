@@ -55,7 +55,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         do {
             std::cerr << root->getId() << std::endl;
-            auto _record = cursor.second->Fetch();
+            auto _record = cursor.second->Fetch(v->getStartTime(), v->getFinishTime());
             if (_record.empty()) {
                 continue;
             }

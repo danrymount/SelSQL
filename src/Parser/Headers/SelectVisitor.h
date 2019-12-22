@@ -68,10 +68,14 @@ class SelectVisitor : public TreeVisitor {
     }
 
     void visit(SystemTimeNode* node) override {
-        std::cout << node->getPeriodA() << ":" << node->getPeriodB() << std::endl;
+        startTime = node->getPeriodA();
+        finishTIme = node->getPeriodB();
     }
 
-    void visit(SystemTimeAllNode* node) override { std::cout << "ALL" << std::endl; }
+    void visit(SystemTimeAllNode* node) override {
+        startTime = 0;
+        finishTIme = INT64_MAX;
+    }
 
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
@@ -174,7 +178,6 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(LeftJoinNode* node) override {
         startExecuteJoin(node);
-        // records.clear();
         for (auto& first : firstRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
@@ -403,7 +406,7 @@ class SelectVisitor : public TreeVisitor {
             if (ident == large[0].end()) {
                 ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
                 if (ident == small[0].end()) {
-//                    this->getEngine()->Commit(tr_id);
+                    //                    this->getEngine()->Commit(tr_id);
                     message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
                     return;
                 } else {
@@ -449,6 +452,10 @@ class SelectVisitor : public TreeVisitor {
 
     std::string getTableName() { return tableName; }
 
+    int64_t getStartTime() { return startTime; }
+
+    int64_t getFinishTime() { return finishTIme; }
+
    private:
     std::string curValue;
     std::string tableName;
@@ -465,6 +472,8 @@ class SelectVisitor : public TreeVisitor {
     int countEq = 0;
     inline static int id = -1;
     inline static std::vector<std::pair<std::string, std::string>> curExpr;
+    int64_t startTime = 0;
+    int64_t finishTIme = 0;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H

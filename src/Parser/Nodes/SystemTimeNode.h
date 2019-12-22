@@ -10,16 +10,28 @@
 #include "BaseNode.h"
 class SystemTimeNode : public BaseNode {
    public:
-    SystemTimeNode(std::string a, std::string b) : periodA(a), periodB(b) {}
+    SystemTimeNode(const std::string& a, const std::string& b)
+                                                                                                        : periodA(stringToChrono(a)),
+                                                                                                          periodB(stringToChrono(b)) {
+    }
 
     void accept(TreeVisitor* v) override { v->visit(this); }
 
-    std::string getPeriodA() { return periodA; }
-    std::string getPeriodB() { return periodB; }
+    int64_t getPeriodA() { return periodA; }
+    int64_t getPeriodB() { return periodB; }
 
    private:
-    std::string periodA;
-    std::string periodB;
+    static int64_t stringToChrono(const std::string& date) {
+        std::tm tm{};
+        strptime(date.c_str(), "%d-%m-%Y %H:%M:%S", &tm);
+        int64_t start_time = 0;
+        auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        std::memcpy(&start_time, &s_time, sizeof(s_time));
+        return start_time;
+    }
+
+    int64_t periodA;
+    int64_t periodB;
 };
 
 #endif  // SELSQL_SYSTEMTIMENODE_H
