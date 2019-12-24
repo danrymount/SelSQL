@@ -127,13 +127,10 @@ std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, i
         if ((record.commited_tr_s == 'c' or record.commited_tr_e == 'c') and
             !(time_s > transact_manager_->transaction_table[record.tr_e].second or
               time_e < transact_manager_->transaction_table[record.tr_s].second)) {
-            if (record.tr_e != 0) {
-                return std::make_pair(values, std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
-                                                             transact_manager_->transaction_table[record.tr_e].first));
-            } else {
-                return std::make_pair(values,
-                                      std::make_pair(transact_manager_->transaction_table[record.tr_s].first, 0));
-            }
+            return std::make_pair(values,
+                                  std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
+                                                 record.tr_e != 0 ? transact_manager_->transaction_table[record.tr_e].first
+                                                                  : 0));
 
         } else {
             values.clear();
