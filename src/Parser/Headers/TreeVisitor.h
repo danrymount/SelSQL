@@ -31,6 +31,7 @@ class TreeVisitor : public Visitor {
     void visit(SelectNode* node) override;
     void visit(UpdateNode* node) override;
     void visit(DeleteNode* node) override;
+    void visit(IndexNode* node) override;
 
     void visit(ColumnsAndValuesNode* node) override;
     void visit(ColumnNode* node) override;

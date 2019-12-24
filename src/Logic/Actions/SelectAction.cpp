@@ -50,6 +50,9 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         cursor.second->Reset();
         try {
             expr->accept(optimizerExprVisitor);
+            if (optimizerExprVisitor->getMbIndex()) {
+                auto mbIndentIndex = optimizerExprVisitor->getIndent();
+            }
         } catch (std::exception &exception) {
         }
 

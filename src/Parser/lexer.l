@@ -92,6 +92,7 @@ DATE_TYPE     ([0-9]+"-"+[0-9]+"-"+[0-9]+" "+[0-9]+":"+[0-9]+":"+[0-9]+)
 "TIME"                  {ch += yyleng; return TIME;}
 "ALL"                   {ch += yyleng; return ALL;}
 "TO"                    {ch += yyleng; return TO;}
+"INDEX"                 {ch += yyleng; return INDEX;}
 
 {CHAR_TYPE}             {ch += yyleng;
                         charLen = "";

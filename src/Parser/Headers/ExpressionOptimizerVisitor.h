@@ -160,13 +160,27 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
         }
     }
 
-    void visit(IndentExprNode* node) override {}
+    void visit(IndentExprNode* node) override {
+        auto temp = node->getBaseValue();
+        if (indent.empty() || indent == temp) {
+            indent = temp;
+            mbIndex = true;
+        } else {
+            mbIndex = false;
+        }
+    }
 
     void visit(ValueExprNode* node) override {}
 
     void visit(IdentNode* node) override {}
 
+    std::string getIndent() { return indent; }
+
+    bool getMbIndex() { return mbIndex; }
+
    private:
+    std::string indent = "";
+    bool mbIndex = false;
     bool isNull = false;
     bool result = true;
 };
