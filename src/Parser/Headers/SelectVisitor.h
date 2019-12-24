@@ -40,6 +40,7 @@ typedef std::vector<RecordsFull> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
     int64_t tr_id = 0;
+    int flag_system_time = 0;
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
 
     void visit(SelectNode* node) override {
@@ -70,6 +71,7 @@ class SelectVisitor : public TreeVisitor {
     void visit(SystemTimeNode* node) override {
         startTime = node->getPeriodA();
         finishTIme = node->getPeriodB();
+        flag_system_time = 1;
     }
 
     void visit(SystemTimeAllNode* node) override {
@@ -77,8 +79,8 @@ class SelectVisitor : public TreeVisitor {
         std::tm tm{};
         strptime(date, "%d-%m-%Y %H:%M:%S", &tm);
         startTime = 0;
-        auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
-        std::memcpy(&startTime, &s_time, sizeof(s_time));
+        //        auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        //        std::memcpy(&startTime, &s_time, sizeof(s_time));
         finishTIme = INT64_MAX;
     }
 

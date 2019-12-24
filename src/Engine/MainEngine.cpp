@@ -39,7 +39,7 @@ MainEngine::MainEngine() {
     std::cerr << "CONSTRUCTOR ENGINE" << std::endl;
     transact_manager_ = std::make_shared<TransactManager>();
     file_manager_ = std::make_shared<FileManager>(transact_manager_);
-    data_manager_ = std::make_shared<DataManager>();
+    data_manager_ = std::make_shared<DataManager>(file_manager_);
 }
 
 std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor(const std::string& tableName,
@@ -87,4 +87,5 @@ void MainEngine::Commit(int64_t transaction_sp) {
         transact_manager_->active_tr = 0;
         data_manager_->ClearAll();
     }
+    std::cerr << "IO = " << file_manager_->i_o_count << std::endl;
 }

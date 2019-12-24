@@ -12,7 +12,7 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string &table_na
     auto position = std::make_pair(table_name, block_id);
     if (cached_block.find(position) == cached_block.end()) {
         std::shared_ptr<DataBlock> data_block;
-        data_block = FileManager::ReadDataBlock(table_name, block_id);
+        data_block = fm_->ReadDataBlock(table_name, block_id);
         if (data_block == nullptr and with_alloc) {
             data_block = std::make_shared<DataBlock>();
             char *new_data = new char[C::DATA_BLOCK_SIZE];
@@ -34,7 +34,7 @@ void DataManager::FreeDataBlock(const std::string &table_name, int block_id) {
     std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
     if (cached_block.find(position) != cached_block.end() and cached_block[position].first != nullptr) {
-        FileManager::WriteDataBlock(table_name, cached_block[position].first, block_id);
+        fm_->WriteDataBlock(table_name, cached_block[position].first, block_id);
     }
 }
 

@@ -58,6 +58,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
             auto start = v->getStartTime();
             auto finish = v->getFinishTime();
+            int64_t temp = start;
             if (start == -1) {
                 start = 0;
                 finish = 0;
@@ -72,13 +73,17 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
 
-            if (start > 0) {
+            if (temp >= 0) {
                 auto startTime = getDateTime(_record.second.first);
+                if (_record.second.first == 0) {
+                    continue;
+                }
                 auto endTime = !_record.second.second ? "-" : getDateTime(_record.second.second);
 
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", "start_time"), startTime));
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", "end_time"), endTime));
             }
+
             exprVisitor->setFirstValues(_newRecord);
             try {
                 expr->accept(exprVisitor);

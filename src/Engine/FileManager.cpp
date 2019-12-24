@@ -70,7 +70,7 @@ int FileManager::WriteDataBlock(const std::string& table_name, std::shared_ptr<D
     std::fstream data_file(data_file_name, std::ios::in | std::ios::out);
     int offset = 4 + block_id * C::DATA_BLOCK_SIZE;
     buffer_data buffer = GetDataBlockBuffer(data.get());
-
+    this->i_o_count++;
     data_file.seekp(offset);
     data_file.write(buffer.first, buffer.second);
     data_file.flush();
@@ -81,7 +81,7 @@ int FileManager::WriteDataBlock(const std::string& table_name, std::shared_ptr<D
 std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
     std::string data_file_name = table_name + DIR_SEPARATOR + table_name + C::DATA_FILE_TYPE;
     std::fstream data_file(data_file_name, std::ios::in);
-
+    this->i_o_count++;
     if (!data_file.is_open()) {
         return nullptr;
     }

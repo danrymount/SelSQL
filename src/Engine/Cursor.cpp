@@ -115,22 +115,26 @@ std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, i
         values.emplace_back(std::make_pair(table_->fields[i].first, value));
         field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
-    //    std::cerr << "FETCH" << std::endl;
-    //    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
-    //              << std::endl;
-    //    std::cerr << "DATA : ";
-    //    for (auto i : values) {
-    //        std::cerr << i.second << " ";
-    //    }
-    //    std::cerr << std::endl;
-    if (time_s != 0 and time_e != 0) {
+    std::cerr << "FETCH" << std::endl;
+    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
+              << std::endl;
+    std::cerr << "DATA : ";
+    for (auto i : values) {
+        std::cerr << i.second << " ";
+    }
+    std::cerr << std::endl;
+    if (time_s >= 0 and time_e != 0) {
         if ((record.commited_tr_s == 'c' or record.commited_tr_e == 'c') and
-            (time_s > transact_manager_->transaction_table[record.tr_e].first or
-             time_s < transact_manager_->transaction_table[record.tr_s].first) and
-            (time_e < transact_manager_->transaction_table[record.tr_s].first or
-             time_s > transact_manager_->transaction_table[record.tr_e].first)) {
-            return std::make_pair(values, std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
-                                                         transact_manager_->transaction_table[record.tr_e].first));
+            !(time_s > transact_manager_->transaction_table[record.tr_e].second or
+              time_e < transact_manager_->transaction_table[record.tr_s].second)) {
+            if (record.tr_e != 0) {
+                return std::make_pair(values, std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
+                                                             transact_manager_->transaction_table[record.tr_e].first));
+            } else {
+                return std::make_pair(values,
+                                      std::make_pair(transact_manager_->transaction_table[record.tr_s].first, 0));
+            }
+
         } else {
             values.clear();
             return std::make_pair(values, std::make_pair(0, 0));

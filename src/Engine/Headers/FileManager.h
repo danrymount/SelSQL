@@ -25,7 +25,8 @@ class FileManager {
     std::map<std::string, std::shared_ptr<Table>> table_data;
     std::shared_ptr<TransactManager> transact_manager_;
 
-public:
+   public:
+    int i_o_count = 0;
     void ReadTableMetaData(const std::string &table_name, const std::shared_ptr<std::fstream> &meta_file);
 
     void WriteTableMetaData(std::shared_ptr<std::fstream> meta_file, const std::shared_ptr<Table> &table);
@@ -42,11 +43,11 @@ public:
 
     std::shared_ptr<Table> GetTable(const std::string &table_name);
 
-    static std::shared_ptr<DataBlock> ReadDataBlock(const std::string &table_name, int block_id);
+    std::shared_ptr<DataBlock> ReadDataBlock(const std::string &table_name, int block_id);
 
     //    static void WriteDataBlockToTemp(const std::string& table_name, std::shared_ptr<DataBlock> data, int block_id,
     //    const std::shared_ptr<std::fstream>& dist);
-    static int WriteDataBlock(const std::string &table_name, std::shared_ptr<DataBlock> data, int block_id);
+    int WriteDataBlock(const std::string &table_name, std::shared_ptr<DataBlock> data, int block_id);
 
     int UpdateFile(const std::string &table_name, const std::shared_ptr<std::fstream> &src);
 

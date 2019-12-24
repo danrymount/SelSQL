@@ -8,8 +8,10 @@
 
 class DataManager {
     std::map<std::pair<std::string, int>, std::pair<std::shared_ptr<DataBlock>, int>> cached_block;
+    std::shared_ptr<FileManager> fm_;
 
    public:
+    DataManager(std::shared_ptr<FileManager> f) : fm_(f){};
     std::shared_ptr<DataBlock> GetDataBlock(const std::string& table_name, int block_id, bool with_alloc);
     //    SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block);
     void FreeDataBlock(const std::string& table_name, int block_id);
