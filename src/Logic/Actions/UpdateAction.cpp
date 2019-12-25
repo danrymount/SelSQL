@@ -70,6 +70,16 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         return message;
     }
+    std::string indexColumn;
+    bool hasIndex = false;
+    for (auto &field : cursor.first->getFields()) {
+        if (field.second.isIndex()) {
+            indexColumn = field.first;
+            hasIndex = true;
+            break;
+        }
+    }
+
     do {
         auto _record = cursor.second->Fetch();
         auto rec = std::find(records.begin(), records.end(), _record.first);
@@ -83,8 +93,8 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
                 return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
             };
-            std::string indexColumn;
-            if (!indexColumn.empty()) {
+
+            if (hasIndex) {
                 auto data_manager = cursor.second->GetDataManager();
                 int index = -1;
                 for (int i = 0; i < columns.size(); i++) {
