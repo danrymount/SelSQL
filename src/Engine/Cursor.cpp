@@ -297,6 +297,7 @@ int Cursor::EmplaceBack(Record *record) {
     }
     std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
     delete[] record_buf;
+    last_inserted = last_pos;
     last_block->was_changed = 1;
     data_file_->seekp(std::ios::beg);
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
@@ -319,3 +320,8 @@ Cursor::~Cursor() {
         data_file_->close();
     }
 }
+
+int Cursor::GetLastInsertedPos() { return last_inserted; }
+
+std::shared_ptr<DataManager> Cursor::GetDataManager() { return data_manager_; }
+int Cursor::GetCurrentPos() { return pos_in_block_; }

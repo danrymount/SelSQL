@@ -6,11 +6,16 @@
 #define SELSQL_DATAMANAGER_H
 #include "CachedBlocks.h"
 #include "FileManager.h"
+#include "Index.h"
 class DataManager {
     std::map<std::pair<std::string, int>, std::pair<std::shared_ptr<DataBlock>, int>> cached_block;
     std::shared_ptr<FileManager> fm_;
+    std::map<std::string, std::shared_ptr<Indexes>> indexes;
 
    public:
+    std::multimap<std::string, int> GetIndexes(const std::string& table_name);
+    void CreateIndex(std::string table_name, Type type);
+    void InsertIndex(std::string table_name, std::string value, int pos);
     DataManager(std::shared_ptr<FileManager> f) : fm_(f){};
     std::shared_ptr<DataBlock> GetDataBlock(const std::string& table_name, int block_id, bool with_alloc);
     //    SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block);

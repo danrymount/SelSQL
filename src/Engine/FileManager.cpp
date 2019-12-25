@@ -5,7 +5,8 @@
 #include "../Utils/Structures/Data/DataBlock.h"
 #include "../Utils/Structures/Data/Record.h"
 
-void FileManager::WriteTableMetaData(std::shared_ptr<std::fstream> meta_file, const std::shared_ptr<Table>& table) {
+void FileManager::WriteTableMetaData(const std::shared_ptr<std::fstream>& meta_file,
+                                     const std::shared_ptr<Table>& table) {
     meta_file->seekp(0, std::ios::beg);
     buffer_data buffer = GetTableBuffer(table.get());
     meta_file->write(buffer.first, buffer.second);

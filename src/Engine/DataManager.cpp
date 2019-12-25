@@ -46,3 +46,12 @@ void DataManager::CommitDataBlock(std::string &table_name, int block_id,
 }
 
 void DataManager::ClearAll() { cached_block.clear(); }
+std::multimap<std::string, int> DataManager::GetIndexes(const std::string &table_name) {
+    return indexes[table_name]->GetIndexes();
+}
+void DataManager::InsertIndex(std::string table_name, std::string value, int pos) {
+    indexes[table_name]->Insert(value, pos);
+}
+void DataManager::CreateIndex(std::string table_name, Type type) {
+    indexes[table_name] = std::make_shared<Indexes>(type);
+}

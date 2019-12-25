@@ -29,7 +29,7 @@ class FileManager {
     int i_o_count = 0;
     void ReadTableMetaData(const std::string &table_name, const std::shared_ptr<std::fstream> &meta_file);
 
-    void WriteTableMetaData(std::shared_ptr<std::fstream> meta_file, const std::shared_ptr<Table> &table);
+    void WriteTableMetaData(const std::shared_ptr<std::fstream> &meta_file, const std::shared_ptr<Table> &table);
 
     explicit FileManager(std::shared_ptr<TransactManager> manager);
 

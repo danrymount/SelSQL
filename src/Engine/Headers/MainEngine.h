@@ -29,6 +29,7 @@ class MainEngine {
     int64_t GetTransactionSP();
     //    static MainEngine& GetInstance();
     void Commit(int64_t transaction_id);
+    void UpdateTableMeta(std::shared_ptr<Table> table);
 };
 
 #endif  // SELSQL_MAINENGINE_H

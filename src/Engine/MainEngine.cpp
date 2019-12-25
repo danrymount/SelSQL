@@ -89,3 +89,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
     }
     std::cerr << "IO = " << file_manager_->i_o_count << std::endl;
 }
+void MainEngine::UpdateTableMeta(std::shared_ptr<Table> table) {
+    auto [meta, data] = file_manager_->OpenFile(table->name);
+    file_manager_->WriteTableMetaData(meta, table);
+}

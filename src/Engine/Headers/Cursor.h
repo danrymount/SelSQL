@@ -23,6 +23,7 @@ class Cursor {
     int pos_in_block_ = 0;
     int64_t current_tr_id_ = 0;
     int max_pos = 0;
+    int last_inserted = 0;
     static void SaveFieldData(std::string val, Type type, char *dist, int start_pos);
     static void GetFieldData(std::string *dist, Type type, char *src, int start_pos);
 
@@ -48,6 +49,10 @@ class Cursor {
 
     ~Cursor();
 
+    int GetLastInsertedPos();
+    int GetCurrentPos();
+
+    std::shared_ptr<DataManager> GetDataManager();
     //    std::vector<std::pair<std::string, std::string>> Fetch(int64_t time_s = 0, int64_t time_e = 0);
     std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, int64_t>> Fetch(int64_t time_s = 0,
                                                                                                    int64_t time_e = 0);
