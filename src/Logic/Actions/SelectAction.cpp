@@ -50,59 +50,79 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         cursor.second->Reset();
         try {
             expr->accept(optimizerExprVisitor);
-            if (optimizerExprVisitor->getMbIndex()) {
-                auto mbIndentIndex = optimizerExprVisitor->getIndent();
-                auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
-                                       [mbIndentIndex](std::pair<std::string, Variable> &field) {
-                                           if (field.first == mbIndentIndex) {
-                                               return field.second.isIndex();
-                                           }
-                                           return false;
-                                       });
-                if (it != table->getFields().end()) {
-                    // TODO IS INDEX
-                }
-            }
         } catch (std::exception &exception) {
+            // TODO expception from visitor
         }
 
-        do {
-            auto start = v->getStartTime();
-            auto finish = v->getFinishTime();
+        // if (optimizerExprVisitor->getMbIndex()) {
+        // auto mbIndentIndex = optimizerExprVisitor->getIndent();
+        auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
+                               [](std::pair<std::string, Variable> &field) { return field.second.isIndex(); });
+        if (it != table->getFields().end()) {
+            std::cout << "INDEXSES" << std::endl;
+            auto data_manager = cursor.second->GetDataManager();
+            auto indexes = data_manager->GetIndexes(tableName);
+            for (auto &field : indexes) {
+                cursor.second->SetPos(field.second);
+                auto _record = cursor.second->Fetch();
 
-            auto _record = cursor.second->Fetch(start == -1 ? 0 : start, finish == -1 ? 0 : finish);
-            if (_record.first.empty()) {
-                continue;
+                std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+                for (auto &col : _record.first) {
+                    _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+                }
+                exprVisitor->setFirstValues(_newRecord);
+                try {
+                    expr->accept(exprVisitor);
+                } catch (std::exception &exception) {
+                    v->getEngine()->Commit(root->getId());
+                    std::string exc = exception.what();
+                    return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+                }
+                if (exprVisitor->getResult()) {
+                    records.push_back(_newRecord);
+                }
             }
-            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            for (auto &col : _record.first) {
-                _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
-            }
+        } else {
+            //} else {
+            do {
+                auto start = v->getStartTime();
+                auto finish = v->getFinishTime();
 
-            if (start != -1) {
-                auto startTime = getDateTime(_record.second.first);
-                if (_record.second.first == 0) {
+                auto _record = cursor.second->Fetch(start == -1 ? 0 : start, finish == -1 ? 0 : finish);
+                if (_record.first.empty()) {
                     continue;
                 }
-                auto endTime = !_record.second.second ? "-" : getDateTime(_record.second.second);
+                std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+                for (auto &col : _record.first) {
+                    _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+                }
 
-                _newRecord.emplace_back(std::make_pair(std::make_pair("", "start_time"), startTime));
-                _newRecord.emplace_back(std::make_pair(std::make_pair("", "end_time"), endTime));
-            }
+                if (start != -1) {
+                    auto startTime = getDateTime(_record.second.first);
+                    if (_record.second.first == 0) {
+                        continue;
+                    }
+                    auto endTime = !_record.second.second ? "-" : getDateTime(_record.second.second);
 
-            exprVisitor->setFirstValues(_newRecord);
-            try {
-                expr->accept(exprVisitor);
-            } catch (std::exception &exception) {
-                v->getEngine()->Commit(root->getId());
-                std::string exc = exception.what();
-                return Message(ErrorConstants::ERR_TYPE_MISMATCH);
-            }
-            if (exprVisitor->getResult()) {
-                records.push_back(_newRecord);
-            }
-        } while (!cursor.second->NextRecord());
+                    _newRecord.emplace_back(std::make_pair(std::make_pair("", "start_time"), startTime));
+                    _newRecord.emplace_back(std::make_pair(std::make_pair("", "end_time"), endTime));
+                }
+
+                exprVisitor->setFirstValues(_newRecord);
+                try {
+                    expr->accept(exprVisitor);
+                } catch (std::exception &exception) {
+                    v->getEngine()->Commit(root->getId());
+                    std::string exc = exception.what();
+                    return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+                }
+                if (exprVisitor->getResult()) {
+                    records.push_back(_newRecord);
+                }
+            } while (!cursor.second->NextRecord());
+        }
     }
+
     v->setRecords(records);
     return Message(ActionsUtils::checkSelectColumns(records, v->getColumns()));
 };

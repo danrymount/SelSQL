@@ -138,11 +138,29 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
     }
 
     try {
+        std::string indexColumn;
+        for (auto &field : cursor.first->getFields()) {
+            if (field.second.isIndex()) {
+                indexColumn = field.first;
+            }
+        }
         std::vector<std::string> newCols;
         std::vector<std::string> newVals;
         for (auto &colVal : columnsValues) {
             newCols.emplace_back(colVal.first);
             newVals.emplace_back(colVal.second);
+        }
+        if (!indexColumn.empty()) {
+            auto data_manager = cursor.second->GetDataManager();
+            int index = -1;
+            for (int i = 0; i < newCols.size(); i++) {
+                if (newCols[i] == indexColumn) {
+                    index = i;
+                }
+            }
+            if (index != -1) {
+                data_manager->InsertIndex(table->name, newVals[index], cursor.second->GetLastInsertedPos());
+            }
         }
         if (cursor.second->Insert(newCols, newVals) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
             commitTransaction(root);

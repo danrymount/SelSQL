@@ -11,16 +11,37 @@ Message IndexCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto tableName = v->getTableName();
     auto colName = v->getColName();
     auto cursor = v->getEngine()->GetCursor(tableName, root->getId());
+    auto table = cursor.first;
 
-    // table->setIndexField(colName); Ставим что такое то поле теперь индексное.
-    // v->getEngine()->UpdateTableMeta(table); // обновить таблицу на диске. можно тут можно в конце.
+    table->setIndexField(colName);
+    v->getEngine()->UpdateTableMeta(table);  // обновить таблицу на диске. можно тут можно в конце.
 
     // дальше, надо сделать селект каждой записи и вызвать метод курсора
     auto data_manager = cursor.second->GetDataManager();
-    //    data_manager->CreateIndex(tableName,Тип поля колонки);
+    auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
+                           [colName](std::pair<std::string, Variable> field) { return field.first == colName; });
+    if (it == table->getFields().end()) {
+        // TODO нет такой колонки
+        return Message();
+    }
 
-    //ДЕЛАешь фетч, получаешь запись. извлекаешь значение в поле индекса из этой записи
-    std::string val;  // значение индексного поля, которое надо добавить
+    data_manager->CreateIndex(tableName, it->second.type);
+
+    do {
+        auto _record = cursor.second->Fetch();
+        if (_record.first.empty()) {
+            continue;
+        }
+        auto indexCol = std::find_if(_record.first.begin(), _record.first.end(),
+                                     [colName](const std::pair<std::string, std::string> &val) {
+                                         return val.first == colName;
+                                     });
+        if (indexCol != _record.first.end()) {
+            auto val = indexCol->second;
+            data_manager->InsertIndex(tableName, val, cursor.second->GetCurrentPos());
+        }
+    } while (!cursor.second->NextRecord());
+
     //    data_manager->InsertIndex(tableName,val,cursor.second->GetCurrentPos()); Кьюрент поз, это позиция того, что ты
     //    только что зафетчил
     // когда ты в инсертах, апдейтах, будешь делать надо будет сделать так, что после инсерта или апдейта если таблица у

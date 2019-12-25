@@ -78,6 +78,20 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         try {
+            std::string indexColumn;
+            if (!indexColumn.empty()) {
+                auto data_manager = cursor.second->GetDataManager();
+                int index = -1;
+                for (int i = 0; i < columns.size(); i++) {
+                    if (values[i] == indexColumn) {
+                        index = i;
+                    }
+                }
+                if (index != -1) {
+                    data_manager->InsertIndex(table->name, values[index], cursor.second->GetLastInsertedPos());
+                }
+            }
+
             if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
                 commitTransaction(root);
 
