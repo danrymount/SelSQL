@@ -70,6 +70,12 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         return message;
     }
+    try {
+        expr->accept(optimizerExprVisitor);
+    } catch (std::exception &exception) {
+        // TODO expception from visitor
+    }
+
     std::string indexColumn;
     bool hasIndex = false;
     for (auto &field : cursor.first->getFields()) {
