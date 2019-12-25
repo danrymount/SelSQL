@@ -83,6 +83,9 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                     continue;
                 }
                 std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+                if (_record.first.empty()) {
+                    continue;
+                }
                 for (auto &col : _record.first) {
                     _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
                 }

@@ -96,7 +96,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         try {
             if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
                 commitTransaction(root);
-
                 return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
             };
 
