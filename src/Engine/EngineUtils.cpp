@@ -43,6 +43,9 @@ buffer_data GetTableBuffer(Table *table) {
             std::memcpy(&data[offset], &value, sizeof(value));
             offset += sizeof(value);
         }
+        bool is_index = field.second.isIndex();
+        std::memcpy(&data[offset], &is_index, sizeof(bool));
+        offset += sizeof(bool);
     }
     //    value = table->record_amount;
     //    std::memcpy(&data[offset], &value, sizeof(value));
@@ -82,6 +85,12 @@ std::shared_ptr<Table> ReadTableFromBuffer(char *data) {
             offset += sizeof(type);
             constraints.emplace_back(Constraint(constr_type));
         }
+        bool is_index = false;
+        std::memcpy(&is_index, &data[offset], sizeof(bool));
+        if (is_index) {
+            var.setIndex();
+        }
+        offset += sizeof(bool);
         var.setConstraints(constraints);
         table->addField(std::string(var_name), var);
     }

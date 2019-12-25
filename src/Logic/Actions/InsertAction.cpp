@@ -45,7 +45,6 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
         return Message(ErrorConstants::ERR_INSERT_VALUES_SIZE);
     }
 
-
     if (columns.empty() && (table->getFields().size() != values.size())) {
         commitTransaction(root);
 

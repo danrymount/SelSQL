@@ -4,8 +4,8 @@
 
 #ifndef SELSQL_DATAMANAGER_H
 #define SELSQL_DATAMANAGER_H
+#include "CachedBlocks.h"
 #include "FileManager.h"
-
 class DataManager {
     std::map<std::pair<std::string, int>, std::pair<std::shared_ptr<DataBlock>, int>> cached_block;
     std::shared_ptr<FileManager> fm_;
@@ -15,7 +15,7 @@ class DataManager {
     std::shared_ptr<DataBlock> GetDataBlock(const std::string& table_name, int block_id, bool with_alloc);
     //    SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block);
     void FreeDataBlock(const std::string& table_name, int block_id);
-    void CommitDataBlock(std::string &table_name, int block_id, const std::vector<std::pair<int, int>> &positions,
+    void CommitDataBlock(std::string& table_name, int block_id, const std::vector<std::pair<int, int>>& positions,
                          int tr_id, int record_size);
 
     void ClearAll();

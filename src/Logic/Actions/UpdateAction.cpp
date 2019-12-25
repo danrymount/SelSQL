@@ -35,62 +35,62 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         auto record = cursor.second->Fetch();
         if (record.first.empty()) {
             continue;
-            }
-            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            for (auto &col : record.first) {
-                _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
-            }
-            exprVisitor->setFirstValues(_newRecord);
-            try {
-                expr->accept(exprVisitor);
-            } catch (std::exception &exception) {
-                std::string exc = exception.what();
-                commitTransaction(root);
-
-                return Message(ErrorConstants::ERR_TYPE_MISMATCH);
-            }
-            if (exprVisitor->getResult()) {
-                records.emplace_back(record.first);
-            }
-            allrecords.emplace_back(record.first);
-    } while (!cursor.second->NextRecord());
-        cursor.second->Reset();
-
-        // TODO сменить входные параметры
-        std::vector<std::string> columns;
-        std::vector<std::string> values;
-        for (auto &colValue : updateColumns) {
-            columns.emplace_back(colValue.first);
-            values.emplace_back(colValue.second);
         }
-
-        message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
-        if (message.getErrorCode()) {
+        std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+        for (auto &col : record.first) {
+            _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+        }
+        exprVisitor->setFirstValues(_newRecord);
+        try {
+            expr->accept(exprVisitor);
+        } catch (std::exception &exception) {
+            std::string exc = exception.what();
             commitTransaction(root);
 
-            return message;
+            return Message(ErrorConstants::ERR_TYPE_MISMATCH);
         }
-        do {
-            auto _record = cursor.second->Fetch();
-            auto rec = std::find(records.begin(), records.end(), _record.first);
-            if (rec == records.end()) {
-                continue;
-            }
+        if (exprVisitor->getResult()) {
+            records.emplace_back(record.first);
+        }
+        allrecords.emplace_back(record.first);
+    } while (!cursor.second->NextRecord());
+    cursor.second->Reset();
 
-            try {
-                if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
-                    commitTransaction(root);
+    // TODO сменить входные параметры
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+    for (auto &colValue : updateColumns) {
+        columns.emplace_back(colValue.first);
+        values.emplace_back(colValue.second);
+    }
 
-                    return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
-                };
-
-            } catch (std::exception &exception) {
-                commitTransaction(root);
-
-                return Message(ErrorConstants::ERR_STO);
-            }
-
-        } while (!cursor.second->NextRecord());
+    message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
+    if (message.getErrorCode()) {
+        commitTransaction(root);
 
         return message;
+    }
+    do {
+        auto _record = cursor.second->Fetch();
+        auto rec = std::find(records.begin(), records.end(), _record.first);
+        if (rec == records.end()) {
+            continue;
+        }
+
+        try {
+            if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                commitTransaction(root);
+
+                return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+            };
+
+        } catch (std::exception &exception) {
+            commitTransaction(root);
+
+            return Message(ErrorConstants::ERR_STO);
+        }
+
+    } while (!cursor.second->NextRecord());
+
+    return message;
 }

@@ -11,7 +11,7 @@ class ShowCreateAction : public BaseAction {
     explicit ShowCreateAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {}
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
-    //BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
+    // BigResponse execute(std::shared_ptr<BigRequest>, MainEngine* mainEngine) override;
 };
 
 #endif  // SELSQL_SHOWCREATEACTION_H

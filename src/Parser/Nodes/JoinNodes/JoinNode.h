@@ -8,7 +8,6 @@
 #include "BaseJoinNode.h"
 class JoinNode : public BaseJoinNode {
    public:
-
     void accept(TreeVisitor* v) override { v->visit(this); }
 };
 #endif  // SELSQL_JOINNODE_H

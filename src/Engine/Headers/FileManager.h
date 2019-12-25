@@ -20,7 +20,7 @@
 typedef std::pair<std::shared_ptr<std::fstream>, std::shared_ptr<std::fstream>> files;
 
 class FileManager {
-//    std::map<std::string, std::shared_ptr<std::fstream>> meta_files_;
+    //    std::map<std::string, std::shared_ptr<std::fstream>> meta_files_;
     std::shared_ptr<std::fstream> temp;
     std::map<std::string, std::shared_ptr<Table>> table_data;
     std::shared_ptr<TransactManager> transact_manager_;

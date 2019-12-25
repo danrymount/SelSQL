@@ -35,6 +35,13 @@ class Table {
         fields.emplace_back(std::make_pair(field_name, var));
         last_var_name = field_name;
     }
+    void setIndexField(const std::string &field_name) {
+        for (auto i : fields) {
+            if (i.first == field_name) {
+                i.second.setIndex();
+            }
+        }
+    }
 
     int addConstraint(Constraint constraint) { return fields[fields.size() - 1].second.addConstraint(constraint); }
 

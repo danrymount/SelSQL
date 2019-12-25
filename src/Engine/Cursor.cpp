@@ -123,28 +123,23 @@ std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, i
     //        std::cerr << i.second << " ";
     //    }
     //    std::cerr << std::endl;
+    auto t_table = transact_manager_->transaction_table;
     if (time_s >= 0 and time_e != 0) {
         if ((record.commited_tr_s == 'c' or record.commited_tr_e == 'c') and
-            !(time_s > transact_manager_->transaction_table[record.tr_e].second or
-              time_e < transact_manager_->transaction_table[record.tr_s].second)) {
-            return std::make_pair(values,
-                                  std::make_pair(transact_manager_->transaction_table[record.tr_s].first,
-                                                 record.tr_e != 0 ? transact_manager_->transaction_table[record.tr_e].first
-                                                                  : 0));
-
+            !(time_s > t_table[record.tr_e].second or time_e < t_table[record.tr_s].second)) {
+            auto times = std::make_pair(t_table[record.tr_s].first, record.tr_e != 0 ? t_table[record.tr_e].first : 0);
+            return std::make_pair(values, times);
         } else {
             values.clear();
             return std::make_pair(values, std::make_pair(0, 0));
         }
     }
 
-    if ((record.commited_tr_e == 'c' and
-         transact_manager_->transaction_table[record.tr_e].second > transact_manager_->transaction_table[current_tr_id_].first and
+    if ((record.commited_tr_e == 'c' and t_table[record.tr_e].second > t_table[current_tr_id_].first and
          record.tr_s != record.tr_e) or
         (record.commited_tr_e == '0' and record.tr_e != current_tr_id_ and
-         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second) or
-        (record.commited_tr_s == 'c' and
-         transact_manager_->transaction_table[current_tr_id_].first > transact_manager_->transaction_table[record.tr_s].second and
+         t_table[current_tr_id_].first > t_table[record.tr_s].second) or
+        (record.commited_tr_s == 'c' and t_table[current_tr_id_].first > t_table[record.tr_s].second and
          record.tr_e == 0) or
         (record.commited_tr_s == '0' and record.tr_s == current_tr_id_ and record.tr_s != record.tr_e)) {
     } else {
