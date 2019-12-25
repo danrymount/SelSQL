@@ -18,14 +18,24 @@ Message IndexCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
 
     // дальше, надо сделать селект каждой записи и вызвать метод курсора
     auto data_manager = cursor.second->GetDataManager();
-    auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
-                           [colName](std::pair<std::string, Variable> field) { return field.first == colName; });
-    if (it == table->getFields().end()) {
+    //    auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
+    //                           [colName](const std::pair<std::string, Variable>& field) { return field.first ==
+    //                           colName; });
+    std::pair<std::string, Variable> it;
+    bool hasCol = false;
+    for (auto &field : table->getFields()) {
+        if (field.first == colName) {
+            it = field;
+            hasCol = true;
+            break;
+        }
+    }
+    if (!hasCol) {
         // TODO нет такой колонки
         return Message();
     }
 
-    data_manager->CreateIndex(tableName, it->second.type);
+    data_manager->CreateIndex(tableName, it.second.type);
 
     do {
         auto _record = cursor.second->Fetch();

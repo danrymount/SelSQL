@@ -156,6 +156,7 @@ Message InsertAction::execute(std::shared_ptr<BaseActionNode> root) {
             for (int i = 0; i < newCols.size(); i++) {
                 if (newCols[i] == indexColumn) {
                     index = i;
+                    break;
                 }
             }
             if (index != -1) {

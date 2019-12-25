@@ -56,9 +56,16 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
 
         // if (optimizerExprVisitor->getMbIndex()) {
         // auto mbIndentIndex = optimizerExprVisitor->getIndent();
-        auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
-                               [](std::pair<std::string, Variable> &field) { return field.second.isIndex(); });
-        if (it != table->getFields().end()) {
+        // auto it = std::find_if(table->getFields().begin(), table->getFields().end(), [](std::pair<std::string,
+        // Variable> field) { return field.second.isIndex(); });
+        bool hasIndexes = false;
+        for (auto &field : table->getFields()) {
+            if (field.second.isIndex()) {
+                hasIndexes = true;
+                break;
+            }
+        }
+        if (hasIndexes) {
             std::cout << "INDEXSES" << std::endl;
             auto data_manager = cursor.second->GetDataManager();
             auto indexes = data_manager->GetIndexes(tableName);
