@@ -52,6 +52,16 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             expr->accept(optimizerExprVisitor);
             if (optimizerExprVisitor->getMbIndex()) {
                 auto mbIndentIndex = optimizerExprVisitor->getIndent();
+                auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
+                                       [mbIndentIndex](std::pair<std::string, Variable> &field) {
+                                           if (field.first == mbIndentIndex) {
+                                               return field.second.isIndex();
+                                           }
+                                           return false;
+                                       });
+                if (it != table->getFields().end()) {
+                    // TODO IS INDEX
+                }
             }
         } catch (std::exception &exception) {
         }
