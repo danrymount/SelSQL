@@ -31,6 +31,12 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
     //    if (cursor.first->record_amount) {
+    try {
+        expr->accept(optimizerExprVisitor);
+    } catch (std::exception &exception) {
+        // TODO expception from visitor
+    }
+
     do {
         auto record = cursor.second->Fetch();
         if (record.first.empty()) {
@@ -56,7 +62,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     } while (!cursor.second->NextRecord());
     cursor.second->Reset();
 
-    // TODO сменить входные параметры
     std::vector<std::string> columns;
     std::vector<std::string> values;
     for (auto &colValue : updateColumns) {
@@ -69,11 +74,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         commitTransaction(root);
 
         return message;
-    }
-    try {
-        expr->accept(optimizerExprVisitor);
-    } catch (std::exception &exception) {
-        // TODO expception from visitor
     }
 
     std::string indexColumn;
@@ -104,8 +104,9 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 auto data_manager = cursor.second->GetDataManager();
                 int index = -1;
                 for (int i = 0; i < columns.size(); i++) {
-                    if (values[i] == indexColumn) {
+                    if (columns[i] == indexColumn) {
                         index = i;
+                        break;
                     }
                 }
                 if (index != -1) {

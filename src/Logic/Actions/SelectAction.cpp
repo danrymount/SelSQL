@@ -58,21 +58,30 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         // auto mbIndentIndex = optimizerExprVisitor->getIndent();
         // auto it = std::find_if(table->getFields().begin(), table->getFields().end(), [](std::pair<std::string,
         // Variable> field) { return field.second.isIndex(); });
-        bool hasIndexes = false;
+        std::string curIndex;
         for (auto &field : table->getFields()) {
             if (field.second.isIndex()) {
-                hasIndexes = true;
+                curIndex = field.first;
                 break;
             }
         }
-        if (hasIndexes) {
+        if (!curIndex.empty()) {
             std::cout << "INDEXSES" << std::endl;
             auto data_manager = cursor.second->GetDataManager();
             auto indexes = data_manager->GetIndexes(tableName);
             for (auto &field : indexes) {
                 cursor.second->SetPos(field.second);
-                auto _record = cursor.second->Fetch();
+                //                if (optimizerExprVisitor->getMbIndex()) {
+                //                    auto mbIndentIndex = optimizerExprVisitor->getIndent();
+                //                    if(mbIndentIndex == curIndex){
+                //
+                //                    }
+                //                }
 
+                auto _record = cursor.second->Fetch();
+                if (_record.first.empty()) {
+                    continue;
+                }
                 std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
                 for (auto &col : _record.first) {
                     _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
