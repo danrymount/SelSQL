@@ -47,22 +47,20 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             return message;
         }
 
-        //        if (cursor.first->record_amount == 0) {
-        //            return Message();
-        //        }
-
         cursor.second->Reset();
+        try {
+            expr->accept(optimizerExprVisitor);
+            if (optimizerExprVisitor->getMbIndex()) {
+                auto mbIndentIndex = optimizerExprVisitor->getIndent();
+            }
+        } catch (std::exception &exception) {
+        }
 
         do {
             auto start = v->getStartTime();
             auto finish = v->getFinishTime();
-            int64_t temp = start;
-            if (start == -1) {
-                start = 0;
-                finish = 0;
-            }
 
-            auto _record = cursor.second->Fetch(start, finish);
+            auto _record = cursor.second->Fetch(start == -1 ? 0 : start, finish == -1 ? 0 : finish);
             if (_record.first.empty()) {
                 continue;
             }
@@ -71,7 +69,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
             }
 
-            if (temp >= 0) {
+            if (start != -1) {
                 auto startTime = getDateTime(_record.second.first);
                 if (_record.second.first == 0) {
                     continue;

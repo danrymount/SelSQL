@@ -21,6 +21,7 @@
     #include "../../src/Parser/Nodes/ActionNodes/SelectNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/DeleteNode.h"
     #include "../../src/Parser/Nodes/ActionNodes/UpdateNode.h"
+    #include "../../src/Parser/Nodes/ActionNodes/IndexNode.h"
 
     #include "../../src/Parser/Nodes/ExpressionsNodes/BaseExprNode.h"
     #include "../../src/Parser/Nodes/ExpressionsNodes/ExprNode.h"
@@ -102,7 +103,7 @@
 %token INT_TYPE FLOAT_TYPE CHAR_TYPE
 %token IDENT FLOATNUM NUMBER STRVAL VALNULL
 %token LBRACKET RBRACKET SEMICOLON COMMA STAR EQUAL NOTEQ PLUS MINUS MORE LESS MOREEQ LESSEQ DIV DOT
-%token FOR SYSTEM TIME ALL DATE_TYPE TO
+%token FOR SYSTEM TIME ALL DATE_TYPE TO INDEX
 
 
 %type<Constraint> constraint
@@ -197,6 +198,9 @@ request:
     }|
     DELETE_ACTION FROM IDENT where_exprs SEMICOLON {
 	children.emplace_back(new DeleteNode(new IdentNode(std::string($3)), new ExprNode($4)));
+    }|
+    CREATE_ACTION INDEX ON IDENT LBRACKET IDENT RBRACKET SEMICOLON {
+	children.emplace_back(new IndexNode(new TableNode(new IdentNode(std::string($4))), new ColumnNode(new IdentNode($6))));
     }
 
 select:

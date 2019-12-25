@@ -54,6 +54,7 @@ class IntersectJoinNode;
 class UnionIntersectListNode;
 class SystemTimeNode;
 class SystemTimeAllNode;
+class IndexNode;
 
 class Visitor {
    public:
@@ -66,6 +67,7 @@ class Visitor {
     virtual void visit(SelectNode* node) = 0;
     virtual void visit(UpdateNode* node) = 0;
     virtual void visit(DeleteNode* node) = 0;
+    virtual void visit(IndexNode* node) = 0;
 
     virtual void visit(TableNode* node) = 0;
 

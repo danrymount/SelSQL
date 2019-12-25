@@ -7,6 +7,7 @@
 #include "../Logic/Actions/Headers/CreateAction.h"
 #include "../Logic/Actions/Headers/DeleteAction.h"
 #include "../Logic/Actions/Headers/DropAction.h"
+#include "../Logic/Actions/Headers/IndexCreateAction.h"
 #include "../Logic/Actions/Headers/InsertAction.h"
 #include "../Logic/Actions/Headers/SelectAction.h"
 #include "../Logic/Actions/Headers/ShowCreateAction.h"
@@ -14,6 +15,7 @@
 #include "Headers/CreateVisitor.h"
 #include "Headers/DeleteVisitor.h"
 #include "Headers/DropVisitor.h"
+#include "Headers/IndexCreateVisitor.h"
 #include "Headers/InsertVisitor.h"
 #include "Headers/SelectVisitor.h"
 #include "Headers/ShowCreateVisitor.h"
@@ -92,6 +94,12 @@ void TreeVisitor::visit(SelectNode* node) {
     auto visitor = std::make_shared<SelectVisitor>(SelectVisitor(getEngine()));
     auto action = std::make_shared<SelectNode>(*node);
     message = SelectAction(visitor).execute(action);
+}
+
+void TreeVisitor::visit(IndexNode* node) {
+    auto visitor = std::make_shared<IndexCreateVisitor>(IndexCreateVisitor(getEngine()));
+    auto action = std::make_shared<IndexNode>(*node);
+    message = IndexCreateAction(visitor).execute(action);
 }
 
 void TreeVisitor::visit(UnionIntersectListNode* node) {
