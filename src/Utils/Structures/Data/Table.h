@@ -36,7 +36,7 @@ class Table {
         last_var_name = field_name;
     }
     void setIndexField(const std::string &field_name) {
-        for (auto i : fields) {
+        for (auto &i : fields) {
             if (i.first == field_name) {
                 i.second.setIndex();
             }
