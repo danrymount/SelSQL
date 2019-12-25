@@ -78,6 +78,11 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
 
         try {
+            if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                commitTransaction(root);
+
+                return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+            };
             std::string indexColumn;
             if (!indexColumn.empty()) {
                 auto data_manager = cursor.second->GetDataManager();
@@ -91,12 +96,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                     data_manager->InsertIndex(table->name, values[index], cursor.second->GetLastInsertedPos());
                 }
             }
-
-            if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
-                commitTransaction(root);
-
-                return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
-            };
 
         } catch (std::exception &exception) {
             commitTransaction(root);
