@@ -54,8 +54,6 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
         cursor.second->Reset();
 
         do {
-            std::cerr << root->getId() << std::endl;
-
             auto start = v->getStartTime();
             auto finish = v->getFinishTime();
             int64_t temp = start;

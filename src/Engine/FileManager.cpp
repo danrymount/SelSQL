@@ -81,7 +81,7 @@ int FileManager::WriteDataBlock(const std::string& table_name, std::shared_ptr<D
 std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_name, int block_id) {
     std::string data_file_name = table_name + DIR_SEPARATOR + table_name + C::DATA_FILE_TYPE;
     std::fstream data_file(data_file_name, std::ios::in);
-    this->i_o_count++;
+
     if (!data_file.is_open()) {
         return nullptr;
     }
@@ -98,6 +98,7 @@ std::shared_ptr<DataBlock> FileManager::ReadDataBlock(const std::string& table_n
     if (GetFileSize(&data_file) < C::DATA_BLOCK_SIZE) {
         return nullptr;
     }
+    this->i_o_count++;
     data_file.seekg(sizeof(int) + C::DATA_BLOCK_SIZE * block_id, std::ios::beg);
     char data_buffer[C::DATA_BLOCK_SIZE];
     data_file.read(data_buffer, C::DATA_BLOCK_SIZE);

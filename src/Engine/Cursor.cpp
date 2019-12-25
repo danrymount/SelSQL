@@ -115,14 +115,14 @@ std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, i
         values.emplace_back(std::make_pair(table_->fields[i].first, value));
         field_pos += C::TYPE_SIZE[table_->fields[i].second.type] + 1;
     }
-    std::cerr << "FETCH" << std::endl;
-    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
-              << std::endl;
-    std::cerr << "DATA : ";
-    for (auto i : values) {
-        std::cerr << i.second << " ";
-    }
-    std::cerr << std::endl;
+    //    std::cerr << "FETCH" << std::endl;
+    //    std::cerr << record.tr_s << " " << record.tr_e << " " << record.commited_tr_s << " " << record.commited_tr_e
+    //              << std::endl;
+    //    std::cerr << "DATA : ";
+    //    for (auto i : values) {
+    //        std::cerr << i.second << " ";
+    //    }
+    //    std::cerr << std::endl;
     if (time_s >= 0 and time_e != 0) {
         if ((record.commited_tr_s == 'c' or record.commited_tr_e == 'c') and
             !(time_s > transact_manager_->transaction_table[record.tr_e].second or
@@ -198,6 +198,7 @@ int Cursor::Delete() {
     cur_record.SetRecord(buf);
     cur_record.tr_e = current_tr_id_;
     cur_record.commited_tr_e = '0';
+    data_block_->was_changed = 1;
     std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
                 cur_record.GetRecordSize());
     return 0;
@@ -265,10 +266,10 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataMa
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
     }
-    std::cerr << "MAX POS = " << max_pos << std::endl;
+    //    std::cerr << "MAX POS = " << max_pos << std::endl;
     data_file_->seekg(std::ios::beg);
     data_file_->read(reinterpret_cast<char *>(&max_pos), sizeof(max_pos));
-    std::cerr << "MAX POS = " << max_pos << std::endl;
+    //    std::cerr << "MAX POS = " << max_pos << std::endl;
 }
 
 int Cursor::NextDataBlock() {
@@ -301,7 +302,7 @@ int Cursor::EmplaceBack(Record *record) {
     }
     std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
     delete[] record_buf;
-
+    last_block->was_changed = 1;
     data_file_->seekp(std::ios::beg);
     data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
     data_file_->flush();

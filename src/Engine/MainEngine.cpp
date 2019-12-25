@@ -36,7 +36,6 @@ Message MainEngine::DropTable(const std::string& tableName) {
 }
 
 MainEngine::MainEngine() {
-    std::cerr << "CONSTRUCTOR ENGINE" << std::endl;
     transact_manager_ = std::make_shared<TransactManager>();
     file_manager_ = std::make_shared<FileManager>(transact_manager_);
     data_manager_ = std::make_shared<DataManager>(file_manager_);
@@ -47,7 +46,6 @@ std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> MainEngine::GetCursor
     std::lock_guard<std::mutex> guard(mutex3);
     std::shared_ptr<Table> table(new Table());
     std::shared_ptr<Cursor> cursor(new Cursor());
-    std::cerr << "GET CURSOR  " << transaction_id << std::endl;
     auto [meta, data] = file_manager_->OpenFile(tableName);
 
     if (meta == nullptr or data == nullptr) {
@@ -68,6 +66,8 @@ void MainEngine::Commit(int64_t transaction_sp) {
         //        std::cerr << "COMMIT id = " << transaction_sp << std::endl;
         if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
             auto vec = transact_manager_->trans_usage[transaction_sp];
+            auto last = std::unique(vec.begin(), vec.end());
+            vec.erase(last, vec.end());
             for (auto bl : vec) {
                 data_manager_->CommitDataBlock(bl.first, bl.second,
                                                transact_manager_->GetPositionsNeedCommit(bl.first, bl.second,
@@ -81,8 +81,8 @@ void MainEngine::Commit(int64_t transaction_sp) {
     transact_manager_->ClearUsed(transaction_sp);
     transact_manager_->EndTransaction(transaction_sp);
     transact_manager_->UpdateTransactionTable();
-    std::cerr << std::endl;
-    std::cerr << "ACTIVE_TR : " << transact_manager_->active_tr << std::endl;
+    //    std::cerr << std::endl;
+    //    std::cerr << "ACTIVE_TR : " << transact_manager_->active_tr << std::endl;
     if (transact_manager_->active_tr <= 0) {
         transact_manager_->active_tr = 0;
         data_manager_->ClearAll();

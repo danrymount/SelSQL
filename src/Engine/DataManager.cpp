@@ -33,7 +33,8 @@ std::shared_ptr<DataBlock> DataManager::GetDataBlock(const std::string &table_na
 void DataManager::FreeDataBlock(const std::string &table_name, int block_id) {
     std::lock_guard<std::mutex> g(data_mutex);
     auto position = std::make_pair(table_name, block_id);
-    if (cached_block.find(position) != cached_block.end() and cached_block[position].first != nullptr) {
+    if (cached_block.find(position) != cached_block.end() and cached_block[position].first != nullptr and
+        cached_block[position].first->was_changed) {
         fm_->WriteDataBlock(table_name, cached_block[position].first, block_id);
     }
 }

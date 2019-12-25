@@ -5,6 +5,7 @@
 std::mutex mutex;
 // TODO PROBLEMS IN MANAGER
 TransactManager::TransactManager() {
+    // TODO FOR ID == 0 INIT FOREVER
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
     if (!file.is_open()) {
         return;
@@ -31,7 +32,6 @@ int64_t TransactManager::GetTransactionSP() {
     }
     int64_t value = 0;
     temp >> value;
-    std::cout << value << std::endl;
     temp.clear();
     temp.seekp(std::ios::beg);
     temp << (value + 1);
@@ -130,7 +130,6 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     int64_t end_time = 0;
     std::chrono::time_point e_time = std::chrono::system_clock::now();
     std::memcpy(&end_time, &e_time, sizeof(e_time));
-    std::cerr << "END TIME " << end_time;
     transaction_table[tr_id].second = end_time;
 }
 
