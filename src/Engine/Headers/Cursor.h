@@ -51,6 +51,7 @@ class Cursor {
 
     int GetLastInsertedPos();
     int GetCurrentPos();
+    int SetPos(int pos);
 
     std::shared_ptr<DataManager> GetDataManager();
     //    std::vector<std::pair<std::string, std::string>> Fetch(int64_t time_s = 0, int64_t time_e = 0);

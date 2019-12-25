@@ -326,3 +326,4 @@ int Cursor::GetLastInsertedPos() { return last_inserted; }
 
 std::shared_ptr<DataManager> Cursor::GetDataManager() { return data_manager_; }
 int Cursor::GetCurrentPos() { return pos_in_block_; }
+int Cursor::SetPos(int pos) { pos_in_block_ = pos; }
