@@ -22,7 +22,6 @@ class TransactManager {
     void SetNewPos(const std::string& table_name, int pos, int64_t transaction_id);
     void Clear(const std::string& table_name, int64_t transaction_id);
     std::vector<std::pair<int, int>> GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id);
-    void UpdateTransactionTable();
     void EndTransaction(int64_t tr_id);
     //    std::shared_ptr<DataBlock> GetDataBlock(std::string table_name, int block_id);
     //    void SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block, long tr_p);

@@ -81,13 +81,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
 
     transact_manager_->ClearUsed(transaction_sp);
     transact_manager_->EndTransaction(transaction_sp);
-    transact_manager_->UpdateTransactionTable();
-    //    std::cerr << std::endl;
-    //    std::cerr << "ACTIVE_TR : " << transact_manager_->active_tr << std::endl;
-    if (transact_manager_->active_tr <= 0) {
-        transact_manager_->active_tr = 0;
-        data_manager_->ClearAll();
-    }
+
     std::cerr << "IO = " << file_manager_->i_o_count << std::endl;
     std::cerr << "IO NO OPTIMIZE = " << data_manager_->i_o_count << std::endl;
 }

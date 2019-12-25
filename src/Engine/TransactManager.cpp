@@ -8,6 +8,8 @@ TransactManager::TransactManager() {
     // TODO FOR ID == 0 INIT FOREVER
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
     if (!file.is_open()) {
+        std::fstream file("TR_TABLE", std::ios::in | std::ios::out | std::ios::trunc);
+        file << 0 << " " << 0 << " " << INT64_MAX << std::endl;
         return;
     }
 
@@ -30,7 +32,7 @@ int64_t TransactManager::GetTransactionSP() {
     if (!temp.is_open()) {
         temp = std::fstream("CLOCK_TR_ID", std::ios::in | std::ios::out | std::ios::trunc);
     }
-    int64_t value = 0;
+    int64_t value = 1;
     temp >> value;
     temp.clear();
     temp.seekp(std::ios::beg);
@@ -118,12 +120,7 @@ std::vector<std::pair<int, int>> TransactManager::GetPositionsNeedCommit(std::st
     }
     return positions;
 }
-void TransactManager::UpdateTransactionTable() {
-    std::fstream file("TR_TABLE", std::ios::in | std::ios::out | std::ios::trunc);
-    for (auto tr : transaction_table) {
-        file << tr.first << " " << tr.second.first << " " << tr.second.second << std::endl;
-    }
-}
+
 void TransactManager::EndTransaction(int64_t tr_id) {
     --active_tr;
     int64_t value = 0;
@@ -131,6 +128,8 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     std::chrono::time_point e_time = std::chrono::system_clock::now();
     std::memcpy(&end_time, &e_time, sizeof(e_time));
     transaction_table[tr_id].second = end_time;
+    std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
+    file << tr_id << " " << transaction_table[tr_id].first << " " << transaction_table[tr_id].second << std::endl;
 }
 
 // std::shared_ptr<DataBlock> TransactManager::GetDataBlock(std::string table_name, int block_id) {
