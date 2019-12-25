@@ -27,5 +27,6 @@ class DataManager {
 
     void ClearAll();
     void ClearCached(std::string table_name);
+    void IncreaseBlockHeat(BlockPos pos);
 };
 #endif  // SELSQL_DATAMANAGER_H

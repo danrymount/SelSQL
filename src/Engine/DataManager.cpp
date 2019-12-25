@@ -92,3 +92,4 @@ void DataManager::CreateIndex(std::string table_name, Type type) {
     indexes[table_name] = std::make_shared<Indexes>(type);
 }
 void DataManager::ClearCached(std::string table_name) { blocks.ClearTable(table_name); }
+void DataManager::IncreaseBlockHeat(BlockPos pos) { blocks.HeatIncrease(pos); }

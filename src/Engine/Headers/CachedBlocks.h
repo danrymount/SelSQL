@@ -16,5 +16,6 @@ class CachedBlocks {
     void InsertBlock(const std::shared_ptr<DataBlock>& data, const BlockPos& pos);
     std::shared_ptr<DataBlock> GetBlock(const BlockPos& pos);
     void ClearTable(const std::string& table_name);
+    void HeatIncrease(BlockPos pos);
 };
 #endif  // SELSQL_CACHEDBLOCKS_H

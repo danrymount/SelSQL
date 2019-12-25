@@ -15,14 +15,11 @@ void CachedBlocks::InsertBlock(const std::shared_ptr<DataBlock>& data, const Blo
     blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, 1));
 }
 std::shared_ptr<DataBlock> CachedBlocks::GetBlock(const BlockPos& pos) {
-    std::sort(blocks_.begin(), blocks_.end(), cmp);
-    int count = 0;
     for (auto i : blocks_) {
         if (std::get<1>(i) == pos) {
             ++std::get<2>(i);
             return std::get<0>(i);
         }
-        ++count;
     }
     return nullptr;
 }
@@ -34,4 +31,12 @@ void CachedBlocks::ClearTable(const std::string& table_name) {
             ++i;
         }
     }
+}
+void CachedBlocks::HeatIncrease(BlockPos pos) {
+    for (auto& i : blocks_) {
+        if (std::get<1>(i) == pos) {
+            ++std::get<2>(i);
+        }
+    }
+    std::sort(blocks_.begin(), blocks_.end(), cmp);
 }

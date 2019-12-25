@@ -95,6 +95,7 @@ std::pair<std::vector<std::pair<std::string, std::string>>, std::pair<int64_t, i
         return std::make_pair(values, std::make_pair(0, 0));
     }
     auto block = data_block_;
+    data_manager_->IncreaseBlockHeat(BlockPos(table_->name, block_id_));
     char record_buf[record.GetRecordSize()];
     std::memcpy(record_buf, &block->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordSize());
     record.SetRecord((char *)record_buf);
@@ -290,7 +291,7 @@ int Cursor::EmplaceBack(Record *record) {
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
     transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id));
-
+    data_manager_->IncreaseBlockHeat(BlockPos(table_->name, block_id));
     char *record_buf = record->GetRecordBuf();
     if (last_block == nullptr) {
         return 0;
