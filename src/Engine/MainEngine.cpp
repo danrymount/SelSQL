@@ -11,6 +11,7 @@ Message MainEngine::CreateTable(const std::shared_ptr<Table>& table) {
     if (error) {
         result = Message(ErrorConstants::ERR_TABLE_EXISTS);
     }
+    data_manager_->ClearCached(table->name);
     return result;
 }
 
@@ -88,6 +89,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
         data_manager_->ClearAll();
     }
     std::cerr << "IO = " << file_manager_->i_o_count << std::endl;
+    std::cerr << "IO NO OPTIMIZE = " << data_manager_->i_o_count << std::endl;
 }
 void MainEngine::UpdateTableMeta(std::shared_ptr<Table> table) {
     auto [meta, data] = file_manager_->OpenFile(table->name);

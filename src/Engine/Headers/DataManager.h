@@ -11,8 +11,10 @@ class DataManager {
     std::map<std::pair<std::string, int>, std::pair<std::shared_ptr<DataBlock>, int>> cached_block;
     std::shared_ptr<FileManager> fm_;
     std::map<std::string, std::shared_ptr<Indexes>> indexes;
+    CachedBlocks blocks;
 
    public:
+    int i_o_count = 0;
     std::multimap<std::string, int> GetIndexes(const std::string& table_name);
     void CreateIndex(std::string table_name, Type type);
     void InsertIndex(std::string table_name, std::string value, int pos);
@@ -24,5 +26,6 @@ class DataManager {
                          int tr_id, int record_size);
 
     void ClearAll();
+    void ClearCached(std::string table_name);
 };
 #endif  // SELSQL_DATAMANAGER_H

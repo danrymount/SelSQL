@@ -256,11 +256,11 @@ TEST(SERVER_TEST_UPDATE, UPDATE_TEST_SET_VALUE_EQALLY_WHERE) {
 
 TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_VALUE_WITH_WHERE) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
-                              {"insert into qg values (1);", "Success"},
-                              {"insert into qg values (2);", "Success"},
-                              {"update qg set id = 3 where id = 2;", "Success"},
-                              {"select * from qg;",
+    TestUtils::checkRequests({{"CREATE TABLE qg1(id int unique);", "Success"},
+                              {"insert into qg1 values (1);", "Success"},
+                              {"insert into qg1 values (2);", "Success"},
+                              {"update qg1 set id = 3 where id = 2;", "Success"},
+                              {"select * from qg1;",
                                "\nid|\n"
                                "1 |\n"
                                "3 |\n"}});
@@ -268,30 +268,30 @@ TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_VALUE_WITH_WHERE) {
 
 TEST(SERVER_TEST_UPDATE, UPDATE_TEST_UPDATE_EXISTING_UNIQUE_VALUE) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
-                              {"insert into qg values (1);", "Success"},
-                              {"update qg set id = 1;", "Success"},
-                              {"select * from qg;",
+    TestUtils::checkRequests({{"CREATE TABLE qg2(id int unique);", "Success"},
+                              {"insert into qg2 values (1);", "Success"},
+                              {"update qg2 set id = 1;", "Success"},
+                              {"select * from qg2;",
                                "\nid|\n"
                                "1 |\n"}});
 }
 
 TEST(SERVER_TEST_UPDATE, UPDATE_TEST_EASY_MATH_EXPRESSION_IN_SET) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
-                              {"insert into qg values (1);", "Success"},
-                              {"update qg set id = 2+2*2;", "Success"},
-                              {"select * from qg;",
+    TestUtils::checkRequests({{"CREATE TABLE qg3(id int unique);", "Success"},
+                              {"insert into qg3 values (1);", "Success"},
+                              {"update qg3 set id = 2+2*2;", "Success"},
+                              {"select * from qg3;",
                                "\nid|\n"
                                "6 |\n"}});
 }
 
 TEST(SERVER_TEST_UPDATE, UPDATE_TEST_COMPLEX_MATH_EXPRESSION_IN_SET) {
     TestUtils::clear();
-    TestUtils::checkRequests({{"CREATE TABLE qg(id int unique);", "Success"},
-                              {"insert into qg values (1);", "Success"},
-                              {"update qg set id = -3*(2+2*2)+6*2.5;", "Success"},
-                              {"select * from qg;",
+    TestUtils::checkRequests({{"CREATE TABLE qg4(id int unique);", "Success"},
+                              {"insert into qg4 values (1);", "Success"},
+                              {"update qg4 set id = -3*(2+2*2)+6*2.5;", "Success"},
+                              {"select * from qg4;",
                                "\nid|\n"
                                "-3|\n"}});
 }
