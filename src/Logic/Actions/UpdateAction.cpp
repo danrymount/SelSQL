@@ -96,7 +96,6 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
         try {
             if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
                 commitTransaction(root);
-
                 return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
             };
 
@@ -104,7 +103,7 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
                 auto data_manager = cursor.second->GetDataManager();
                 int index = -1;
                 for (int i = 0; i < columns.size(); i++) {
-                    if (values[i] == indexColumn) {
+                    if (columns[i] == indexColumn) {
                         index = i;
                     }
                 }
