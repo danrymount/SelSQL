@@ -15,7 +15,7 @@ class DataManager {
 
    public:
     int i_o_count = 0;
-    std::multimap<std::string, int> GetIndexes(const std::string& table_name);
+    std::multimap<std::string, int, cmp> GetIndexes(const std::string& table_name);
     void CreateIndex(std::string table_name, Type type);
     void InsertIndex(std::string table_name, std::string value, int pos);
     DataManager(std::shared_ptr<FileManager> f) : fm_(f){};

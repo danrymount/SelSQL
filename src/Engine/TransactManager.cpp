@@ -10,6 +10,7 @@ TransactManager::TransactManager() {
     if (!file.is_open()) {
         std::fstream file("TR_TABLE", std::ios::in | std::ios::out | std::ios::trunc);
         file << 0 << " " << 0 << " " << INT64_MAX << std::endl;
+        transaction_table[0] = std::make_pair(0, INT64_MAX);
         return;
     }
 
@@ -18,7 +19,8 @@ TransactManager::TransactManager() {
         int64_t time_s = 0;
         int64_t time_e = 0;
         file >> tr_id >> time_s >> time_e;
-        if (tr_id == time_s and time_s == 0) {
+        if (tr_id == time_s and time_s == 0 and time_e != INT64_MAX) {
+            transaction_table[0] = std::make_pair(0, INT64_MAX);
             continue;
         }
         transaction_table[tr_id] = std::make_pair(time_s, time_e);
@@ -129,6 +131,10 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     std::memcpy(&end_time, &e_time, sizeof(e_time));
     transaction_table[tr_id].second = end_time;
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
+    //    for (auto i : transaction_table) {
+    //        file << i.first << " " << i.second.first << " " << i.second.second << std::endl;
+    //    }
+    file.seekp(0, std::ios::end);
     file << tr_id << " " << transaction_table[tr_id].first << " " << transaction_table[tr_id].second << std::endl;
 }
 
