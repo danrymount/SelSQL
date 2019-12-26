@@ -186,7 +186,7 @@ class IndexExprVisitor : public TreeVisitor {
         allans.emplace_back(ans);
     }
 
-    void setValues(std::multimap<std::string, int> _vals) { values = _vals; }
+    void setValues(std::multimap<std::string, int,cmp> _vals) { values = _vals; }
 
     std::vector<int> gerAns() {
         if (allans.empty()) {
@@ -199,7 +199,7 @@ class IndexExprVisitor : public TreeVisitor {
    private:
     bool isNull = false;
     bool result = true;
-    std::multimap<std::string, int> values;
+    std::multimap<std::string, int,cmp> values;
     std::vector<int> ans;
     std::vector<std::vector<int>> allans;
 };
