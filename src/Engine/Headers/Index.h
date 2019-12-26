@@ -10,19 +10,7 @@ using cmp = std::function<bool(const std::string&, const std::string&)>;
 struct IndexComp {
     Type type;
     explicit IndexComp(Type t) : type(t){};
-    bool operator()(const std::string& lhs, const std::string& rhs) const {
-        switch (type) {
-            case TYPE_INT: {
-                return std::stoi(lhs) < std::stoi(rhs);
-            }
-            case TYPE_FLOAT: {
-                return std::stod(lhs) < std::stod(rhs);
-            }
-            case TYPE_CHAR: {
-                return lhs < rhs;
-            }
-        }
-    }
+    bool operator()(const std::string& lhs, const std::string& rhs);
 };
 class Indexes {
     Type val_type_;
