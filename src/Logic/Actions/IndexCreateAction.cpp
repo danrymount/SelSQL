@@ -14,9 +14,8 @@ Message IndexCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
     auto table = cursor.first;
 
     table->setIndexField(colName);
-    v->getEngine()->UpdateTableMeta(table);  // обновить таблицу на диске. можно тут можно в конце.
+    v->getEngine()->UpdateTableMeta(table);
 
-    // дальше, надо сделать селект каждой записи и вызвать метод курсора
     auto data_manager = cursor.second->GetDataManager();
     //    auto it = std::find_if(table->getFields().begin(), table->getFields().end(),
     //                           [colName](const std::pair<std::string, Variable>& field) { return field.first ==
@@ -52,10 +51,5 @@ Message IndexCreateAction::execute(std::shared_ptr<BaseActionNode> root) {
         }
     } while (!cursor.second->NextRecord());
 
-    //    data_manager->InsertIndex(tableName,val,cursor.second->GetCurrentPos()); Кьюрент поз, это позиция того, что ты
-    //    только что зафетчил
-    // когда ты в инсертах, апдейтах, будешь делать надо будет сделать так, что после инсерта или апдейта если таблица у
-    // нас с индексами надо также вызывать сразу же только уже вот это
-    // data_manager->InsertIndex(tableName,val,cursor.second->GetLastInsertedPos());
     return Message();
 }

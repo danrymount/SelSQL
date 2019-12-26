@@ -8,6 +8,7 @@
 #include <sstream>
 #include "../../../Parser/Headers/ExpressionOptimizerVisitor.h"
 #include "../../../Parser/Headers/ExpressionVisitor.h"
+#include "../../../Parser/Headers/IndexExprVisitor.h"
 #include "BaseAction.h"
 class SelectAction : public BaseAction {
    public:
@@ -16,11 +17,13 @@ class SelectAction : public BaseAction {
     explicit SelectAction(std::shared_ptr<TreeVisitor> _visitor) : BaseAction(std::move(_visitor)) {
         exprVisitor = new ExpressionVisitor();
         optimizerExprVisitor = new ExpressionOptimizerVisitor();
+        indexExprVisitor = new IndexExprVisitor();
     }
 
     ~SelectAction() {
         delete exprVisitor;
         delete optimizerExprVisitor;
+        delete indexExprVisitor;
     }
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
@@ -28,6 +31,7 @@ class SelectAction : public BaseAction {
    private:
     ExpressionVisitor *exprVisitor;
     ExpressionOptimizerVisitor *optimizerExprVisitor;
+    IndexExprVisitor *indexExprVisitor;
     std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> cursor;
     std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> records;
 

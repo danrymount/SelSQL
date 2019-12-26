@@ -15,7 +15,10 @@ class UpdateAction : public BaseAction {
         optimizerExprVisitor = new ExpressionOptimizerVisitor();
     }
 
-    ~UpdateAction() { delete exprVisitor; }
+    ~UpdateAction() {
+        delete exprVisitor;
+        delete optimizerExprVisitor;
+    }
 
     Message execute(std::shared_ptr<BaseActionNode>) override;
 
