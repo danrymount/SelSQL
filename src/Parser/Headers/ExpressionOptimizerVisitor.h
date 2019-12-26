@@ -115,7 +115,7 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
 
     void visit(MoreNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::GREATER](left, right));
         }
@@ -123,14 +123,14 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
 
     void visit(EqualsNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::EQUALS](left, right));
         }
     }
     void visit(NoEqualsNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::NOEQUALS](left, right));
         }
@@ -138,7 +138,7 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
 
     void visit(MoreEqNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::GREATEREQUALS](left, right));
         }
@@ -146,7 +146,7 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
 
     void visit(LessEqNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::LOWEREQUALS](left, right));
         }
@@ -154,7 +154,7 @@ class ExpressionOptimizerVisitor : public TreeVisitor {
 
     void visit(LessNode* node) override {
         auto left = executeLeftArith(node);
-        auto right = executeLeftArith(node);
+        auto right = executeRightArith(node);
         if (!left.empty() && !right.empty()) {
             node->setResult(ActionsUtils::checkSign[Cmp::LOWER](left, right));
         }

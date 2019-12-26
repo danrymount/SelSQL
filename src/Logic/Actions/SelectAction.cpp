@@ -54,18 +54,15 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             // TODO expception from visitor
         }
 
-        // if (optimizerExprVisitor->getMbIndex()) {
-        // auto mbIndentIndex = optimizerExprVisitor->getIndent();
-        // auto it = std::find_if(table->getFields().begin(), table->getFields().end(), [](std::pair<std::string,
-        // Variable> field) { return field.second.isIndex(); });
-        std::string curIndex;
-        for (auto &field : table->getFields()) {
-            if (field.second.isIndex()) {
-                curIndex = field.first;
-                break;
+        if (optimizerExprVisitor->getMbIndex()) {
+            std::string curIndex;
+            for (auto &field : table->getFields()) {
+                if (field.second.isIndex()) {
+                    curIndex = field.first;
+                    break;
+                }
             }
-        }
-        if (!curIndex.empty()) {
+
             std::cout << "INDEXSES" << std::endl;
             auto data_manager = cursor.second->GetDataManager();
             auto indexes = data_manager->GetIndexes(tableName);
@@ -84,42 +81,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                 }
                 records.push_back(_newRecord);
             }
-            //            for (auto &field : indexes) {
-            //                cursor.second->SetPos(field.second);
-            //                //                if (optimizerExprVisitor->getMbIndex()) {
-            //                //                    auto mbIndentIndex = optimizerExprVisitor->getIndent();
-            //                //                    if(mbIndentIndex == curIndex){
-            //                //
-            //                //                    }
-            //                //                }
-            //
-            //
-            //
-            //                auto _record = cursor.second->Fetch();
-            //                if (_record.first.empty()) {
-            //                    continue;
-            //                }
-            //                std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            //                if (_record.first.empty()) {
-            //                    continue;
-            //                }
-            //                for (auto &col : _record.first) {
-            //                    _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
-            //                }
-            //                exprVisitor->setFirstValues(_newRecord);
-            //                try {
-            //                    expr->accept(exprVisitor);
-            //                } catch (std::exception &exception) {
-            //                    v->getEngine()->Commit(root->getId());
-            //                    std::string exc = exception.what();
-            //                    return Message(ErrorConstants::ERR_TYPE_MISMATCH);
-            //                }
-            //                if (exprVisitor->getResult()) {
-            //                    records.push_back(_newRecord);
-            //                }
-            //            }
         } else {
-            //} else {
             do {
                 auto start = v->getStartTime();
                 auto finish = v->getFinishTime();

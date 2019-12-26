@@ -29,26 +29,6 @@ class IndexExprVisitor : public TreeVisitor {
         }
     }
 
-    int executeLeftLogic(BaseExprNode* node) {
-        if (node->getLeft()->getResult() == -1) {
-            node->getLeft()->accept(this);
-            auto res = node->getLeft()->getResult();
-            node->getLeft()->setResult(-1);
-            return res;
-        }
-        return node->getLeft()->getResult();
-    }
-
-    int executeRightLogic(BaseExprNode* node) {
-        if (node->getRight()->getResult() == -1) {
-            node->getRight()->accept(this);
-            auto res = node->getRight()->getResult();
-            node->getRight()->setResult(-1);
-            return res;
-        }
-        return node->getRight()->getResult();
-    }
-
     std::string executeLeftArith(BaseExprNode* node) {
         if (node->getLeft()->getBaseValue().empty()) {
             node->getLeft()->accept(this);
@@ -136,6 +116,7 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        res = std::to_string(std::stoi(res));
         auto it = values.equal_range(res);
         ans.clear();
         for (auto v = it.first; v != it.second; v++) {
@@ -147,6 +128,7 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        res = std::to_string(std::stoi(res));
         auto it = values.equal_range(res);
         ans.clear();
         for (auto& value : values) {
