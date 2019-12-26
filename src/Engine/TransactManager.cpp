@@ -3,9 +3,8 @@
 #include <mutex>
 
 std::mutex mutex;
-// TODO PROBLEMS IN MANAGER
+
 TransactManager::TransactManager() {
-    // TODO FOR ID == 0 INIT FOREVER
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
     if (!file.is_open()) {
         std::fstream file("TR_TABLE", std::ios::in | std::ios::out | std::ios::trunc);
@@ -131,9 +130,6 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     std::memcpy(&end_time, &e_time, sizeof(e_time));
     transaction_table[tr_id].second = end_time;
     std::fstream file("TR_TABLE", std::ios::in | std::ios::out);
-    //    for (auto i : transaction_table) {
-    //        file << i.first << " " << i.second.first << " " << i.second.second << std::endl;
-    //    }
     file.seekp(0, std::ios::end);
     file << tr_id << " " << transaction_table[tr_id].first << " " << transaction_table[tr_id].second << std::endl;
 }

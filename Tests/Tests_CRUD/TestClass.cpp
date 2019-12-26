@@ -485,3 +485,16 @@ TEST(SERVER_TEST_WHERE, WHERE_TEST_INT_EQUALLY_CHAR) {
                               {"INSERT INTO fn values(2, 3.789, 'qwerty');", "Success"},
                               {"SELECT * from fn where id = name;", "Success"}});
 }
+
+TEST(INDEX_TEST, SIMPLE) {
+    TestUtils::clear();
+    TestUtils::checkRequests({{"CREATE TABLE t(id int);", "Success"},
+                              {"INSERT INTO t values(2);", "Success"},
+                              {"INSERT INTO t values(1);", "Success"},
+                              {"SELECT * from t;", "\nid|\n2 |\n1 |\n"},
+                              {"Create index on t(id);", "Success"},
+                              {"Select * from t;", "\nid|\n2 |\n1 |\n"},
+                              {"insert into t values(432);", "Success"},
+                              {"select * from t;", "\nid |\n2  |\n1  |\n432|\n"},
+                              {"select * from t where id > 0;", "\nid |\n1  |\n2  |\n432|\n"}});
+}
