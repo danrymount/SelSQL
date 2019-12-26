@@ -54,15 +54,15 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
             // TODO expception from visitor
         }
 
-        if (optimizerExprVisitor->getMbIndex()) {
-            std::string curIndex;
-            for (auto &field : table->getFields()) {
-                if (field.second.isIndex()) {
-                    curIndex = field.first;
-                    break;
-                }
+        std::string curIndex;
+        for (auto &field : table->getFields()) {
+            if (field.second.isIndex()) {
+                curIndex = field.first;
+                break;
             }
+        }
 
+        if (optimizerExprVisitor->getMbIndex() and !curIndex.empty()) {
             std::cout << "INDEXSES" << std::endl;
             auto data_manager = cursor.second->GetDataManager();
             auto indexes = data_manager->GetIndexes(tableName);
@@ -81,6 +81,7 @@ Message SelectAction::execute(std::shared_ptr<BaseActionNode> root) {
                 }
                 records.push_back(_newRecord);
             }
+
         } else {
             do {
                 auto start = v->getStartTime();

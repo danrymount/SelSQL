@@ -128,6 +128,7 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        // if()
         res = std::to_string(std::stoi(res));
         auto it = values.equal_range(res);
         ans.clear();
