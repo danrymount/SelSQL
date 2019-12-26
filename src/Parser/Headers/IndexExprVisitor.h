@@ -104,6 +104,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.upper_bound(res);
         ans.clear();
         for (auto v = it; v != values.end(); v++) {
@@ -116,7 +123,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
-        res = std::to_string(std::stoi(res));
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.equal_range(res);
         ans.clear();
         for (auto v = it.first; v != it.second; v++) {
@@ -128,8 +141,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
-        // if()
-        res = std::to_string(std::stoi(res));
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.equal_range(res);
         ans.clear();
         for (auto& value : values) {
@@ -152,6 +170,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.lower_bound(res);
         ans.clear();
         for (auto v = it; v != values.end(); v++) {
@@ -164,6 +189,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.upper_bound(res);
         ans.clear();
         for (auto v = values.begin(); v != it; v++) {
@@ -176,6 +208,13 @@ class IndexExprVisitor : public TreeVisitor {
         auto left = executeLeftArith(node);
         auto right = executeRightArith(node);
         auto res = left.empty() ? right : left;
+        try {
+            auto resD = std::stod(res);
+            if (resD - (long)resD == 0) {
+                res = std::to_string(std::stoi(res));
+            }
+        } catch (std::exception& e) {
+        }
         auto it = values.lower_bound(res);
         ans.clear();
         for (auto v = values.begin(); v != it; v++) {
