@@ -208,9 +208,9 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_INTO_TWO_TRANSACTIONS_PARALLEL_TREAD
                                    "\nid|name   |city   |age     |\n"
                                    "1 |'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
-    // в этом тесте должна быть ошибка, апдейт сразу в двух транзакциях
     std::thread client1(TestUtils::checkRequests, request1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    // sleep to make sure that client1 will block table early than client2
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
     std::thread client2(TestUtils::checkRequests, request2);
     client1.join();
     client2.join();
