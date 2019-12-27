@@ -498,3 +498,16 @@ TEST(INDEX_TEST, SIMPLE) {
                               {"select * from t;", "\nid |\n2  |\n1  |\n432|\n"},
                               {"select * from t where id > 0;", "\nid |\n1  |\n2  |\n432|\n"}});
 }
+
+// TEST(VER_TEST, TEST) {
+//    TestUtils::clear();
+//    TestUtils::checkRequests({{"CREATE TABLE tt(id int);", "Success"},
+//                              {"INSERT INTO tt values(2);", "Success"},
+//                              {"INSERT INTO tt values(1);", "Success"},
+//                              {"SELECT * from tt;", "\nid|\n2 |\n1 |\n"},
+//                              {"Select * from tt for system time from all;", "\nid|\n2 |\n1 |\n"},
+//                              {"insert into tt values(43);", "Success"},
+//                              {"update tt set id = 50;", "Success"},
+//                              {"select * from tt for system time from 20-12-2019 16:40:37 to 29-12-2019 10:00:00;",
+//                               "Success"}});
+//}

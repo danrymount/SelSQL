@@ -227,18 +227,21 @@ TEST(SERVER_TEST_THREAD, THREAD_TEST_UPDATE_DIFFERENT_VALUES_INTO_TWO_TRANSACTIO
                                   {"begin;", "Success"},
                                   {"insert into t9 values(5, 'Vasya', 'Gorod',  7.5);", "Success"},
                                   {"update t9 set id = 15 where id = 5;", "Success"},
-                                  {"select * from t9;", "\nid|name   |city   |age     |\n"
-                                                        "1 |'Vasya'|'Gorod'|7.500000|\n"
-                                                        "15|'Vasya'|'Gorod'|7.500000|\n"}};
+                                  {"select * from t9;",
+                                   "\nid|name   |city   |age     |\n"
+                                   "1 |'Vasya'|'Gorod'|7.500000|\n"
+                                   "15|'Vasya'|'Gorod'|7.500000|\n"}};
     std::vector<Request> request2{{"begin;", "Success"},
                                   {"update t9 set id = 15 where id = 1;", "Success"},
                                   {"select * from t9;",
                                    "\nid|name   |city   |age     |\n"
                                    "15|'Vasya'|'Gorod'|7.500000|\n"},
                                   {"commit;", "Success"}};
-    std::vector<Request> request3{{"commit;", "Success"}, {"select * from t9;", "\nid|name   |city   |age     |\n"
-                                                                                "15|'Vasya'|'Gorod'|7.500000|\n"
-                                                                                "15|'Vasya'|'Gorod'|7.500000|\n"}};
+    std::vector<Request> request3{{"commit;", "Success"},
+                                  {"select * from t9;",
+                                   "\nid|name   |city   |age     |\n"
+                                   "15|'Vasya'|'Gorod'|7.500000|\n"
+                                   "15|'Vasya'|'Gorod'|7.500000|\n"}};
     TestUtils::checkRequestsClient(request1, client1);
     Client client2;
     TestUtils::checkRequestsClient(request2, client2);
