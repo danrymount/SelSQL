@@ -23,7 +23,9 @@ class SystemTimeNode : public BaseNode {
    private:
     static int64_t stringToChrono(const std::string& date) {
         std::tm tm{};
-        strptime(date.c_str(), "%d-%m-%Y %H:%M:%S", &tm);
+
+        std::stringstream datestream(date);
+        datestream >> std::get_time(&tm, "%d-%m-%Y %H:%M:%S");
         int64_t start_time = 0;
         auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
         std::memcpy(&start_time, &s_time, sizeof(s_time));
