@@ -11,14 +11,18 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     root->accept(getTreeVisitor().get());
     auto updateColumns = v->getUpdates();
     auto expr = v->getExpr();
-    cursor = v->getEngine()->GetCursor(v->getTableName());
+    cursor = v->getEngine()->GetCursor(v->getTableName(), root->getId());
     auto table = cursor.first;
     if (table->name.empty()) {
+        commitTransaction(root);
+
         return Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
     }
 
     message = ActionsUtils::checkFieldsExist(table, updateColumns);
     if (message.getErrorCode()) {
+        commitTransaction(root);
+
         return message;
     }
 
@@ -26,59 +30,96 @@ Message UpdateAction::execute(std::shared_ptr<BaseActionNode> root) {
     std::vector<ActionsUtils::Record> allrecords;
     // = ActionsUtils::getAllRecords(cursor);
     // cursor.second->Reset();
-    if (cursor.first->record_amount) {
-        do {
-            auto record = cursor.second->Fetch();
-            if (record.empty()) {
-                continue;
-            }
-            std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
-            for (auto &col : record) {
-                _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
-            }
-            exprVisitor->setFirstValues(_newRecord);
-            try {
-                expr->accept(exprVisitor);
-            } catch (std::exception &exception) {
-                std::string exc = exception.what();
-                return Message(ErrorConstants::ERR_TYPE_MISMATCH);
-            }
-            if (exprVisitor->getResult()) {
-                records.emplace_back(record);
-            }
-            allrecords.emplace_back(record);
-        } while (!cursor.second->NextRecord());
-        cursor.second->Reset();
-
-        // TODO сменить входные параметры
-        std::vector<std::string> columns;
-        std::vector<std::string> values;
-        for (auto &colValue : updateColumns) {
-            columns.emplace_back(colValue.first);
-            values.emplace_back(colValue.second);
-        }
-
-        message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
-        if (message.getErrorCode()) {
-            return message;
-        }
-        do {
-            auto _record = cursor.second->Fetch();
-            // TODO std::find
-            auto rec = std::find(records.begin(), records.end(), _record);
-            if (rec == records.end()) {
-                continue;
-            }
-
-            try {
-                cursor.second->Update(columns, values);
-            } catch (std::exception &exception) {
-                return Message(ErrorConstants::ERR_STO);
-            }
-
-        } while (!cursor.second->NextRecord());
+    //    if (cursor.first->record_amount) {
+    try {
+        expr->accept(optimizerExprVisitor);
+    } catch (std::exception &exception) {
+        // TODO expception from visitor
     }
-//    cursor.second->Reset();
-    cursor.second->Commit();
+
+    do {
+        auto record = cursor.second->Fetch();
+        if (record.first.empty()) {
+            continue;
+        }
+        std::vector<std::pair<std::pair<std::string, std::string>, std::string>> _newRecord;
+        for (auto &col : record.first) {
+            _newRecord.emplace_back(std::make_pair(std::make_pair("", col.first), col.second));
+        }
+        exprVisitor->setFirstValues(_newRecord);
+        try {
+            expr->accept(exprVisitor);
+        } catch (std::exception &exception) {
+            std::string exc = exception.what();
+            commitTransaction(root);
+
+            return Message(ErrorConstants::ERR_TYPE_MISMATCH);
+        }
+        if (exprVisitor->getResult()) {
+            records.emplace_back(record.first);
+        }
+        allrecords.emplace_back(record.first);
+    } while (!cursor.second->NextRecord());
+    cursor.second->Reset();
+
+    std::vector<std::string> columns;
+    std::vector<std::string> values;
+    for (auto &colValue : updateColumns) {
+        columns.emplace_back(colValue.first);
+        values.emplace_back(colValue.second);
+    }
+
+    message = actionsUtils.checkConstraintFroUpdate(updateColumns, cursor.first, records, allrecords);
+    if (message.getErrorCode()) {
+        commitTransaction(root);
+
+        return message;
+    }
+
+    std::string indexColumn;
+    bool hasIndex = false;
+    for (auto &field : cursor.first->getFields()) {
+        if (field.second.isIndex()) {
+            indexColumn = field.first;
+            hasIndex = true;
+            break;
+        }
+    }
+
+    do {
+        auto _record = cursor.second->Fetch();
+        auto rec = std::find(records.begin(), records.end(), _record.first);
+        if (rec == records.end()) {
+            continue;
+        }
+
+        try {
+            if (cursor.second->Update(columns, values) == ErrorConstants::ERR_TRANSACT_CONFLICT) {
+                commitTransaction(root);
+                return Message(ErrorConstants::ERR_TRANSACT_CONFLICT);
+            };
+
+            if (hasIndex) {
+                auto data_manager = cursor.second->GetDataManager();
+                int index = -1;
+                for (int i = 0; i < columns.size(); i++) {
+                    if (columns[i] == indexColumn) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index != -1) {
+                    data_manager->InsertIndex(table->name, values[index], cursor.second->GetLastInsertedPos());
+                }
+            }
+
+        } catch (std::exception &exception) {
+            commitTransaction(root);
+
+            return Message(ErrorConstants::ERR_STO);
+        }
+
+    } while (!cursor.second->NextRecord());
+
     return message;
 }

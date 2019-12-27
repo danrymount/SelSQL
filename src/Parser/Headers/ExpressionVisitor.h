@@ -30,8 +30,13 @@ class ExpressionVisitor : public TreeVisitor {
    public:
     void visit(ExprNode* node) override {
         if (node->getChild()) {
-            node->getChild()->accept(this);
-            result = node->getChild()->getResult() && !isNull;
+            int res = node->getChild()->getResult();
+            if (res == -1) {
+                node->getChild()->accept(this);
+                res = node->getChild()->getResult();
+                node->getChild()->setResult(-1);
+            }
+            result = res && !isNull;
             isNull = false;
         }
     }
@@ -39,22 +44,42 @@ class ExpressionVisitor : public TreeVisitor {
     void visit(NullValueNode* node) override { node->setValue("null"); }
 
     int executeLeftLogic(BaseExprNode* node) {
-        node->getLeft()->accept(this);
+        if (node->getLeft()->getResult() == -1) {
+            node->getLeft()->accept(this);
+            auto res = node->getLeft()->getResult();
+            node->getLeft()->setResult(-1);
+            return res;
+        }
         return node->getLeft()->getResult();
     }
 
     int executeRightLogic(BaseExprNode* node) {
-        node->getRight()->accept(this);
+        if (node->getRight()->getResult() == -1) {
+            node->getRight()->accept(this);
+            auto res = node->getRight()->getResult();
+            node->getRight()->setResult(-1);
+            return res;
+        }
         return node->getRight()->getResult();
     }
 
     std::string executeLeftArith(BaseExprNode* node) {
-        node->getLeft()->accept(this);
+        if (node->getLeft()->getBaseValue().empty()) {
+            node->getLeft()->accept(this);
+            auto res = node->getLeft()->getBaseValue();
+            node->getLeft()->setValue("");
+            return res;
+        }
         return node->getLeft()->getBaseValue();
     }
 
     std::string executeRightArith(BaseExprNode* node) {
-        node->getRight()->accept(this);
+        if (node->getRight()->getBaseValue().empty()) {
+            node->getRight()->accept(this);
+            auto res = node->getRight()->getBaseValue();
+            node->getRight()->setValue("");
+            return res;
+        }
         return node->getRight()->getBaseValue();
     }
 

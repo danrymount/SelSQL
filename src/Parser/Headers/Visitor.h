@@ -52,6 +52,9 @@ class FullJoinNode;
 class UnionJoinNode;
 class IntersectJoinNode;
 class UnionIntersectListNode;
+class SystemTimeNode;
+class SystemTimeAllNode;
+class IndexNode;
 
 class Visitor {
    public:
@@ -64,6 +67,7 @@ class Visitor {
     virtual void visit(SelectNode* node) = 0;
     virtual void visit(UpdateNode* node) = 0;
     virtual void visit(DeleteNode* node) = 0;
+    virtual void visit(IndexNode* node) = 0;
 
     virtual void visit(TableNode* node) = 0;
 
@@ -117,5 +121,8 @@ class Visitor {
     virtual void visit(UnionJoinNode* node) = 0;
     virtual void visit(IntersectJoinNode* node) = 0;
     virtual void visit(UnionIntersectListNode* node) = 0;
+
+    virtual void visit(SystemTimeNode* node) = 0;
+    virtual void visit(SystemTimeAllNode* node) = 0;
 };
 #endif  // SELSQL_VISITOR_H

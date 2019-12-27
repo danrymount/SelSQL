@@ -15,16 +15,21 @@
 class MainEngine {
     std::shared_ptr<FileManager> file_manager_;
     std::shared_ptr<TransactManager> transact_manager_;
+    std::shared_ptr<DataManager> data_manager_;
 
    public:
     explicit MainEngine();
+    //    MainEngine(const MainEngine&) = delete;
+    //    MainEngine operator=(const MainEngine&) = delete;
     Message CreateTable(const std::shared_ptr<Table>& table);
     std::shared_ptr<Table> ShowCreateTable(const std::string& tableName);
     Message DropTable(const std::string& tableName);
-    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(const std::string& tableName);
-    int GetTransactionId();
-    void Commit(int transaction_id);
-
+    std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>> GetCursor(const std::string& tableName,
+                                                                         int64_t transaction_id);
+    int64_t GetTransactionSP();
+    //    static MainEngine& GetInstance();
+    void Commit(int64_t transaction_id);
+    void UpdateTableMeta(const std::shared_ptr<Table>& table);
 };
 
 #endif  // SELSQL_MAINENGINE_H

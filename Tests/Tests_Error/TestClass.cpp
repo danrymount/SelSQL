@@ -253,7 +253,8 @@ TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_CREATE) {
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_TABLE) {
     TestUtils::clear();
     TestUtils::checkRequests({{"create tale t (id int);",
-                               "syntax error, unexpected IDENT, expecting TABLE (Str num 1, sym num 10): tale"}});
+                               "syntax error, unexpected IDENT, expecting TABLE or INDEX (Str num 1, sym num 10): "
+                               "tale"}});
 }
 
 TEST(SERVER_TEST_SYN_ERROR, SYN_ERROR_TEST_ERROR_IN_TABLE_NAME) {

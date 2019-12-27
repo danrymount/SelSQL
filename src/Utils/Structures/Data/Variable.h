@@ -15,7 +15,7 @@ class Variable {
 
     Variable(Type _type, ConstraintsVector _constraints) : type(_type), constraints(_constraints){};
     explicit Variable(Type type_) : type(type_) {}
-    Variable(Type _type, int _size): type(_type), size(_size){};
+    Variable(Type _type, int _size) : type(_type), size(_size){};
 
     int addConstraint(Constraint constraint) {
         for (auto &constraint_ : constraints) {
@@ -31,12 +31,15 @@ class Variable {
     ConstraintsVector getConstraints() const { return constraints; }
 
     void setConstraints(ConstraintsVector &constraints_) { this->constraints = constraints_; }
+    void setIndex() { is_index = true; }
+    bool isIndex() { return is_index; }
 
     Type type;
     int size = 0;
 
    private:
     std::vector<Constraint> constraints;
+    bool is_index = false;
 };
 
 #endif  // SELSQL_VARIABLE_H

@@ -15,5 +15,5 @@ add_subdirectory(Tests/Tests_Error)
 add_subdirectory(Server)
 add_subdirectory(Client)
 
+
 add_subdirectory(lib/googletest-master)
-include_directories(lib/googletest-master/googletest/include)

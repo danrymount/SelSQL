@@ -7,6 +7,7 @@
 #include "../Logic/Actions/Headers/CreateAction.h"
 #include "../Logic/Actions/Headers/DeleteAction.h"
 #include "../Logic/Actions/Headers/DropAction.h"
+#include "../Logic/Actions/Headers/IndexCreateAction.h"
 #include "../Logic/Actions/Headers/InsertAction.h"
 #include "../Logic/Actions/Headers/SelectAction.h"
 #include "../Logic/Actions/Headers/ShowCreateAction.h"
@@ -14,6 +15,7 @@
 #include "Headers/CreateVisitor.h"
 #include "Headers/DeleteVisitor.h"
 #include "Headers/DropVisitor.h"
+#include "Headers/IndexCreateVisitor.h"
 #include "Headers/InsertVisitor.h"
 #include "Headers/SelectVisitor.h"
 #include "Headers/ShowCreateVisitor.h"
@@ -56,6 +58,7 @@
 void TreeVisitor::visit(RootNode* node) {
     for (auto& child : node->getChildren()) {
         child->accept(this);
+
         if (!node->isTransaction() && !message.getErrorCode()) {
             engine->Commit(child->getId());
             std::cout << "COMMIT " << child->getId() << std::endl;
@@ -93,10 +96,19 @@ void TreeVisitor::visit(SelectNode* node) {
     message = SelectAction(visitor).execute(action);
 }
 
+void TreeVisitor::visit(IndexNode* node) {
+    auto visitor = std::make_shared<IndexCreateVisitor>(IndexCreateVisitor(getEngine()));
+    auto action = std::make_shared<IndexNode>(*node);
+    message = IndexCreateAction(visitor).execute(action);
+}
+
 void TreeVisitor::visit(UnionIntersectListNode* node) {
     allCols.clear();
     allRecords.clear();
-    for (auto& child : node->getChilds()) {
+    for (auto child : node->getChilds()) {
+        for (auto c : child->getChildren()) {
+            c->setId(node->getId());
+        }
         child->setId(node->getId());
         child->accept(this);
     }
@@ -122,8 +134,10 @@ Message countRecordsForUnionIntersect(UnionIntersectNode* node, const std::share
 
         if (tempCols[0].second == "*") {
             tempCols.clear();
-            for (auto& col : records[0]) {
-                tempCols.emplace_back(col.first);
+            if (!records.empty()) {
+                for (auto& col : records[0]) {
+                    tempCols.emplace_back(col.first);
+                }
             }
         }
         for (auto& col : tempCols) {
@@ -279,3 +293,5 @@ void TreeVisitor::visit(TableNode* node) {}
 void TreeVisitor::visit(LeftJoinNode* node) {}
 void TreeVisitor::visit(RightJoinNode* node) {}
 void TreeVisitor::visit(FullJoinNode* node) {}
+void TreeVisitor::visit(SystemTimeNode* node) {}
+void TreeVisitor::visit(SystemTimeAllNode* node) {}

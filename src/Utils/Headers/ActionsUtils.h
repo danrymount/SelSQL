@@ -50,7 +50,8 @@ class ActionsUtils {
     static std::string
     getSelectMessage(std::vector<std::vector<std::pair<std::pair<std::string, std::string>, std::string>>> values);
     static std::string getTableInfo(const std::shared_ptr<Table>& table, int includeCols);
-    static std::vector<Record> getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor);
+    static std::vector<Record> getAllRecords(const std::pair<std::shared_ptr<Table>, std::shared_ptr<Cursor>>& cursor,
+                                             long tr_p);
 
     inline static std::array<std::function<double(double a, double b)>, 4> calculate = {[](double a, double b) {
                                                                                             return a + b;
@@ -82,8 +83,7 @@ class ActionsUtils {
     static Message checkUnique(std::string newVal, const std::string& oldVal);
     static Message checkPrimaryKey(const std::string& newVal, const std::string& oldVal);
 
-    Message checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table,
-                                 const std::vector<ActionsUtils::Record>& records);
+    Message checkFirstConstraint(const Record& updateColumns, const std::shared_ptr<Table>& table);
 };
 
 #endif  // SELSQL_ACTIONSUTILS_H

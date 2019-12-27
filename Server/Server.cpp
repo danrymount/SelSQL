@@ -5,9 +5,13 @@
 #include "Server.h"
 #include <cstring>
 #include <iostream>
+#include <mutex>
 #include "ServerUtils/ServerUtils.h"
 
 Server::Server(int max_connection) {
+    for (auto i : client_message) {
+        i.reserve(MESSAGE_SIZE);
+    }
     ServerUtils::startServer();
     server_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (server_socket < 0) {
@@ -31,12 +35,16 @@ Server::Server(int max_connection) {
     communication_socket.resize(max_connection, 0);
 }
 int Server::ListenSocket(int id) {
+    char recieved_message[MESSAGE_SIZE];
     memset(recieved_message, 0, sizeof(char) * MESSAGE_SIZE);
+    client_message[id].clear();
+
     /*следует помнить, что данные поступают неравномерно*/
     int rc = recv(communication_socket[id], recieved_message, MESSAGE_SIZE, 0);
     if (rc <= 0) {
         return 1;
     }
+    client_message[id] = recieved_message;
     return 0;
 }
 void Server::SendMessage(std::string response, int id) {

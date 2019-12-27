@@ -13,7 +13,7 @@
 class TreeVisitor : public Visitor {
    public:
     TreeVisitor() = default;
-    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(std::move(_engine)) {}
+    explicit TreeVisitor(std::shared_ptr<MainEngine> _engine) : engine(_engine) {}
 
     void visit(RootNode* node) override;
     void visit(CreateNode* node) override;
@@ -31,6 +31,7 @@ class TreeVisitor : public Visitor {
     void visit(SelectNode* node) override;
     void visit(UpdateNode* node) override;
     void visit(DeleteNode* node) override;
+    void visit(IndexNode* node) override;
 
     void visit(ColumnsAndValuesNode* node) override;
     void visit(ColumnNode* node) override;
@@ -71,6 +72,9 @@ class TreeVisitor : public Visitor {
     void visit(UnionIntersectListNode* node) override;
     void visit(UnionJoinNode* node) override;
     void visit(IntersectJoinNode* node) override;
+
+    void visit(SystemTimeNode* node) override;
+    void visit(SystemTimeAllNode* node) override;
 
     Message getMessage() { return message; }
 

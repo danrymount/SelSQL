@@ -14,7 +14,7 @@ class Table {
    public:
     typedef std::vector<std::pair<std::string, Variable>> FieldsMap;
 
-    size_t record_amount = 0;
+    //    size_t record_amount = 0;
     size_t record_size = 0;
 
     Table() = default;
@@ -35,6 +35,13 @@ class Table {
         fields.emplace_back(std::make_pair(field_name, var));
         last_var_name = field_name;
     }
+    void setIndexField(const std::string &field_name) {
+        for (auto &i : fields) {
+            if (i.first == field_name) {
+                i.second.setIndex();
+            }
+        }
+    }
 
     int addConstraint(Constraint constraint) { return fields[fields.size() - 1].second.addConstraint(constraint); }
 
@@ -51,7 +58,7 @@ class Table {
 
     //    void calcMaxDeleted() {
     //        calcRecordSize();
-    //        max_deleted_amount = Constants::DATA_SIZE / record_size;
+    //        max_deleted_amount = Constants::DATA_BLOCK_SIZE / record_size;
     //        deleted_pos = new int[max_deleted_amount];
     //    }
     void setFields(std::vector<std::pair<std::string, Variable>> &fields_) { this->fields = fields_; }

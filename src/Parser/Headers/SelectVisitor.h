@@ -32,17 +32,26 @@
 #include "../Nodes/JoinNodes/LeftJoinNode.h"
 #include "../Nodes/JoinNodes/RightJoinNode.h"
 #include "../Nodes/JoinNodes/SourceJoinNode.h"
+#include "../Nodes/SystemTimeAllNode.h"
+#include "../Nodes/SystemTimeNode.h"
 #include "../Nodes/TableNode.h"
 #include "TreeVisitor.h"
 typedef std::vector<RecordsFull> JoinRecord;
 class SelectVisitor : public TreeVisitor {
    public:
+    int64_t tr_id = 0;
+    int flag_system_time = 0;
     explicit SelectVisitor(std::shared_ptr<MainEngine> _engine) : TreeVisitor(std::move(_engine)){};
 
     void visit(SelectNode* node) override {
+        tr_id = node->getId();
         allrecords.clear();
         columns.clear();
         node->getChild()->accept(this);
+        auto systemTime = node->getSystemTimeNode();
+        if (systemTime != nullptr) {
+            systemTime->accept(this);
+        }
         source = node->getSource();
         std::cout << node->getId() << std::endl;
     }
@@ -59,6 +68,22 @@ class SelectVisitor : public TreeVisitor {
         tableName = std::move(curValue);
     }
 
+    void visit(SystemTimeNode* node) override {
+        startTime = node->getPeriodA();
+        finishTIme = node->getPeriodB();
+        flag_system_time = 1;
+    }
+
+    void visit(SystemTimeAllNode* node) override {
+        auto date = "21-01-1999 8:30:21";
+        std::tm tm{};
+        strptime(date, "%d-%m-%Y %H:%M:%S", &tm);
+        startTime = 0;
+        //        auto s_time = std::chrono::system_clock::from_time_t(std::mktime(&tm));
+        //        std::memcpy(&startTime, &s_time, sizeof(s_time));
+        finishTIme = INT64_MAX;
+    }
+
     void visit(IdentNode* node) override { curValue = node->getBaseValue(); }
 
     void visit(ColumnNode* node) override {
@@ -71,6 +96,7 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(SourceJoinNode* node) override {
         node->getSource()->accept(this);
+
         if (!curValue.empty()) {
             auto _tableName = std::move(curValue);
             std::string alias = _tableName;
@@ -78,7 +104,8 @@ class SelectVisitor : public TreeVisitor {
                 node->getAlias()->accept(this);
                 alias = std::move(curValue);
             }
-            auto cursor = engine.GetCursor(_tableName);
+
+            auto cursor = getEngine()->GetCursor(_tableName, tr_id);
             if (cursor.first->name.empty()) {
                 message = Message(ErrorConstants::ERR_TABLE_NOT_EXISTS);
                 return;
@@ -96,6 +123,7 @@ class SelectVisitor : public TreeVisitor {
                 }
                 allrecords.emplace_back(addRecord(alias, cursor.second));
             }
+            std::cerr << _tableName << std::endl;
         }
     }
 
@@ -103,11 +131,11 @@ class SelectVisitor : public TreeVisitor {
         std::vector<RecordsFull> records;
         do {
             auto _record = cursor->Fetch();
-            if (_record.empty()) {
+            if (_record.first.empty()) {
                 continue;
             }
             RecordsFull _newRecord;
-            for (auto& col : _record) {
+            for (auto& col : _record.first) {
                 _newRecord.emplace_back(std::make_pair(std::make_pair(aliasName, col.first), col.second));
             }
             records.emplace_back(_newRecord);
@@ -157,7 +185,6 @@ class SelectVisitor : public TreeVisitor {
 
     void visit(LeftJoinNode* node) override {
         startExecuteJoin(node);
-        // records.clear();
         for (auto& first : firstRecords) {
             expressionVisitor->setFirstValues(first);
             auto flag = 0;
@@ -386,6 +413,7 @@ class SelectVisitor : public TreeVisitor {
             if (ident == large[0].end()) {
                 ident = std::find_if(small[0].begin(), small[0].end(), compareForHash);
                 if (ident == small[0].end()) {
+                    //                    this->getEngine()->Commit(tr_id);
                     message = Message(ErrorConstants::ERR_NO_SUCH_FIELD);
                     return;
                 } else {
@@ -431,8 +459,11 @@ class SelectVisitor : public TreeVisitor {
 
     std::string getTableName() { return tableName; }
 
+    int64_t getStartTime() { return startTime; }
+
+    int64_t getFinishTime() { return finishTIme; }
+
    private:
-    MainEngine engine;
     std::string curValue;
     std::string tableName;
     JoinRecord firstRecords;
@@ -442,12 +473,14 @@ class SelectVisitor : public TreeVisitor {
     std::vector<JoinRecord> allrecords;
 
     std::vector<std::pair<std::string, std::string>> columns;
-    BaseExprNode* expr;
-    BaseNode* source;
-    ExpressionVisitor* expressionVisitor;
+    BaseExprNode* expr = nullptr;
+    BaseNode* source = nullptr;
+    ExpressionVisitor* expressionVisitor = nullptr;
     int countEq = 0;
     inline static int id = -1;
     inline static std::vector<std::pair<std::string, std::string>> curExpr;
+    int64_t startTime = -1;
+    int64_t finishTIme = -1;
 };
 
 #endif  // SELSQL_SELECTVISITOR_H

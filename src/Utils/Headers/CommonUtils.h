@@ -5,10 +5,10 @@
 #ifndef SELSQL_COMMONUTILS_H
 #define SELSQL_COMMONUTILS_H
 
+#include <iostream>
 #include <map>
 #include <string>
 #include <vector>
-#include <iostream>
 enum Type { TYPE_INT, TYPE_FLOAT, TYPE_CHAR };
 
 enum Constraint { NOT_NULL, PRIMARY_KEY, UNIQUE };
