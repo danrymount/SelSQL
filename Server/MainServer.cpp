@@ -50,10 +50,10 @@ int ListenClient(int id, Server *server) {
         }
         if (DEBUG) {
             std::cout << "Got message from Client " << id + 1 << " :" << std::endl;
-            std::cout << "\t" << server->recieved_message << std::endl;
+            std::cout << "\t" << server->client_message[id] << std::endl;
         }
 
-        message = ExecuteRequest(std::string(server->recieved_message), id);
+        message = ExecuteRequest(std::string(server->client_message[id]), id);
         if (DEBUG) {
             std::cout << "Send message to Client " << id + 1 << " :" << std::endl;
 
