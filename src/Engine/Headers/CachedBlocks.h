@@ -11,6 +11,7 @@ const int MAX_SIZE = 10;
 typedef std::pair<std::string, int> BlockPos;
 class CachedBlocks {
     std::vector<std::tuple<std::shared_ptr<DataBlock>, BlockPos, int>> blocks_;
+    int GetAvgHeat();
 
    public:
     void InsertBlock(const std::shared_ptr<DataBlock>& data, const BlockPos& pos);

@@ -8,13 +8,14 @@ bool cmp(std::tuple<std::shared_ptr<DataBlock>, BlockPos, int> left,
 }
 void CachedBlocks::InsertBlock(const std::shared_ptr<DataBlock>& data, const BlockPos& pos) {
     if (blocks_.size() < MAX_SIZE) {
-        blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, 1));
+        blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, GetAvgHeat()));
         return;
     }
     blocks_.erase(blocks_.end() - 1);
-    blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, 1));
+    blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, GetAvgHeat()));
 }
 std::shared_ptr<DataBlock> CachedBlocks::GetBlock(const BlockPos& pos) {
+    std::cerr << blocks_.size() << std::endl;
     for (auto i : blocks_) {
         if (std::get<1>(i) == pos) {
             ++std::get<2>(i);
@@ -39,4 +40,15 @@ void CachedBlocks::HeatIncrease(BlockPos pos) {
         }
     }
     std::sort(blocks_.begin(), blocks_.end(), cmp);
+}
+int CachedBlocks::GetAvgHeat() {
+    int sum = 0;
+    int res = 1;
+    for (auto i : blocks_) {
+        sum += std::get<2>(i);
+    }
+    if (!blocks_.empty()) {
+        res = sum / blocks_.size();
+    }
+    return res;
 }
