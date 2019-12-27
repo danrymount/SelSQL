@@ -65,8 +65,9 @@ void MainEngine::Commit(int64_t transaction_sp) {
     std::lock_guard<std::mutex> guard(mutex3);
     if (transact_manager_->IsSuccessful(transaction_sp)) {
         //        std::cerr << "COMMIT id = " << transaction_sp << std::endl;
-        if (transact_manager_->trans_usage.find(transaction_sp) != transact_manager_->trans_usage.end()) {
-            auto vec = transact_manager_->trans_usage[transaction_sp];
+        if (transact_manager_->block_usage_by_trans.find(transaction_sp) !=
+            transact_manager_->block_usage_by_trans.end()) {
+            auto vec = transact_manager_->block_usage_by_trans[transaction_sp];
             auto last = std::unique(vec.begin(), vec.end());
             vec.erase(last, vec.end());
             for (auto bl : vec) {
@@ -85,7 +86,7 @@ void MainEngine::Commit(int64_t transaction_sp) {
     std::cerr << "IO = " << file_manager_->i_o_count << std::endl;
     std::cerr << "IO NO OPTIMIZE = " << data_manager_->i_o_count << std::endl;
 }
-void MainEngine::UpdateTableMeta(std::shared_ptr<Table> table) {
+void MainEngine::UpdateTableMeta(const std::shared_ptr<Table>& table) {
     auto [meta, data] = file_manager_->OpenFile(table->name);
     file_manager_->WriteTableMetaData(meta, table);
 }

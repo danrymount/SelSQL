@@ -192,8 +192,10 @@ int Cursor::Delete() {
     char *buf = new char[cur_record.GetRecordSize()];
     std::memcpy(buf, &data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordSize());
     cur_record.SetRecord(buf);
+    delete[] buf;
     cur_record.tr_e = current_tr_id_;
     cur_record.commited_tr_e = '0';
+
     data_block_->was_changed = 1;
     std::memcpy(&data_block_->data_[pos_in_block_ * cur_record.GetRecordSize()], cur_record.GetRecordBuf(),
                 cur_record.GetRecordSize());
@@ -228,7 +230,6 @@ int Cursor::Update(std::vector<std::string> cols, std::vector<std::string> new_d
     new_record.tr_e = 0;
     new_record.commited_tr_s = '0';
     new_record.commited_tr_e = '0';
-    // record.commited_tr_s = '0';
     record.commited_tr_e = '0';
     std::memcpy(&data_block_->data_[pos_in_block_ * record.GetRecordSize()], record.GetRecordBuf(),
                 record.GetRecordSize());
@@ -241,7 +242,7 @@ int Cursor::Reset() {
     pos_in_block_ = 0;
     block_id_ = 0;
     data_block_ = data_manager_->GetDataBlock(table_->name, 0, false);
-    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
+    transact_manager_->SetBlockUsage(current_tr_id_, table_->name, 0);
     return 0;
 }
 
@@ -257,7 +258,7 @@ Cursor::Cursor(const std::shared_ptr<Table> &table, const std::shared_ptr<DataMa
                                                                                                       current_tr_id_(tr_id) {
     Record record(table->record_size);
     data_block_ = data_manager_->GetDataBlock(table_->name, 0, true);
-    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, 0));
+    transact_manager_->SetBlockUsage(current_tr_id_, table_->name, 0);
 
     for (const auto &i : table_->fields) {
         values_.emplace_back(std::make_pair(i.first, ""));
@@ -277,20 +278,18 @@ int Cursor::NextDataBlock() {
         --block_id_;
         return 1;
     }
-    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id_));
+    transact_manager_->SetBlockUsage(current_tr_id_, table_->name, block_id_);
     pos_in_block_ = 0;
     return 0;
 }
 
 int Cursor::EmplaceBack(Record *record) {
     std::lock_guard l(mutex1);
-    int last_pos = 0;
-    data_file_->seekg(std::ios::beg);
-    data_file_->read(reinterpret_cast<char *>(&last_pos), sizeof(last_pos));
-    //    std::cerr << "EMPLACE BLOCK " << block_id_ << " POS " << last_pos << std::endl;
+    int last_pos = FileManager::GetLastPos(data_file_);
+
     int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
-    transact_manager_->trans_usage[current_tr_id_].emplace_back(std::make_pair(table_->name, block_id));
+    transact_manager_->SetBlockUsage(current_tr_id_, table_->name, block_id);
     data_manager_->IncreaseBlockHeat(BlockPos(table_->name, block_id));
     char *record_buf = record->GetRecordBuf();
     if (last_block == nullptr) {
@@ -300,9 +299,7 @@ int Cursor::EmplaceBack(Record *record) {
     delete[] record_buf;
     last_inserted = last_pos;
     last_block->was_changed = 1;
-    data_file_->seekp(std::ios::beg);
-    data_file_->write(reinterpret_cast<char *>(&(++last_pos)), sizeof(last_pos));
-    data_file_->flush();
+    FileManager::UpdateLastPos(data_file_, ++last_pos);
     transact_manager_->SetUsed(table_->name, std::make_pair(block_id, last_pos - 1), current_tr_id_, 1);
     return 0;
 }

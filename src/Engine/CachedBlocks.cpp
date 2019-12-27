@@ -11,6 +11,7 @@ void CachedBlocks::InsertBlock(const std::shared_ptr<DataBlock>& data, const Blo
         blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, GetAvgHeat()));
         return;
     }
+    // TODO Restrict erase block that is in use - SIGSEG POSSIBLE
     blocks_.erase(blocks_.end() - 1);
     blocks_.insert(blocks_.begin(), std::make_tuple(data, pos, GetAvgHeat()));
 }

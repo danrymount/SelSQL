@@ -158,3 +158,14 @@ void FileManager::Clear(size_t transaction_id) {
         }
     }
 }
+int FileManager::GetLastPos(const std::shared_ptr<std::fstream>& data_file) {
+    int last_pos = 0;
+    data_file->seekg(std::ios::beg);
+    data_file->read(reinterpret_cast<char*>(&last_pos), sizeof(last_pos));
+    return last_pos;
+}
+void FileManager::UpdateLastPos(const std::shared_ptr<std::fstream>& data_file, int last_pos) {
+    data_file->seekp(std::ios::beg);
+    data_file->write(reinterpret_cast<char*>(&(++last_pos)), sizeof(last_pos));
+    data_file->flush();
+}

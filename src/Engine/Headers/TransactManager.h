@@ -11,7 +11,7 @@ class TransactManager {
    public:
     int active_tr = 0;
     std::map<int, std::pair<int64_t, int64_t>> transaction_table;
-    std::map<int64_t, std::vector<std::pair<std::string, int>>> trans_usage;
+    std::map<int64_t, std::vector<std::pair<std::string, int>>> block_usage_by_trans;
     std::map<std::string, std::vector<std::pair<int, int64_t>>> ignore;
     TransactManager();
     int64_t GetTransactionSP();
@@ -23,6 +23,8 @@ class TransactManager {
     void Clear(const std::string& table_name, int64_t transaction_id);
     std::vector<std::pair<int, int>> GetPositionsNeedCommit(std::string table_name, int block_id, int64_t tr_id);
     void EndTransaction(int64_t tr_id);
+    void SetBlockUsage(int64_t tr_id, const std::string& table_name, int block_id);
+
     //    std::shared_ptr<DataBlock> GetDataBlock(std::string table_name, int block_id);
     //    void SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block, long tr_p);
 };

@@ -133,12 +133,6 @@ void TransactManager::EndTransaction(int64_t tr_id) {
     file.seekp(0, std::ios::end);
     file << tr_id << " " << transaction_table[tr_id].first << " " << transaction_table[tr_id].second << std::endl;
 }
-
-// std::shared_ptr<DataBlock> TransactManager::GetDataBlock(std::string table_name, int block_id) {
-//    return in_use_block[table_name][block_id];
-//}
-// void TransactManager::SetDataBlock(std::string table_name, int block_id, std::shared_ptr<DataBlock> data_block,
-//                                   long tr_p) {
-//    in_use_block[table_name][block_id] = data_block;
-//    trans_usage[tr_p].emplace_back(std::make_pair(table_name, block_id));
-//}
+void TransactManager::SetBlockUsage(int64_t tr_id, const std::string& table_name, int block_id) {
+    block_usage_by_trans[tr_id].emplace_back(std::make_pair(table_name, block_id));
+}
