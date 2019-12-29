@@ -487,7 +487,7 @@ TEST(RQG, RQG) {
                               {"create table friends" + cols, "Success"}});
     Generator query;
     Client client;
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 0; i++) {
         std::string a = query.run();
         client.execRequest(a);
         if (client.response.substr(0, 0) == "#") {
