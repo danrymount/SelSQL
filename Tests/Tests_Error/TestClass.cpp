@@ -86,7 +86,7 @@ TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_OVERSIZE_INT) {
     TestUtils::clear();
     TestUtils::checkRequests({{"CREATE TABLE j(id INT);", "Success"},
                               {"insert into j values(159753159753);",
-                               "Int oversize (Str num 1, sym num 30): 159753159753"}});
+                               "#Int oversize (Str num 1, sym num 30): 159753159753"}});
 }
 
 TEST(SERVER_TEST_ERROR, ERROR_TEST_INSERT_IN_SAME_COLUMNS) {
