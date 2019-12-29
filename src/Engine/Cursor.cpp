@@ -287,7 +287,8 @@ int Cursor::EmplaceBack(Record *record) {
     std::lock_guard l(mutex1);
     int last_pos = FileManager::GetLastPos(data_file_);
 
-    int block_id = (last_pos + 1) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
+    int block_id = (last_pos) / (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
+    int pos_in_last_block = last_pos % (C::DATA_BLOCK_SIZE / Record(table_->record_size).GetRecordSize());
     auto last_block = data_manager_->GetDataBlock(table_->name, block_id, true);
     transact_manager_->SetBlockUsage(current_tr_id_, table_->name, block_id);
     data_manager_->IncreaseBlockHeat(BlockPos(table_->name, block_id));
@@ -295,12 +296,12 @@ int Cursor::EmplaceBack(Record *record) {
     if (last_block == nullptr) {
         return 0;
     }
-    std::memcpy(&last_block->data_[last_pos * record->GetRecordSize()], record_buf, record->GetRecordSize());
+    std::memcpy(&last_block->data_[pos_in_last_block * record->GetRecordSize()], record_buf, record->GetRecordSize());
     delete[] record_buf;
     last_inserted = last_pos;
     last_block->was_changed = 1;
-    FileManager::UpdateLastPos(data_file_, ++last_pos);
-    transact_manager_->SetUsed(table_->name, std::make_pair(block_id, last_pos - 1), current_tr_id_, 1);
+    FileManager::UpdateLastPos(data_file_, last_pos);
+    transact_manager_->SetUsed(table_->name, std::make_pair(block_id, pos_in_last_block), current_tr_id_, 1);
     return 0;
 }
 
