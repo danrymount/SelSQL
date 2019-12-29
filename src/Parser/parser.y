@@ -573,7 +573,7 @@ RootNode * parse_request(const char* in, std::string* msg, std::shared_ptr<MainE
 }
 
 int yyerror(const char *errmsg){
-    std::string str = std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
+    std::string str = "#" + std::string(errmsg) + " (Str num " + std::to_string(yylineno) + ", sym num " + std::to_string(ch) +"): "+ std::string(yytext);
     *error_msg = str;
 //    fprintf(stderr, "%s (Str num %d, sym num %d): %s\n", errmsg, yylineno, ch, yytext);
 
