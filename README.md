@@ -4,8 +4,7 @@
 ## Участники
 - Хачатрян Илья https://github.com/quiksilver4210
 - Пенюгин Антон https://github.com/antons201
-- Михайленко Антон https://github.com/aLLnext
-
+- Михайленко Антон https://github.com/sapiest
 ## Документация
 **SelSQL** – СУБД, разрабатываемая студентами 3 курса ПМИ.
 
